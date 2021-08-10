@@ -225,7 +225,7 @@ def write_mzml(raw_data, input_filename, output_filename):
                                           scan_start_time=parent_scans[frame_num]['retention_time'],
                                           # other_arrays: ,
                                           params=[parent_scans[frame_num]['scan_type'],
-                                                  {'ms_level': parent_scans[frame_num]['ms_level']},
+                                                  {'ms level': parent_scans[frame_num]['ms_level']},
                                                   {'total ion current': parent_scans[frame_num]['total_ion_current']},
                                                   {'base peak m/z': parent_scans[frame_num]['base_peak_mz']},
                                                   {'base peak intensity': parent_scans[frame_num]['base_peak_intensity']},
@@ -239,7 +239,7 @@ def write_mzml(raw_data, input_filename, output_filename):
 
                         # Build params list for spectrum.
                         spectrum_params = [product_scan['scan_type'],
-                                           {'ms_level': product_scan['ms_level']},
+                                           {'ms level': product_scan['ms_level']},
                                            {'total ion current': product_scan['total_ion_current']}]
                         if 'base_peak_mz' in product_scan.keys() and 'base_peak_intensity' in product_scan.keys():
                             spectrum_params.append({'base peak m/z': product_scan['base_peak_mz']})

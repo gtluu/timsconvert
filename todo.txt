@@ -1,0 +1,2 @@
+- isolation window is incorrect
+- need to figure out how to calculation upper and lower isolation window from method file

@@ -275,7 +275,5 @@ if __name__ == "__main__":
     # Read in example .d file and convert to dataframe.
     tdf_file = 'F:\\alphatims_test\\pen12_ms2_1_36_1_400.d'
     tdf_df = bruker_to_df(tdf_file)
-    #parent_scan_dict, product_scan_dicts = parse_raw_data(tdf_df, tdf_file, 'test.mzML')
-    parse_raw_data(tdf_df, tdf_file, 'test.mzML')
-    #write_mzml(tdf_df, tdf_file, 'test.mzML')
+    write_mzml(tdf_df, tdf_file, 'test.mzML')
 

@@ -13,7 +13,9 @@ if __name__ == '__main__':
     #data[:, :, :, :, :].to_csv('pen12_ms2.csv')
     #data[1].to_csv('pen12_ms2_frame1.csv')
     #data[176:186].to_csv('pen12_ms2_frame_176-185.csv')
-    #print(data.meta_data)
+    print(data.meta_data)
+    for key, value in data.meta_data.items():
+        print(key, value)
 
     #print(alphatims.bruker.read_bruker_sql('pen12_ms2_1_36_1_400.d')[1])
 
@@ -57,4 +59,4 @@ if __name__ == '__main__':
 
     #data.save_as_mgf(directory='F:\\code\\alphatims_test_data', file_name='pen12_2.mgf', centroiding_window=1)
 
-    alphatims.utils.progress_callback
+    #alphatims.utils.progress_callback

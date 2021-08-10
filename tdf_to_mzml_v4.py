@@ -223,6 +223,7 @@ def write_mzml(raw_data, input_filename, output_filename):
                                           polarity=parent_scans[frame_num]['polarity'],
                                           centroided=parent_scans[frame_num]['centroided'],
                                           scan_start_time=parent_scans[frame_num]['retention_time'],
+                                          # mobility array goes here once i figure out how to get the mobility array in
                                           # other_arrays: ,
                                           params=[parent_scans[frame_num]['scan_type'],
                                                   {'ms level': parent_scans[frame_num]['ms_level']},
@@ -256,9 +257,11 @@ def write_mzml(raw_data, input_filename, output_filename):
                                           # activation type hard coded for now
                                           'activation': ['low-energy collision-induced dissociation',
                                                          {'collision energy': product_scan['collision_energy']}],
-                                          'isolation_window_args': {'target': product_scan['target_mz'],
-                                                                    'upper': product_scan['isolation_upper_offset'],
-                                                                    'lower': product_scan['isolation_lower_offset']},
+                                          # not able to write correct isolation window right now
+                                          #'isolation_window_args': {'target': product_scan['target_mz'],
+                                          #                          'upper': product_scan['isolation_upper_offset'],
+                                          #                          'lower': product_scan['isolation_lower_offset']},
+                                          'isolation_window_args': {'target': product_scan['target_mz']},
                                           'params': {'mobility': product_scan['selected_ion_mobility']}}
 
                         writer.write_spectrum(product_scan['mz_array'],
@@ -273,7 +276,9 @@ def write_mzml(raw_data, input_filename, output_filename):
 
 if __name__ == "__main__":
     # Read in example .d file and convert to dataframe.
-    tdf_file = 'F:\\alphatims_test\\pen12_ms2_1_36_1_400.d'
-    tdf_df = bruker_to_df(tdf_file)
-    write_mzml(tdf_df, tdf_file, 'F:\\alphatims_test_data\\test.mzML')
-
+    pen12_file = 'F:\\code\\alphatims_test\\pen12_ms2_1_36_1_400.d'
+    pen12_df = bruker_to_df(pen12_file)
+    write_mzml(pen12_df, pen12_file, 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400.mzML')
+    bhi_file = 'F:\\code\\alphatims_test\\bhi_ms2_1_32_1_396.d'
+    bhi_df = bruker_to_df(bhi_file)
+    write_mzml(bhi_df, bhi_file, 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396.mzML')

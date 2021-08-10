@@ -136,17 +136,19 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename):
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
     ms2_scans = parse_ms2_scan(raw_data, method_params, centroiding_window=1)
 
-    list_of_ms1_scan_dicts = []
+    ms1_scans = {}
     for frame_num in ms1_frames:
         parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-        list_of_ms1_scan_dicts.append(parse_ms1_scan(parent_scan, method_params))
+        ms1_scans[frame_num] = parse_ms1_scan(parent_scan, method_params)
 
-    return list_of_ms1_scan_dicts, ms2_scans
+    return ms1_scans, ms2_scans
 
 
 # Count total number of parent and product scans.
 def count_scans(parent_scans, product_scans):
-    num_parent_scans = len(parent_scans)
+    num_parent_scans = 0
+    for key, value in parent_scans.items():
+        num_parent_scans += 1
 
     num_product_scans = 0
     for key, value in product_scans.items():
@@ -209,9 +211,64 @@ def write_mzml(raw_data, input_filename, output_filename):
 
         # Writing data to spectrum list.
         with writer.run(id='run', instrument_configuration='instrument'):
+            scan_count = 0
             with writer.spectrum_list(count=num_of_spectra):
                 for frame_num in ms1_frames:
+                    # Write MS1 parent scan.
+                    scan_count += 1
+                    parent_scans[frame_num]['scan_number'] = scan_count
+                    writer.write_spectrum(parent_scans[frame_num]['mz_array'],
+                                          parent_scans[frame_num]['intensity_array'],
+                                          id='scan=' + str(parent_scans[frame_num]['scan_number']),
+                                          polarity=parent_scans[frame_num]['polarity'],
+                                          centroided=parent_scans[frame_num]['centroided'],
+                                          scan_start_time=parent_scans[frame_num]['retention_time'],
+                                          # other_arrays: ,
+                                          params=[parent_scans[frame_num]['scan_type'],
+                                                  {'ms_level': parent_scans[frame_num]['ms_level']},
+                                                  {'total ion current': parent_scans[frame_num]['total_ion_current']},
+                                                  {'base peak m/z': parent_scans[frame_num]['base_peak_mz']},
+                                                  {'base peak intensity': parent_scans[frame_num]['base_peak_intensity']},
+                                                  {'highest observed m/z': parent_scans[frame_num]['high_mz']},
+                                                  {'lowest observed m/z': parent_scans[frame_num]['low_mz']}],
+                                          encoding={'ion mobility array': np.float32})
 
+                    for product_scan in product_scans[frame_num]:
+                        scan_count += 1
+                        product_scan['scan_number'] = scan_count
+
+                        # Build params list for spectrum.
+                        spectrum_params = [product_scan['scan_type'],
+                                           {'ms_level': product_scan['ms_level']},
+                                           {'total ion current': product_scan['total_ion_current']}]
+                        if 'base_peak_mz' in product_scan.keys() and 'base_peak_intensity' in product_scan.keys():
+                            spectrum_params.append({'base peak m/z': product_scan['base_peak_mz']})
+                            spectrum_params.append({'base peak intensity': product_scan['base_peak_intensity']})
+                        if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
+                            spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
+                            spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
+
+                        # Build precursor information dict.
+                        precursor_info = {'mz': product_scan['selected_ion_mz'],
+                                          'intensity': product_scan['selected_ion_intensity'],
+                                          'charge': product_scan['charge_state'],
+                                          'spectrum_reference': 'scan=' + str(parent_scans[frame_num]['scan_number']),
+                                          # activation type hard coded for now
+                                          'activation': ['low-energy collision-induced dissociation',
+                                                         {'collision energy': product_scan['collision_energy']}],
+                                          'isolation_window_args': {'target': product_scan['target_mz'],
+                                                                    'upper': product_scan['isolation_upper_offset'],
+                                                                    'lower': product_scan['isolation_lower_offset']},
+                                          'params': {'mobility': product_scan['selected_ion_mobility']}}
+
+                        writer.write_spectrum(product_scan['mz_array'],
+                                              product_scan['intensity_array'],
+                                              id='scan=' + str(product_scan['scan_number']),
+                                              polarity=product_scan['polarity'],
+                                              centroided=product_scan['centroided'],
+                                              scan_start_time=product_scan['retention_time'],
+                                              params=spectrum_params,
+                                              precursor_information=precursor_info)
 
 
 if __name__ == "__main__":
@@ -221,3 +278,4 @@ if __name__ == "__main__":
     #parent_scan_dict, product_scan_dicts = parse_raw_data(tdf_df, tdf_file, 'test.mzML')
     parse_raw_data(tdf_df, tdf_file, 'test.mzML')
     #write_mzml(tdf_df, tdf_file, 'test.mzML')
+

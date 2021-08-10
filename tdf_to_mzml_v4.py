@@ -120,7 +120,7 @@ def parse_ms2_scan(raw_data, method_params, overwrite=False, centroided=False,
 
     ms2_scans_dict = {}
     for key, value in itertools.groupby(list_of_scan_dicts, key_func):
-        ms2_scans_dict[key] = value
+        ms2_scans_dict[key] = list(value)
 
     return ms2_scans_dict
 

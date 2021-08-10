@@ -33,7 +33,7 @@ def get_method_info(input_filename):
     method_data = et.parse(method_file).getroot()
     method_params = {}
     # Get get number of ramps per cycle.
-    method_params['num_ramps_per_cycle'] = int(method_data.xpath('//para_int[@pername="MSMS_Pasef_NumRampsPerCycle"]')[0].attrib['value'])
+    method_params['num_ramps_per_cycle'] = int(method_data.xpath('//para_int[@permname="MSMS_Pasef_NumRampsPerCycle"]')[0].attrib['value'])
     # polarity is hardcoded for now, need to find where to get that parameter
     method_params['polarity'] = 'positive scan'
     return method_params

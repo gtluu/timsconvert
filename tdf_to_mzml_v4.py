@@ -41,7 +41,7 @@ def get_method_info(input_filename):
 
 # will need to figure out how to centroid data later; only outputs profile for now
 def parse_ms1_scan(scan, method_params, centroided=False):
-    base_peak_row = scan.sort_vales(by='intensity_values', ascending=False).iloc[0]
+    base_peak_row = scan.sort_values(by='intensity_values', ascending=False).iloc[0]
     scan_dict = {'scan_number': 0,
                  'mz_array': scan['mz_values'].values.tolist(),
                  'intensity_array': scan['intensity_values'].values.tolist(),

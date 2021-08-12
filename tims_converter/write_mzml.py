@@ -123,7 +123,7 @@ def write_mzml(raw_data, input_filename, output_filename):
                                           #                          'upper': product_scan['isolation_upper_offset'],
                                           #                          'lower': product_scan['isolation_lower_offset']},
                                           'isolation_window_args': {'target': product_scan['target_mz']},
-                                          'params': {'mobility': product_scan['selected_ion_mobility']}}
+                                          'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
 
                         writer.write_spectrum(product_scan['mz_array'],
                                               product_scan['intensity_array'],

@@ -35,13 +35,19 @@ def get_method_info(input_filename):
     return method_params
 
 
+# Centroid MS1 spectrum.
+def centroid_ms1_spectrum(scan):
+    mz_array = scan['mz_values'].values.tolist()
+    intensity_array = scan['intensity_values'].values.tolist()
+
+
 # will need to figure out how to centroid data later; only outputs profile for now
-def parse_ms1_scan(scan, method_params, groupby, centroided=False):
+def parse_ms1_scan(scan, method_params, groupby, centroided=True):
     base_peak_row = scan.sort_values(by='intensity_values', ascending=False).iloc[0]
     scan_dict = {'scan_number': None,
                  'mz_array': scan['mz_values'].values.tolist(),
                  'intensity_array': scan['intensity_values'].values.tolist(),
-                 'mobility_array': scan['mobility_values'].values.tolist(),
+                 #'mobility_array': scan['mobility_values'].values.tolist(),
                  'scan_type': 'MS1 spectrum',
                  'polarity': method_params['polarity'],
                  'centroided': centroided,
@@ -55,7 +61,12 @@ def parse_ms1_scan(scan, method_params, groupby, centroided=False):
                  'parent_frame': 0,
                  'parent_scan': None}
     if groupby == 'scan':
+        mobility = list(set(scan['mobility_values'].values.tolist()))
+        if len(mobility) == 1:
+            scan_dict['mobility'] = mobility[0]
         scan_dict['parent_scan'] = int(list(set(scan['scan_indices'].values.tolist()))[0])
+    elif groupby == 'frame':
+        scan_dict['mobility_array'] = scan['mobility_values'].values.tolist()
     return scan_dict
 
 

@@ -58,6 +58,16 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
 
 # Write out parent spectrum and any associated product spectra.
 def write_ms1_spectrum(writer, parent_scan):
+    # Build params
+    params = [parent_scan['scan_type'],
+              {'ms level': parent_scan['ms_level']},
+              {'total ion current': parent_scan['total_ion_current']},
+              {'base peak m/z': parent_scan['base_peak_mz']},
+              {'base peak intensity': parent_scan['base_peak_intensity']},
+              {'highest observed m/z': parent_scan['high_mz']},
+              {'lowest observed m/z': parent_scan['low_mz']},
+              {'ion mobility drift time': parent_scan['mobility']}]
+
     writer.write_spectrum(parent_scan['mz_array'],
                           parent_scan['intensity_array'],
                           id='scan=' + str(parent_scan['scan_number']),
@@ -67,13 +77,7 @@ def write_ms1_spectrum(writer, parent_scan):
                           # mobility array goes here once i figure out how to get the mobility array
                           # in
                           # other_arrays: ,
-                          params=[parent_scan['scan_type'],
-                                  {'ms level': parent_scan['ms_level']},
-                                  {'total ion current': parent_scan['total_ion_current']},
-                                  {'base peak m/z': parent_scan['base_peak_mz']},
-                                  {'base peak intensity': parent_scan['base_peak_intensity']},
-                                  {'highest observed m/z': parent_scan['high_mz']},
-                                  {'lowest observed m/z': parent_scan['low_mz']}],
+                          params=params,
                           encoding={'ion mobility array': np.float32})
 
 

@@ -1,12 +1,19 @@
 import alphatims.bruker
+import alphatims.utils
 from lxml import etree as et
+import numpy as np
 import os
 import itertools
 
 
 # Function for itertools.groupby() to sort dictionaries based on key.
-def key_func(k):
+def key_func_frames(k):
     return k['parent_frame']
+
+
+# Function for itertools.groupby() to sort dictionaries based on key.
+def key_func_scans(k):
+    return k['parent_scan']
 
 
 # Check method for PASEF NumRampsPerCycle
@@ -70,6 +77,7 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
     mobilities = raw_data.mobility_values[raw_data.precursors.ScanNumber.values.astype(np.int64)]
     quad_mz_values = raw_data.quad_mz_values[raw_data.precursors.ScanNumber.values.astype(np.int64)]
     parent_frames = raw_data.precursors.Parent.values
+    parent_scans = np.floor(raw_data.precursors.ScanNumber.values)
 
     list_of_scan_dicts = []
     for index in alphatims.utils.progress_callback(range(1, raw_data.precursor_max_index)):
@@ -97,7 +105,8 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
                              'selected_ion_mobility': float(mobilities[index - 1]),
                              'charge_state': int(charges[index - 1]),
                              'collision_energy': 20,  # hard coded for now
-                             'parent_frame': parent_frames[index - 1]}
+                             'parent_frame': parent_frames[index - 1],
+                             'parent_scan': parent_scans[index - 1]}
 
                 if spectrum_intensity_values[start:end].size != 0:
                     base_peak_index = spectrum_intensity_values[start:end].argmax()
@@ -111,8 +120,11 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
                 list_of_scan_dicts.append(scan_dict)
 
     ms2_scans_dict = {}
-    for key, value in itertools.groupby(list_of_scan_dicts, key_func):
-        ms2_scans_dict[key] = list(value)
+    # Loop through frames.
+    for key, value in itertools.groupby(list_of_scan_dicts, key_func_frames):
+        # Loop through scans.
+        for key2, value2 in itertools.groupby(list(value), key_func_scans):
+            ms2_scans_dict['f' + str(key) + 's' + str(key2)] = list(value2)
 
     return ms2_scans_dict
 
@@ -126,11 +138,13 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename):
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
-    ms2_scans = parse_ms2_scans(raw_data, method_params, centroiding_window=1)
+    ms2_scans_dict = parse_ms2_scans(raw_data, method_params, centroiding_window=1)
 
-    ms1_scans = {}
+    ms1_scans_dict = {}
     for frame_num in ms1_frames:
-        parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-        ms1_scans[frame_num] = parse_ms1_scan(parent_scan, method_params)
+        ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
+        for scan_num in ms1_scans:
+            parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
+            ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params)
 
-    return ms1_scans, ms2_scans
+    return ms1_scans_dict, ms2_scans_dict

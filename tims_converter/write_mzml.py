@@ -1,4 +1,4 @@
-from data_parsing import *
+from .data_parsing import *
 from psims.mzml import MzMLWriter
 from psims.xml import CVParam, UserParam
 import os
@@ -16,6 +16,10 @@ def count_scans(parent_scans, product_scans):
         num_product_scans += len(value)
 
     return num_parent_scans + num_product_scans
+
+
+# Write out parent spectrum and any associated product spectra.
+
 
 
 # Write out mzML file using psims.
@@ -70,66 +74,76 @@ def write_mzml(raw_data, input_filename, output_filename):
         # Get total number of spectra to write to mzML file.
         num_of_spectra = count_scans(parent_scans, product_scans)
 
+        print(parent_scans.keys())
+        print(product_scans.keys())
+
         # Writing data to spectrum list.
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
             with writer.spectrum_list(count=num_of_spectra):
                 for frame_num in ms1_frames:
-                    # Write MS1 parent scan.
-                    scan_count += 1
-                    parent_scans[frame_num]['scan_number'] = scan_count
-                    writer.write_spectrum(parent_scans[frame_num]['mz_array'],
-                                          parent_scans[frame_num]['intensity_array'],
-                                          id='scan=' + str(parent_scans[frame_num]['scan_number']),
-                                          polarity=parent_scans[frame_num]['polarity'],
-                                          centroided=parent_scans[frame_num]['centroided'],
-                                          scan_start_time=parent_scans[frame_num]['retention_time'],
-                                          # mobility array goes here once i figure out how to get the mobility array in
-                                          # other_arrays: ,
-                                          params=[parent_scans[frame_num]['scan_type'],
-                                                  {'ms level': parent_scans[frame_num]['ms_level']},
-                                                  {'total ion current': parent_scans[frame_num]['total_ion_current']},
-                                                  {'base peak m/z': parent_scans[frame_num]['base_peak_mz']},
-                                                  {'base peak intensity': parent_scans[frame_num]['base_peak_intensity']},
-                                                  {'highest observed m/z': parent_scans[frame_num]['high_mz']},
-                                                  {'lowest observed m/z': parent_scans[frame_num]['low_mz']}],
-                                          encoding={'ion mobility array': np.float32})
-
-                    for product_scan in product_scans[frame_num]:
+                    ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
+                    for scan_num in ms1_scans:
+                        spectrum = parent_scans['f' + str(frame_num) + 's' + str(scan_num)]
+                        # Write MS1 parent scan.
                         scan_count += 1
-                        product_scan['scan_number'] = scan_count
+                        spectrum['scan_number'] = scan_count
+                        print('Writing Scan ' + str(scan_count))
 
-                        # Build params list for spectrum.
-                        spectrum_params = [product_scan['scan_type'],
-                                           {'ms level': product_scan['ms_level']},
-                                           {'total ion current': product_scan['total_ion_current']}]
-                        if 'base_peak_mz' in product_scan.keys() and 'base_peak_intensity' in product_scan.keys():
-                            spectrum_params.append({'base peak m/z': product_scan['base_peak_mz']})
-                            spectrum_params.append({'base peak intensity': product_scan['base_peak_intensity']})
-                        if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
-                            spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
-                            spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
+                        writer.write_spectrum(spectrum['mz_array'],
+                                              spectrum['intensity_array'],
+                                              id='scan=' + str(spectrum['scan_number']),
+                                              polarity=spectrum['polarity'],
+                                              centroided=spectrum['centroided'],
+                                              scan_start_time=spectrum['retention_time'],
+                                              # mobility array goes here once i figure out how to get the mobility array
+                                              # in
+                                              # other_arrays: ,
+                                              params=[spectrum['scan_type'],
+                                                      {'ms level': spectrum['ms_level']},
+                                                      {'total ion current': spectrum['total_ion_current']},
+                                                      {'base peak m/z': spectrum['base_peak_mz']},
+                                                      {'base peak intensity': spectrum['base_peak_intensity']},
+                                                      {'highest observed m/z': spectrum['high_mz']},
+                                                      {'lowest observed m/z': spectrum['low_mz']}],
+                                              encoding={'ion mobility array': np.float32})
 
-                        # Build precursor information dict.
-                        precursor_info = {'mz': product_scan['selected_ion_mz'],
-                                          'intensity': product_scan['selected_ion_intensity'],
-                                          'charge': product_scan['charge_state'],
-                                          'spectrum_reference': 'scan=' + str(parent_scans[frame_num]['scan_number']),
-                                          # activation type hard coded for now
-                                          'activation': ['low-energy collision-induced dissociation',
-                                                         {'collision energy': product_scan['collision_energy']}],
-                                          # not able to write correct isolation window right now
-                                          #'isolation_window_args': {'target': product_scan['target_mz'],
-                                          #                          'upper': product_scan['isolation_upper_offset'],
-                                          #                          'lower': product_scan['isolation_lower_offset']},
-                                          'isolation_window_args': {'target': product_scan['target_mz']},
-                                          'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
+                        for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
+                            scan_count += 1
+                            product_scan['scan_number'] = scan_count
+                            print('Writing Scan ' + str(scan_count))
 
-                        writer.write_spectrum(product_scan['mz_array'],
-                                              product_scan['intensity_array'],
-                                              id='scan=' + str(product_scan['scan_number']),
-                                              polarity=product_scan['polarity'],
-                                              centroided=product_scan['centroided'],
-                                              scan_start_time=product_scan['retention_time'],
-                                              params=spectrum_params,
-                                              precursor_information=precursor_info)
+                            # Build params list for spectrum.
+                            spectrum_params = [product_scan['scan_type'],
+                                               {'ms level': product_scan['ms_level']},
+                                               {'total ion current': product_scan['total_ion_current']}]
+                            if 'base_peak_mz' in product_scan.keys() and 'base_peak_intensity' in product_scan.keys():
+                                spectrum_params.append({'base peak m/z': product_scan['base_peak_mz']})
+                                spectrum_params.append({'base peak intensity': product_scan['base_peak_intensity']})
+                            if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
+                                spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
+                                spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
+
+                            # Build precursor information dict.
+                            precursor_info = {'mz': product_scan['selected_ion_mz'],
+                                              'intensity': product_scan['selected_ion_intensity'],
+                                              'charge': product_scan['charge_state'],
+                                              'spectrum_reference': 'scan=' + str(spectrum['scan_number']),
+                                              # activation type hard coded for now
+                                              'activation': ['low-energy collision-induced dissociation',
+                                                             {'collision energy': product_scan['collision_energy']}],
+                                              # not able to write correct isolation window right now
+                                              #'isolation_window_args': {'target': product_scan['target_mz'],
+                                              #                          'upper': product_scan['isolation_upper_offset'],
+                                              #                          'lower': product_scan['isolation_lower_offset']},
+                                              'isolation_window_args': {'target': product_scan['target_mz']},
+                                              'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
+
+                            writer.write_spectrum(product_scan['mz_array'],
+                                                  product_scan['intensity_array'],
+                                                  id='scan=' + str(product_scan['scan_number']),
+                                                  polarity=product_scan['polarity'],
+                                                  centroided=product_scan['centroided'],
+                                                  scan_start_time=product_scan['retention_time'],
+                                                  params=spectrum_params,
+                                                  precursor_information=precursor_info)

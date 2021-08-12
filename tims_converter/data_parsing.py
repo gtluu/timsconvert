@@ -77,6 +77,8 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
     mobilities = raw_data.mobility_values[raw_data.precursors.ScanNumber.values.astype(np.int64)]
     quad_mz_values = raw_data.quad_mz_values[raw_data.precursors.ScanNumber.values.astype(np.int64)]
     parent_frames = raw_data.precursors.Parent.values
+    #parent_scans = np.empty_like(raw_data.precursors.ScanNumber.values, dtype=np.int64)
+    #parent_scans = np.floor(raw_data.precursors.ScanNumber.values, out=parent_scans)
     parent_scans = np.floor(raw_data.precursors.ScanNumber.values)
 
     list_of_scan_dicts = []
@@ -106,7 +108,7 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
                              'charge_state': int(charges[index - 1]),
                              'collision_energy': 20,  # hard coded for now
                              'parent_frame': parent_frames[index - 1],
-                             'parent_scan': parent_scans[index - 1]}
+                             'parent_scan': int(parent_scans[index - 1])}
 
                 if spectrum_intensity_values[start:end].size != 0:
                     base_peak_index = spectrum_intensity_values[start:end].argmax()

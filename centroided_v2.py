@@ -15,55 +15,50 @@ def bruker_to_df(filename):
 
 
 def centroid(data):
-    #print(data.precursor_indices[:100])
     precursor_order = np.argsort(data.precursor_indices)
-    print(precursor_order)
-    print(len(precursor_order))
-    print(type(precursor_order))
-    # should use scan indices instead of frame indices
-    parent_order = np.argsort(data[:, :, 0]['scan_indices'].to_numpy())
-    print(parent_order)
-    print(type(parent_order))
+    print('precursor order', precursor_order)
 
     precursor_offsets = np.empty(data.precursor_max_index + 1, dtype=np.int64)
+    print('precursor offsets', precursor_offsets)
     precursor_offsets[0] = 0
+    print('precursor offsets', precursor_offsets)
     precursor_offsets[1:-1] = np.flatnonzero(np.diff(data.precursor_indices[precursor_order]) > 0) + 1
-    print(len(np.flatnonzero(np.diff(data.precursor_indices[precursor_order]) > 0) + 1))
-    print(len(precursor_order))
+    print('precursor offsets', precursor_offsets)
     precursor_offsets[-1] = len(precursor_order)
-
-    parent_offsets = np.empty(len(list(data[:, :, 0]['scan_indices'])), dtype=np.int64)
-    parent_offsets[0] = 0
-    parent_offsets[1:-1] = np.flatnonzero(np.diff(data[:, :, 0]['scan_indices'].to_numpy()[parent_order]) > 0) + 1
-    print(len(np.flatnonzero(np.diff(data[:, :, 0]['scan_indices'].to_numpy()[parent_order]) > 0) + 1))
-    print(len(parent_order))
-    parent_offsets[-1] = len(parent_order)
-
-    print(precursor_offsets)
-    print(parent_offsets)
+    print('precursor offsets', precursor_offsets)
+    print('len precursor offsets', len(precursor_offsets))
 
     offset = precursor_offsets[1]
+    print('offset', offset)
     offsets = precursor_order[offset:]
+    print('offsets', offsets)
 
     counts = np.empty(len(offsets) + 1, dtype=np.int)
+    print('counts', counts)
     counts[0] = 0
+    print('counts', counts)
     counts[1:] = np.cumsum(data.quad_indptr[offsets + 1] - data.quad_indptr[offsets])
+    print('counts', counts)
 
     spectrum_indptr = np.empty(data.precursor_max_index + 1, dtype=np.int64)
+    print('spectrum_indptr', spectrum_indptr)
     spectrum_indptr[1:] = counts[precursor_offsets[1:] - precursor_offsets[1]]
+    print('spectrum_indptr', spectrum_indptr)
     spectrum_indptr[0] = 0
+    print('spectrum_indptr', spectrum_indptr)
 
     spectrum_counts = np.zeros_like(spectrum_indptr)
+    print('spectrum_counts', spectrum_counts)
     spectrum_tof_indices = np.empty(spectrum_indptr[-1], dtype=np.uint32)
+    print('spectrum tof indices', spectrum_tof_indices)
     spectrum_intensity_values = np.empty(len(spectrum_tof_indices), dtype=np.float64)
+    print('spectrum_intensity_values', spectrum_intensity_values)
 
-    # instead of 1, should use frame_num?
-    #alphatims.bruker.centroid_spectra(1, spectrum_indptr, spectrum_counts, spectrum_tof_indices, spectrum_intensity_values, centroiding_window=5)
+    # set_precursor()
+    # centroid_spectra()
+    # filter_spectra_by_abundant_peaks()
 
-    print(spectrum_indptr)
-    print(spectrum_counts)
-    print(spectrum_tof_indices)
-    print(spectrum_intensity_values)
+
 
 
 if __name__ == '__main__':

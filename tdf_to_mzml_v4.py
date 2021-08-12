@@ -89,36 +89,37 @@ def parse_ms2_scan(raw_data, method_params, overwrite=False, centroided=True,
 
         # Remove MS2 scan if empty.
         if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0 or spectrum_intensity_values[start:end] != 0:
-            scan_dict = {'scan_number': 0,
-                         'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
-                         'intensity_array': spectrum_intensity_values[start:end],
-                         # 'mobility_array': scan['mobility_values'].values.tolist(),  # no mobility array in MS2
-                         'scan_type': 'MSn spectrum',
-                         'polarity': method_params['polarity'],
-                         'centroided': centroided,
-                         'retention_time': float(rtinseconds[index - 1] / 60),  # in min
-                         'total_ion_current': sum(spectrum_intensity_values[start:end]),
-                         'ms_level': 2,
-                         'target_mz': average_mzs[index - 1],
-                         'isolation_lower_offset': float(quad_mz_values[index - 1][0]),
-                         'isolation_upper_offset': float(quad_mz_values[index - 1][1]),
-                         'selected_ion_mz': float(mono_mzs[index - 1]),
-                         'selected_ion_intensity': float(intensities[index - 1]),
-                         'selected_ion_mobility': float(mobilities[index - 1]),
-                         'charge_state': int(charges[index - 1]),
-                         'collision_energy': 20,  # hard coded for now
-                         'parent_frame': parent_frames[index - 1]}
+            if not np.isnan(mono_mzs[index - 1]):
+                scan_dict = {'scan_number': 0,
+                             'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
+                             'intensity_array': spectrum_intensity_values[start:end],
+                             # 'mobility_array': scan['mobility_values'].values.tolist(),  # no mobility array in MS2
+                             'scan_type': 'MSn spectrum',
+                             'polarity': method_params['polarity'],
+                             'centroided': centroided,
+                             'retention_time': float(rtinseconds[index - 1] / 60),  # in min
+                             'total_ion_current': sum(spectrum_intensity_values[start:end]),
+                             'ms_level': 2,
+                             'target_mz': average_mzs[index - 1],
+                             'isolation_lower_offset': float(quad_mz_values[index - 1][0]),
+                             'isolation_upper_offset': float(quad_mz_values[index - 1][1]),
+                             'selected_ion_mz': float(mono_mzs[index - 1]),
+                             'selected_ion_intensity': float(intensities[index - 1]),
+                             'selected_ion_mobility': float(mobilities[index - 1]),
+                             'charge_state': int(charges[index - 1]),
+                             'collision_energy': 20,  # hard coded for now
+                             'parent_frame': parent_frames[index - 1]}
 
-            if spectrum_intensity_values[start:end].size != 0:
-                base_peak_index = spectrum_intensity_values[start:end].argmax()
-                scan_dict['base_peak_mz'] = float(raw_data.mz_values[spectrum_tof_indices[start:end]][base_peak_index])
-                scan_dict['base_peak_intensity'] = float(spectrum_intensity_values[base_peak_index])
+                if spectrum_intensity_values[start:end].size != 0:
+                    base_peak_index = spectrum_intensity_values[start:end].argmax()
+                    scan_dict['base_peak_mz'] = float(raw_data.mz_values[spectrum_tof_indices[start:end]][base_peak_index])
+                    scan_dict['base_peak_intensity'] = float(spectrum_intensity_values[base_peak_index])
 
-            if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0:
-                scan_dict['high_mz'] = float(max(raw_data.mz_values[spectrum_tof_indices[start:end]]))
-                scan_dict['low_mz'] = float(min(raw_data.mz_values[spectrum_tof_indices[start:end]]))
+                if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0:
+                    scan_dict['high_mz'] = float(max(raw_data.mz_values[spectrum_tof_indices[start:end]]))
+                    scan_dict['low_mz'] = float(min(raw_data.mz_values[spectrum_tof_indices[start:end]]))
 
-            list_of_scan_dicts.append(scan_dict)
+                list_of_scan_dicts.append(scan_dict)
 
     ms2_scans_dict = {}
     for key, value in itertools.groupby(list_of_scan_dicts, key_func):
@@ -280,7 +281,7 @@ if __name__ == "__main__":
     # Read in example .d file and convert to dataframe.
     pen12_file = 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400.d'
     pen12_df = bruker_to_df(pen12_file)
-    write_mzml(pen12_df, pen12_file, 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400_noms1.mzML')
+    write_mzml(pen12_df, pen12_file, 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400_noms1_2.mzML')
     bhi_file = 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396.d'
     bhi_df = bruker_to_df(bhi_file)
-    write_mzml(bhi_df, bhi_file, 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396_noms1.mzML')
+    write_mzml(bhi_df, bhi_file, 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396_noms1_2.mzML')

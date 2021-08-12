@@ -36,9 +36,9 @@ def get_method_info(input_filename):
 
 
 # will need to figure out how to centroid data later; only outputs profile for now
-def parse_ms1_scan(scan, method_params, centroided=False):
+def parse_ms1_scan(scan, method_params, groupby, centroided=False):
     base_peak_row = scan.sort_values(by='intensity_values', ascending=False).iloc[0]
-    scan_dict = {'scan_number': 0,
+    scan_dict = {'scan_number': None,
                  'mz_array': scan['mz_values'].values.tolist(),
                  'intensity_array': scan['intensity_values'].values.tolist(),
                  'mobility_array': scan['mobility_values'].values.tolist(),
@@ -52,12 +52,15 @@ def parse_ms1_scan(scan, method_params, centroided=False):
                  'ms_level': 1,
                  'high_mz': float(max(scan['mz_values'].values.tolist())),
                  'low_mz': float(min(scan['mz_values'].values.tolist())),
-                 'parent_frame': 0}
+                 'parent_frame': 0,
+                 'parent_scan': None}
+    if groupby == 'scan':
+        scan_dict['parent_scan'] = int(list(set(scan['scan_indices'].values.tolist()))[0])
     return scan_dict
 
 
 # Get all MS2 scans.
-def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
+def parse_ms2_scans(raw_data, method_params, groupby, overwrite=False, centroided=True,
                    centroiding_window=5, keep_n_most_abundant_peaks=-1):
     # Check to make sure timsTOF object is valid.
     if raw_data.acquisition_mode != 'ddaPASEF':
@@ -89,7 +92,7 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
         # Remove MS2 scan if empty.
         if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0 or spectrum_intensity_values[start:end] != 0:
             if not np.isnan(mono_mzs[index - 1]):
-                scan_dict = {'scan_number': 0,
+                scan_dict = {'scan_number': None,
                              'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
                              'intensity_array': spectrum_intensity_values[start:end],
                              # 'mobility_array': scan['mobility_values'].values.tolist(),  # no mobility array in MS2
@@ -124,29 +127,36 @@ def parse_ms2_scans(raw_data, method_params, overwrite=False, centroided=True,
     ms2_scans_dict = {}
     # Loop through frames.
     for key, value in itertools.groupby(list_of_scan_dicts, key_func_frames):
-        # Loop through scans.
-        for key2, value2 in itertools.groupby(list(value), key_func_scans):
-            ms2_scans_dict['f' + str(key) + 's' + str(key2)] = list(value2)
+        if groupby == 'scan':
+            # Loop through scans.
+            for key2, value2 in itertools.groupby(list(value), key_func_scans):
+                ms2_scans_dict['f' + str(key) + 's' + str(key2)] = list(value2)
+        elif groupby == 'frame':
+            ms2_scans_dict[key] = list(value)
 
     return ms2_scans_dict
 
 
 # Extract all scan information including acquisition parameters, m/z, intensity, and mobility arrays/values
 # from dataframes for each scan.
-def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename):
+def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupby):
     # Get method parameters.
     method_params = get_method_info(input_filename)
 
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
-    ms2_scans_dict = parse_ms2_scans(raw_data, method_params, centroiding_window=1)
+    ms2_scans_dict = parse_ms2_scans(raw_data, method_params, groupby, centroiding_window=1)
 
     ms1_scans_dict = {}
     for frame_num in ms1_frames:
-        ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
-        for scan_num in ms1_scans:
-            parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
-            ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params)
+        if groupby == 'scan':
+            ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
+            for scan_num in ms1_scans:
+                parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
+                ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, groupby)
+        else:
+            parent_scan = raw_data[frame_num].sort_values(by='mz_values')
+            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby)
 
     return ms1_scans_dict, ms2_scans_dict

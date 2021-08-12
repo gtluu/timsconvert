@@ -15,6 +15,11 @@ def bruker_to_df(filename):
 
 
 def centroid(data):
+    print(data.precursor_indices[:100])
+    print(max(data.precursor_indices) + 1)
+    print(data.precursor_max_index)
+    '''for i in range(1, data.precursor_max_index):
+        print(i)'''
     precursor_order = np.argsort(data.precursor_indices)
     print('precursor order', precursor_order)
 
@@ -37,6 +42,9 @@ def centroid(data):
     print('counts', counts)
     counts[0] = 0
     print('counts', counts)
+    print(data.quad_indptr[offsets + 1])
+    print(data.quad_indptr[offsets])
+    print(data.quad_indptr[offsets + 1] - data.quad_indptr[offsets])
     counts[1:] = np.cumsum(data.quad_indptr[offsets + 1] - data.quad_indptr[offsets])
     print('counts', counts)
 
@@ -59,6 +67,8 @@ def centroid(data):
     # filter_spectra_by_abundant_peaks()
 
 
+def centroid2(data):
+    parent_order = 100
 
 
 if __name__ == '__main__':
@@ -84,3 +94,4 @@ if __name__ == '__main__':
     # check out index_precursors prints
     #print(np.argsort(data.precursor_indices))
     centroid(data)
+    centroid2(data)

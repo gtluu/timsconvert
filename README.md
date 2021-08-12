@@ -1,5 +1,6 @@
 # alphatims_test
-
+centroid attempt in centroid branch, not main
+<br/><br/>
 ms1_by_rt_im branch: each ms1 scan has unique retention time (frames) and ion mobility (scans)
 <br/>
 note: this currently increases filesize (for test file ~10x)

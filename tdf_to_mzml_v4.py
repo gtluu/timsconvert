@@ -218,7 +218,7 @@ def write_mzml(raw_data, input_filename, output_filename):
             with writer.spectrum_list(count=num_of_spectra):
                 for frame_num in ms1_frames:
                     # Write MS1 parent scan.
-                    '''scan_count += 1
+                    scan_count += 1
                     parent_scans[frame_num]['scan_number'] = scan_count
                     writer.write_spectrum(parent_scans[frame_num]['mz_array'],
                                           parent_scans[frame_num]['intensity_array'],
@@ -235,7 +235,7 @@ def write_mzml(raw_data, input_filename, output_filename):
                                                   {'base peak intensity': parent_scans[frame_num]['base_peak_intensity']},
                                                   {'highest observed m/z': parent_scans[frame_num]['high_mz']},
                                                   {'lowest observed m/z': parent_scans[frame_num]['low_mz']}],
-                                          encoding={'ion mobility array': np.float32})'''
+                                          encoding={'ion mobility array': np.float32})
 
                     for product_scan in product_scans[frame_num]:
                         scan_count += 1
@@ -281,7 +281,7 @@ if __name__ == "__main__":
     # Read in example .d file and convert to dataframe.
     pen12_file = 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400.d'
     pen12_df = bruker_to_df(pen12_file)
-    write_mzml(pen12_df, pen12_file, 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400_noms1_2.mzML')
+    write_mzml(pen12_df, pen12_file, 'F:\\code\\alphatims_test_data\\pen12_ms2_1_36_1_400_ms1prof_ms2line.mzML')
     bhi_file = 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396.d'
     bhi_df = bruker_to_df(bhi_file)
-    write_mzml(bhi_df, bhi_file, 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396_noms1_2.mzML')
+    write_mzml(bhi_df, bhi_file, 'F:\\code\\alphatims_test_data\\bhi_ms2_1_32_1_396_ms1prof_ms2line.mzML')

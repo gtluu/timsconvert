@@ -1,5 +1,6 @@
 import alphatims.bruker
 import alphatims.utils
+from ms_peak_picker import pick_peaks
 from lxml import etree as et
 import numpy as np
 import os
@@ -36,17 +37,27 @@ def get_method_info(input_filename):
 
 
 # Centroid MS1 spectrum.
-def centroid_ms1_spectrum(scan):
-    mz_array = scan['mz_values'].values.tolist()
-    intensity_array = scan['intensity_values'].values.tolist()
+def centroid_ms1_spectrum(scan, frame_num):
+    mz_array = scan['mz_values'].values
+    intensity_array = scan['intensity_values'].values
+    peak_list = pick_peaks(mz_array, intensity_array, fit_type='quadratic', peak_mode='profile')
+    mz_array = [i.mz for i in list(peak_list.peaks)]
+    intensity_array = [i.intensity for i in list(peak_list.peaks)]
+    return mz_array, intensity_array
 
 
 # will need to figure out how to centroid data later; only outputs profile for now
-def parse_ms1_scan(scan, method_params, groupby, centroided=True):
+def parse_ms1_scan(scan, method_params, groupby, frame_num, centroided=True):
+    if centroided == True:
+        mz_array, intensity_array = centroid_ms1_spectrum(scan, frame_num)
+    elif centroided == False:
+        mz_array = scan['mz_values'].values.tolist()
+        intensity_array = scan['intensity_values'].values.tolist()
+
     base_peak_row = scan.sort_values(by='intensity_values', ascending=False).iloc[0]
     scan_dict = {'scan_number': None,
-                 'mz_array': scan['mz_values'].values.tolist(),
-                 'intensity_array': scan['intensity_values'].values.tolist(),
+                 'mz_array': mz_array,
+                 'intensity_array': intensity_array,
                  #'mobility_array': scan['mobility_values'].values.tolist(),
                  'scan_type': 'MS1 spectrum',
                  'polarity': method_params['polarity'],
@@ -166,8 +177,9 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupb
             for scan_num in ms1_scans:
                 parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
                 ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, groupby)
-        else:
+        elif groupby == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby)
+            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby, frame_num)
+
 
     return ms1_scans_dict, ms2_scans_dict

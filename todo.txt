@@ -1,5 +1,4 @@
 - isolation window is incorrect
 - need to figure out how to calculation upper and lower isolation window from method file
 - need to figure out how to add mobility arrays in MS1 scans via other_arrays param
-- remove ms2 if no spectra?
-- centroid ms1 spectra
+- add arguments for CLI usage

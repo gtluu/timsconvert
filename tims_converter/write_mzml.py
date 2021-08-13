@@ -148,7 +148,7 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
                             scan_count += 1
                             spectrum['scan_number'] = scan_count
                             print('Writing Scan ' + str(scan_count))
-                            write_ms1_spectrum(writer, spectrum)
+                            write_ms1_spectrum(writer, spectrum, groupby)
                             # Write MS2 product scans.
                             if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
                                 for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:

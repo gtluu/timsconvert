@@ -37,7 +37,7 @@ def get_method_info(input_filename):
 
 
 # Centroid MS1 spectrum.
-def centroid_ms1_spectrum(scan, frame_num):
+def centroid_ms1_spectrum(scan):
     mz_array = scan['mz_values'].values
     intensity_array = scan['intensity_values'].values
     peak_list = pick_peaks(mz_array, intensity_array, fit_type='quadratic', peak_mode='profile')
@@ -179,7 +179,7 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupb
                 ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, groupby)
         elif groupby == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby, frame_num)
+            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby)
 
 
     return ms1_scans_dict, ms2_scans_dict

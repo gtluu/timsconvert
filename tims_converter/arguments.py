@@ -13,9 +13,10 @@ def get_args():
     # Require Arguments
     parser.add_argument('--input', help='Filepath for Bruker .d file containing TDF file or directory containing'
                                         'multiple Bruker .d files.', required=True, type=str)
-    parser.add_argument('--outdir', help='Path to folder in which to write output file(s).', required=True, type=str)
 
     # Optional Arguments
+    parser.add_argument('--outdir', help='Path to folder in which to write output file(s). Default = none', default='',
+                        type=str)
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file. Default is'
                                           'none. Empty string.', default='', type=str)
     parser.add_argument('--centroid', help='Boolean to determine if data should be centroided. Defaults to True.',
@@ -50,8 +51,8 @@ def args_check(args):
         print(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if output directory exists and create it if it does not.
-    if not os.path.exists(args['outdir']):
-        os.makedirs(args['outdir'])
+    if not os.path.isdir(args['outdir']) and args['outdir'] != '':
+        os.mkdir(args['outdir'])
     # Check to make sure output filename ends in .mzML extension.
     if os.path.splitext(args['outfile']) != 'mzML' and args['outfile'] != '':
         args['outfile'] = args['outfile'] + '.mzML'

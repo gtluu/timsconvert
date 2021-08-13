@@ -47,9 +47,9 @@ def centroid_ms1_spectrum(scan):
 
 
 # will need to figure out how to centroid data later; only outputs profile for now
-def parse_ms1_scan(scan, method_params, groupby, frame_num, centroided=True):
+def parse_ms1_scan(scan, method_params, groupby, centroided=True):
     if centroided == True:
-        mz_array, intensity_array = centroid_ms1_spectrum(scan, frame_num)
+        mz_array, intensity_array = centroid_ms1_spectrum(scan)
     elif centroided == False:
         mz_array = scan['mz_values'].values.tolist()
         intensity_array = scan['intensity_values'].values.tolist()

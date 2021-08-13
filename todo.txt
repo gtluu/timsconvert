@@ -4,3 +4,28 @@
 - add arguments for CLI usage
 - get collision energy from methods file
 - multithreading currently not working; only a placeholder
+- more checks for outdir and outfile params
+
+
+
+
+### args
+
+# io
+input_filename
+input_folder
+output
+
+# processing
+centroid
+centroiding window
+keep n most abundant peaks
+include ms1 (aka ms2 only?)
+groupby scan or frame
+
+# system
+logging
+cpu_threads
+
+# to add later
+ms_peak_picker.pick_peaks(args) - do this later with argparse key value pairs?

@@ -2,3 +2,5 @@
 - need to figure out how to calculation upper and lower isolation window from method file
 - need to figure out how to add mobility arrays in MS1 scans via other_arrays param
 - add arguments for CLI usage
+- get collision energy from methods file
+- multithreading currently not working; only a placeholder

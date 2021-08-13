@@ -34,13 +34,30 @@ def get_args():
     # System Arguments
     parser.add_argument('--verbose', help='Boolean determining whether to print logging output. Defaults to False.',
                         default=False, type=bool)
-    parser.add_argument('--cpu_threads', help='Number of CPU threads to use. Defaults to number of cpu threads - 1.',
+    parser.add_argument('--cpu', help='Number of CPU threads to use. Defaults to number of cpu threads - 1.',
                         default=cpu_count()-1, type=int)
+
+    # Return parser
+    arguments = parser.parse_args()
+    return vars(arguments)
 
 
 # Checks to ensure arguments are valid.
 def args_check(args):
-    pass
+    # Check if input directory exists.
+    if not os.path.exists(args['input']):
+        print(get_timestamp() + ':' + 'Input path does not exist...')
+        print(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    # Check if output directory exists and create it if it does not.
+    if not os.path.exists(args['outdir']):
+        os.makedirs(args['outdir'])
+    # Check CPU thread count settings.
+    if args['cpu'] > cpu_count():
+        print(get_timestamp() + ':' + 'Number of threads specified exceeds number of available threads...')
+        print(get_timestamp() + ':' + 'Your computer has ' + str(cpu_count()) + ' usable threads...')
+        print(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
 
 
 # Write parameters used to run BLANKA to text file.

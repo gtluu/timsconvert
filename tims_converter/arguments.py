@@ -52,12 +52,21 @@ def args_check(args):
     # Check if output directory exists and create it if it does not.
     if not os.path.exists(args['outdir']):
         os.makedirs(args['outdir'])
+    # Check to make sure output filename ends in .mzML extension.
+    if os.path.splitext(args['outfile']) != 'mzML' and args['outfile'] != '':
+        args['outfile'] = args['outfile'] + '.mzML'
+    # Check to make sure --ms1_groupby is either 'frame' or 'scan'.
+    if args['ms1_groupby'] not in ['frame', 'scan']:
+        print(get_timestamp() + ':' + '--ms1_groupby should be set to "frame" or "scan"...')
+        print(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
     # Check CPU thread count settings.
     if args['cpu'] > cpu_count():
         print(get_timestamp() + ':' + 'Number of threads specified exceeds number of available threads...')
         print(get_timestamp() + ':' + 'Your computer has ' + str(cpu_count()) + ' usable threads...')
         print(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
+    return args
 
 
 # Write parameters used to run BLANKA to text file.

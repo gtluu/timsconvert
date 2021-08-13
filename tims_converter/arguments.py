@@ -47,8 +47,8 @@ def get_args():
 def args_check(args):
     # Check if input directory exists.
     if not os.path.exists(args['input']):
-        print(get_timestamp() + ':' + 'Input path does not exist...')
-        print(get_timestamp() + ':' + 'Exiting...')
+        logging.info(get_timestamp() + ':' + 'Input path does not exist...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
@@ -58,14 +58,14 @@ def args_check(args):
         args['outfile'] = args['outfile'] + '.mzML'
     # Check to make sure --ms1_groupby is either 'frame' or 'scan'.
     if args['ms1_groupby'] not in ['frame', 'scan']:
-        print(get_timestamp() + ':' + '--ms1_groupby should be set to "frame" or "scan"...')
-        print(get_timestamp() + ':' + 'Exiting...')
+        logging.info(get_timestamp() + ':' + '--ms1_groupby should be set to "frame" or "scan"...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check CPU thread count settings.
     if args['cpu'] > cpu_count():
-        print(get_timestamp() + ':' + 'Number of threads specified exceeds number of available threads...')
-        print(get_timestamp() + ':' + 'Your computer has ' + str(cpu_count()) + ' usable threads...')
-        print(get_timestamp() + ':' + 'Exiting...')
+        logging.info(get_timestamp() + ':' + 'Number of threads specified exceeds number of available threads...')
+        logging.info(get_timestamp() + ':' + 'Your computer has ' + str(cpu_count()) + ' usable threads...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     return args
 
@@ -75,3 +75,7 @@ def write_params(args, logfile):
     with open(os.path.join(os.path.split(logfile)[0], 'parameters_' + get_timestamp() + '.txt'), 'a') as params:
         for key, value in args.items():
             params.write('[' + str(key) + ']' + '\n' + str(value) + '\n')
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

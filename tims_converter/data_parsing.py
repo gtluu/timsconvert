@@ -41,10 +41,9 @@ def centroid_ms1_spectrum(scan, frame_num):
     mz_array = scan['mz_values'].values
     intensity_array = scan['intensity_values'].values
     peak_list = pick_peaks(mz_array, intensity_array, fit_type='quadratic', peak_mode='profile')
-    if frame_num == 1:
-        print(peak_list.mz_array)
-        print(peak_list.intensity_array)
-    return peak_list.mz_array.tolist(), peak_list.intensity_array.tolist()
+    mz_array = [i.mz for i in list(peak_list.peaks)]
+    intensity_array = [i.intensity for i in list(peak_list.peaks)]
+    return mz_array, intensity_array
 
 
 # will need to figure out how to centroid data later; only outputs profile for now
@@ -180,9 +179,6 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupb
                 ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, groupby)
         elif groupby == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-            if frame_num == 1:
-                print(parent_scan['mz_values'])
-                print(parent_scan['intensity_values'])
             ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby, frame_num)
 
 

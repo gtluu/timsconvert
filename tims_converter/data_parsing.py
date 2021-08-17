@@ -2,8 +2,11 @@ import alphatims.bruker
 import alphatims.utils
 from ms_peak_picker import pick_peaks
 from lxml import etree as et
+import sqlite3
 import numpy as np
+import pandas as pd
 import os
+import sys
 import itertools
 
 
@@ -82,7 +85,7 @@ def parse_ms1_scan(scan, method_params, groupby, centroided=True):
 
 
 # Get all MS2 scans.
-def parse_ms2_scans(raw_data, method_params, groupby, overwrite=False, centroided=True,
+def parse_ms2_scans(raw_data, input_filename, method_params, groupby, overwrite=False, centroided=True,
                    centroiding_window=5, keep_n_most_abundant_peaks=-1):
     # Check to make sure timsTOF object is valid.
     if raw_data.acquisition_mode != 'ddaPASEF':
@@ -106,6 +109,10 @@ def parse_ms2_scans(raw_data, method_params, groupby, overwrite=False, centroide
     #parent_scans = np.floor(raw_data.precursors.ScanNumber.values, out=parent_scans)
     parent_scans = np.floor(raw_data.precursors.ScanNumber.values)
 
+    # Set up .tdf database connection.
+    con = sqlite3.connect(os.path.join(input_filename, 'analysis.tdf'))
+    cur = con.cursor()
+
     list_of_scan_dicts = []
     for index in alphatims.utils.progress_callback(range(1, raw_data.precursor_max_index)):
         start = spectrum_indptr[index]
@@ -114,6 +121,18 @@ def parse_ms2_scans(raw_data, method_params, groupby, overwrite=False, centroide
         # Remove MS2 scan if empty.
         if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0 or spectrum_intensity_values[start:end] != 0:
             if not np.isnan(mono_mzs[index - 1]):
+                # Get isolation width and collision energy.
+                query = 'SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = ' + str(index) +\
+                        ' GROUP BY Precursor, IsolationMz, IsolationWidth, ScanNumBegin, ScanNumEnd'
+                query_df = pd.read_sql_query(query, con)
+                # Check to make sure there's only one hit. Exit with error if not.
+                if query_df.shape[0] != 1:
+                    print('PasefFrameMsMsInfo Precursor ' + str(index) + ' dataframe has more than one row.')
+                    sys.exit(1)
+                collision_energy = int(query_df['CollisionEnergy'].values.tolist()[0])
+                # Isolation widths are slightly off from what is given in alphatims dataframes.
+                half_isolation_width = float(query_df['IsolationWidth'].values.tolist()[0]) / 2
+
                 scan_dict = {'scan_number': None,
                              'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
                              'intensity_array': spectrum_intensity_values[start:end],
@@ -125,13 +144,13 @@ def parse_ms2_scans(raw_data, method_params, groupby, overwrite=False, centroide
                              'total_ion_current': sum(spectrum_intensity_values[start:end]),
                              'ms_level': 2,
                              'target_mz': average_mzs[index - 1],
-                             'isolation_lower_offset': float(quad_mz_values[index - 1][0]),
-                             'isolation_upper_offset': float(quad_mz_values[index - 1][1]),
+                             'isolation_lower_offset': float(mono_mzs[index - 1]) - half_isolation_width,
+                             'isolation_upper_offset': float(mono_mzs[index - 1]) + half_isolation_width,
                              'selected_ion_mz': float(mono_mzs[index - 1]),
                              'selected_ion_intensity': float(intensities[index - 1]),
                              'selected_ion_mobility': float(mobilities[index - 1]),
                              'charge_state': int(charges[index - 1]),
-                             'collision_energy': 20,  # hard coded for now
+                             'collision_energy': collision_energy,
                              'parent_frame': parent_frames[index - 1],
                              'parent_scan': int(parent_scans[index - 1])}
 
@@ -145,6 +164,8 @@ def parse_ms2_scans(raw_data, method_params, groupby, overwrite=False, centroide
                     scan_dict['low_mz'] = float(min(raw_data.mz_values[spectrum_tof_indices[start:end]]))
 
                 list_of_scan_dicts.append(scan_dict)
+
+    con.close()
 
     ms2_scans_dict = {}
     # Loop through frames.
@@ -168,7 +189,7 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupb
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
-    ms2_scans_dict = parse_ms2_scans(raw_data, method_params, groupby, centroiding_window=1)
+    ms2_scans_dict = parse_ms2_scans(raw_data, input_filename, method_params, groupby, centroiding_window=1)
 
     ms1_scans_dict = {}
     for frame_num in ms1_frames:

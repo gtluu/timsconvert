@@ -40,10 +40,10 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
                       'activation': ['low-energy collision-induced dissociation',
                                      {'collision energy': product_scan['collision_energy']}],
                       # not able to write correct isolation window right now
-                      # 'isolation_window_args': {'target': product_scan['target_mz'],
-                      #                          'upper': product_scan['isolation_upper_offset'],
-                      #                          'lower': product_scan['isolation_lower_offset']},
-                      'isolation_window_args': {'target': product_scan['target_mz']},
+                      'isolation_window_args': {'target': product_scan['target_mz'],
+                                                'upper': product_scan['isolation_upper_offset'],
+                                                'lower': product_scan['isolation_lower_offset']},
+                      #'isolation_window_args': {'target': product_scan['target_mz']},
                       'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
 
     writer.write_spectrum(product_scan['mz_array'],

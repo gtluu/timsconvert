@@ -228,7 +228,7 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupb
             ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
             for scan_num in ms1_scans:
                 parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
-                ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, groupby)
+                ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, frame_num, input_filename, groupby)
         elif groupby == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
             ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, frame_num, input_filename, groupby)

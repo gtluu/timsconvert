@@ -50,12 +50,29 @@ def centroid_ms1_spectrum(scan):
 
 
 # will need to figure out how to centroid data later; only outputs profile for now
-def parse_ms1_scan(scan, method_params, groupby, centroided=True):
+def parse_ms1_scan(scan, method_params, frame_num, input_filename, groupby, centroided=True):
+    # Centroid spectrum if True.
     if centroided == True:
         mz_array, intensity_array = centroid_ms1_spectrum(scan)
     elif centroided == False:
         mz_array = scan['mz_values'].values.tolist()
         intensity_array = scan['intensity_values'].values.tolist()
+
+    # Set up .tdf database connection.
+    con = sqlite3.connect(os.path.join(input_filename, 'analysis.tdf'))
+
+    # Get polarity
+    query = 'SELECT * FROM Properties WHERE Frame == ' + str(frame_num)
+    query_df = pd.read_sql_query(query, con)
+    con.close()
+    # Property 1229 == Mode_IonPolarity; alternatively maybe use 1098 == TOF_IonPolarity?
+    polarity_value = list(set(query_df.loc[query_df['Property'] == 1229]['Value'].values.tolist()))
+    if len(polarity_value) == 1:
+        polarity_value = polarity_value[0]
+        if int(polarity_value) == 0:
+            polarity = 'positive scan'
+        elif int(polarity_value == 1):
+            polarity = 'negative scan'
 
     base_peak_row = scan.sort_values(by='intensity_values', ascending=False).iloc[0]
     scan_dict = {'scan_number': None,
@@ -63,7 +80,7 @@ def parse_ms1_scan(scan, method_params, groupby, centroided=True):
                  'intensity_array': intensity_array,
                  #'mobility_array': scan['mobility_values'].values.tolist(),
                  'scan_type': 'MS1 spectrum',
-                 'polarity': method_params['polarity'],
+                 'polarity': polarity,
                  'centroided': centroided,
                  'retention_time': float(list(set(scan['rt_values_min'].values.tolist()))[0]),
                  'total_ion_current': sum(scan['intensity_values'].values.tolist()),
@@ -111,7 +128,6 @@ def parse_ms2_scans(raw_data, input_filename, method_params, groupby, overwrite=
 
     # Set up .tdf database connection.
     con = sqlite3.connect(os.path.join(input_filename, 'analysis.tdf'))
-    cur = con.cursor()
 
     list_of_scan_dicts = []
     for index in alphatims.utils.progress_callback(range(1, raw_data.precursor_max_index)):
@@ -132,13 +148,28 @@ def parse_ms2_scans(raw_data, input_filename, method_params, groupby, overwrite=
                 collision_energy = int(query_df['CollisionEnergy'].values.tolist()[0])
                 # Isolation widths are slightly off from what is given in alphatims dataframes.
                 half_isolation_width = float(query_df['IsolationWidth'].values.tolist()[0]) / 2
+                # Get polarity.
+                query = 'SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = 1'
+                query_df = pd.read_sql_query(query, con)
+                query2 = 'SELECT * FROM Properties WHERE Frame BETWEEN ' +\
+                         str(min(query_df['Frame'].values.tolist())) + ' AND ' +\
+                         str(max(query_df['Frame'].values.tolist()))
+                query_df2 = pd.read_sql_query(query2, con)
+                # Property 1229 == Mode_IonPolarity; alternatively maybe use 1098 == TOF_IonPolarity?
+                polarity_value = list(set(query_df2.loc[query_df2['Property'] == 1229]['Value'].values.tolist()))
+                if len(polarity_value) == 1:
+                    polarity_value = polarity_value[0]
+                    if int(polarity_value) == 0:
+                        polarity = 'positive scan'
+                    elif int(polarity_value == 1):
+                        polarity = 'negative scan'
 
                 scan_dict = {'scan_number': None,
                              'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
                              'intensity_array': spectrum_intensity_values[start:end],
                              # 'mobility_array': scan['mobility_values'].values.tolist(),  # no mobility array in MS2
                              'scan_type': 'MSn spectrum',
-                             'polarity': method_params['polarity'],
+                             'polarity': polarity,
                              'centroided': centroided,
                              'retention_time': float(rtinseconds[index - 1] / 60),  # in min
                              'total_ion_current': sum(spectrum_intensity_values[start:end]),
@@ -200,7 +231,7 @@ def parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupb
                 ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, method_params, groupby)
         elif groupby == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, groupby)
+            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, method_params, frame_num, input_filename, groupby)
 
 
     return ms1_scans_dict, ms2_scans_dict

@@ -1,7 +1,4 @@
-- isolation window is incorrect
-- need to figure out how to calculation upper and lower isolation window from method file
 - need to figure out how to add mobility arrays in MS1 scans via other_arrays param
-- get collision energy from methods file
 - multithreading currently not working; only a placeholder
 - more checks for outdir and outfile params
 - add this program and dataanalysis, etc. to dataprocessing fields

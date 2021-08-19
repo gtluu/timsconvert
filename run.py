@@ -13,6 +13,13 @@ def run_tims_converter(args):
 
     # Convert each sample
     for infile in input_files:
+        # Set output directory to default if not specified.
+        if args['outdir'] == '':
+            args['outdir'] = os.path.split(infile)[0]
+        # Make output filename the default filename if not specified.
+        if args['outfile'] == '':
+            args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         data = bruker_to_df(infile)
         logging.info(get_timestamp() + ':' + 'Writing to file: ' + os.path.join(args['outdir'], args['outfile']))

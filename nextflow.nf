@@ -3,12 +3,12 @@
 // params
 
 // required params
-params.input = '~/data/*.d'  // should be replaced with Bruker .d directory or folder containing .d directories
+params.input = '/mnt/f/nextflow/raw/**.d'  // should be replaced with Bruker .d directory or folder containing .d directories
 
 // optional params; '' == default parameters will be used
 // uncomment param and add to script to use
 // not sure if there's a programmatic way to do this yet; everything is hardcoded for now
-params.outdir = '~/data/mzml'  // directory to output resulting files
+params.outdir = '/mnt/f/nextflow/mzml'  // directory to output resulting files
 // params.outfile = ''  // output filename
 params.centroid = 'True'  // should spectra be centroided?
 // params.ms2_centroiding_window = '5'  // centroiding window for ms2 spectra
@@ -19,7 +19,7 @@ params.verbose = 'True'
 
 input_ch = Channel.fromPath(params.input, checkIfExists: true)
 
-TOOL_FOLDER = '~/data/alphatims_test'
+TOOL_FOLDER = '/mnt/f/code/alphatims_test'
 
 // Process
 process convert {

@@ -164,9 +164,8 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
                         print('Writing Scan ' + str(scan_count))
                         write_ms1_spectrum(writer, spectrum, groupby)
                         # Write MS2 product scans.
-                        if frame_num in product_scans.keys():
-                            for product_scan in product_scans[frame_num]:
-                                scan_count += 1
-                                product_scan['scan_number'] = scan_count
-                                print('Writing Scan ' + str(scan_count))
-                                write_ms2_spectrum(writer, spectrum, product_scan)
+                        for product_scan in product_scans[frame_num]:
+                            scan_count += 1
+                            product_scan['scan_number'] = scan_count
+                            print('Writing Scan ' + str(scan_count))
+                            write_ms2_spectrum(writer, spectrum, product_scan)

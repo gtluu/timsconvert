@@ -23,8 +23,6 @@ def run_tims_converter(args):
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         data = bruker_to_df(infile)
         logging.info(get_timestamp() + ':' + 'Writing to file: ' + os.path.join(args['outdir'], args['outfile']))
-        for key, value in args.items():
-            logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
         write_mzml(data, args['ms1_groupby'], infile, os.path.join(args['outdir'], args['outfile']))
 
 

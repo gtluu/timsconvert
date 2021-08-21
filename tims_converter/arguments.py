@@ -70,12 +70,5 @@ def args_check(args):
     return args
 
 
-# Write parameters used to run converter to a text file.
-def write_params(args, logfile):
-    with open(os.path.join(os.path.split(logfile)[0], 'parameters_' + get_timestamp() + '.txt'), 'a') as params:
-        for key, value in args.items():
-            params.write('[' + str(key) + ']' + '\n' + str(value) + '\n')
-
-
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)

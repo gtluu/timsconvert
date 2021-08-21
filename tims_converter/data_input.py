@@ -8,6 +8,6 @@ def dot_d_detection(input_directory):
             for directory in dirnames if directory.endswith('.d')]
 
 
-# Read in Bruker .d/.tdf files into dataframe using AlphaTIMS.
+# Read in Bruker .d/.tdf files into dataframe using AlphaTims.
 def bruker_to_df(filename):
     return alphatims.bruker.TimsTOF(filename)

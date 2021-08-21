@@ -39,13 +39,12 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
                       # activation type hard coded for now
                       'activation': ['low-energy collision-induced dissociation',
                                      {'collision energy': product_scan['collision_energy']}],
-                      # not able to write correct isolation window right now
                       'isolation_window_args': {'target': product_scan['target_mz'],
                                                 'upper': product_scan['isolation_upper_offset'],
                                                 'lower': product_scan['isolation_lower_offset']},
-                      #'isolation_window_args': {'target': product_scan['target_mz']},
                       'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
 
+    # Write MS2 spectrum.
     writer.write_spectrum(product_scan['mz_array'],
                           product_scan['intensity_array'],
                           id='scan=' + str(product_scan['scan_number']),
@@ -56,7 +55,7 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
                           precursor_information=precursor_info)
 
 
-# Write out parent spectrum and any associated product spectra.
+# Write out parent spectrum.
 def write_ms1_spectrum(writer, parent_scan, groupby):
     # Build params
     params = [parent_scan['scan_type'],
@@ -70,6 +69,7 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
     if groupby == 'scan':
         params.append({'ion mobility drift time': parent_scan['mobility']})
 
+    # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],
                           parent_scan['intensity_array'],
                           id='scan=' + str(parent_scan['scan_number']),
@@ -98,10 +98,7 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
         # Add .d folder as source file.
         sf = writer.SourceFile(os.path.split(input_filename)[0],
                                os.path.split(input_filename)[1],
-                               id=os.path.splitext(os.path.split(input_filename)[1])[0])  # add params?
-        # Checksum source file.
-        # skipping, checksum errors out
-        #sf.params.append(sf.checksum('sha-1'))
+                               id=os.path.splitext(os.path.split(input_filename)[1])[0])
 
         # Add list of software.
         # will hardcoded bruker software for now
@@ -131,7 +128,7 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
         # Get MS1 frames.
         ms1_frames = sorted(list(set(raw_data[:, :, 0]['frame_indices'])))
         # Parse raw data to get scans.
-        parent_scans, product_scans = parse_raw_data(raw_data, ms1_frames, input_filename, output_filename, groupby)
+        parent_scans, product_scans = parse_raw_data(raw_data, ms1_frames, input_filename, groupby)
         # Get total number of spectra to write to mzML file.
         num_of_spectra = count_scans(parent_scans, product_scans)
 

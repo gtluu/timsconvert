@@ -1,7 +1,9 @@
 - need to figure out how to add mobility arrays in MS1 scans via other_arrays param
 - multithreading currently not working; only a placeholder
-- more checks for outdir and outfile params
 - add this program and dataanalysis, etc. to dataprocessing fields
+- find ms2 precursor activation type in .tdf file (properties table?); currently hardcoded under write_ms2_spectrum()
+- check .tdf file for processing/acquisition software
+- check .tdf file for instrument information
 
 
 

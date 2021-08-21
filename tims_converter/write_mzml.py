@@ -76,9 +76,7 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
                           polarity=parent_scan['polarity'],
                           centroided=parent_scan['centroided'],
                           scan_start_time=parent_scan['retention_time'],
-                          # mobility array goes here once i figure out how to get the mobility array
-                          # in
-                          # other_arrays: ,
+                          other_arrays=[('ion mobility array', parent_scan['mobility_array'])],
                           params=params,
                           encoding={'ion mobility array': np.float32})
 

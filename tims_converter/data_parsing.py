@@ -81,7 +81,7 @@ def parse_ms1_scan(scan, frame_num, input_filename, groupby, centroided=True):
         scan_dict['parent_scan'] = int(list(set(scan['scan_indices'].values.tolist()))[0])
     # Spectrum has array of mobility values if grouped by frame (retention time).
     elif groupby == 'frame':
-        scan_dict['mobility_array'] = scan['mobility_values'].values.tolist()
+        scan_dict['mobility_array'] = scan['mobility_values']
     return scan_dict
 
 

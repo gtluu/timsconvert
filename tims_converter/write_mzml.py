@@ -90,7 +90,7 @@ def write_mzml(raw_data, args):
         # Begin mzML with controlled vocabularies (CV).
         writer.controlled_vocabularies()
 
-        # Write file description
+        # Write file description.
         file_description = []
         if args['ms2_only'] == False:
             file_description.append('MS1 spectrum')
@@ -111,10 +111,18 @@ def write_mzml(raw_data, args):
         # Add list of software.
         # will hardcoded bruker software for now
         # look at .d param files and check to see if processed with dataanlysis; add dataanlysis to list if yes
-        writer.software_list([{'id': 'psims-writer',
+        acquisition_software_id = raw_data.meta_data['AcquisitionSoftware']
+        acquisition_software_version = raw_data.meta_data['AcquisitionSoftwareVersion']
+        if acquisition_software_id == 'Bruker otofControl':
+            acquisition_software_params = ['micrOTOFcontrol',]
+        else:
+            acquisition_software_params = []
+        writer.software_list([{'id': acquisition_software_id,
+                               'version': acquisition_software_version,
+                               'params': acquisition_software_params},
+                              {'id': 'psims-writer',
                                'version': '0.1.2',
-                               'params': ['python-psims', ]}
-                              ])
+                               'params': ['python-psims', ]}])
 
         # Add instrument configuration information.
         # hardcoded instrument for now

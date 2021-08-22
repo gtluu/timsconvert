@@ -1,8 +1,49 @@
 from .data_parsing import *
 from psims.mzml import MzMLWriter
 from psims.xml import CVParam, UserParam
+from psims.mzml.components import ParameterContainer, NullMap
 import os
 import numpy as np
+
+
+INSTRUMENT_FAMILY = {'0': 'trap',
+                     '1': 'otof',
+                     '2': 'otofq',
+                     '3': 'biotof',
+                     '4': 'biotofq',
+                     '5': 'malditof',
+                     '6': 'ftms',
+                     '7': 'maxis',
+                     '9': 'timstof',
+                     '90': 'impact',
+                     '91': 'compact',
+                     '92': 'solarix',
+                     '255': 'unknown'}
+
+
+INSTRUMENT_SOURCE_TYPE = {'1': 'electrospray ionization',
+                          '2': 'atmospheric pressure chemical ionization',
+                          '3': 'nanoelectrospray',
+                          '4': 'nanoelectrospray',
+                          '5': 'atmospheric pressure photoionization',
+                          '6': 'multimode ionization',
+                          '9': 'nanoflow electrospray ionization',
+                          '10': 'ionBooster',
+                          '11': 'CaptiveSpray',
+                          '12': 'GC-APCI'}
+
+
+class IMMS(ParameterContainer):
+    def __init(self, order, params=None, context=NullMap, **kwargs):
+        params = self.prepare_params(params, **kwargs)
+        super(IMMS, self).__init__('ion mobility mass spectrometer',
+                                   params,
+                                   dict(order=order),
+                                   context=context)
+        try:
+            self.order = int(order)
+        except (ValueError, TypeError):
+            self.order = order
 
 
 # Count total number of parent and product scans.
@@ -109,12 +150,11 @@ def write_mzml(raw_data, args):
                                id=os.path.splitext(os.path.split(args['infile'])[1])[0])
 
         # Add list of software.
-        # will hardcoded bruker software for now
-        # look at .d param files and check to see if processed with dataanlysis; add dataanlysis to list if yes
+        # check for processed data from dataanalysis
         acquisition_software_id = raw_data.meta_data['AcquisitionSoftware']
         acquisition_software_version = raw_data.meta_data['AcquisitionSoftwareVersion']
         if acquisition_software_id == 'Bruker otofControl':
-            acquisition_software_params = ['micrOTOFcontrol',]
+            acquisition_software_params = ['micrOTOFcontrol', ]
         else:
             acquisition_software_params = []
         writer.software_list([{'id': acquisition_software_id,
@@ -125,13 +165,25 @@ def write_mzml(raw_data, args):
                                'params': ['python-psims', ]}])
 
         # Add instrument configuration information.
-        # hardcoded instrument for now
-        # not sure if Bruker metadata contains specific instrument prarameters (i.e. ionization type, analyzer, etc.)
-        source = writer.Source(1, ['ionization type'])
-        analyzer = writer.Analyzer(2, ['mass analyzer type'])
-        detector = writer.Detector(3, ['electron multiplier'])
-        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
-                                                     params=['microOTOF-Q'])
+        # hardcoded ion mobility, mass analyzers, and detector for timsTOF series for now
+        inst_count = 0
+        # Source
+        if raw_data.meta_data['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys():
+            inst_count += 1
+            source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[raw_data.meta_data['InstrumentSourceType']]])
+        # Ion Mobility Spectrometer
+        inst_count += 1
+        tims = IMMS(inst_count, ['trapped ion mobility spectrometer'])
+        # Mass Analyzer(s)
+        inst_count += 1
+        analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
+        # Detector
+        # detector info not found in .tdf test file.
+        detector = writer.Detector(inst_count, ['electron multiplier'])
+        # Write instrument configuration.
+        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
+                                                     params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']],
+                                                             raw_data.meta_data['InstrumentName']])
         writer.instrument_configuration_list([inst_config])
 
         # Add data processing information.

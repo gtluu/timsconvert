@@ -91,7 +91,17 @@ def write_mzml(raw_data, args):
         writer.controlled_vocabularies()
 
         # Write file description
-        writer.file_description(['MS1 spectrum', 'MSn spectrum', 'centroid spectrum'])
+        file_description = []
+        if args['ms2_only'] == False:
+            file_description.append('MS1 spectrum')
+            file_description.append('MSn spectrum')
+        elif args['ms2_only'] == True:
+            file_description.append('MSn spectrum')
+        if args['centroid'] == True:
+            file_description.append('centroid spectrum')
+        elif args['centroid'] == False:
+            file_description.append('profile spectrum')
+        writer.file_description(file_description)
 
         # Add .d folder as source file.
         sf = writer.SourceFile(os.path.split(args['infile'])[0],

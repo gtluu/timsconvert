@@ -82,9 +82,9 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
 
 
 # Write out mzML file using psims.
-def write_mzml(raw_data, groupby, input_filename, output_filename):
+def write_mzml(raw_data, args):
     # Create mzML writer using psims.
-    writer = MzMLWriter(output_filename)
+    writer = MzMLWriter(os.path.join(args['outdir'], args['outfile']))
 
     with writer:
         # Begin mzML with controlled vocabularies (CV).
@@ -94,9 +94,9 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
         writer.file_description(['MS1 spectrum', 'MSn spectrum', 'centroid spectrum'])
 
         # Add .d folder as source file.
-        sf = writer.SourceFile(os.path.split(input_filename)[0],
-                               os.path.split(input_filename)[1],
-                               id=os.path.splitext(os.path.split(input_filename)[1])[0])
+        sf = writer.SourceFile(os.path.split(args['infile'])[0],
+                               os.path.split(args['infile'])[1],
+                               id=os.path.splitext(os.path.split(args['infile'])[1])[0])
 
         # Add list of software.
         # will hardcoded bruker software for now
@@ -126,7 +126,7 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
         # Get MS1 frames.
         ms1_frames = sorted(list(set(raw_data[:, :, 0]['frame_indices'])))
         # Parse raw data to get scans.
-        parent_scans, product_scans = parse_raw_data(raw_data, ms1_frames, input_filename, groupby)
+        parent_scans, product_scans = parse_raw_data(raw_data, ms1_frames, args)
         # Get total number of spectra to write to mzML file.
         num_of_spectra = count_scans(parent_scans, product_scans)
 
@@ -135,7 +135,7 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
             scan_count = 0
             with writer.spectrum_list(count=num_of_spectra):
                 for frame_num in ms1_frames:
-                    if groupby == 'scan':
+                    if args['ms1_groupby'] == 'scan':
                         ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
                         for scan_num in ms1_scans:
                             spectrum = parent_scans['f' + str(frame_num) + 's' + str(scan_num)]
@@ -143,7 +143,7 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
                             scan_count += 1
                             spectrum['scan_number'] = scan_count
                             print('Writing Scan ' + str(scan_count))
-                            write_ms1_spectrum(writer, spectrum, groupby)
+                            write_ms1_spectrum(writer, spectrum, args['ms1_groupby'])
                             # Write MS2 product scans.
                             if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
                                 for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
@@ -151,13 +151,13 @@ def write_mzml(raw_data, groupby, input_filename, output_filename):
                                     product_scan['scan_number'] = scan_count
                                     print('Writing Scan ' + str(scan_count))
                                     write_ms2_spectrum(writer, spectrum, product_scan)
-                    elif groupby == 'frame':
+                    elif args['ms1_groupby'] == 'frame':
                         spectrum = parent_scans[frame_num]
                         # Write MS1 parent scan.
                         scan_count += 1
                         spectrum['scan_number'] = scan_count
                         print('Writing Scan ' + str(scan_count))
-                        write_ms1_spectrum(writer, spectrum, groupby)
+                        write_ms1_spectrum(writer, spectrum, args['ms1_groupby'])
                         # Write MS2 product scans.
                         if frame_num in product_scans.keys():
                             for product_scan in product_scans[frame_num]:

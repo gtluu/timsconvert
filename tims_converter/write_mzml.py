@@ -77,8 +77,7 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
                       'intensity': product_scan['selected_ion_intensity'],
                       'charge': product_scan['charge_state'],
                       'spectrum_reference': 'scan=' + str(parent_scan['scan_number']),
-                      # activation type hard coded for now
-                      'activation': ['low-energy collision-induced dissociation',
+                      'activation': [product_scan['activation'],
                                      {'collision energy': product_scan['collision_energy']}],
                       'isolation_window_args': {'target': product_scan['target_mz'],
                                                 'upper': product_scan['isolation_upper_offset'],

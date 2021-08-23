@@ -39,11 +39,12 @@ print(grouped2)'''
 
 #print(pd.read_sql_query(query, con))
 
-df = pd.read_sql_query('SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = 1', con)
+df = pd.read_sql_query('SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = 10000', con)
 print(min(df['Frame'].values.tolist()))
 print(max(df['Frame'].values.tolist()))
 df2 = pd.read_sql_query('SELECT * FROM Properties WHERE Frame BETWEEN ' + str(min(df['Frame'].values.tolist())) +
                         ' AND ' + str(max(df['Frame'].values.tolist())), con)
+print(df2)
 df2 = list(set(df2.loc[df2['Property'] == 1229]['Value'].values.tolist()))
 print(df, df2)
 

@@ -129,8 +129,8 @@ def parse_ms2_scans(raw_data, args):
                 collision_energy = int(query_df['CollisionEnergy'].values.tolist()[0])
                 # note: isolation widths are slightly off from what is given in alphatims dataframes.
                 half_isolation_width = float(query_df['IsolationWidth'].values.tolist()[0]) / 2
-                # Get polarity.
-                query = 'SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = 1'
+                # Get polarity and activation.
+                query = 'SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = ' + str(index)
                 query_df = pd.read_sql_query(query, con)
                 query2 = 'SELECT * FROM Properties WHERE Frame BETWEEN ' +\
                          str(min(query_df['Frame'].values.tolist())) + ' AND ' +\
@@ -144,6 +144,17 @@ def parse_ms2_scans(raw_data, args):
                         polarity = 'positive scan'
                     elif int(polarity_value == 1):
                         polarity = 'negative scan'
+                # Property 1584 == MSMS_ActivationMode_Act; alternatively, maybe use 1640 == MSMSAuto_FragmentationMode?
+                activation_value = list(set(query_df2.loc[query_df2['Property'] == 1584]['Value'].values.tolist()))
+                if len(activation_value) == 1:
+                    activation_value = activation_value[0]
+                    if int(activation_value) == 0:
+                        if int(collision_energy) <= 1000:
+                            activation = 'low-energy collision-induced dissociation'
+                        elif int(collision_energy) > 1000:
+                            activation = 'collision-induced dissociation'
+                    elif int(activation_value) == 1:
+                        activation = 'electron transfer dissociation'
 
                 scan_dict = {'scan_number': None,
                              'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
@@ -161,6 +172,7 @@ def parse_ms2_scans(raw_data, args):
                              'selected_ion_intensity': float(intensities[index - 1]),
                              'selected_ion_mobility': float(mobilities[index - 1]),
                              'charge_state': int(charges[index - 1]),
+                             'activation': activation,
                              'collision_energy': collision_energy,
                              'parent_frame': parent_frames[index - 1],
                              'parent_scan': int(parent_scans[index - 1])}

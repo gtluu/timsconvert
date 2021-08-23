@@ -1,8 +1,5 @@
 - multithreading currently not working; only a placeholder
-- add this program and dataanalysis, etc. to dataprocessing fields
-- find ms2 precursor activation type in .tdf file (properties table?); currently hardcoded under write_ms2_spectrum(); maybe do this by adding support for unknown arguments, or just hardcode everything
-- check .tdf file for processing/acquisition software
-- check .tdf file for instrument information
+- check .tdf file for processing software
 - add more logging messages
 - kwargs?
 

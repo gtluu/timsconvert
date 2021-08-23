@@ -1,5 +1,6 @@
 import alphatims.bruker
 import os
+import logging
 
 
 # Scan directory for Bruker .d files.
@@ -11,3 +12,7 @@ def dot_d_detection(input_directory):
 # Read in Bruker .d/.tdf files into dataframe using AlphaTims.
 def bruker_to_df(filename):
     return alphatims.bruker.TimsTOF(filename)
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

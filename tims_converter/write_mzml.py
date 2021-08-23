@@ -1,8 +1,10 @@
 from .data_parsing import *
+from .timestamp import *
 from psims.mzml import MzMLWriter
 from psims.xml import CVParam, UserParam
 from psims.mzml.components import ParameterContainer, NullMap
 import os
+import logging
 import numpy as np
 
 
@@ -213,26 +215,30 @@ def write_mzml(raw_data, args):
                             # Write MS1 parent scan.
                             scan_count += 1
                             spectrum['scan_number'] = scan_count
-                            print('Writing Scan ' + str(scan_count))
+                            logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
                             write_ms1_spectrum(writer, spectrum, args['ms1_groupby'])
                             # Write MS2 product scans.
                             if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
                                 for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
                                     scan_count += 1
                                     product_scan['scan_number'] = scan_count
-                                    print('Writing Scan ' + str(scan_count))
+                                    logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
                                     write_ms2_spectrum(writer, spectrum, product_scan)
                     elif args['ms1_groupby'] == 'frame':
                         spectrum = parent_scans[frame_num]
                         # Write MS1 parent scan.
                         scan_count += 1
                         spectrum['scan_number'] = scan_count
-                        print('Writing Scan ' + str(scan_count))
+                        logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
                         write_ms1_spectrum(writer, spectrum, args['ms1_groupby'])
                         # Write MS2 product scans.
                         if frame_num in product_scans.keys():
                             for product_scan in product_scans[frame_num]:
                                 scan_count += 1
                                 product_scan['scan_number'] = scan_count
-                                print('Writing Scan ' + str(scan_count))
+                                logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
                                 write_ms2_spectrum(writer, spectrum, product_scan)
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

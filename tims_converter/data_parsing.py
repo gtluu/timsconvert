@@ -1,3 +1,4 @@
+from .timestamp import *
 import alphatims.bruker
 import alphatims.utils
 from ms_peak_picker import pick_peaks
@@ -8,6 +9,7 @@ import pandas as pd
 import os
 import sys
 import itertools
+import logging
 
 
 # Function for itertools.groupby() to sort dictionaries based on key.
@@ -124,7 +126,8 @@ def parse_ms2_scans(raw_data, args):
                 query_df = pd.read_sql_query(query, con)
                 # Check to make sure there's only one hit. Exit with error if not.
                 if query_df.shape[0] != 1:
-                    print('PasefFrameMsMsInfo Precursor ' + str(index) + ' dataframe has more than one row.')
+                    logging.info(get_timestamp() + ':' + 'PasefFrameMsMsInfo Precursor ' + str(index) +
+                                 ' dataframe has more than one row.')
                     sys.exit(1)
                 collision_energy = int(query_df['CollisionEnergy'].values.tolist()[0])
                 # note: isolation widths are slightly off from what is given in alphatims dataframes.
@@ -212,9 +215,11 @@ def parse_raw_data(raw_data, ms1_frames, args):
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
+    logging.info(get_timestamp() + ':' + 'Parsing MS2 spectra.')
     ms2_scans_dict = parse_ms2_scans(raw_data, args)
 
     # Get all MS1 scans into dictionary.
+    logging.info(get_timestamp() + ':' + 'Parsing MS1 spectra.')
     ms1_scans_dict = {}
     for frame_num in ms1_frames:
         if args['ms1_groupby'] == 'scan':
@@ -228,3 +233,7 @@ def parse_raw_data(raw_data, ms1_frames, args):
             ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, frame_num, args)
 
     return ms1_scans_dict, ms2_scans_dict
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

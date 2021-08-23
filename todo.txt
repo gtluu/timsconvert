@@ -1,6 +1,5 @@
 - multithreading currently not working; only a placeholder
 - check .tdf file for processing software
-- add more logging messages
 - kwargs?
 
 

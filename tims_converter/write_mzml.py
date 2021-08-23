@@ -110,6 +110,9 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
 
     if groupby == 'scan':
         params.append({'ion mobility drift time': parent_scan['mobility']})
+        other_arrays = None
+    elif groupby == 'frame':
+        other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
 
     # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],
@@ -118,7 +121,7 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
                           polarity=parent_scan['polarity'],
                           centroided=parent_scan['centroided'],
                           scan_start_time=parent_scan['retention_time'],
-                          other_arrays=[('ion mobility array', parent_scan['mobility_array'])],
+                          other_arrays=other_arrays,
                           params=params,
                           encoding={'ion mobility array': np.float32})
 
@@ -173,8 +176,8 @@ def write_mzml(raw_data, args):
             inst_count += 1
             source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[raw_data.meta_data['InstrumentSourceType']]])
         # Ion Mobility Spectrometer
-        inst_count += 1
-        tims = IMMS(inst_count, ['trapped ion mobility spectrometer'])
+        #inst_count += 1
+        #tims = IMMS(inst_count, ['trapped ion mobility spectrometer'])
         # Mass Analyzer(s)
         inst_count += 1
         analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
@@ -182,7 +185,8 @@ def write_mzml(raw_data, args):
         # detector info not found in .tdf test file.
         detector = writer.Detector(inst_count, ['electron multiplier'])
         # Write instrument configuration.
-        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
+        #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
+        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
                                                      params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']],
                                                              raw_data.meta_data['InstrumentName']])
         writer.instrument_configuration_list([inst_config])

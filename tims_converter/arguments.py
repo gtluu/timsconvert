@@ -88,7 +88,7 @@ def args_check(args):
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
         os.mkdir(args['outdir'])
     # Check to make sure output filename ends in .mzML extension.
-    if os.path.splitext(args['outfile']) != 'mzML' and args['outfile'] != '':
+    if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
         args['outfile'] = args['outfile'] + '.mzML'
     # Check to make sure --ms1_groupby is either 'frame' or 'scan'.
     if args['ms1_groupby'] not in ['frame', 'scan']:

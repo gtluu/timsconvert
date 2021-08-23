@@ -17,7 +17,8 @@ def get_args():
     # Optional Arguments
     parser.add_argument('--outdir', help='Path to folder in which to write output file(s). Default = none', default='',
                         type=str)
-    parser.add_argument('--outfile', help='User defined filename for output if converting a single file. Default is'
+    parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'
+                                          'files will have same filename and overwrite each other. Default is'
                                           'none. Empty string.', default='', type=str)
     parser.add_argument('--centroid', help='Boolean to determine if data should be centroided. Defaults to True.',
                         default=True, type=bool)

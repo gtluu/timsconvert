@@ -9,7 +9,7 @@ params.input = '/home/gnps-nextflow/data2/nextflow/raw/*.d'  // should be replac
 // uncomment param and add to script to use
 // not sure if there's a programmatic way to do this yet; everything is hardcoded for now
 params.outdir = '/home/gnps-nextflow/data2/nextflow/mzml'  // directory to output resulting files
-// params.outfile = ''  // output filename
+// params.outfile = ''  // output filename; only use if converting a single file or all files will have the same filename and overwrite each other
 params.centroid = 'True'  // should spectra be centroided?
 // params.ms2_centroiding_window = '5'  // centroiding window for ms2 spectra
 // params.ms2_keep_n_most_abundant_peaks = '1'  // keep N most abundant peaks in ms2 spectra

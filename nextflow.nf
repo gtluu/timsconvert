@@ -3,7 +3,7 @@
 // params
 
 // required params
-params.input = '/home/gnps-nextflow/data2/nextflow/raw/*.d'  // should be replaced with Bruker .d directory or folder containing .d directories
+params.input = 'test/data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d'  // should be replaced with Bruker .d directory or folder containing .d directories
 
 // optional params; '' == default parameters will be used
 // uncomment param and add to script to use

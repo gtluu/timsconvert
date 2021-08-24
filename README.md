@@ -16,14 +16,23 @@ Create a conda instance
 conda create -n alphatims python=3.8
 ```
 
-Install alphatimes
+Install dependencies
 
 ```
-pip install alphatims
+pip install -r-requirements
 ```
 
-Install ms peakpicker
+## Testing
+
+Get test data
 
 ```
-pip install ms_peak_picker
+cd test/data
+sh ./get_data.sh
+```
+
+Run workflow
+
+```
+make run_test
 ```

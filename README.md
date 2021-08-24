@@ -6,3 +6,24 @@ tdf_to_mzml_v4.py was used to convert mzML files in successful classical GNPS ru
 [mzML files with no MS1 scans and centroided MS2 scans](https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=2358c2cbc8e743239fda19073d1340a8)
 <br/>
 [mzML files with profile MS1 scans and centroided MS2 scans](https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=6afc839728334b18a713e53876e8df73)
+
+
+## Requirements
+
+Create a conda instance 
+
+```
+conda create -n alphatims python=3.8
+```
+
+Install alphatimes
+
+```
+pip install alphatims
+```
+
+Install ms peakpicker
+
+```
+pip install ms_peak_picker
+```

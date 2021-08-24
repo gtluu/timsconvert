@@ -25,7 +25,7 @@ conda install -c bioconda nextflow
 Install dependencies
 
 ```
-pip install -r-requirements
+pip install -r requirements.txt
 ```
 
 ## Testing

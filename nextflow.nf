@@ -30,13 +30,13 @@ process convert {
     file input_file from input_ch
 
     output:
-    file "output_results"
+    file "spectra"
 
     """
-    mkdir output_results
+    mkdir spectra
     python3 $TOOL_FOLDER/run.py \
     --input $input_file \
-    --outdir output_results \
+    --outdir spectra \
     --centroid ${params.centroid} \
     --ms2_only ${params.ms2_only} \
     --ms1_groupby ${params.ms1_groupby} \

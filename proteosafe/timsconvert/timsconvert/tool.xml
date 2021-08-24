@@ -52,7 +52,7 @@
             <!-- This portion is currently hardcoded to the nextflow workflow. -->
 
             <!-- Mapping Input Files into NextFlow -->
-            <arg option="-newparameters" value="publishdir:workflow_results/spectra"/>
+            <arg option="-newparameters" value="publishdir:workflow_results"/>
             <arg option="-newparameters" value="input:demangled_spectra/**/*.d"/>
 
             <!-- Mapping Proteosafe param to nextflow params -->

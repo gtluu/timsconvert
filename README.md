@@ -16,6 +16,12 @@ Create a conda instance
 conda create -n alphatims python=3.8
 ```
 
+Install Nextflow
+```
+conda install -c bioconda nextflow
+```
+
+
 Install dependencies
 
 ```

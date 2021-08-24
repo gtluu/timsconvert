@@ -22,6 +22,18 @@
         </row>
     </block>
 
+    <view id="analyze_networking" label="Analyze with Networking" group="Downstream Analysis">
+        <blockRef id="main" type="analyze_networking"/>
+    </view>
+    <block id="analyze_networking" type="dummylinkout">
+        <data>
+            <parsers>
+                <parser type="stream" contentType="text/xml"/>
+            </parsers>
+        </data>
+        <parameter name="URLBASE" value="/ProteoSAFe/index.jsp?params=%7B%22workflow%22%3A%20%22METABOLOMICS-SNETS-V2%22%2C%20%22spec_on_server%22%3A%20%22t.[task]%2Fworkflow_results%2Fspectra%22%7D"/>
+    </block>
+
     
     <!-- Summary Stats for Compute -->
     <view id="proteosafe_workflow_trace" label="ProteoSAFe Workflow Trace" group="Compute Stats">

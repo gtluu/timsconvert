@@ -92,12 +92,6 @@ def args_check(args):
         logging.info(get_timestamp() + ':' + '--ms1_groupby should be set to "frame" or "scan"...')
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
-    # Check CPU thread count settings.
-    if args['cpu'] > cpu_count():
-        logging.info(get_timestamp() + ':' + 'Number of threads specified exceeds number of available threads...')
-        logging.info(get_timestamp() + ':' + 'Your computer has ' + str(cpu_count()) + ' usable threads...')
-        logging.info(get_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
     return args
 
 

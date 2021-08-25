@@ -241,11 +241,17 @@ def parse_raw_data(raw_data, ms1_frames, args):
             ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
             for scan_num in ms1_scans:
                 parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
-                ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, frame_num,
-                                                                                            args)
+                if args['ms2_only'] == False:
+                    ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, frame_num,
+                                                                                                args)
+                elif args['ms2_only'] == True:
+                    ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = None
         elif args['ms1_groupby'] == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
-            ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, frame_num, args)
+            if args['ms2_only'] == False:
+                ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, frame_num, args)
+            elif args['ms2_only'] == True:
+                ms1_scans_dict[frame_num] = None
 
     return ms1_scans_dict, ms2_scans_dict
 

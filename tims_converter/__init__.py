@@ -11,7 +11,6 @@ import alphatims.utils
 
 from ms_peak_picker import pick_peaks
 from lxml import etree as et
-from multiprocessing import Pool, cpu_count
 from functools import partial
 from psims.mzml import MzMLWriter
 from psims.xml import CVParam, UserParam

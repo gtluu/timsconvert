@@ -1,3 +1,2 @@
-- multithreading currently not working; only a placeholder
 - check .tdf file for processing software
 - figure out how to add TIMS to instrument configuration

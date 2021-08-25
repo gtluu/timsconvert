@@ -2,7 +2,6 @@ import argparse
 import os
 import sys
 import logging
-from multiprocessing import cpu_count
 from .timestamp import *
 
 
@@ -69,8 +68,6 @@ def get_args():
     # System Arguments
     parser.add_argument('--verbose', help='Boolean determining whether to print logging output. Defaults to False.',
                         default=False, type=bool)
-    parser.add_argument('--cpu', help='Number of CPU threads to use. Defaults to number of cpu threads - 1.',
-                        default=cpu_count()-1, type=int)
 
     # Return parser
     arguments = parser.parse_args()

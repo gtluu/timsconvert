@@ -1,4 +1,5 @@
 import logging
+import copy
 from tims_converter import *
 
 
@@ -12,21 +13,27 @@ def run_tims_converter(args):
 
     # Convert each sample
     for infile in input_files:
-        args['infile'] = infile
+        # Reset args.
+        run_args = copy.deepcopy(args)
+
+        # Set input file.
+        run_args['infile'] = infile
         # Set output directory to default if not specified.
-        if args['outdir'] == '':
-            args['outdir'] = os.path.split(infile)[0]
+        if run_args['outdir'] == '':
+            run_args['outdir'] = os.path.split(infile)[0]
         # Make output filename the default filename if not specified.
-        if args['outfile'] == '':
-            args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+        if run_args['outfile'] == '':
+            run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
 
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         data = bruker_to_df(infile)
-        logging.info(get_timestamp() + ':' + 'Writing to file: ' + os.path.join(args['outdir'], args['outfile']))
+        logging.info(get_timestamp() + ':' + 'Writing to file: ' + os.path.join(run_args['outdir'],
+                                                                                run_args['outfile']))
         # Log arguments.
-        for key, value in args.items():
+        for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
-        write_mzml(data, args)
+        write_mzml(data, run_args)
+        run_args.clear()
 
 
 if __name__ == '__main__':

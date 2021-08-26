@@ -189,8 +189,7 @@ def write_mzml(raw_data, args):
         # Write instrument configuration.
         #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
         inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
-                                                     params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']],
-                                                             raw_data.meta_data['InstrumentName']])
+                                                     params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']]])
         writer.instrument_configuration_list([inst_config])
 
         # Add data processing information.

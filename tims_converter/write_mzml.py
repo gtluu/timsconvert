@@ -188,16 +188,15 @@ def write_mzml(raw_data, args):
         detector = writer.Detector(inst_count, ['electron multiplier'])
         # Write instrument configuration.
         #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
-        #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
-        #                                             params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']]])
-        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector])
+        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
+                                                     params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']]])
         writer.instrument_configuration_list([inst_config])
 
         # Add data processing information.
         proc_methods = []
-        proc_methods.append(writer.ProcessingMethod(order=1, software_reference='tims_converter',
-                                                    params=['Conversion to mzML']))
-        proc_methods.append(writer.ProcessingMethod(order=2, software_reference='psims-writer',
+        #proc_methods.append(writer.ProcessingMethod(order=1, software_reference='tims_converter',
+        #                                            params=['Conversion to mzML']))
+        proc_methods.append(writer.ProcessingMethod(order=1, software_reference='psims-writer',
                                                     params=['Conversion to mzML']))
         processing = writer.DataProcessing(proc_methods, id='exportation')
         writer.data_processing_list([processing])

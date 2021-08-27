@@ -188,8 +188,9 @@ def write_mzml(raw_data, args):
         detector = writer.Detector(inst_count, ['electron multiplier'])
         # Write instrument configuration.
         #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
-        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
-                                                     params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']]])
+        #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
+        #                                             params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']]])
+        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector])
         writer.instrument_configuration_list([inst_config])
 
         # Add data processing information.

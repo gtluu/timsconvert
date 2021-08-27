@@ -1,2 +1,2 @@
-F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data --outdir F:\code\alphatims_test_data\testing4 --ms2_only True --ms1_groupby frame --verbose True
+F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data\pen12_ms2_1_36_1_400.d --outdir F:\code\alphatims_test_data --outfile 2021AUG26 --ms2_only True --ms1_groupby frame --verbose True
 PAUSE

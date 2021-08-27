@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <interface id="speclib_add">
 
+    <download>
+        <source type="folder" name="workflow_results/"/>
+    </download>
+
     <!-- Workflow Specific Results -->
     <view id="view_results" label="View Results">
         <blockRef id="main" type="view_results"/>
@@ -20,6 +24,18 @@
                 <parameter name="LABEL" value="View LCMS Chromatogram (Beta)"/>
             </column>
         </row>
+    </block>
+
+    <view id="download_data" label="Download Data" group="Download Files">
+        <blockRef id="main" type="download_data"/>
+    </view>
+    <block id="download_data" type="dummydownload">
+        <data>
+            <source type="file" name="workflow_results/trace.txt"/>
+            <parsers>
+                <parser type="stream" contentType="text/xml"/>
+            </parsers>
+        </data>
     </block>
 
     <view id="analyze_networking" label="Analyze with Networking" group="Downstream Analysis">

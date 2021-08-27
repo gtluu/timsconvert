@@ -30,7 +30,7 @@ process convert {
     file input_file from input_ch
 
     output:
-    file "spectra"
+    file "spectra/*mzML"
 
     """
     mkdir spectra

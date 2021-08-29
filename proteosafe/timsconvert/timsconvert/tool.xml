@@ -56,6 +56,7 @@
             <arg option="-newparameters" value="input:demangled_spectra/**/*.d"/>
 
             <!-- Mapping Proteosafe param to nextflow params -->
+            <arg option="-parametermapping" value="EXPORTMS2ONLY:ms2_only"/>
         </execution>
     </tool>
 

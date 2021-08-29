@@ -30,7 +30,7 @@ process convert {
     file input_file from input_ch
 
     output:
-    file "spectra/*mzML"
+    file "spectra/*mzML" into _spectra_ch
 
     """
     mkdir spectra
@@ -42,5 +42,22 @@ process convert {
     --ms1_groupby ${params.ms1_groupby} \
     --verbose ${params.verbose}
     """
-
 }
+
+process summarize {
+    publishDir "$params.publishdir", mode: 'copy'
+
+    input:
+    file "spectra/*" from _spectra_ch.collect()
+
+    output:
+    file "results_file.tsv"
+
+    """
+    python3 $TOOL_FOLDER/summarize.py \
+    spectra \
+    results_file.tsv
+    """
+}
+
+

@@ -19,6 +19,15 @@
             <fileGenerator type="upload" purpose="spectrum" target="spectra"/>
         </parameter>
 
+        <!-- Conversion Parameters -->
+        <parameter name="EXPORTMS2ONLY" label="EXPORTMS2ONLY">
+            <options>
+                <option value="True" label="True"/>
+                <option value="False" label="False"/>
+            </options>
+            <validator type="set"/>
+        </parameter>
+
     </parameters>
 
     <block label="File Selection">
@@ -35,6 +44,18 @@
                 </module>
             </cell>
         </row>
+    </block>
 
+    <block label="Conversion Parameters">
+        <row>
+            <cell>
+                <label>
+                    <content parameter="EXPORTMS2ONLY"/>
+                </label>
+            </cell>
+            <cell>
+                <input type="select" parameter="EXPORTMS2ONLY"></input>
+            </cell>
+        </row>
     </block>
 </interface>

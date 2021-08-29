@@ -12,7 +12,7 @@
 
     <block id="view_results" type="table">
         <data>
-            <source type="file" name="workflow_results/result_file.tsv"/>
+            <source type="file" name="workflow_results/results_file.tsv"/>
             <parsers>
                 <parser type="genericTabular"/>
             </parsers>

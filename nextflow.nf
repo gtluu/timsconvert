@@ -51,7 +51,7 @@ process summarize {
     file "spectra/*" from _spectra_ch.collect()
 
     output:
-    file "result_file.tsv"
+    file "results_file.tsv"
 
     """
     python3 $TOOL_FOLDER/summarize.py \

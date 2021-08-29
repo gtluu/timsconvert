@@ -6,8 +6,8 @@ import argparse
 
 # Reading arguments
 parser = argparse.ArgumentParser()
-parser.add_argument("input_spectra_folder", help="Input directory", required=True)
-parser.add_argument("output_file", help="Output file", required=True)
+parser.add_argument("input_spectra_folder", help="Input directory")
+parser.add_argument("output_file", help="Output file")
 args = parser.parse_args()
 
 all_spectra_files = glob.glob(os.path.join(args.input_spectra_folder, "*.mzML"))

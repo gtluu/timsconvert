@@ -20,10 +20,8 @@ def get_args():
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'
                                           'files will have same filename and overwrite each other. Default is'
                                           'none. Empty string.', default='', type=str)
-    parser.add_argument('--centroid', help='Boolean to determine if data should be centroided. Defaults to True.',
-                        default=True, type=bool)
-    parser.add_argument('--ms2_only', help='Boolean to determine whether to convert only MS2 spectra or all spectra.'
-                                           'Defaults to True', default=True, type=bool)
+    parser.add_argument('--centroid', help='Boolean for data to be centroided.', action='store_true')
+    parser.add_argument('--ms2_only', help='Boolean to only use MS2 spectra.', action='store_true')
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
                         default='scan', type=str)
@@ -37,8 +35,7 @@ def get_args():
                                                                 'Defaults to 1.0.', default=1.0, type=float)
     parser.add_argument('--ms1_intensity_threshold', help='Minimum intensity measurement to accept a peak. Defaults to'
                                                           ' 1.0.', default=1.0, type=float)
-    parser.add_argument('--ms1_threshold_data', help='Boolean for whether to apply thresholds to the data. Defaults to'
-                                                     'False.', default=False, type=bool)
+    parser.add_argument('--ms1_threshold_data', help='Boolean to apply thresholds to the data.', action='store_true')
     parser.add_argument('--ms1_target_envelopes', help='Sequence of (start m/z, end m/z) paris, limiting peak picking'
                                                        ' to only those intervals. Defaults to None', default=None,
                         type=list)
@@ -47,16 +44,16 @@ def get_args():
                                                  'intensity_array) or `str` matching one of the premade names in '
                                                  '`scan_filter.filter_register`. Defaults to None.', default=None,
                         type=list)
-    parser.add_argument('--ms1_verbose', help='Boolean for whether to log extra information while picking peaks. '
-                                              'Defaults to False.', default=False, type=bool)
+    parser.add_argument('--ms1_verbose', help='Boolean to log extra information while centroiding MS1.',
+                        action='store_true')
     parser.add_argument('--ms1_start_mz', help='A minimum m/z value to start picking peaks from. Defaults to None.',
                         default=None, type=float)
     parser.add_argument('--ms1_stop_mz', help='A maximum m/z value to stop picking peaks after. Defaults to None.',
                         default=None, type=float)
-    parser.add_argument('--ms1_integrate', help='Boolean for whether to integrate along each peak to calculate the '
+    parser.add_argument('--ms1_integrate', help='Boolean to integrate along each peak to calculate the '
                                                 'area. Defaults to True, but the area value for each peak is not '
                                                 'usually used by downstream algorithms for consistency, so this '
-                                                'expensive operation can be omitted.', default=True, type=bool)
+                                                'expensive operation can be omitted.', action='store_true')
 
     # Advanced MS2 Centroiding Arguments: taken from alphatims.bruker.centroid_spectrum()
     parser.add_argument('--ms2_centroiding_window', help='Centroiding window to be used for MS2 spectra. Default = 5.',
@@ -66,8 +63,7 @@ def get_args():
                         type=int)
 
     # System Arguments
-    parser.add_argument('--verbose', help='Boolean determining whether to print logging output. Defaults to False.',
-                        default=False, type=bool)
+    parser.add_argument('--verbose', help='Boolean to print logging output.', action='store_true')
 
     # Return parser
     arguments = parser.parse_args()

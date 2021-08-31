@@ -1,3 +1,4 @@
-F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data\pen12_ms2_1_36_1_400.d --outfile pen12_ms1_frame --outdir F:\code\alphatims_test_data --centroid --ms1_groupby frame --verbose
-F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data\pen12_ms2_1_36_1_400.d --outfile pen12_ms1_scan --outdir F:\code\alphatims_test_data --centroid --ms1_groupby scan --verbose
+F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data\pen12_ms2_1_36_1_400.d --outfile polarity --outdir F:\code\alphatims_test_data --centroid --ms1_groupby frame --verbose
+F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data\ming_example --outdir F:\code\alphatims_test_data\ming_example1 --centroid --ms1_groupby frame --verbose
+F:\alphatims_test\venv\Scripts\python.exe F:\code\alphatims_test\bin\run.py --input F:\code\alphatims_test_data\ming_example --outdir F:\code\alphatims_test_data\ming_example1 --centroid --ms1_groupby scan --verbose
 PAUSE

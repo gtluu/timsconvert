@@ -39,6 +39,10 @@ print(grouped2)'''
 
 #print(pd.read_sql_query(query, con))
 
+prop_df = pd.read_sql_query('SELECT * FROM PropertyDefinitions WHERE PermanentName = "Mode_IonPolarity"', con)
+prop_df = pd.read_sql_query('SELECT * FROM PropertyDefinitions WHERE PermanentName = "MSMSAuto_ExclusionActivation"', con)
+print(prop_df['Id'].values.tolist()[0])
+
 df = pd.read_sql_query('SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = 10000', con)
 print(min(df['Frame'].values.tolist()))
 print(max(df['Frame'].values.tolist()))

@@ -12,7 +12,7 @@ params.input = 'test/data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_
 params.centroid = 'True'  // should spectra be centroided?
 // params.ms2_centroiding_window = '5'  // centroiding window for ms2 spectra
 // params.ms2_keep_n_most_abundant_peaks = '1'  // keep N most abundant peaks in ms2 spectra
-params.ms2_only = 'True'  // only convert ms2 spectra?
+params.ms2_only = true  // only convert ms2 spectra?
 params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)
 params.verbose = 'True'
 
@@ -32,13 +32,15 @@ process convert {
     output:
     file "spectra/*mzML" into _spectra_ch
 
+    script:
+    def ms2_flag = params.ms2_only == true ? "--ms2_only" : ''
     """
     mkdir spectra
     python3 $TOOL_FOLDER/run.py \
     --input $input_file \
     --outdir spectra \
     --centroid ${params.centroid} \
-    --ms2_only ${params.ms2_only} \
+    ${ms2_flag} \
     --ms1_groupby ${params.ms1_groupby} \
     --verbose ${params.verbose}
     """

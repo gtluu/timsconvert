@@ -62,7 +62,7 @@ def count_scans(parent_scans, product_scans):
 
 
 # Write out product spectrum.
-def write_ms2_spectrum(writer, parent_scan, product_scan):
+def write_ms2_spectrum(writer, parent_scan, encoding, product_scan):
     # Build params list for spectrum.
     spectrum_params = [product_scan['scan_type'],
                        {'ms level': product_scan['ms_level']},
@@ -89,6 +89,11 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
     if parent_scan != None:
         precursor_info['spectrum_reference'] = 'scan=' + str(parent_scan['scan_number'])
 
+    if encoding == 32:
+        encoding_dtype = np.int32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
     # Write MS2 spectrum.
     writer.write_spectrum(product_scan['mz_array'],
                           product_scan['intensity_array'],
@@ -97,11 +102,13 @@ def write_ms2_spectrum(writer, parent_scan, product_scan):
                           centroided=product_scan['centroided'],
                           scan_start_time=product_scan['retention_time'],
                           params=spectrum_params,
-                          precursor_information=precursor_info)
+                          precursor_information=precursor_info,
+                          encoding={'m/z array': encoding_dtype,
+                                    'intensity array': encoding_dtype})
 
 
 # Write out parent spectrum.
-def write_ms1_spectrum(writer, parent_scan, groupby):
+def write_ms1_spectrum(writer, parent_scan, encoding, groupby):
     # Build params
     params = [parent_scan['scan_type'],
               {'ms level': parent_scan['ms_level']},
@@ -117,6 +124,11 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
     elif groupby == 'frame':
         other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
 
+    if encoding == 32:
+        encoding_dtype = np.int32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
     # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],
                           parent_scan['intensity_array'],
@@ -126,7 +138,9 @@ def write_ms1_spectrum(writer, parent_scan, groupby):
                           scan_start_time=parent_scan['retention_time'],
                           other_arrays=other_arrays,
                           params=params,
-                          encoding={'ion mobility array': np.float32})
+                          encoding={'m/z array': encoding_dtype,
+                                    'intensity array': encoding_dtype,
+                                    'ion mobility array': encoding_dtype})
 
 
 # Write out mzML file using psims.
@@ -223,14 +237,14 @@ def write_mzml(raw_data, args):
                                 scan_count += 1
                                 spectrum['scan_number'] = scan_count
                                 logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_ms1_spectrum(writer, spectrum, args['ms1_groupby'])
+                                write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
                             # Write MS2 product scans.
                             if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
                                 for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
                                     scan_count += 1
                                     product_scan['scan_number'] = scan_count
                                     logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                    write_ms2_spectrum(writer, spectrum, product_scan)
+                                    write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
                     elif args['ms1_groupby'] == 'frame':
                         spectrum = parent_scans[frame_num]
                         # Write MS1 parent scan.
@@ -238,14 +252,14 @@ def write_mzml(raw_data, args):
                             scan_count += 1
                             spectrum['scan_number'] = scan_count
                             logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                            write_ms1_spectrum(writer, spectrum, args['ms1_groupby'])
+                            write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
                         # Write MS2 product scans.
                         if frame_num in product_scans.keys():
                             for product_scan in product_scans[frame_num]:
                                 scan_count += 1
                                 product_scan['scan_number'] = scan_count
                                 logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_ms2_spectrum(writer, spectrum, product_scan)
+                                write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
 
 
 if __name__ == '__main__':

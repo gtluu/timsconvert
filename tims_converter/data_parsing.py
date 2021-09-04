@@ -254,8 +254,7 @@ def parse_raw_data(raw_data, ms1_frames, args):
     # Get all MS1 scans into dictionary.
     logging.info(get_timestamp() + ':' + 'Parsing MS1 spectra.')
     ms1_scans_dict = {}
-    #for frame_num in ms1_frames:
-    for frame_num in [ms1_frames[0]]:
+    for frame_num in ms1_frames:
         if args['ms1_groupby'] == 'scan':
             ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
             for scan_num in ms1_scans:

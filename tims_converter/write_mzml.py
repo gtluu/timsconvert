@@ -125,7 +125,7 @@ def write_ms1_spectrum(writer, parent_scan, encoding, groupby):
         other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
 
     if encoding == 32:
-        encoding_dtype = np.int32
+        encoding_dtype = np.float32
     elif encoding == 64:
         encoding_dtype = np.float64
 
@@ -226,33 +226,36 @@ def write_mzml(raw_data, args):
         # Writing data to spectrum list.
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
-            with writer.spectrum_list(count=num_of_spectra):
-                for frame_num in ms1_frames:
+            #with writer.spectrum_list(count=num_of_spectra):
+            with writer.spectrum_list(count=1):
+                for frame_num in [ms1_frames[0]]:
                     if args['ms1_groupby'] == 'scan':
                         ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
                         for scan_num in ms1_scans:
                             spectrum = parent_scans['f' + str(frame_num) + 's' + str(scan_num)]
                             # Write MS1 parent scan.
                             if args['ms2_only'] == False:
-                                scan_count += 1
-                                spectrum['scan_number'] = scan_count
-                                logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
+                                if spectrum != None:
+                                    scan_count += 1
+                                    spectrum['scan_number'] = scan_count
+                                    logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
+                                    write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
                             # Write MS2 product scans.
-                            if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
+                            '''if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
                                 for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
                                     scan_count += 1
                                     product_scan['scan_number'] = scan_count
                                     logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                    write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
+                                    write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)'''
                     elif args['ms1_groupby'] == 'frame':
                         spectrum = parent_scans[frame_num]
                         # Write MS1 parent scan.
                         if args['ms2_only'] == False:
-                            scan_count += 1
-                            spectrum['scan_number'] = scan_count
-                            logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                            write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
+                            if spectrum != None:
+                                scan_count += 1
+                                spectrum['scan_number'] = scan_count
+                                logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
+                                write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
                         # Write MS2 product scans.
                         if frame_num in product_scans.keys():
                             for product_scan in product_scans[frame_num]:

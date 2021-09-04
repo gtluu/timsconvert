@@ -53,57 +53,59 @@ def parse_ms1_scan(scan, frame_num, args):
         mz_array = scan['mz_values'].values.tolist()
         intensity_array = scan['intensity_values'].values.tolist()
 
-    # Set up .tdf database connection.
-    con = sqlite3.connect(os.path.join(args['infile'], 'analysis.tdf'))
-    # Get polarity.
-    pol_query = 'SELECT * FROM Properties WHERE Frame == ' + str(frame_num)
-    pol_query_df = pd.read_sql_query(pol_query, con)
-    pol_prop_query = 'SELECT * FROM PropertyDefinitions WHERE PermanentName = "Mode_IonPolarity"'
-    pol_prop_query_df = pd.read_sql_query(pol_prop_query, con)
-    pol_prop_id = pol_prop_query_df['Id'].values.tolist()[0]
-    # Close connection to database.
-    con.close()
-    # Property 1229 == Mode_IonPolarity; alternatively maybe use 1098 == TOF_IonPolarity?
-    polarity_value = list(set(pol_query_df.loc[pol_query_df['Property'] == pol_prop_id]['Value'].values.tolist()))
-    if len(polarity_value) == 1:
-        polarity_value = polarity_value[0]
-        if int(polarity_value) == 0:
-            polarity = 'positive scan'
-        elif int(polarity_value == 1):
-            polarity = 'negative scan'
+    if len(mz_array) != 0 and len(intensity_array) != 0:
+        # Set up .tdf database connection.
+        con = sqlite3.connect(os.path.join(args['infile'], 'analysis.tdf'))
+        # Get polarity.
+        pol_query = 'SELECT * FROM Properties WHERE Frame == ' + str(frame_num)
+        pol_query_df = pd.read_sql_query(pol_query, con)
+        pol_prop_query = 'SELECT * FROM PropertyDefinitions WHERE PermanentName = "Mode_IonPolarity"'
+        pol_prop_query_df = pd.read_sql_query(pol_prop_query, con)
+        pol_prop_id = pol_prop_query_df['Id'].values.tolist()[0]
+        # Close connection to database.
+        con.close()
+        # Property 1229 == Mode_IonPolarity; alternatively maybe use 1098 == TOF_IonPolarity?
+        polarity_value = list(set(pol_query_df.loc[pol_query_df['Property'] == pol_prop_id]['Value'].values.tolist()))
+        if len(polarity_value) == 1:
+            polarity_value = polarity_value[0]
+            if int(polarity_value) == 0:
+                polarity = 'positive scan'
+            elif int(polarity_value == 1):
+                polarity = 'negative scan'
+            else:
+                polarity = None
         else:
             polarity = None
+
+        base_peak_index = intensity_array.index(max(intensity_array))
+        scan_dict = {'scan_number': None,
+                     'mz_array': mz_array,
+                     'intensity_array': intensity_array,
+                     'scan_type': 'MS1 spectrum',
+                     'polarity': polarity,
+                     'centroided': args['centroid'],
+                     'retention_time': float(list(set(scan['rt_values_min'].values.tolist()))[0]),
+                     'total_ion_current': sum(intensity_array),
+                     'base_peak_mz': float(mz_array[base_peak_index]),
+                     'base_peak_intensity': float(intensity_array[base_peak_index]),
+                     'ms_level': 1,
+                     'high_mz': float(max(mz_array)),
+                     'low_mz': float(min(mz_array)),
+                     'parent_frame': 0,
+                     'parent_scan': None}
+
+        # Spectrum has single mobility value if grouped by scans (mobility).
+        if args['ms1_groupby'] == 'scan':
+            mobility = list(set(scan['mobility_values'].values.tolist()))
+            if len(mobility) == 1:
+                scan_dict['mobility'] = mobility[0]
+            scan_dict['parent_scan'] = int(list(set(scan['scan_indices'].values.tolist()))[0])
+        # Spectrum has array of mobility values if grouped by frame (retention time).
+        elif args['ms1_groupby'] == 'frame':
+            scan_dict['mobility_array'] = scan['mobility_values']
+        return scan_dict
     else:
-        polarity = None
-
-    # Get row containing base peak information.
-    base_peak_row = scan.sort_values(by='intensity_values', ascending=False).iloc[0]
-    scan_dict = {'scan_number': None,
-                 'mz_array': mz_array,
-                 'intensity_array': intensity_array,
-                 'scan_type': 'MS1 spectrum',
-                 'polarity': polarity,
-                 'centroided': args['centroid'],
-                 'retention_time': float(list(set(scan['rt_values_min'].values.tolist()))[0]),
-                 'total_ion_current': sum(scan['intensity_values'].values.tolist()),
-                 'base_peak_mz': float(base_peak_row['mz_values']),
-                 'base_peak_intensity': float(base_peak_row['intensity_values']),
-                 'ms_level': 1,
-                 'high_mz': float(max(scan['mz_values'].values.tolist())),
-                 'low_mz': float(min(scan['mz_values'].values.tolist())),
-                 'parent_frame': 0,
-                 'parent_scan': None}
-
-    # Spectrum has single mobility value if grouped by scans (mobility).
-    if args['ms1_groupby'] == 'scan':
-        mobility = list(set(scan['mobility_values'].values.tolist()))
-        if len(mobility) == 1:
-            scan_dict['mobility'] = mobility[0]
-        scan_dict['parent_scan'] = int(list(set(scan['scan_indices'].values.tolist()))[0])
-    # Spectrum has array of mobility values if grouped by frame (retention time).
-    elif args['ms1_groupby'] == 'frame':
-        scan_dict['mobility_array'] = scan['mobility_values']
-    return scan_dict
+        return None
 
 
 # Get all MS2 scans. Based in part on alphatims.bruker.save_as_mgf().
@@ -252,20 +254,22 @@ def parse_raw_data(raw_data, ms1_frames, args):
     # Get all MS1 scans into dictionary.
     logging.info(get_timestamp() + ':' + 'Parsing MS1 spectra.')
     ms1_scans_dict = {}
-    for frame_num in ms1_frames:
+    #for frame_num in ms1_frames:
+    for frame_num in [ms1_frames[0]]:
         if args['ms1_groupby'] == 'scan':
             ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
             for scan_num in ms1_scans:
                 parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
                 if args['ms2_only'] == False:
-                    ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = parse_ms1_scan(parent_scan, frame_num,
-                                                                                                args)
+                    ms1_scan = parse_ms1_scan(parent_scan, frame_num, args)
+                    ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = ms1_scan
                 elif args['ms2_only'] == True:
                     ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = None
         elif args['ms1_groupby'] == 'frame':
             parent_scan = raw_data[frame_num].sort_values(by='mz_values')
             if args['ms2_only'] == False:
-                ms1_scans_dict[frame_num] = parse_ms1_scan(parent_scan, frame_num, args)
+                ms1_scan = parse_ms1_scan(parent_scan, frame_num, args)
+                ms1_scans_dict[frame_num] = ms1_scan
             elif args['ms2_only'] == True:
                 ms1_scans_dict[frame_num] = None
 

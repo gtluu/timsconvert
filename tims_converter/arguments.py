@@ -25,6 +25,8 @@ def get_args():
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
                         default='scan', type=str)
+    parser.add_argument('--encoding', help='Choose encoding: 32-bit ("32") or 64-bit ("64"). Defaults to 32-bit.',
+                        default=32, type=int)
 
     # Advanced MS1 Centroiding Arguments: taken from ms_peak_picker.pick_peaks()
     parser.add_argument('--ms1_fit_type', help='Name of the peak model to use: "quadratic", "gaussian", "lorentzian",'

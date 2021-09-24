@@ -1,6 +1,6 @@
 import logging
 import copy
-from tims_converter import *
+from timsconvert import *
 
 
 def run_tims_converter(args):

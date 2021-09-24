@@ -209,7 +209,7 @@ def write_mzml(raw_data, args):
 
         # Add data processing information.
         proc_methods = []
-        #proc_methods.append(writer.ProcessingMethod(order=1, software_reference='tims_converter',
+        #proc_methods.append(writer.ProcessingMethod(order=1, software_reference='timsconvert',
         #                                            params=['Conversion to mzML']))
         proc_methods.append(writer.ProcessingMethod(order=1, software_reference='psims-writer',
                                                     params=['Conversion to mzML']))

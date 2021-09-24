@@ -1,4 +1,4 @@
-import tims_converter as tc
+import timsconvert as tc
 import alphatims.bruker
 
 

@@ -10,7 +10,6 @@ import copy
 import alphatims.bruker
 import alphatims.utils
 
-from ms_peak_picker import pick_peaks
 from lxml import etree as et
 from functools import partial
 from psims.mzml import MzMLWriter

@@ -13,10 +13,8 @@ def write_mzml_metadata(data, writer, ms2_only, centroid):
         file_description.append('MSn spectrum')
     elif ms2_only == True:
         file_description.append('MSn spectrum')
-    if centroid == True:
-        file_description.append('centroid spectrum')
-    elif centroid == False:
-        file_description.append('profile spectrum')
+    file_description.append('centroid spectrum')
+    writer.file_description(file_description)
 
     # Source file element.
     sf = writer.SourceFile(os.path.split(data.source_file)[0],

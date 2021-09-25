@@ -159,10 +159,7 @@ def write_mzml(raw_data, args):
             file_description.append('MSn spectrum')
         elif args['ms2_only'] == True:
             file_description.append('MSn spectrum')
-        if args['centroid'] == True:
-            file_description.append('centroid spectrum')
-        elif args['centroid'] == False:
-            file_description.append('profile spectrum')
+        file_description.append('centroid spectrum')
         writer.file_description(file_description)
 
         # Add .d folder as source file.

@@ -20,7 +20,6 @@ def get_args():
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'
                                           'files will have same filename and overwrite each other. Default is'
                                           'none. Empty string.', default='', type=str)
-    parser.add_argument('--centroid', help='Boolean for data to be centroided.', action='store_true')
     parser.add_argument('--ms2_only', help='Boolean to only use MS2 spectra.', action='store_true')
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
@@ -28,38 +27,7 @@ def get_args():
     parser.add_argument('--encoding', help='Choose encoding: 32-bit ("32") or 64-bit ("64"). Defaults to 32-bit.',
                         default=32, type=int)
 
-    # Advanced MS1 Centroiding Arguments: taken from ms_peak_picker.pick_peaks()
-    parser.add_argument('--ms1_fit_type', help='Name of the peak model to use: "quadratic", "gaussian", "lorentzian",'
-                                               'or "apex". Defaults to "quadratic".', default='gaussian', type=str)
-    parser.add_argument('--ms1_peak_mode', help='Whether peaks are in "profile" mode or are pre"centroid"ed.'
-                                                'Defaults to "profile".', default='profile', type=str)
-    parser.add_argument('--ms1_signal_to_noise_threshold', help='Minimum signal-to-noise measurement to accept a peak.'
-                                                                'Defaults to 1.0.', default=1.0, type=float)
-    parser.add_argument('--ms1_intensity_threshold', help='Minimum intensity measurement to accept a peak. Defaults to'
-                                                          ' 1.0.', default=1.0, type=float)
-    parser.add_argument('--ms1_threshold_data', help='Boolean to apply thresholds to the data.', action='store_true')
-    parser.add_argument('--ms1_target_envelopes', help='Sequence of (start m/z, end m/z) paris, limiting peak picking'
-                                                       ' to only those intervals. Defaults to None', default=None,
-                        type=list)
-    parser.add_argument('--ms1_transforms', help='List of :class:`scan_filter.FilterBase` instances or callable that '
-                                                 'accepts (mz_array, intensity_array) and returns (mz_array, '
-                                                 'intensity_array) or `str` matching one of the premade names in '
-                                                 '`scan_filter.filter_register`. Defaults to None.', default=None,
-                        type=list)
-    parser.add_argument('--ms1_verbose', help='Boolean to log extra information while centroiding MS1.',
-                        action='store_true')
-    parser.add_argument('--ms1_start_mz', help='A minimum m/z value to start picking peaks from. Defaults to None.',
-                        default=None, type=float)
-    parser.add_argument('--ms1_stop_mz', help='A maximum m/z value to stop picking peaks after. Defaults to None.',
-                        default=None, type=float)
-    parser.add_argument('--ms1_integrate', help='Boolean to integrate along each peak to calculate the '
-                                                'area. Defaults to True, but the area value for each peak is not '
-                                                'usually used by downstream algorithms for consistency, so this '
-                                                'expensive operation can be omitted.', action='store_true')
-
     # Advanced MS2 Centroiding Arguments: taken from alphatims.bruker.centroid_spectrum()
-    parser.add_argument('--ms2_centroiding_window', help='Centroiding window to be used for MS2 spectra. Default = 5.',
-                        default=5, type=int)
     parser.add_argument('--ms2_keep_n_most_abundant_peaks', help='Keep N most abundant peaks in MS2 spectra. If -1, all'
                                                                  'peaks are kept. Defaults to -1.', default=-1,
                         type=int)

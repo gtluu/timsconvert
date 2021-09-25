@@ -1,7 +1,6 @@
 from .timestamp import *
 import alphatims.bruker
 import alphatims.utils
-from ms_peak_picker import pick_peaks
 from lxml import etree as et
 import sqlite3
 import numpy as np
@@ -22,36 +21,10 @@ def key_func_scans(k):
     return k['parent_scan']
 
 
-# Centroid MS1 spectrum using ms_peak_picker algorithm.
-def centroid_ms1_spectrum(scan, args):
-    mz_array = scan['mz_values'].values
-    intensity_array = scan['intensity_values'].values
-    peak_list = pick_peaks(mz_array,
-                           intensity_array,
-                           fit_type=args['ms1_fit_type'],
-                           peak_mode=args['ms1_peak_mode'],
-                           signal_to_noise_threshold=args['ms1_signal_to_noise_threshold'],
-                           intensity_threshold=args['ms1_intensity_threshold'],
-                           threshold_data=args['ms1_threshold_data'],
-                           target_envelopes=args['ms1_target_envelopes'],
-                           transforms=args['ms1_transforms'],
-                           verbose=args['ms1_verbose'],
-                           start_mz=args['ms1_start_mz'],
-                           stop_mz=args['ms1_stop_mz'],
-                           integrate=args['ms1_integrate'])
-    mz_array = [i.mz for i in list(peak_list.peaks)]
-    intensity_array = [i.intensity for i in list(peak_list.peaks)]
-    return mz_array, intensity_array
-
-
 # Parse MS1 spectrum and output to dictionary containing necessary data.
 def parse_ms1_scan(scan, frame_num, args):
-    # Centroid spectrum if True.
-    if args['centroid'] == True:
-        mz_array, intensity_array = centroid_ms1_spectrum(scan, args)
-    elif args['centroid'] == False:
-        mz_array = scan['mz_values'].values.tolist()
-        intensity_array = scan['intensity_values'].values.tolist()
+    mz_array = scan['mz_values'].values.tolist()
+    intensity_array = scan['intensity_values'].values.tolist()
 
     if len(mz_array) != 0 and len(intensity_array) != 0:
         # Set up .tdf database connection.
@@ -115,11 +88,9 @@ def parse_ms2_scans(raw_data, args):
         return None
 
     # Set up precursor information and get values for precursor indexing.
-    if args['centroid'] == False:
-        args['ms2_centroiding_window'] = 0
     (spectrum_indptr,
      spectrum_tof_indices,
-     spectrum_intensity_values) = raw_data.index_precursors(centroiding_window=args['ms2_centroiding_window'],
+     spectrum_intensity_values) = raw_data.index_precursors(centroiding_window=0,
                                                             keep_n_most_abundant_peaks=args[
                                                                 'ms2_keep_n_most_abundant_peaks'])
     mono_mzs = raw_data.precursors.MonoisotopicMz.values

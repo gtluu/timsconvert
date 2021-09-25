@@ -1,4 +1,3 @@
-- check .tdf file for processing software
 - figure out how to add TIMS to instrument configuration
 - remove centroiding options from args; alphatims and in house code doesn't use profile data
 - remove ms peak picker integration

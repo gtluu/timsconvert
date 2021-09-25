@@ -14,5 +14,10 @@ def bruker_to_df(filename):
     return alphatims.bruker.TimsTOF(filename)
 
 
+# Read in tables from .tsf/.tdf files.
+def read_bruker_sql(filename):
+    pass
+
+
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)

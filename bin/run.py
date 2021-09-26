@@ -32,7 +32,7 @@ def run_tims_converter(args):
         # Log arguments.
         for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
-        write_mzml(data, run_args)
+        write_lcms_mzml(data, run_args)
         run_args.clear()
 
 

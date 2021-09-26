@@ -1,4 +1,5 @@
 from .timestamp import *
+from .constants import *
 import alphatims.bruker
 import alphatims.utils
 from lxml import etree as et
@@ -21,8 +22,17 @@ def key_func_scans(k):
     return k['parent_scan']
 
 
+def parse_maldi_plate_map(plate_map_filename):
+    plate_map = pd.read_csv(plate_map_filename, header=None)
+    plate_dict = {}
+    for index, row in plate_map.itterrows():
+        for count, value in enumerate(row, start=1):
+            plate_dict[chr(index + 65) + str(count)] = value
+    return plate_dict
+
+
 # Parse MS1 spectrum and output to dictionary containing necessary data.
-def parse_ms1_scan(scan, frame_num, args):
+def parse_lcms_tdf_ms1_scan(scan, frame_num, args):
     mz_array = scan['mz_values'].values.tolist()
     intensity_array = scan['intensity_values'].values.tolist()
 
@@ -82,38 +92,38 @@ def parse_ms1_scan(scan, frame_num, args):
 
 
 # Get all MS2 scans. Based in part on alphatims.bruker.save_as_mgf().
-def parse_ms2_scans(raw_data, args):
+def parse_lcms_tdf_ms2_scans(tdf_data, args):
     # Check to make sure timsTOF object is valid.
-    if raw_data.acquisition_mode != 'ddaPASEF':
+    if tdf_data.acquisition_mode != 'ddaPASEF':
         return None
 
     # Set up precursor information and get values for precursor indexing.
     (spectrum_indptr,
      spectrum_tof_indices,
-     spectrum_intensity_values) = raw_data.index_precursors(centroiding_window=0,
+     spectrum_intensity_values) = tdf_data.index_precursors(centroiding_window=0,
                                                             keep_n_most_abundant_peaks=args[
                                                                 'ms2_keep_n_most_abundant_peaks'])
-    mono_mzs = raw_data.precursors.MonoisotopicMz.values
-    average_mzs = raw_data.precursors.AverageMz.values
-    charges = raw_data.precursors.Charge.values
+    mono_mzs = tdf_data.precursors.MonoisotopicMz.values
+    average_mzs = tdf_data.precursors.AverageMz.values
+    charges = tdf_data.precursors.Charge.values
     charges[np.flatnonzero(np.isnan(charges))] = 0
     charges = charges.astype(np.int64)
-    rtinseconds = raw_data.rt_values[raw_data.precursors.Parent.values]
-    intensities = raw_data.precursors.Intensity.values
-    mobilities = raw_data.mobility_values[raw_data.precursors.ScanNumber.values.astype(np.int64)]
-    parent_frames = raw_data.precursors.Parent.values
-    parent_scans = np.floor(raw_data.precursors.ScanNumber.values)
+    rtinseconds = tdf_data.rt_values[tdf_data.precursors.Parent.values]
+    intensities = tdf_data.precursors.Intensity.values
+    mobilities = tdf_data.mobility_values[tdf_data.precursors.ScanNumber.values.astype(np.int64)]
+    parent_frames = tdf_data.precursors.Parent.values
+    parent_scans = np.floor(tdf_data.precursors.ScanNumber.values)
 
     # Set up .tdf database connection.
     con = sqlite3.connect(os.path.join(args['infile'], 'analysis.tdf'))
 
     list_of_scan_dicts = []
-    for index in alphatims.utils.progress_callback(range(1, raw_data.precursor_max_index)):
+    for index in alphatims.utils.progress_callback(range(1, tdf_data.precursor_max_index)):
         start = spectrum_indptr[index]
         end = spectrum_indptr[index + 1]
 
         # Remove MS2 scan if empty.
-        if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0 or spectrum_intensity_values[start:end] != 0:
+        if tdf_data.mz_values[spectrum_tof_indices[start:end]].size != 0 or spectrum_intensity_values[start:end] != 0:
             if not np.isnan(mono_mzs[index - 1]):
                 # Get isolation width and collision energy from Properties table in .tdf file.
                 iso_query = 'SELECT * FROM PasefFrameMsMsInfo WHERE Precursor = ' + str(index) +\
@@ -164,7 +174,7 @@ def parse_ms2_scans(raw_data, args):
                 '''
 
                 scan_dict = {'scan_number': None,
-                             'mz_array': raw_data.mz_values[spectrum_tof_indices[start:end]],
+                             'mz_array': tdf_data.mz_values[spectrum_tof_indices[start:end]],
                              'intensity_array': spectrum_intensity_values[start:end],
                              'scan_type': 'MSn spectrum',
                              'polarity': polarity,
@@ -187,13 +197,14 @@ def parse_ms2_scans(raw_data, args):
                 # Get base peak information.
                 if spectrum_intensity_values[start:end].size != 0:
                     base_peak_index = spectrum_intensity_values[start:end].argmax()
-                    scan_dict['base_peak_mz'] = float(raw_data.mz_values[spectrum_tof_indices[start:end]][base_peak_index])
+                    scan_dict['base_peak_mz'] = float(tdf_data.mz_values[spectrum_tof_indices[start:end]]
+                                                      [base_peak_index])
                     scan_dict['base_peak_intensity'] = float(spectrum_intensity_values[base_peak_index])
 
                 # Get high and low spectrum m/z values.
-                if raw_data.mz_values[spectrum_tof_indices[start:end]].size != 0:
-                    scan_dict['high_mz'] = float(max(raw_data.mz_values[spectrum_tof_indices[start:end]]))
-                    scan_dict['low_mz'] = float(min(raw_data.mz_values[spectrum_tof_indices[start:end]]))
+                if tdf_data.mz_values[spectrum_tof_indices[start:end]].size != 0:
+                    scan_dict['high_mz'] = float(max(tdf_data.mz_values[spectrum_tof_indices[start:end]]))
+                    scan_dict['low_mz'] = float(min(tdf_data.mz_values[spectrum_tof_indices[start:end]]))
 
                 list_of_scan_dicts.append(scan_dict)
 
@@ -215,35 +226,92 @@ def parse_ms2_scans(raw_data, args):
 
 # Extract all scan information including acquisition parameters, m/z, intensity, and mobility arrays/values
 # from dataframes for each scan.
-def parse_raw_data(raw_data, ms1_frames, args):
+def parse_lcms_tdf(tdf_data, ms1_frames, args):
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
     logging.info(get_timestamp() + ':' + 'Parsing MS2 spectra.')
-    ms2_scans_dict = parse_ms2_scans(raw_data, args)
+    ms2_scans_dict = parse_lcms_tdf_ms2_scans(tdf_data, args)
 
     # Get all MS1 scans into dictionary.
     logging.info(get_timestamp() + ':' + 'Parsing MS1 spectra.')
     ms1_scans_dict = {}
     for frame_num in ms1_frames:
         if args['ms1_groupby'] == 'scan':
-            ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
+            ms1_scans = sorted(list(set(tdf_data[frame_num]['scan_indices'])))
             for scan_num in ms1_scans:
-                parent_scan = raw_data[frame_num, scan_num].sort_values(by='mz_values')
+                parent_scan = tdf_data[frame_num, scan_num].sort_values(by='mz_values')
                 if args['ms2_only'] == False:
-                    ms1_scan = parse_ms1_scan(parent_scan, frame_num, args)
+                    ms1_scan = parse_lcms_tdf_ms1_scan(parent_scan, frame_num, args)
                     ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = ms1_scan
                 elif args['ms2_only'] == True:
                     ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = None
         elif args['ms1_groupby'] == 'frame':
-            parent_scan = raw_data[frame_num].sort_values(by='mz_values')
+            parent_scan = tdf_data[frame_num].sort_values(by='mz_values')
             if args['ms2_only'] == False:
-                ms1_scan = parse_ms1_scan(parent_scan, frame_num, args)
+                ms1_scan = parse_lcms_tdf_ms1_scan(parent_scan, frame_num, args)
                 ms1_scans_dict[frame_num] = ms1_scan
             elif args['ms2_only'] == True:
                 ms1_scans_dict[frame_num] = None
 
     return ms1_scans_dict, ms2_scans_dict
+
+
+def parse_maldi_tsf(tsf_data, centroid):
+    list_of_frames_dict = tsf_data.frames.todict(orient='records')
+    list_of_scan_dicts = []
+    for index, row in tsf_data.maldiframeinfo.iterrows():
+        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
+        index_buf, intensity_array = tsf_data.read_line_spectrum(int(row['Frame']))
+        mz_array = tsf_data.index_to_mz(int(row['Frame']), index_buf)
+        if int(frames_dict['ScanMode']) in SCAN_MODE_CATEGORY['ms1']:
+            scan_type = 'MS1 spectrum'
+            ms_level = 1
+        elif int(frames_dict['ScanMode']) in SCAN_MODE_CATEGORY['ms2']:
+            scan_type = 'MSn spectrum'
+            ms_level = 2
+        else:
+            scan_type = None
+            ms_level = None
+
+        if mz_array.size != 0 and intensity_array.size != 0:
+            base_peak_index = np.where(intensity_array == np.max(intensity_array))
+            if tsf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                list_of_scan_dicts.append({'scan_number': None,
+                                           'mz_array': mz_array,
+                                           'intensity_array': intensity_array,
+                                           'coord': row['SpotName'],
+                                           'scan_type': scan_type,
+                                           'polarity': frames_dict['Polarity'],
+                                           'centroided': centroid,
+                                           'retention_time': 0,
+                                           'total_ion_current': sum(intensity_array),
+                                           'base_peak_mz': float(mz_array[base_peak_index]),
+                                           'base_peak_intensity': float(intensity_array[base_peak_index]),
+                                           'ms_level': ms_level,
+                                           'high_mz': float(max(mz_array)),
+                                           'low_mz': float(min(mz_array))})
+            elif tsf_data.meta_data['MaldiApplicationType'] == 'Imaging':
+                coords = []
+                coords.append(int(row['XIndexPos']))
+                coords.append(int(row['YIndexPos']))
+                if 'ZIndexPos' in tsf_data.maldiframeinfo.columns:
+                    coords.append(int(row['ZIndexPos']))
+                list_of_scan_dicts.append({'scan_number': None,
+                                           'mz_array': mz_array,
+                                           'intensity_array': intensity_array,
+                                           'coord': tuple(coords),
+                                           'scan_type': scan_type,
+                                           'polarity': frames_dict['Polarity'],
+                                           'centroided': centroid,
+                                           'retention_time': 0,
+                                           'total_ion_current': sum(intensity_array),
+                                           'base_peak_mz': float(mz_array[base_peak_index]),
+                                           'base_peak_intensity': float(intensity_array[base_peak_index]),
+                                           'ms_level': ms_level,
+                                           'high_mz': float(max(mz_array)),
+                                           'low_mz': float(min(mz_array))})
+    return list_of_scan_dicts
 
 
 if __name__ == '__main__':

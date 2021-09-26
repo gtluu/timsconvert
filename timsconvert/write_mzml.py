@@ -8,46 +8,6 @@ import logging
 import numpy as np
 
 
-INSTRUMENT_FAMILY = {'0': 'trap',
-                     '1': 'otof',
-                     '2': 'otofq',
-                     '3': 'biotof',
-                     '4': 'biotofq',
-                     '5': 'malditof',
-                     '6': 'ftms',
-                     '7': 'maxis',
-                     '9': 'timstof',
-                     '90': 'impact',
-                     '91': 'compact',
-                     '92': 'solarix',
-                     '255': 'unknown'}
-
-
-INSTRUMENT_SOURCE_TYPE = {'1': 'electrospray ionization',
-                          '2': 'atmospheric pressure chemical ionization',
-                          '3': 'nanoelectrospray',
-                          '4': 'nanoelectrospray',
-                          '5': 'atmospheric pressure photoionization',
-                          '6': 'multimode ionization',
-                          '9': 'nanoflow electrospray ionization',
-                          '10': 'ionBooster',
-                          '11': 'CaptiveSpray',
-                          '12': 'GC-APCI'}
-
-
-class IMMS(ParameterContainer):
-    def __init(self, order, params=None, context=NullMap, **kwargs):
-        params = self.prepare_params(params, **kwargs)
-        super(IMMS, self).__init__('ion mobility mass spectrometer',
-                                   params,
-                                   dict(order=order),
-                                   context=context)
-        try:
-            self.order = int(order)
-        except (ValueError, TypeError):
-            self.order = order
-
-
 # Count total number of parent and product scans.
 def count_scans(parent_scans, product_scans):
     num_parent_scans = 0
@@ -59,6 +19,60 @@ def count_scans(parent_scans, product_scans):
         num_product_scans += len(value)
 
     return num_parent_scans + num_product_scans
+
+
+def write_mzml_metadata(data, writer, ms2_only, centroid):
+    # Basic file descriptions.
+    file_description = []
+    if ms2_only == False:
+        file_description.append('MS1 spectrum')
+        file_description.append('MSn spectrum')
+    elif ms2_only == True:
+        file_description.append('MSn spectrum')
+    file_description.append('centroid spectrum')
+    writer.file_description(file_description)
+
+    # Source file element.
+    sf = writer.SourceFile(os.path.split(data.source_file)[0],
+                           os.path.split(data.source_file)[1],
+                           id=os.path.splitext(os.path.split(data.source_file)[1])[0])
+
+    # Add list of software.
+    # check for processed data from dataanalysis
+    acquisition_software_id = data.meta_data['AcquisitionSoftware']
+    acquisition_software_version = data.meta_data['AcquisitionSoftwareVersion']
+    if acquisition_software_id == 'Bruker otofControl':
+        acquisition_software_params = ['micrOTOFcontrol', ]
+    else:
+        acquisition_software_params = []
+    writer.software_list([{'id': acquisition_software_id,
+                           'version': acquisition_software_version,
+                           'params': acquisition_software_params},
+                          {'id': 'psims-writer',
+                           'version': '0.1.2',
+                           'params': ['python-psims', ]}])
+
+    # Instrument configuration.
+    inst_count = 0
+    if data.meta_data['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys():
+        inst_count += 1
+        source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[data.meta_data['InstrumentSourceType']]])
+    # analyzer and detector hard coded for timsTOF flex
+    inst_count += 1
+    analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
+    inst_count += 1
+    detector = writer.Detector(inst_count, ['electron multiplier'])
+    inst_config = writer.InstrumentCOnfiguration(id='instrument', component_list=[source, analyzer, detector],
+                                                 params=[
+                                                     INSTRUMENT_FAMILY[data.meta_data['InstrumentFamily']]])
+    writer.instrument_configuration_list([inst_config])
+
+    # Data processing element.
+    proc_methods = []
+    proc_methods.append(writer.ProcessingMethod(order=1, software_reference='psims-writer',
+                                                params=['Conversion to mzML']))
+    processing = writer.DataProcessing(proc_methods, id='exportation')
+    writer.data_processing_list([processing])
 
 
 # Write out product spectrum.
@@ -144,7 +158,7 @@ def write_ms1_spectrum(writer, parent_scan, encoding, groupby):
 
 
 # Write out mzML file using psims.
-def write_mzml(raw_data, args):
+def write_lcms_mzml(raw_data, args):
     # Create mzML writer using psims.
     writer = MzMLWriter(os.path.join(args['outdir'], args['outfile']))
 
@@ -152,71 +166,12 @@ def write_mzml(raw_data, args):
         # Begin mzML with controlled vocabularies (CV).
         writer.controlled_vocabularies()
 
-        # Write file description.
-        file_description = []
-        if args['ms2_only'] == False:
-            file_description.append('MS1 spectrum')
-            file_description.append('MSn spectrum')
-        elif args['ms2_only'] == True:
-            file_description.append('MSn spectrum')
-        file_description.append('centroid spectrum')
-        writer.file_description(file_description)
-
-        # Add .d folder as source file.
-        sf = writer.SourceFile(os.path.split(args['infile'])[0],
-                               os.path.split(args['infile'])[1],
-                               id=os.path.splitext(os.path.split(args['infile'])[1])[0])
-
-        # Add list of software.
-        # check for processed data from dataanalysis
-        acquisition_software_id = raw_data.meta_data['AcquisitionSoftware']
-        acquisition_software_version = raw_data.meta_data['AcquisitionSoftwareVersion']
-        if acquisition_software_id == 'Bruker otofControl':
-            acquisition_software_params = ['micrOTOFcontrol', ]
-        else:
-            acquisition_software_params = []
-        writer.software_list([{'id': acquisition_software_id,
-                               'version': acquisition_software_version,
-                               'params': acquisition_software_params},
-                              {'id': 'psims-writer',
-                               'version': '0.1.2',
-                               'params': ['python-psims', ]}])
-
-        # Add instrument configuration information.
-        # hardcoded ion mobility, mass analyzers, and detector for timsTOF series for now
-        inst_count = 0
-        # Source
-        if raw_data.meta_data['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys():
-            inst_count += 1
-            source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[raw_data.meta_data['InstrumentSourceType']]])
-        # Ion Mobility Spectrometer
-        #inst_count += 1
-        #tims = IMMS(inst_count, ['trapped ion mobility spectrometer'])
-        # Mass Analyzer(s)
-        inst_count += 1
-        analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
-        # Detector
-        # detector info not found in .tdf test file.
-        detector = writer.Detector(inst_count, ['electron multiplier'])
-        # Write instrument configuration.
-        #inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, tims, analyzer, detector],
-        inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
-                                                     params=[INSTRUMENT_FAMILY[raw_data.meta_data['InstrumentFamily']]])
-        writer.instrument_configuration_list([inst_config])
-
-        # Add data processing information.
-        proc_methods = []
-        #proc_methods.append(writer.ProcessingMethod(order=1, software_reference='timsconvert',
-        #                                            params=['Conversion to mzML']))
-        proc_methods.append(writer.ProcessingMethod(order=1, software_reference='psims-writer',
-                                                    params=['Conversion to mzML']))
-        processing = writer.DataProcessing(proc_methods, id='exportation')
-        writer.data_processing_list([processing])
+        write_mzml_metadata(raw_data, writer, args['ms2_only'], args['centroid'])
 
         # Get MS1 frames.
         ms1_frames = sorted(list(set(raw_data[:, :, 0]['frame_indices'])))
         # Parse raw data to get scans.
-        parent_scans, product_scans = parse_raw_data(raw_data, ms1_frames, args)
+        parent_scans, product_scans = parse_lcms_tdf(raw_data, ms1_frames, args)
         # Get total number of spectra to write to mzML file.
         num_of_spectra = count_scans(parent_scans, product_scans)
 
@@ -259,6 +214,107 @@ def write_mzml(raw_data, args):
                                 product_scan['scan_number'] = scan_count
                                 logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
                                 write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
+
+
+def write_maldi_dd_mzml(tsf_data, outdir, outfile, ms2_only, centroid=True, encoding=0, single_file=True, plate_map=''):
+    if single_file == True:
+        # Initialize the mzML writer.
+        writer = MzMLWriter(os.path.join(outdir, outfile))
+
+        with writer:
+            writer.controlled_vocabularies()
+
+            write_mzml_metadata(tsf_data, writer, ms2_only, centroid)
+
+            # Begin writing out data.
+            list_of_scan_dicts = parse_maldi_tsf(tsf_data, centroid)
+            num_of_spectra = len(list_of_scan_dicts)
+
+            with writer.run(id='run', instrument_configuration='instrument'):
+                scan_count = 0
+                with writer.spectrum_list(count=num_of_spectra):
+                    for scan_dict in list_of_scan_dicts:
+                        # Set params for scan.
+                        scan_count += 1
+                        scan_dict['scan_num'] = scan_count
+                        params = [scan_dict['scan_type'],
+                                  {'ms level': scan_dict['ms_level']},
+                                  {'total ion current': scan_dict['total_ion_current']},
+                                  {'base peak m/z': scan_dict['base_peak_mz']},
+                                  {'base peak intensity': scan_dict['base_peak_intensity']},
+                                  {'highest observed m/z': scan_dict['high_mz']},
+                                  {'lowest observed m/z': scan_dict['low_mz']},
+                                  {'maldi spot identifier': scan_dict['coord']}]
+
+                        # Set encoding if necessary.
+                        if encoding != 0:
+                            if encoding == 32:
+                                encoding_dtype = np.float32
+                            elif encoding == 64:
+                                encoding_dtype = np.float64
+
+                        # Write out spectrum
+                        writer.write_spectrum(scan_dict['mz_array'],
+                                              scan_dict['intensity_array'],
+                                              id='scan=' + str(scan_dict['scan_number']),
+                                              polarity=scan_dict['polarity'],
+                                              centroided=scan_dict['centroided'],
+                                              scan_start_time=scan_dict['retention_time'],
+                                              params=params,
+                                              encoding={'m/z array': encoding_dtype,
+                                                        'intensity array': encoding_dtype})
+
+    elif single_file == False and plate_map != '':
+        # Check to make sure plate map is a valid csv file.
+        if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == 'csv':
+            # Parse all MALDI data.
+            list_of_scan_dicts = parse_maldi_tsf(tsf_data, centroid)
+
+            # Use plate map to determine filename.
+            # Names things as 'sample_position.mzML
+            plate_map_dict = parse_maldi_plate_map(plate_map)
+
+            for scan_dict in list_of_scan_dicts:
+                output_filename = os.path.join(outdir,
+                                               plate_map_dict[scan_dict['coord']] + '_' + scan_dict['coord'] + '.mzML')
+
+                writer = MzMLWriter(output_filename)
+
+                with writer:
+                    writer.controlled_vocabularies()
+
+                    write_mzml_metadata(tsf_data, writer, ms2_only, centroid)
+
+                    with writer.run(id='run', instrument_configuration='instrument'):
+                        scan_count = 1
+                        with writer.spectrum_list(count=1):
+                            # Set params for scan.
+                            params = [scan_dict['scan_type'],
+                                      {'ms level': scan_dict['ms_level']},
+                                      {'total ion current': scan_dict['total_ion_current']},
+                                      {'base peak m/z': scan_dict['base_peak_mz']},
+                                      {'base peak intensity': scan_dict['base_peak_intensity']},
+                                      {'highest observed m/z': scan_dict['high_mz']},
+                                      {'lowest observed m/z': scan_dict['low_mz']},
+                                      {'maldi spot identifier': scan_dict['coord']}]
+
+                            # Set encoding if necessary.
+                            if encoding != 0:
+                                if encoding == 32:
+                                    encoding_dtype = np.float32
+                                elif encoding == 64:
+                                    encoding_dtype = np.float64
+
+                            # Write out spectrum
+                            writer.write_spectrum(scan_dict['mz_array'],
+                                                  scan_dict['intensity_array'],
+                                                  id='scan=' + str(scan_dict['scan_number']),
+                                                  polarity=scan_dict['polarity'],
+                                                  centroided=scan_dict['centroided'],
+                                                  scan_start_time=scan_dict['retention_time'],
+                                                  params=params,
+                                                  encoding={'m/z array': encoding_dtype,
+                                                            'intensity array': encoding_dtype})
 
 
 if __name__ == '__main__':

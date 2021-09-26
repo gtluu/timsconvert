@@ -48,7 +48,7 @@ class tsf_data(object):
         self.line_buffer_size = 1024
         self.profile_buffer_size = 1024
 
-        self.metadata = None
+        self.meta_data = None
         self.frames = None
         self.maldiframeinfo = None
         self.source_file = bruker_d_folder_name
@@ -137,7 +137,7 @@ class tsf_data(object):
         metadata_dict = {}
         for index, row in metadata_df.iterrows():
             metadata_dict[row['Key']] = row['Value']
-        self.metadata = metadata_dict
+        self.meta_data = metadata_dict
 
     # Get Frames table from analysis.tsf SQL database.
     def get_frames_table(self):
@@ -164,7 +164,7 @@ class tdf_data(object):
         # arbitrary size, from Bruker timsdata.py
         self.initial_frame_buffer_size = 128
 
-        self.metadata = None
+        self.meta_data = None
         self.frames = None
         self.maldiframeinfo = None
         self.pasefframemsmsinfo = None
@@ -173,7 +173,7 @@ class tdf_data(object):
         self.get_global_metadata()
         self.get_frames_table()
 
-        if 'MaldiApplicationType' in self.metadata.keys():
+        if 'MaldiApplicationType' in self.meta_data.keys():
             self.get_maldiframeinfo_table()
         else:
             self.get_pasefframemsmsinfo_table()
@@ -336,7 +336,7 @@ class tdf_data(object):
         metadata_dict = {}
         for index, row in metadata_df.itterrows():
             metadata_dict[row['Key']] = row['Value']
-        self.metadata = metadata_dict
+        self.meta_data = metadata_dict
 
     # Get Frames table from analysis.tdf SQL database.
     def get_frames_table(self):

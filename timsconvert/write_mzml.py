@@ -1,8 +1,6 @@
-from .data_parsing import *
+from depracated.data_parsing import *
 from .timestamp import *
 from psims.mzml import MzMLWriter
-from psims.xml import CVParam, UserParam
-from psims.mzml.components import ParameterContainer, NullMap
 import os
 import logging
 import numpy as np

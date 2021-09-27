@@ -1,5 +1,5 @@
 from pyimzml.ImzMLWriter import ImzMLWriter
-from .data_parsing import *
+from depracated.data_parsing import *
 
 
 def write_maldi_ims_imzml(tsf_data, outdir, outfile, mode='processed', centroid=True):

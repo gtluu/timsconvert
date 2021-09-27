@@ -314,5 +314,19 @@ def parse_maldi_tsf(tsf_data, centroid):
     return list_of_scan_dicts
 
 
+def parse_maldi_tdf(tdf_data, infile, centroid):
+    con = sqlite3.connect(os.path.join(infile, 'analysis.tdf'))
+    frames_query = 'SELECT * FROM Frames'
+    frames_df = pd.read_sql_query(frames_query, con)
+    maldiframeinfo_query = 'SELECT * FROM MaldiFrameInfo'
+    maldiframeinfo_df = pd.read_sql_query(maldiframeinfo_query, con)
+
+    list_of_frames_dict = frames_df.to_dict(orient='records')
+    list_of_scan_dicts = []
+    for index, row in maldiframeinfo_df.iterrows():
+        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
+        
+
+
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)

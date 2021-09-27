@@ -76,7 +76,7 @@ def write_mzml_metadata(data, writer, ms2_only, centroid):
 
 
 # Write out product spectrum.
-def write_ms2_spectrum(writer, parent_scan, encoding, product_scan):
+def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
     # Build params list for spectrum.
     spectrum_params = [product_scan['scan_type'],
                        {'ms level': product_scan['ms_level']},
@@ -122,7 +122,7 @@ def write_ms2_spectrum(writer, parent_scan, encoding, product_scan):
 
 
 # Write out parent spectrum.
-def write_ms1_spectrum(writer, parent_scan, encoding, groupby):
+def write_lcms_ms1_spectrum(writer, parent_scan, encoding, groupby):
     # Build params
     params = [parent_scan['scan_type'],
               {'ms level': parent_scan['ms_level']},
@@ -190,14 +190,14 @@ def write_lcms_mzml(raw_data, args):
                                     scan_count += 1
                                     spectrum['scan_number'] = scan_count
                                     logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                    write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
+                                    write_lcms_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
                             # Write MS2 product scans.
                             if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
                                 for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
                                     scan_count += 1
                                     product_scan['scan_number'] = scan_count
                                     logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                    write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
+                                    write_lcms_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
                     elif args['ms1_groupby'] == 'frame':
                         spectrum = parent_scans[frame_num]
                         # Write MS1 parent scan.
@@ -206,14 +206,14 @@ def write_lcms_mzml(raw_data, args):
                                 scan_count += 1
                                 spectrum['scan_number'] = scan_count
                                 logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
+                                write_lcms_ms1_spectrum(writer, spectrum, args['encoding'], args['ms1_groupby'])
                         # Write MS2 product scans.
                         if frame_num in product_scans.keys():
                             for product_scan in product_scans[frame_num]:
                                 scan_count += 1
                                 product_scan['scan_number'] = scan_count
                                 logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
+                                write_lcms_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
 
 
 def write_maldi_dd_mzml(tsf_data, outdir, outfile, ms2_only, centroid=True, encoding=0, single_file=True, plate_map=''):

@@ -51,6 +51,7 @@ class tsf_data(object):
         self.meta_data = None
         self.frames = None
         self.maldiframeinfo = None
+        self.framemsmsinfo = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
@@ -148,6 +149,11 @@ class tsf_data(object):
     def get_maldiframeinfo_table(self):
         maldiframeinfo_query = 'SELECT * FROM MaldiFrameInfo'
         self.maldiframeinfo = pd.read_sql_query(maldiframeinfo_query, self.conn)
+
+    # Get FrameMsMsInfo table from analysis.tsf SQL database.
+    def get_framemsmsinfo_table(self):
+        framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
+        self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
 
 
 class tdf_data(object):

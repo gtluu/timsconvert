@@ -23,58 +23,57 @@ def parse_maldi_plate_map(plate_map_filename):
 
 def parse_maldi_tsf(tsf_data, centroid):
     list_of_frames_dict = tsf_data.frames.todict(orient='records')
+    list_of_framemsmsinfo_dict = tsf_data.framemsmsinfo.todict(orient='records')
     list_of_scan_dicts = []
     for index, row in tsf_data.maldiframeinfo.iterrows():
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
         index_buf, intensity_array = tsf_data.read_line_spectrum(int(row['Frame']))
         mz_array = tsf_data.index_to_mz(int(row['Frame']), index_buf)
-        if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
-            scan_type = 'MS1 spectrum'
-            ms_level = 1
-        elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-            scan_type = 'MSn spectrum'
-            ms_level = 2
-        else:
-            scan_type = None
-            ms_level = None
 
         if mz_array.size != 0 and intensity_array.size != 0:
             base_peak_index = np.where(intensity_array == np.max(intensity_array))
+
             if tsf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
-                list_of_scan_dicts.append({'scan_number': None,
-                                           'mz_array': mz_array,
-                                           'intensity_array': intensity_array,
-                                           'coord': row['SpotName'],
-                                           'scan_type': scan_type,
-                                           'polarity': frames_dict['Polarity'],
-                                           'centroided': centroid,
-                                           'retention_time': 0,
-                                           'total_ion_current': sum(intensity_array),
-                                           'base_peak_mz': float(mz_array[base_peak_index]),
-                                           'base_peak_intensity': float(intensity_array[base_peak_index]),
-                                           'ms_level': ms_level,
-                                           'high_mz': float(max(mz_array)),
-                                           'low_mz': float(min(mz_array))})
+                coords = row['SpotName']
             elif tsf_data.meta_data['MaldiApplicationType'] == 'Imaging':
                 coords = []
                 coords.append(int(row['XIndexPos']))
                 coords.append(int(row['YIndexPos']))
                 if 'ZIndexPos' in tsf_data.maldiframeinfo.columns:
                     coords.append(int(row['ZIndexPos']))
-                list_of_scan_dicts.append({'scan_number': None,
-                                           'mz_array': mz_array,
-                                           'intensity_array': intensity_array,
-                                           'coord': tuple(coords),
-                                           'scan_type': scan_type,
-                                           'polarity': frames_dict['Polarity'],
-                                           'centroided': centroid,
-                                           'retention_time': 0,
-                                           'total_ion_current': sum(intensity_array),
-                                           'base_peak_mz': float(mz_array[base_peak_index]),
-                                           'base_peak_intensity': float(intensity_array[base_peak_index]),
-                                           'ms_level': ms_level,
-                                           'high_mz': float(max(mz_array)),
-                                           'low_mz': float(min(mz_array))})
+                coords = tuple(coords)
+
+            scan_dict = {'scan_number': None,
+                         'mz_array': mz_array,
+                         'intensity_array': intensity_array,
+                         'coord': coords,
+                         'polarity': frames_dict['Polarity'],
+                         'centroided': centroid,
+                         'retention_time': 0,
+                         'total_ion_current': sum(intensity_array),
+                         'base_peak_mz': float(mz_array[base_peak_index]),
+                         'base_peak_intensity': float(intensity_array[base_peak_index]),
+                         'high_mz': float(max(mz_array)),
+                         'low_mz': float(min(mz_array))}
+
+            if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
+                scan_dict['scan_type'] = 'MS1 spectrum'
+                scan_dict['ms_level'] = 1
+            elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
+                framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict if int(i['Frame']) == int(row['Frame'])][0]
+                scan_dict['scan_type'] = 'MSn spectrum'
+                scan_dict['ms_level'] = 2
+                scan_dict['target_mz'] = framemsmsinfo_dict['TriggerMass']
+                half_isolation_width = float(framemsmsinfo_dict['IsolationWidth']) / 2
+                scan_dict['isolation_lower_offset'] = half_isolation_width
+                scan_dict['isolation_upper_offset'] = half_isolation_width
+                scan_dict['selected_ion_mz'] = framemsmsinfo_dict['TriggerMass']
+                # no selected ion intensity
+                # no selected ion mobility
+                # no charge state
+                scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
+                # no parent frame or scan
+            list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts
 
 

@@ -37,11 +37,15 @@ SCAN_MODE = {'0': 'MS',
              '5': 'MS-MS/MS (bbCID)',
              '6': 'MS/MS (Pasef)',
              '9': 'dia-PASEF',
-             '10': 'prm-PASEF',
-             '20': 'MS'}
+             '10': 'prm-PASEF'}
 
-SCAN_MODE_CATEGORY = {'ms1': [0, 20],
+SCAN_MODE_CATEGORY = {'ms1': [0],
                       'ms2': [1, 2, 3, 4, 5, 6, 9, 10]}
+
+MSMS_TYPE = {'0': 'MS',
+             '2': 'MALDI MS/MS',
+             '8': 'dia-PASEF',
+             '9': 'dda-PASEF'}
 
 # modified from alphatims
 if sys.platform[:5] == 'win32':

@@ -47,6 +47,9 @@ MSMS_TYPE = {'0': 'MS',
              '8': 'dia-PASEF',
              '9': 'dda-PASEF'}
 
+MSMS_TYPE_CATEGORY = {'ms1': [0],
+                      'ms2': [2, 8, 9]}
+
 # modified from alphatims
 if sys.platform[:5] == 'win32':
     # change filepath later.

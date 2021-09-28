@@ -21,13 +21,13 @@ def key_func_scans(k):
 
 
 # Parse MS1 spectrum and output to dictionary containing necessary data.
-def parse_lcms_tdf_ms1_scan(scan, frame_num, args):
+def parse_lcms_tdf_ms1_scan(scan, frame_num, infile, centroid, ms1_groupby):
     mz_array = scan['mz_values'].values.tolist()
     intensity_array = scan['intensity_values'].values.tolist()
 
     if len(mz_array) != 0 and len(intensity_array) != 0:
         # Set up .tdf database connection.
-        con = sqlite3.connect(os.path.join(args['infile'], 'analysis.tdf'))
+        con = sqlite3.connect(os.path.join(infile, 'analysis.tdf'))
         # Get polarity.
         pol_query = 'SELECT * FROM Properties WHERE Frame == ' + str(frame_num)
         pol_query_df = pd.read_sql_query(pol_query, con)
@@ -55,7 +55,7 @@ def parse_lcms_tdf_ms1_scan(scan, frame_num, args):
                      'intensity_array': intensity_array,
                      'scan_type': 'MS1 spectrum',
                      'polarity': polarity,
-                     'centroided': args['centroid'],
+                     'centroided': centroid,
                      'retention_time': float(list(set(scan['rt_values_min'].values.tolist()))[0]),
                      'total_ion_current': sum(intensity_array),
                      'base_peak_mz': float(mz_array[base_peak_index]),
@@ -67,13 +67,13 @@ def parse_lcms_tdf_ms1_scan(scan, frame_num, args):
                      'parent_scan': None}
 
         # Spectrum has single mobility value if grouped by scans (mobility).
-        if args['ms1_groupby'] == 'scan':
+        if ms1_groupby == 'scan':
             mobility = list(set(scan['mobility_values'].values.tolist()))
             if len(mobility) == 1:
                 scan_dict['mobility'] = mobility[0]
             scan_dict['parent_scan'] = int(list(set(scan['scan_indices'].values.tolist()))[0])
         # Spectrum has array of mobility values if grouped by frame (retention time).
-        elif args['ms1_groupby'] == 'frame':
+        elif ms1_groupby == 'frame':
             scan_dict['mobility_array'] = scan['mobility_values']
         return scan_dict
     else:
@@ -81,7 +81,7 @@ def parse_lcms_tdf_ms1_scan(scan, frame_num, args):
 
 
 # Get all MS2 scans. Based in part on alphatims.bruker.save_as_mgf().
-def parse_lcms_tdf_ms2_scans(tdf_data, args):
+def parse_lcms_tdf_ms2_scans(tdf_data, infile, centroid, ms1_groupby, ms2_keep_n_most_abundant_peaks):
     # Check to make sure timsTOF object is valid.
     if tdf_data.acquisition_mode != 'ddaPASEF':
         return None
@@ -90,8 +90,7 @@ def parse_lcms_tdf_ms2_scans(tdf_data, args):
     (spectrum_indptr,
      spectrum_tof_indices,
      spectrum_intensity_values) = tdf_data.index_precursors(centroiding_window=0,
-                                                            keep_n_most_abundant_peaks=args[
-                                                                'ms2_keep_n_most_abundant_peaks'])
+                                                            keep_n_most_abundant_peaks=ms2_keep_n_most_abundant_peaks)
     mono_mzs = tdf_data.precursors.MonoisotopicMz.values
     average_mzs = tdf_data.precursors.AverageMz.values
     charges = tdf_data.precursors.Charge.values
@@ -104,7 +103,7 @@ def parse_lcms_tdf_ms2_scans(tdf_data, args):
     parent_scans = np.floor(tdf_data.precursors.ScanNumber.values)
 
     # Set up .tdf database connection.
-    con = sqlite3.connect(os.path.join(args['infile'], 'analysis.tdf'))
+    con = sqlite3.connect(os.path.join(infile, 'analysis.tdf'))
 
     list_of_scan_dicts = []
     for index in alphatims.utils.progress_callback(range(1, tdf_data.precursor_max_index)):
@@ -167,7 +166,7 @@ def parse_lcms_tdf_ms2_scans(tdf_data, args):
                              'intensity_array': spectrum_intensity_values[start:end],
                              'scan_type': 'MSn spectrum',
                              'polarity': polarity,
-                             'centroided': args['centroid'],
+                             'centroided': centroid,
                              'retention_time': float(rtinseconds[index - 1] / 60),  # in min
                              'total_ion_current': sum(spectrum_intensity_values[start:end]),
                              'ms_level': 2,
@@ -203,11 +202,11 @@ def parse_lcms_tdf_ms2_scans(tdf_data, args):
     ms2_scans_dict = {}
     # Loop through frames.
     for key, value in itertools.groupby(list_of_scan_dicts, key_func_frames):
-        if args['ms1_groupby'] == 'scan':
+        if ms1_groupby == 'scan':
             # Loop through scans.
             for key2, value2 in itertools.groupby(list(value), key_func_scans):
                 ms2_scans_dict['f' + str(key) + 's' + str(key2)] = list(value2)
-        elif args['ms1_groupby'] == 'frame':
+        elif ms1_groupby == 'frame':
             ms2_scans_dict[key] = list(value)
 
     return ms2_scans_dict
@@ -215,32 +214,32 @@ def parse_lcms_tdf_ms2_scans(tdf_data, args):
 
 # Extract all scan information including acquisition parameters, m/z, intensity, and mobility arrays/values
 # from dataframes for each scan.
-def parse_lcms_tdf(tdf_data, ms1_frames, args):
+def parse_lcms_tdf(tdf_data, ms1_frames, infile, centroid, ms2_only, ms1_groupby, ms2_keep_n_most_abundant_peaks):
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
     logging.info(get_timestamp() + ':' + 'Parsing MS2 spectra.')
-    ms2_scans_dict = parse_lcms_tdf_ms2_scans(tdf_data, args)
+    ms2_scans_dict = parse_lcms_tdf_ms2_scans(tdf_data, infile, centroid, ms1_groupby, ms2_keep_n_most_abundant_peaks)
 
     # Get all MS1 scans into dictionary.
     logging.info(get_timestamp() + ':' + 'Parsing MS1 spectra.')
     ms1_scans_dict = {}
     for frame_num in ms1_frames:
-        if args['ms1_groupby'] == 'scan':
+        if ms1_groupby == 'scan':
             ms1_scans = sorted(list(set(tdf_data[frame_num]['scan_indices'])))
             for scan_num in ms1_scans:
                 parent_scan = tdf_data[frame_num, scan_num].sort_values(by='mz_values')
-                if args['ms2_only'] == False:
-                    ms1_scan = parse_lcms_tdf_ms1_scan(parent_scan, frame_num, args)
+                if ms2_only == False:
+                    ms1_scan = parse_lcms_tdf_ms1_scan(parent_scan, frame_num, infile, centroid, ms1_groupby)
                     ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = ms1_scan
-                elif args['ms2_only'] == True:
+                elif ms2_only == True:
                     ms1_scans_dict['f' + str(frame_num) + 's' + str(scan_num)] = None
-        elif args['ms1_groupby'] == 'frame':
+        elif ms1_groupby == 'frame':
             parent_scan = tdf_data[frame_num].sort_values(by='mz_values')
-            if args['ms2_only'] == False:
-                ms1_scan = parse_lcms_tdf_ms1_scan(parent_scan, frame_num, args)
+            if ms2_only == False:
+                ms1_scan = parse_lcms_tdf_ms1_scan(parent_scan, frame_num, infile, centroid, ms1_groupby)
                 ms1_scans_dict[frame_num] = ms1_scan
-            elif args['ms2_only'] == True:
+            elif ms2_only == True:
                 ms1_scans_dict[frame_num] = None
 
     return ms1_scans_dict, ms2_scans_dict

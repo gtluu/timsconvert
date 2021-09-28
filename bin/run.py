@@ -43,16 +43,26 @@ def run_tims_converter(args):
 
         if schema == 'TSF':
             if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                if args['maldi_plate_map'] == '':
+                    logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
+                    logging.info(get_timestamp() + ':' + 'Exiting...')
+                    sys.exit(1)
                 write_maldi_dd_mzml(data, args['outdir'], args['outfile'], args['ms2_only'], args['ms1_groupby'],
-                                    args['centroid'], args['encoding'], args['single_file'], args['plate_map'])
+                                    args['centroid'], args['encoding'], args['maldi_single_file'],
+                                    args['maldi_plate_map'])
             elif data.meta_data['MaldiApplicationType'] == 'Imaging':
                 write_maldi_ims_imzml(data, args['outdir'], args['outfile'], 'frame', args['imzml_mode'],
                                       args['centroid'])
         elif schema == 'TDF':
             if 'MaldiApplicationType' in data.meta_data.keys():
                 if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                    if args['maldi_plate_map'] == '':
+                        logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
+                        logging.info(get_timestamp() + ':' + 'Exiting...')
+                        sys.exit(1)
                     write_maldi_dd_mzml(data, args['outdir'], args['outfile'], args['ms2_only'], args['ms1_groupby'],
-                                        args['centroid'], args['encoding'], args['single_file'], args['plate_map'])
+                                        args['centroid'], args['encoding'], args['maldi_single_file'],
+                                        args['maldi_plate_map'])
                 elif data.meta_data['MaldiApplicationType'] == 'Imaging':
                     write_maldi_ims_imzml(data, args['outdir'], args['outfile'], 'frame', args['imzml_mode'],
                                           args['centroid'])
@@ -66,12 +76,12 @@ def run_tims_converter(args):
 if __name__ == '__main__':
     # Parse arguments.
     arguments = get_args()
-    # Hardcode centroid to True. Current code does not support profile
+    # Hardcode centroid to True. Current code does not support profile.
     arguments['centroid'] = True
 
     # Check arguments.
     args_check(arguments)
-    arguments['version'] = '0.0.1'
+    arguments['version'] = '0.1.0'
 
     # Initialize logger.
     logname = 'log_' + get_timestamp() + '.log'

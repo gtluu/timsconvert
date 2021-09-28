@@ -24,8 +24,16 @@ def get_args():
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
                         default='scan', type=str)
-    parser.add_argument('--encoding', help='Choose encoding: 32-bit ("32") or 64-bit ("64"). Defaults to 32-bit.',
-                        default=32, type=int)
+    parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
+                                           ' to 32-bit.', default=32, type=int)
+    parser.add_argument('--maldi_single_file', help='For MALDI dried droplet data, whether individual scans should be '
+                                                    'placed in individual files or all into a single file.',
+                        action='store_true')
+    parser.add_argument('--maldi_plate_map', help='Plate map to be used for parsing spots if --maldi_single_file == '
+                                                  'True. Should be a .csv file with no header/index.', default='',
+                        type=str)
+    parser.add_argument('--imzml_mode', help='Whether .imzML files should be written in "processed" or "continuous" '
+                                             'mode. Defaults to "processed".', action='store_true')
 
     # Advanced MS2 Centroiding Arguments: taken from alphatims.bruker.centroid_spectrum()
     parser.add_argument('--ms2_keep_n_most_abundant_peaks', help='Keep N most abundant peaks in MS2 spectra. If -1, all'
@@ -56,6 +64,26 @@ def args_check(args):
     # Check to make sure --ms1_groupby is either 'frame' or 'scan'.
     if args['ms1_groupby'] not in ['frame', 'scan']:
         logging.info(get_timestamp() + ':' + '--ms1_groupby should be set to "frame" or "scan"...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    # Check to make sure --encoding is either 32 or 64.
+    if args['encoding'] not in [32, 64]:
+        logging.info(get_timestamp() + ':' + '--encoding should be set to "32" or "64"...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.
+    if args['maldi_single_file']:
+        if args['maldi_plate_map'] == '':
+            logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
+            logging.info(get_timestamp() + ':' + 'Exiting...')
+            sys.exit(1)
+        else:
+            if not os.path.exists(args['maldi_plate_map']):
+                logging.info(get_timestamp() + ':' + 'Plate map path does not exist...')
+                logging.info(get_timestamp() + ':' + 'Exiting...')
+                sys.exit(1)
+    if args['imzml_mode'] not in ['processed', 'continuous']:
+        logging.info(get_timestamp() + ':' + '--imzml_mode should be set to "processed" or "continuous"...')
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     return args

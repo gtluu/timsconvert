@@ -2,10 +2,13 @@ from pyimzml.ImzMLWriter import ImzMLWriter
 from depracated.data_parsing import *
 
 
-def write_maldi_ims_imzml(tsf_data, outdir, outfile, mode='processed', centroid=True):
-    list_of_scan_dicts = parse_maldi_tsf(tsf_data, centroid)
+def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', mode='processed', centroid=True):
+    if data.meta_data['SchemaType'] == 'TDF':
+        list_of_scan_dicts = parse_maldi_tdf(data, groupby, centroid)
+    elif data.meta_data['SchemaType'] == 'TSF':
+        list_of_scan_dicts = parse_maldi_tsf(data, centroid)
 
-    polarity = list(set(tsf_data.frames['Polarity'].values.tolist()))
+    polarity = list(set(data.frames['Polarity'].values.tolist()))
     if len(polarity) == 1:
         polarity = polarity[0]
         if polarity == '+':

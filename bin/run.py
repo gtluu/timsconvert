@@ -3,6 +3,9 @@ from timsconvert import *
 
 
 def run_tims_converter(args):
+    # Initialize Bruker DLL.
+    bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+
     # Load in input data.
     logging.info(get_timestamp() + ':' + 'Loading input data...')
     if not args['input'].endswith('.d'):
@@ -25,14 +28,38 @@ def run_tims_converter(args):
             run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
 
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
-        data = bruker_to_df(infile)
+        schema = schema_detection(infile)
+        if schema == 'TSF':
+            data = tsf_data(infile, bruker_dll)
+        elif schema == 'TDF':
+            data = bruker_to_df(infile)
+            if 'MaldiApplicationType' in data.meta_data.keys():
+                data = tdf_data(infile, bruker_dll)
         logging.info(get_timestamp() + ':' + 'Writing to file: ' + os.path.join(run_args['outdir'],
                                                                                 run_args['outfile']))
         # Log arguments.
         for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
-        write_lcms_mzml(data, args['infile'], args['outdir'], args['outfile'], args['centroid'], args['ms2_only'],
-                        args['ms1_groupby'], args['encoding'], args['ms2_keep_n_most_abundant_peaks'])
+
+        if schema == 'TSF':
+            if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                write_maldi_dd_mzml(data, args['outdir'], args['outfile'], args['ms2_only'], args['ms1_groupby'],
+                                    args['centroid'], args['encoding'], args['single_file'], args['plate_map'])
+            elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+                write_maldi_ims_imzml(data, args['outdir'], args['outfile'], 'frame', args['imzml_mode'],
+                                      args['centroid'])
+        elif schema == 'TDF':
+            if 'MaldiApplicationType' in data.meta_data.keys():
+                if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                    write_maldi_dd_mzml(data, args['outdir'], args['outfile'], args['ms2_only'], args['ms1_groupby'],
+                                        args['centroid'], args['encoding'], args['single_file'], args['plate_map'])
+                elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+                    write_maldi_ims_imzml(data, args['outdir'], args['outfile'], 'frame', args['imzml_mode'],
+                                          args['centroid'])
+            elif 'MaldiApplicationType' not in data.meta_data.keys():
+                write_lcms_mzml(data, args['infile'], args['outdir'], args['outfile'], args['centroid'],
+                                args['ms2_only'], args['ms1_groupby'], args['encoding'],
+                                args['ms2_keep_n_most_abundant_peaks'])
         run_args.clear()
 
 

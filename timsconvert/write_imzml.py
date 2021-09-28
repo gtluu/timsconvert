@@ -2,7 +2,7 @@ from pyimzml.ImzMLWriter import ImzMLWriter
 from timsconvert.parse_maldi import *
 
 
-def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', mode='processed', centroid=True):
+def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', imzml_mode='processed', centroid=True):
     if data.meta_data['SchemaType'] == 'TDF':
         list_of_scan_dicts = parse_maldi_tdf(data, groupby, centroid)
     elif data.meta_data['SchemaType'] == 'TSF':
@@ -22,7 +22,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', mode='processe
 
     writer = ImzMLWriter(os.path.join(outdir, outfile),
                          polarity=polarity,
-                         mode=mode,
+                         mode=imzml_mode,
                          spec_type=centroid)
 
     with writer as imzml_file:

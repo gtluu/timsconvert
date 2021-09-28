@@ -20,7 +20,7 @@ def count_scans(parent_scans, product_scans):
     return num_parent_scans + num_product_scans
 
 
-def write_mzml_metadata(data, writer, ms2_only):
+def write_mzml_metadata(data, writer, infile, ms2_only):
     # Basic file descriptions.
     file_description = []
     if ms2_only == False:
@@ -32,9 +32,9 @@ def write_mzml_metadata(data, writer, ms2_only):
     writer.file_description(file_description)
 
     # Source file element.
-    sf = writer.SourceFile(os.path.split(data.source_file)[0],
-                           os.path.split(data.source_file)[1],
-                           id=os.path.splitext(os.path.split(data.source_file)[1])[0])
+    sf = writer.SourceFile(os.path.split(infile)[0],
+                           os.path.split(infile)[1],
+                           id=os.path.splitext(os.path.split(infile)[1])[0])
 
     # Add list of software.
     # check for processed data from dataanalysis
@@ -61,7 +61,7 @@ def write_mzml_metadata(data, writer, ms2_only):
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
     inst_count += 1
     detector = writer.Detector(inst_count, ['electron multiplier'])
-    inst_config = writer.InstrumentCOnfiguration(id='instrument', component_list=[source, analyzer, detector],
+    inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
                                                  params=[
                                                      INSTRUMENT_FAMILY[data.meta_data['InstrumentFamily']]])
     writer.instrument_configuration_list([inst_config])
@@ -166,7 +166,7 @@ def write_lcms_mzml(raw_data, infile, outdir, outfile, centroid, ms2_only, ms1_g
         # Begin mzML with controlled vocabularies (CV).
         writer.controlled_vocabularies()
 
-        write_mzml_metadata(raw_data, writer, ms2_only)
+        write_mzml_metadata(raw_data, writer, infile, ms2_only)
 
         # Get MS1 frames.
         ms1_frames = sorted(list(set(raw_data[:, :, 0]['frame_indices'])))
@@ -217,7 +217,7 @@ def write_lcms_mzml(raw_data, infile, outdir, outfile, centroid, ms2_only, ms1_g
                                 write_lcms_ms2_spectrum(writer, spectrum, encoding, product_scan)
 
 
-def write_maldi_dd_mzml(data, outdir, outfile, ms2_only, groupby, centroid=True, encoding=0, single_file=True,
+def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centroid=True, encoding=0, single_file=True,
                         plate_map=''):
     if single_file == True:
         # Initialize the mzML writer.
@@ -226,7 +226,7 @@ def write_maldi_dd_mzml(data, outdir, outfile, ms2_only, groupby, centroid=True,
         with writer:
             writer.controlled_vocabularies()
 
-            write_mzml_metadata(data, writer, ms2_only)
+            write_mzml_metadata(data, writer, infile, ms2_only)
 
             # Begin writing out data.
             if data.meta_data['SchemaType'] == 'TDF':
@@ -291,7 +291,7 @@ def write_maldi_dd_mzml(data, outdir, outfile, ms2_only, groupby, centroid=True,
                 with writer:
                     writer.controlled_vocabularies()
 
-                    write_mzml_metadata(data, writer, ms2_only)
+                    write_mzml_metadata(data, writer, infile, ms2_only)
 
                     with writer.run(id='run', instrument_configuration='instrument'):
                         scan_count = 1

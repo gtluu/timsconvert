@@ -25,7 +25,7 @@ def get_args():
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
                         default='scan', type=str)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
-                                           ' to 32-bit.', default=32, type=int)
+                                           ' to 64-bit.', default=64, type=int)
     parser.add_argument('--maldi_single_file', help='For MALDI dried droplet data, whether individual scans should be '
                                                     'placed in individual files or all into a single file.',
                         action='store_true')
@@ -33,7 +33,7 @@ def get_args():
                                                   'True. Should be a .csv file with no header/index.', default='',
                         type=str)
     parser.add_argument('--imzml_mode', help='Whether .imzML files should be written in "processed" or "continuous" '
-                                             'mode. Defaults to "processed".', action='store_true')
+                                             'mode. Defaults to "processed".', default='processed', type=str)
 
     # Advanced MS2 Centroiding Arguments: taken from alphatims.bruker.centroid_spectrum()
     parser.add_argument('--ms2_keep_n_most_abundant_peaks', help='Keep N most abundant peaks in MS2 spectra. If -1, all'

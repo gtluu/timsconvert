@@ -174,6 +174,7 @@ class tdf_data(object):
         self.frames = None
         self.maldiframeinfo = None
         self.pasefframemsmsinfo = None
+        self.framemsmsinfo = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
@@ -340,7 +341,7 @@ class tdf_data(object):
         metadata_query = 'SELECT * FROM GlobalMetadata'
         metadata_df = pd.read_sql_query(metadata_query, self.conn)
         metadata_dict = {}
-        for index, row in metadata_df.itterrows():
+        for index, row in metadata_df.iterrows():
             metadata_dict[row['Key']] = row['Value']
         self.meta_data = metadata_dict
 
@@ -354,7 +355,12 @@ class tdf_data(object):
         pasefframemsmsinfo_query = 'SELECT * FROM PasefFrameMsMsInfo'
         self.pasefframemsmsinfo = pd.read_sql_query(pasefframemsmsinfo_query, self.conn)
 
-    # Get MaldiFramesInfo table from analysis.tsf SQL database.
+    # Get MaldiFramesInfo table from analysis.tdf SQL database.
     def get_maldiframeinfo_table(self):
         maldiframeinfo_query = 'SELECT * FROM MaldiFrameInfo'
         self.maldiframeinfo = pd.read_sql_query(maldiframeinfo_query, self.conn)
+
+    # Get FrameMsMsInfo table from analysis.tdf SQL database.
+    def get_framemsmsinfo_table(self):
+        framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
+        self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)

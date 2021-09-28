@@ -73,21 +73,130 @@ def parse_maldi_tsf(tsf_data, centroid):
                 # no charge state
                 scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
                 # no parent frame or scan
+
             list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts
 
 
-def parse_maldi_tdf(tdf_data, infile, centroid):
-    con = sqlite3.connect(os.path.join(infile, 'analysis.tdf'))
-    frames_query = 'SELECT * FROM Frames'
-    frames_df = pd.read_sql_query(frames_query, con)
-    maldiframeinfo_query = 'SELECT * FROM MaldiFrameInfo'
-    maldiframeinfo_df = pd.read_sql_query(maldiframeinfo_query, con)
-
-    list_of_frames_dict = frames_df.to_dict(orient='records')
+def parse_maldi_tdf(tdf_data, groupby, centroid):
+    list_of_frames_dict = tdf_data.frames.todict(orient='records')
+    list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.todict(orient='records')
     list_of_scan_dicts = []
-    for index, row in maldiframeinfo_df.iterrows():
+
+    # force groupby frame for imaging. splitting up by scans adds too much dimensionality
+    if tdf_data.meta_data['MaldiApplicationType'] == 'Imaging':
+        groupby = 'frame'
+
+    for index, row in tdf_data.maldiframeinfo.iterrows():
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
+        if groupby == 'scan':
+            for scan_num in range(1, int(frames_dict['NumScans']) + 1):
+                index_buf, intensity_array = tdf_data.read_scans(int(row['Frame']), scan_num, scan_num + 1)
+                mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
+
+                if mz_array.size != 0 and intensity_array.size != 0:
+                    base_peak_index = np.where(intensity_array == np.max(intensity_array))
+
+                    if tdf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                        coords = row['SpotName']
+                    elif tdf_data.meta_data['MaldiApplicationType'] == 'Imaging':
+                        coords = []
+                        coords.append(int(row['XIndexPos']))
+                        coords.append(int(row['YIndexPos']))
+                        if 'ZIndexPos' in tdf_data.maldiframeinfo.columns:
+                            coords.append(int(row['ZIndexPos']))
+                        coords = tuple(coords)
+
+                    scan_dict = {'scan_number': None,
+                                 'mz_array': mz_array,
+                                 'intensity_array': intensity_array,
+                                 'coord': coords,
+                                 'mobility': tdf_data.scan_num_to_oneoverk0(int(row['Frame']), np.array([scan_num]))[0],
+                                 'polarity': frames_dict['Polarity'],
+                                 'centroided': centroid,
+                                 'retention_time': 0,
+                                 'total_ion_current': sum(intensity_array),
+                                 'base_peak_mz': float(mz_array[base_peak_index]),
+                                 'base_peak_intensity': float(intensity_array[base_peak_index]),
+                                 'high_mz': float(max(mz_array)),
+                                 'low_mz': float(min(mz_array))}
+
+                    if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
+                        scan_dict['scan_type'] = 'MS1 spectrum'
+                        scan_dict['ms_level'] = 1
+                    elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
+                        framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
+                                              if int(i['Frame']) == int(row['Frame'])][0]
+                        scan_dict['scan_type'] = 'MSn spectrum'
+                        scan_dict['ms_level'] = 2
+                        scan_dict['target_mz'] = framemsmsinfo_dict['TriggerMass']
+                        half_isolation_width = float(framemsmsinfo_dict['IsolationWidth']) / 2
+                        scan_dict['isolation_lower_offset'] = half_isolation_width
+                        scan_dict['isolation_upper_offset'] = half_isolation_width
+                        scan_dict['selected_ion_mz'] = framemsmsinfo_dict['TriggerMass']
+                        # no selected ion intensity
+                        # no selected ion mobility
+                        # no charge state
+                        scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
+                        # no parent frame or scan
+
+                    list_of_scan_dicts.append(scan_dict)
+
+        elif groupby == 'frame':
+            index_buf, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(int(row['Frame']),
+                                                                                        1,
+                                                                                        int(frames_dict['NumScans'])+1)
+            mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
+
+            if mz_array.size != 0 and intensity_array.size != 0:
+                base_peak_index = np.where(intensity_array == np.max(intensity_array))
+
+                if tdf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                    coords = row['SpotName']
+                elif tdf_data.meta_data['MaldiApplicationType'] == 'Imaging':
+                    coords = []
+                    coords.append(int(row['XIndexPos']))
+                    coords.append(int(row['YIndexPos']))
+                    if 'ZIndexPos' in tdf_data.maldiframeinfo.columns:
+                        coords.append(int(row['ZIndexPos']))
+                    coords = tuple(coords)
+
+                scan_dict = {'scan_number': None,
+                             'mz_array': mz_array,
+                             'intensity_array': intensity_array,
+                             'coord': coords,
+                             'mobility_array': tdf_data.scan_num_to_oneoverk0(int(row['Frame']),
+                                                                              np.array(list(range(1, int(frames_dict['NumScans'])+1)))),
+                             'polarity': frames_dict['Polarity'],
+                             'centroided': centroid,
+                             'retention_time': 0,
+                             'total_ion_current': sum(intensity_array),
+                             'base_peak_mz': float(mz_array[base_peak_index]),
+                             'base_peak_intensity': float(intensity_array[base_peak_index]),
+                             'high_mz': float(max(mz_array)),
+                             'low_mz': float(min(mz_array))}
+
+                if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
+                    scan_dict['scan_type'] = 'MS1 spectrum'
+                    scan_dict['ms_level'] = 1
+                elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
+                    framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
+                                          if int(i['Frame']) == int(row['Frame'])][0]
+                    scan_dict['scan_type'] = 'MSn spectrum'
+                    scan_dict['ms_level'] = 2
+                    scan_dict['target_mz'] = framemsmsinfo_dict['TriggerMass']
+                    half_isolation_width = float(framemsmsinfo_dict['IsolationWidth']) / 2
+                    scan_dict['isolation_lower_offset'] = half_isolation_width
+                    scan_dict['isolation_upper_offset'] = half_isolation_width
+                    scan_dict['selected_ion_mz'] = framemsmsinfo_dict['TriggerMass']
+                    # no selected ion intensity
+                    # no selected ion mobility
+                    # no charge state
+                    scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
+                    # no parent frame or scan
+
+                list_of_scan_dicts.append(scan_dict)
+    return list_of_scan_dicts
 
 
 if __name__ == '__main__':

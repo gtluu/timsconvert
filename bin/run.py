@@ -1,4 +1,3 @@
-import logging
 import copy
 from timsconvert import *
 

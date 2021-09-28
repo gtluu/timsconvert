@@ -4,6 +4,8 @@ import sys
 import ctypes
 import itertools
 import sqlite3
+import copy
+import glob
 import datetime
 import logging
 

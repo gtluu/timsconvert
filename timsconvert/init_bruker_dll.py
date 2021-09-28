@@ -139,3 +139,10 @@ def decode_array_of_strings(blob):
     if blob[-1] != 0:
         raise ValueError('Illegal BLOB contents.')
     return str(blob, 'utf-8').split('\0')[:-1]
+
+
+# from timsdata.py
+# Convert 1/k0 to CCS for a given charge and mz
+def one_over_k0_to_ccs(ook0, charge, mz):
+    bruker_dll = init_bruker_dll()
+    return bruker_dll.tims_oneoverk0_to_ccs_for_mz(ook0, charge, mz)

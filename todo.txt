@@ -1,3 +1,2 @@
 - figure out how to add TIMS to instrument configuration
-- use alphatims to read tdf ims data maybe with minor changes
 - change mobility cv param units and add option to convert to ccs

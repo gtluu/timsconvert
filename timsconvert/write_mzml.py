@@ -214,7 +214,7 @@ def write_lcms_mzml(raw_data, args):
                                 write_lcms_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
 
 
-def write_maldi_dd_mzml(tsf_data, outdir, outfile, ms2_only, centroid=True, encoding=0, single_file=True, plate_map=''):
+def write_maldi_dd_mzml(data, outdir, outfile, ms2_only, centroid=True, encoding=0, single_file=True, plate_map=''):
     if single_file == True:
         # Initialize the mzML writer.
         writer = MzMLWriter(os.path.join(outdir, outfile))
@@ -222,10 +222,13 @@ def write_maldi_dd_mzml(tsf_data, outdir, outfile, ms2_only, centroid=True, enco
         with writer:
             writer.controlled_vocabularies()
 
-            write_mzml_metadata(tsf_data, writer, ms2_only, centroid)
+            write_mzml_metadata(data, writer, ms2_only, centroid)
 
             # Begin writing out data.
-            list_of_scan_dicts = parse_maldi_tsf(tsf_data, centroid)
+            if data.meta_data['SchemaType'] == 'TDF':
+                list_of_scan_dicts = parse_maldi_tdf(data, groupby, centroid)
+            elif data.meta_data['SchemaType'] == 'TSF':
+                list_of_scan_dicts = parse_maldi_tsf(data, centroid)
             num_of_spectra = len(list_of_scan_dicts)
 
             with writer.run(id='run', instrument_configuration='instrument'):
@@ -266,7 +269,10 @@ def write_maldi_dd_mzml(tsf_data, outdir, outfile, ms2_only, centroid=True, enco
         # Check to make sure plate map is a valid csv file.
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == 'csv':
             # Parse all MALDI data.
-            list_of_scan_dicts = parse_maldi_tsf(tsf_data, centroid)
+            if data.meta_data['SchemaType'] == 'TDF':
+                list_of_scan_dicts = parse_maldi_tdf(data, groupby, centroid)
+            elif data.meta_data['SchemaType'] == 'TSF':
+                list_of_scan_dicts = parse_maldi_tsf(data, centroid)
 
             # Use plate map to determine filename.
             # Names things as 'sample_position.mzML
@@ -281,7 +287,7 @@ def write_maldi_dd_mzml(tsf_data, outdir, outfile, ms2_only, centroid=True, enco
                 with writer:
                     writer.controlled_vocabularies()
 
-                    write_mzml_metadata(tsf_data, writer, ms2_only, centroid)
+                    write_mzml_metadata(data, writer, ms2_only, centroid)
 
                     with writer.run(id='run', instrument_configuration='instrument'):
                         scan_count = 1

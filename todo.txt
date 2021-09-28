@@ -2,3 +2,4 @@
 - change mobility cv param units and add option to convert to ccs
 - update imports
 - update args
+- add logging info to everything

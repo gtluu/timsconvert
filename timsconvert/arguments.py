@@ -1,8 +1,7 @@
 import argparse
 import os
 import sys
-import logging
-from .timestamp import *
+from timsconvert.timestamp import *
 
 
 # Parse arguments for CLI usage

@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 
 # Get date and time for loggin timestamp.

@@ -1,5 +1,5 @@
 from pyimzml.ImzMLWriter import ImzMLWriter
-from depracated.data_parsing import *
+from timsconvert.parse_maldi import *
 
 
 def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', mode='processed', centroid=True):

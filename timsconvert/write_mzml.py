@@ -1,5 +1,6 @@
-from depracated.data_parsing import *
-from .timestamp import *
+from timsconvert.parse_lcms import *
+from timsconvert.parse_maldi import *
+from timsconvert.timestamp import *
 from psims.mzml import MzMLWriter
 import os
 import logging
@@ -214,7 +215,8 @@ def write_lcms_mzml(raw_data, args):
                                 write_lcms_ms2_spectrum(writer, spectrum, args['encoding'], product_scan)
 
 
-def write_maldi_dd_mzml(data, outdir, outfile, ms2_only, centroid=True, encoding=0, single_file=True, plate_map=''):
+def write_maldi_dd_mzml(data, outdir, outfile, ms2_only, groupby, centroid=True, encoding=0, single_file=True,
+                        plate_map=''):
     if single_file == True:
         # Initialize the mzML writer.
         writer = MzMLWriter(os.path.join(outdir, outfile))

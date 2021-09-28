@@ -1,8 +1,6 @@
-from .timestamp import *
-from .constants import *
+from timsconvert.timestamp import *
 import alphatims.bruker
 import alphatims.utils
-from lxml import etree as et
 import sqlite3
 import numpy as np
 import pandas as pd

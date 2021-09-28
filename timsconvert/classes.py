@@ -1,5 +1,4 @@
 import sqlite3
-import ctypes
 import numpy as np
 import pandas as pd
 from psims.mzml.components import ParameterContainer, NullMap

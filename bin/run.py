@@ -43,10 +43,12 @@ def run_tims_converter(args):
 
         if schema == 'TSF':
             if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
-                if run_args['maldi_plate_map'] == '':
-                    logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
-                    logging.info(get_timestamp() + ':' + 'Exiting...')
-                    sys.exit(1)
+                if run_args['maldi_single_file'] == False:
+                    if run_args['maldi_plate_map'] == '':
+                        logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data in '
+                                                             'multiple file mode...')
+                        logging.info(get_timestamp() + ':' + 'Exiting...')
+                        sys.exit(1)
                 write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'],
                                     run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
                                     run_args['encoding'], run_args['maldi_single_file'], run_args['maldi_plate_map'])

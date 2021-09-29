@@ -72,7 +72,7 @@ def args_check(args):
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.
-    if args['maldi_single_file']:
+    if not args['maldi_single_file']:
         if args['maldi_plate_map'] == '':
             logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
             logging.info(get_timestamp() + ':' + 'Exiting...')

@@ -14,8 +14,9 @@ def parse_maldi_plate_map(plate_map_filename):
 
 
 def parse_maldi_tsf(tsf_data, centroid):
-    list_of_frames_dict = tsf_data.frames.todict(orient='records')
-    list_of_framemsmsinfo_dict = tsf_data.framemsmsinfo.todict(orient='records')
+    list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
+    if tsf_data.framemsmsinfo is not None:
+        list_of_framemsmsinfo_dict = tsf_data.framemsmsinfo.to_dict(orient='records')
     list_of_scan_dicts = []
     for index, row in tsf_data.maldiframeinfo.iterrows():
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
@@ -71,8 +72,9 @@ def parse_maldi_tsf(tsf_data, centroid):
 
 
 def parse_maldi_tdf(tdf_data, groupby, centroid):
-    list_of_frames_dict = tdf_data.frames.todict(orient='records')
-    list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.todict(orient='records')
+    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
+    if tdf_data.framemsmsinfo is not None:
+        list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.to_dict(orient='records')
     list_of_scan_dicts = []
 
     # force groupby frame for imaging. splitting up by scans adds too much dimensionality

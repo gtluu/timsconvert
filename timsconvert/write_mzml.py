@@ -297,6 +297,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                         scan_count = 1
                         with writer.spectrum_list(count=1):
                             # Set params for scan.
+                            scan_dict['scan_num'] = scan_count
                             params = [scan_dict['scan_type'],
                                       {'ms level': scan_dict['ms_level']},
                                       {'total ion current': scan_dict['total_ion_current']},

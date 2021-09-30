@@ -217,9 +217,9 @@ def write_lcms_mzml(raw_data, infile, outdir, outfile, centroid, ms2_only, ms1_g
                                 write_lcms_ms2_spectrum(writer, spectrum, encoding, product_scan)
 
 
-def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centroid=True, encoding=0, single_file=True,
-                        plate_map=''):
-    if single_file == True:
+def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centroid=True, encoding=0,
+                        single_file='combined', plate_map=''):
+    if single_file == 'combined':
         # Initialize the mzML writer.
         writer = MzMLWriter(os.path.join(outdir, outfile))
 
@@ -241,7 +241,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                     for scan_dict in list_of_scan_dicts:
                         # Set params for scan.
                         scan_count += 1
-                        scan_dict['scan_num'] = scan_count
+                        scan_dict['scan_number'] = scan_count
                         params = [scan_dict['scan_type'],
                                   {'ms level': scan_dict['ms_level']},
                                   {'total ion current': scan_dict['total_ion_current']},
@@ -269,7 +269,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                                               encoding={'m/z array': encoding_dtype,
                                                         'intensity array': encoding_dtype})
 
-    elif single_file == False and plate_map != '':
+    elif single_file == 'individual' and plate_map != '':
         # Check to make sure plate map is a valid csv file.
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == 'csv':
             # Parse all MALDI data.
@@ -297,7 +297,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                         scan_count = 1
                         with writer.spectrum_list(count=1):
                             # Set params for scan.
-                            scan_dict['scan_num'] = scan_count
+                            scan_dict['scan_number'] = scan_count
                             params = [scan_dict['scan_type'],
                                       {'ms level': scan_dict['ms_level']},
                                       {'total ion current': scan_dict['total_ion_current']},

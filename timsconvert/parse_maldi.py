@@ -85,7 +85,12 @@ def parse_maldi_tdf(tdf_data, groupby, centroid):
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
         if groupby == 'scan':
             for scan_num in range(1, int(frames_dict['NumScans']) + 1):
-                index_buf, intensity_array = tdf_data.read_scans(int(row['Frame']), scan_num, scan_num + 1)
+                scans = tdf_data.read_scans(int(row['Frame']), scan_num, scan_num + 1)
+                if len(scans) == 1:
+                    index_buf, intensity_array = scans[0]
+                elif len(scans) != 1:
+                    print('Too Many Scans.')
+                    sys.exit(1)
                 mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
 
                 if mz_array.size != 0 and intensity_array.size != 0:
@@ -110,8 +115,8 @@ def parse_maldi_tdf(tdf_data, groupby, centroid):
                                  'centroided': centroid,
                                  'retention_time': 0,
                                  'total_ion_current': sum(intensity_array),
-                                 'base_peak_mz': float(mz_array[base_peak_index]),
-                                 'base_peak_intensity': float(intensity_array[base_peak_index]),
+                                 'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                                 'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
                                  'high_mz': float(max(mz_array)),
                                  'low_mz': float(min(mz_array))}
 
@@ -165,8 +170,8 @@ def parse_maldi_tdf(tdf_data, groupby, centroid):
                              'centroided': centroid,
                              'retention_time': 0,
                              'total_ion_current': sum(intensity_array),
-                             'base_peak_mz': float(mz_array[base_peak_index]),
-                             'base_peak_intensity': float(intensity_array[base_peak_index]),
+                             'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                             'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
                              'high_mz': float(max(mz_array)),
                              'low_mz': float(min(mz_array))}
 

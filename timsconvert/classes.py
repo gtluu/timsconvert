@@ -57,6 +57,7 @@ class tsf_data(object):
 
         self.get_frames_table()
         self.get_maldiframeinfo_table()
+        self.get_framemsmsinfo_table()
 
     # from Bruker tsfdata.py
     def __del__(self):
@@ -181,6 +182,7 @@ class tdf_data(object):
 
         if 'MaldiApplicationType' in self.meta_data.keys():
             self.get_maldiframeinfo_table()
+            self.get_framemsmsinfo_table()
         else:
             self.get_pasefframemsmsinfo_table()
 

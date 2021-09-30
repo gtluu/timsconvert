@@ -26,9 +26,9 @@ def get_args():
                         default='scan', type=str)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)
-    parser.add_argument('--maldi_single_file', help='For MALDI dried droplet data, whether individual scans should be '
-                                                    'placed in individual files or all into a single file.',
-                        action='store_true')
+    parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '
+                                                    'placed in individual files ("individual") or all into a single '
+                                                    'file ("combined"). Defaults to "combined".', default='', type=str)
     parser.add_argument('--maldi_plate_map', help='Plate map to be used for parsing spots if --maldi_single_file == '
                                                   'True. Should be a .csv file with no header/index.', default='',
                         type=str)
@@ -72,7 +72,7 @@ def args_check(args):
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.
-    if not args['maldi_single_file']:
+    if args['maldi_output_file'] != '' and args['maldi_output_file'] == 'individual':
         if args['maldi_plate_map'] == '':
             logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
             logging.info(get_timestamp() + ':' + 'Exiting...')

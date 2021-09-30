@@ -43,28 +43,42 @@ def run_tims_converter(args):
 
         if schema == 'TSF':
             if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
-                if run_args['maldi_single_file'] == False:
+                if run_args['maldi_output_file'] == 'individual':
                     if run_args['maldi_plate_map'] == '':
                         logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data in '
                                                              'multiple file mode...')
                         logging.info(get_timestamp() + ':' + 'Exiting...')
                         sys.exit(1)
+                elif run_args['maldi_output_file'] == '':
+                    logging.info(get_timestamp() + ':' + 'MALDI output file mode must be specified ("individual" or '
+                                                         '"combined")...')
+                    logging.info(get_timestamp() + ':' + 'Exiting...')
+                    sys.exit(1)
                 write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'],
                                     run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
-                                    run_args['encoding'], run_args['maldi_single_file'], run_args['maldi_plate_map'])
+                                    run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
             elif data.meta_data['MaldiApplicationType'] == 'Imaging':
                 write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['imzml_mode'],
                                       run_args['centroid'])
         elif schema == 'TDF':
             if 'MaldiApplicationType' in data.meta_data.keys():
                 if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
-                    if run_args['maldi_plate_map'] == '':
-                        logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
+                    if run_args['maldi_output_file'] == 'individual':
+                        if run_args['maldi_plate_map'] == '':
+                            logging.info(
+                                get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data in '
+                                                        'multiple file mode...')
+                            logging.info(get_timestamp() + ':' + 'Exiting...')
+                            sys.exit(1)
+                    elif run_args['maldi_output_file'] == '':
+                        logging.info(
+                            get_timestamp() + ':' + 'MALDI output file mode must be specified ("individual" or '
+                                                    '"combined")...')
                         logging.info(get_timestamp() + ':' + 'Exiting...')
                         sys.exit(1)
                     write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'],
                                         run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
-                                        run_args['encoding'], run_args['maldi_single_file'],
+                                        run_args['encoding'], run_args['maldi_output_file'],
                                         run_args['maldi_plate_map'])
                 elif data.meta_data['MaldiApplicationType'] == 'Imaging':
                     write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame',

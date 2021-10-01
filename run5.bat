@@ -1,2 +1,0 @@
-F:\alphatims_test\venv\Scripts\python.exe F:\code\timsconvert\bin\run.py --input F:\code\data\PenMB-ZoneofInhibition-568-TIMS-MSMS.d --outdir F:\code\data\test1 --maldi_output_file combined --ms1_groupby frame --verbose
-PAUSE

@@ -230,7 +230,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
 
             # Begin writing out data.
             if data.meta_data['SchemaType'] == 'TDF':
-                list_of_scan_dicts = parse_maldi_tdf(data, groupby, centroid)
+                list_of_scan_dicts = parse_maldi_tdf(data, groupby, encoding, centroid)
             elif data.meta_data['SchemaType'] == 'TSF':
                 list_of_scan_dicts = parse_maldi_tsf(data, centroid)
             num_of_spectra = len(list_of_scan_dicts)
@@ -251,6 +251,12 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                                   {'lowest observed m/z': scan_dict['low_mz']},
                                   {'maldi spot identifier': scan_dict['coord']}]
 
+                        if groupby == 'scan':
+                            params.append({'ion mobility drift time': scan_dict['mobility']})
+                            other_arrays = None
+                        elif groupby == 'frame':
+                            other_arrays = [('ion mobility array', scan_dict['mobility_array'])]
+
                         # Set encoding if necessary.
                         if encoding != 0:
                             if encoding == 32:
@@ -265,6 +271,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                                               polarity=scan_dict['polarity'],
                                               centroided=scan_dict['centroided'],
                                               scan_start_time=scan_dict['retention_time'],
+                                              other_arrays=other_arrays,
                                               params=params,
                                               encoding={'m/z array': encoding_dtype,
                                                         'intensity array': encoding_dtype})
@@ -274,7 +281,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == 'csv':
             # Parse all MALDI data.
             if data.meta_data['SchemaType'] == 'TDF':
-                list_of_scan_dicts = parse_maldi_tdf(data, groupby, centroid)
+                list_of_scan_dicts = parse_maldi_tdf(data, groupby, encoding, centroid)
             elif data.meta_data['SchemaType'] == 'TSF':
                 list_of_scan_dicts = parse_maldi_tsf(data, centroid)
 
@@ -307,6 +314,12 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                                       {'lowest observed m/z': scan_dict['low_mz']},
                                       {'maldi spot identifier': scan_dict['coord']}]
 
+                            if groupby == 'scan':
+                                params.append({'ion mobility drift time': scan_dict['mobility']})
+                                other_arrays = None
+                            elif groupby == 'frame':
+                                other_arrays = [('ion mobility array', scan_dict['mobility_array'])]
+
                             # Set encoding if necessary.
                             if encoding != 0:
                                 if encoding == 32:
@@ -321,6 +334,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                                                   polarity=scan_dict['polarity'],
                                                   centroided=scan_dict['centroided'],
                                                   scan_start_time=scan_dict['retention_time'],
+                                                  other_arrays=other_arrays,
                                                   params=params,
                                                   encoding={'m/z array': encoding_dtype,
                                                             'intensity array': encoding_dtype})

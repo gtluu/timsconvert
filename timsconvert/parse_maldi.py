@@ -71,7 +71,7 @@ def parse_maldi_tsf(tsf_data, centroid):
     return list_of_scan_dicts
 
 
-def parse_maldi_tdf(tdf_data, groupby, centroid):
+def parse_maldi_tdf(tdf_data, groupby, encoding, centroid):
     list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
     if tdf_data.framemsmsinfo is not None:
         list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.to_dict(orient='records')
@@ -84,7 +84,7 @@ def parse_maldi_tdf(tdf_data, groupby, centroid):
     for index, row in tdf_data.maldiframeinfo.iterrows():
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Frame'])][0]
         if groupby == 'scan':
-            for scan_num in range(1, int(frames_dict['NumScans']) + 1):
+            for scan_num in range(0, int(frames_dict['NumScans']) + 1):
                 scans = tdf_data.read_scans(int(row['Frame']), scan_num, scan_num + 1)
                 if len(scans) == 1:
                     index_buf, intensity_array = scans[0]
@@ -142,10 +142,13 @@ def parse_maldi_tdf(tdf_data, groupby, centroid):
                     list_of_scan_dicts.append(scan_dict)
 
         elif groupby == 'frame':
-            index_buf, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(int(row['Frame']),
-                                                                                        1,
-                                                                                        int(frames_dict['NumScans'])+1)
-            mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
+            #mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(int(row['Frame']),
+            #                                                                           0,
+            #                                                                           int(frames_dict['NumScans']))
+            #mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
+            mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame_v2(int(row['Frame']),
+                                                                                          int(frames_dict['NumScans']),
+                                                                                          encoding)
 
             if mz_array.size != 0 and intensity_array.size != 0:
                 base_peak_index = np.where(intensity_array == np.max(intensity_array))

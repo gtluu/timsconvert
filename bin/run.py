@@ -58,8 +58,8 @@ def run_tims_converter(args):
                                     run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
                                     run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
             elif data.meta_data['MaldiApplicationType'] == 'Imaging':
-                write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['imzml_mode'],
-                                      run_args['centroid'])
+                write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
+                                      run_args['imzml_mode'], run_args['centroid'])
         elif schema == 'TDF':
             if 'MaldiApplicationType' in data.meta_data.keys():
                 if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
@@ -81,7 +81,7 @@ def run_tims_converter(args):
                                         run_args['encoding'], run_args['maldi_output_file'],
                                         run_args['maldi_plate_map'])
                 elif data.meta_data['MaldiApplicationType'] == 'Imaging':
-                    write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame',
+                    write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
                                           run_args['imzml_mode'], run_args['centroid'])
             elif 'MaldiApplicationType' not in data.meta_data.keys():
                 write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['centroid'],

@@ -337,6 +337,56 @@ class tdf_data(object):
 
         return result
 
+    # In house code for getting centroid spectrum for a frame.
+    def extract_centroided_spectrum_for_frame_v2(self, frame_id, num_scans, encoding, tol=0.01):
+        list_of_scan_tuples = [i for i in self.read_scans(frame_id, 0, num_scans) if i[0].size != 0 and i[1].size != 0]
+        list_of_dfs = []
+        for scan_tuple in list_of_scan_tuples:
+            list_of_dfs.append(pd.DataFrame({'mz': self.index_to_mz(frame_id, scan_tuple[0]),
+                                             'intensity': scan_tuple[1]}))
+        frame_df = pd.concat(list_of_dfs).groupby(by='mz', as_index=False).sum().sort_values(by='mz')
+
+        def get_mz_generator(mz_array, tol=tol):
+            result = []
+            prev_mz = mz_array[0]
+            for i in mz_array:
+                if i - prev_mz > tol:
+                    yield result
+                    result = []
+                result.append(i)
+                prev_mz = i
+            yield result
+
+        def get_indices_generator(mz_array, tol=tol):
+            result = []
+            prev_mz = mz_array[0]
+            for i in mz_array:
+                if i - prev_mz > tol:
+                    yield result
+                    result = []
+                result.append(mz_array.index(i))
+                prev_mz = i
+            yield result
+
+        if encoding != 0:
+            if encoding == 32:
+                encoding_dtype = np.float32
+            elif encoding == 64:
+                encoding_dtype = np.float64
+
+        new_mz_array = [np.mean(list_of_mz_values)
+                        for list_of_mz_values in list(get_mz_generator(frame_df['mz'].values.tolist(), tol))]
+
+        new_intensity_array = []
+        for list_of_indices in list(get_indices_generator(frame_df['mz'].values.tolist(), tol)):
+            tmp_list = []
+            for index in list_of_indices:
+                tmp_list.append(frame_df['intensity'].values.tolist()[index])
+            new_intensity_array.append(sum(tmp_list))
+
+        return (np.array(new_mz_array, dtype=encoding_dtype),
+                np.array(new_intensity_array, dtype=encoding_dtype))
+
     # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
         metadata_query = 'SELECT * FROM GlobalMetadata'

@@ -146,3 +146,7 @@ def decode_array_of_strings(blob):
 def one_over_k0_to_ccs(ook0, charge, mz):
     bruker_dll = init_bruker_dll()
     return bruker_dll.tims_oneoverk0_to_ccs_for_mz(ook0, charge, mz)
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

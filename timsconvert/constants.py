@@ -1,5 +1,11 @@
 import sys
 import os
+import logging
+from timsconvert.timestamp import *
+
+
+logger = logging.getLogger(__name__)
+logging.info(get_timestamp() + ':' + 'Initialize constants...')
 
 
 INSTRUMENT_FAMILY = {'0': 'trap',

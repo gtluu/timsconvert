@@ -25,6 +25,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', encoding=0, im
                          mode=imzml_mode,
                          spec_type=centroid)
 
+    logging.info(get_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
     with writer as imzml_file:
         for scan_dict in list_of_scan_dicts:
             imzml_file.addSpectrum(scan_dict['mz_array'],

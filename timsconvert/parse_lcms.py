@@ -218,11 +218,11 @@ def parse_lcms_tdf(tdf_data, ms1_frames, infile, centroid, ms2_only, ms1_groupby
     # Get all MS2 scans into dictionary.
     # keys == parent scan
     # values == list of scan dicts containing all the MS2 product scans for a given parent scan
-    logging.info(get_timestamp() + ':' + 'Parsing MS2 spectra.')
+    logging.info(get_timestamp() + ':' + 'Parsing LC-TIMS-MS/MS MS2 spectra.')
     ms2_scans_dict = parse_lcms_tdf_ms2_scans(tdf_data, infile, centroid, ms1_groupby, ms2_keep_n_most_abundant_peaks)
 
     # Get all MS1 scans into dictionary.
-    logging.info(get_timestamp() + ':' + 'Parsing MS1 spectra.')
+    logging.info(get_timestamp() + ':' + 'Parsing LC-TIMS-MS MS1 spectra.')
     ms1_scans_dict = {}
     for frame_num in ms1_frames:
         if ms1_groupby == 'scan':

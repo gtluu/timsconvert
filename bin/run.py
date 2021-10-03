@@ -4,6 +4,7 @@ from timsconvert import *
 
 def run_tims_converter(args):
     # Initialize Bruker DLL.
+    logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
     bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
 
     # Load in input data.
@@ -35,14 +36,14 @@ def run_tims_converter(args):
             data = bruker_to_df(infile)
             if 'MaldiApplicationType' in data.meta_data.keys():
                 data = tdf_data(infile, bruker_dll)
-        logging.info(get_timestamp() + ':' + 'Writing to file: ' + os.path.join(run_args['outdir'],
-                                                                                run_args['outfile']))
         # Log arguments.
         for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
 
         if schema == 'TSF':
+            logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                logging.info(get_timestamp() + ':' + 'Processing MALDI dried droplet data...')
                 if run_args['maldi_output_file'] == 'individual':
                     if run_args['maldi_plate_map'] == '':
                         logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data in '
@@ -58,11 +59,14 @@ def run_tims_converter(args):
                                     run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
                                     run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
             elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+                logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
                 write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
                                       run_args['imzml_mode'], run_args['centroid'])
         elif schema == 'TDF':
+            logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if 'MaldiApplicationType' in data.meta_data.keys():
                 if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                    logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
                     if run_args['maldi_output_file'] == 'individual':
                         if run_args['maldi_plate_map'] == '':
                             logging.info(
@@ -81,9 +85,11 @@ def run_tims_converter(args):
                                         run_args['encoding'], run_args['maldi_output_file'],
                                         run_args['maldi_plate_map'])
                 elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+                    logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
                     write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
                                           run_args['imzml_mode'], run_args['centroid'])
             elif 'MaldiApplicationType' not in data.meta_data.keys():
+                logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
                 write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['centroid'],
                                 run_args['ms2_only'], run_args['ms1_groupby'], run_args['encoding'],
                                 run_args['ms2_keep_n_most_abundant_peaks'])

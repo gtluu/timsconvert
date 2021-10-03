@@ -14,6 +14,7 @@ def parse_maldi_plate_map(plate_map_filename):
 
 
 def parse_maldi_tsf(tsf_data, centroid):
+    logging.info(get_timestamp() + ':' + 'Parsing MALDI spectra...')
     list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
     if tsf_data.framemsmsinfo is not None:
         list_of_framemsmsinfo_dict = tsf_data.framemsmsinfo.to_dict(orient='records')
@@ -72,6 +73,7 @@ def parse_maldi_tsf(tsf_data, centroid):
 
 
 def parse_maldi_tdf(tdf_data, groupby, encoding, centroid):
+    logging.info(get_timestamp() + ':' + 'Parsing MALDI-TIMS spectra...')
     list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
     if tdf_data.framemsmsinfo is not None:
         list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.to_dict(orient='records')
@@ -142,10 +144,6 @@ def parse_maldi_tdf(tdf_data, groupby, encoding, centroid):
                     list_of_scan_dicts.append(scan_dict)
 
         elif groupby == 'frame':
-            #mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(int(row['Frame']),
-            #                                                                           0,
-            #                                                                           int(frames_dict['NumScans']))
-            #mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
             mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame_v2(int(row['Frame']),
                                                                                           int(frames_dict['NumScans']),
                                                                                           encoding)

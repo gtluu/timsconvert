@@ -176,6 +176,7 @@ def write_lcms_mzml(raw_data, infile, outdir, outfile, centroid, ms2_only, ms1_g
         # Get total number of spectra to write to mzML file.
         num_of_spectra = count_scans(parent_scans, product_scans)
 
+        logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Writing data to spectrum list.
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
@@ -235,6 +236,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
                 list_of_scan_dicts = parse_maldi_tsf(data, centroid)
             num_of_spectra = len(list_of_scan_dicts)
 
+            logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
             with writer.run(id='run', instrument_configuration='instrument'):
                 scan_count = 0
                 with writer.spectrum_list(count=num_of_spectra):

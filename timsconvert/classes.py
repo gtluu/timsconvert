@@ -415,3 +415,7 @@ class tdf_data(object):
     def get_framemsmsinfo_table(self):
         framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
         self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

@@ -28,7 +28,8 @@ def get_args():
                                            ' to 64-bit.', default=64, type=int)
     parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '
                                                     'placed in individual files ("individual") or all into a single '
-                                                    'file ("combined"). Defaults to "combined".', default='', type=str)
+                                                    'file ("combined"). Defaults to "combined".', default='combined',
+                        type=str)
     parser.add_argument('--maldi_plate_map', help='Plate map to be used for parsing spots if --maldi_single_file == '
                                                   'True. Should be a .csv file with no header/index.', default='',
                         type=str)

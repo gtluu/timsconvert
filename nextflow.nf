@@ -6,15 +6,12 @@
 params.input = 'test/data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d' 
 // should be replaced with Bruker .d directory or folder containing .d directories
 
-// optional params; '' == default parameters will be used
-// uncomment param and add to script to use
-// not sure if there's a programmatic way to do this yet; everything is hardcoded for now
-
-params.centroid = true  // should spectra be centroided?
-// params.ms2_centroiding_window = '5'  // centroiding window for ms2 spectra
-// params.ms2_keep_n_most_abundant_peaks = '1'  // keep N most abundant peaks in ms2 spectra
 params.ms2_only = true  // only convert ms2 spectra?
 params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)
+params.encoding = 64
+params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
+params.maldi_plate_map = ''
+params.imzml_mode = 'processed'
 params.verbose = true
 
 input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
@@ -35,18 +32,36 @@ process convert {
 
     script:
     def ms2_flag = params.ms2_only == true ? "--ms2_only" : ''
-    def centroid_flag = params.centroid == true ? "--centroid" : ''
     def verbose_flag = params.verbose == true ? "--verbose" : ''
-    """
-    mkdir spectra
-    python3 $TOOL_FOLDER/run.py \
-    --input $input_file \
-    --outdir spectra \
-    ${centroid_flag} \
-    ${ms2_flag} \
-    --ms1_groupby ${params.ms1_groupby} \
-    ${verbose_flag}
-    """
+
+    if (params.maldi_plate_map == '')
+        """
+        mkdir spectra
+        python3 $TOOL_FOLDER/run.py \
+        --input $input_file \
+        --outdir spectra \
+        ${ms2_flag} \
+        --ms1_groupby ${params.ms1_groupby} \
+        --encoding ${params.encoding} \
+        --maldi_output_file ${params.maldi_output_file} \
+        --imzml_mode = ${params.imzml_mode} \
+        ${verbose_flag}
+        """
+
+    else if (params.maldi_plate_map != '')
+        """
+        mkdir spectra
+        python3 $TOOL_FOLDER/run.py \
+        --input $input_file \
+        --outdir spectra \
+        ${ms2_flag} \
+        --ms1_groupby ${params.ms1_groupby} \
+        --encoding ${params.encoding} \
+        --maldi_output_file ${params.maldi_output_file} \
+        --maldi_plate_map = ${params.maldi_plate_map} \
+        --imzml_mode = ${params.imzml_mode} \
+        ${verbose_flag}
+        """
 }
 
 process summarize {

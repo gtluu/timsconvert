@@ -3,8 +3,7 @@
 // params
 
 // required params
-params.input = 'test/data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d' 
-// should be replaced with Bruker .d directory or folder containing .d directories
+params.input = '/home/gnps-nextflow/data2/nextflow/raw/ims'
 
 params.ms2_only = true  // only convert ms2 spectra?
 params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)
@@ -44,7 +43,7 @@ process convert {
         --ms1_groupby ${params.ms1_groupby} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
-        --imzml_mode = ${params.imzml_mode} \
+        --imzml_mode ${params.imzml_mode} \
         ${verbose_flag}
         """
 
@@ -59,7 +58,7 @@ process convert {
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --maldi_plate_map = ${params.maldi_plate_map} \
-        --imzml_mode = ${params.imzml_mode} \
+        --imzml_mode ${params.imzml_mode} \
         ${verbose_flag}
         """
 }

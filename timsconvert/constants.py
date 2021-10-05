@@ -60,10 +60,10 @@ MSMS_TYPE_CATEGORY = {'ms1': [0],
 if sys.platform[:5] == 'win32':
     # change filepath later.
     BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                        'lib\\timsdata.dll')
+                                        os.path.join('lib', 'timsdata.dll'))
 elif sys.platform[:5] == 'linux':
     BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                        'lib\\timsdata.so')
+                                        os.path.join('lib', 'timsdata.so'))
 else:
     # Add logging warning here.
     BRUKER_DLL_FILE_NAME = ''

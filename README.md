@@ -71,7 +71,7 @@ Optional
 --outfile : User defined filename for output if converting a single file. If input is a folder with multiple .d
             files, this parameter should not be used as it results in each file overwriting the previous due to 
             having the same filename.
---ms2_only : Flag that specifies only MS2 spectra should be converted.
+--ms2_only : Boolean flag that specifies only MS2 spectra should be converted.
 --ms1_groupby : Define whether an individual spectrum contains one frame (and multiple scans; "frame") or 
                 one scan only ("scan"). Defaults to "scan".
 --encoding : Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.

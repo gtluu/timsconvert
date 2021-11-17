@@ -20,7 +20,8 @@ def get_args():
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'
                                           'files will have same filename and overwrite each other. Default is'
                                           'none. Empty string.', default='', type=str)
-    parser.add_argument('--ms2_only', help='Boolean to only use MS2 spectra.', action='store_true')
+    parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
+                        action='store_true')
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
                         default='scan', type=str)
@@ -30,9 +31,9 @@ def get_args():
                                                     'placed in individual files ("individual") or all into a single '
                                                     'file ("combined"). Defaults to "combined".', default='combined',
                         type=str)
-    parser.add_argument('--maldi_plate_map', help='Plate map to be used for parsing spots if --maldi_single_file == '
-                                                  'True. Should be a .csv file with no header/index.', default='',
-                        type=str)
+    parser.add_argument('--maldi_plate_map', help='Plate map to be used for parsing spots if --maldi_output_file == '
+                                                  '"individual". Should be a .csv file with no header/index.',
+                        default='', type=str)
     parser.add_argument('--imzml_mode', help='Whether .imzML files should be written in "processed" or "continuous" '
                                              'mode. Defaults to "processed".', default='processed', type=str)
 
@@ -42,7 +43,8 @@ def get_args():
                         type=int)
 
     # System Arguments
-    parser.add_argument('--verbose', help='Boolean to print logging output.', action='store_true')
+    parser.add_argument('--verbose', help='Boolean flag to detemrine whether to print logging output.',
+                        action='store_true')
 
     # Return parser
     arguments = parser.parse_args()

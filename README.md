@@ -68,18 +68,20 @@ Required
 
 Optional
 --outdir : Path to folder in which to write output file(s). Defaults to .d source folder.
---outfile : User defined filename for output if converting a single file. If input is a folder with multiple .d
-            files, this parameter should not be used as it results in each file overwriting the previous due to 
-            having the same filename.
+--outfile : User defined filename for output if converting a single file. If input is a folder
+            with multiple .d files, this parameter should not be used as it results in each file
+            overwriting the previous due to having the same filename.
 --ms2_only : Boolean flag that specifies only MS2 spectra should be converted.
---ms1_groupby : Define whether an individual spectrum contains one frame (and multiple scans; "frame") or 
-                one scan only ("scan"). Defaults to "scan".
+--ms1_groupby : Define whether an individual spectrum contains one frame (and multiple scans;
+                "frame") or one scan only ("scan"). Defaults to "scan".
 --encoding : Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
---maldi_output_file : For MALDI dried droplet data, whether individual scans should be placed in individual files
-                      ("individual") or all into a single file ("combined"). Defaults to combined.
---maldi_plate_map : Plate map to be used for parsing spots if --maldi_output_file == "individual". Should be a
-                    .csv file with no header/index.
---imzml_mode : Whether imzML files should be written in "processed" or "continuous" mode. Defaults to "processed".
+--maldi_output_file : For MALDI dried droplet data, whether individual scans should be placed in
+                      individual files ("individual") or all into a single file ("combined").
+                      Defaults to combined.
+--maldi_plate_map : Plate map to be used for parsing spots if --maldi_output_file == "individual".
+                    Should be a .csv file with no header/index.
+--imzml_mode : Whether imzML files should be written in "processed" or "continuous" mode. Defaults
+               to "processed".
 
 System
 --verbose : Boolean flag to determine whether to print logging output.

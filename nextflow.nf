@@ -3,7 +3,7 @@
 // params
 
 // required params
-params.input = '/home/gnps-nextflow/data2/nextflow/raw/ims'
+params.input = ''
 
 params.ms2_only = true  // only convert ms2 spectra?
 params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)

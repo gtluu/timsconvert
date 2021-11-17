@@ -11,7 +11,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     # Require Arguments
-    parser.add_argument('--input', help='Filepath for Bruker .d file containing TDF file or directory containing'
+    parser.add_argument('--input', help='Filepath for Bruker .d file containing TSF or TDF file or directory containing'
                                         'multiple Bruker .d files.', required=True, type=str)
 
     # Optional Arguments

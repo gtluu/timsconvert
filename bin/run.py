@@ -4,8 +4,10 @@ from timsconvert import *
 
 def run_tims_converter(args):
     # Initialize Bruker DLL.
-    logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
-    bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+    # Only initialize if converting MALDI data. LCMS data currently uses AlphaTims.
+    if args['experiment'] == 'lc-tims-ms':
+        logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
+        bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
 
     # Load in input data.
     logging.info(get_timestamp() + ':' + 'Loading input data...')

@@ -13,6 +13,8 @@ def get_args():
     # Require Arguments
     parser.add_argument('--input', help='Filepath for Bruker .d file containing TSF or TDF file or directory containing'
                                         'multiple Bruker .d files.', required=True, type=str)
+    parser.add_argument('--experiment', help='Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,'
+                                             'maldi-tims-dd, maldi-ims, or maldi-tims-ims.', required=True, type=str)
 
     # Optional Arguments
     parser.add_argument('--outdir', help='Path to folder in which to write output file(s). Default = none', default='',
@@ -55,6 +57,12 @@ def get_args():
 def args_check(args):
     # Check if input directory exists.
     if not os.path.exists(args['input']):
+        logging.info(get_timestamp() + ':' + 'Input path does not exist...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    # Check to make sure experiment type is correct.
+    experiments = ['lc-tims-ms', 'maldi-dd', 'maldi-tims-dd', 'maldi-ims', 'maldi-tims-ims']
+    if args['experiment'] not in experiments:
         logging.info(get_timestamp() + ':' + 'Input path does not exist...')
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)

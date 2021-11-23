@@ -10,7 +10,7 @@ Examples for file conversion include:
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
 - MALDI-MS Imaging Mass Spectrometry (TSF) &#8594; imzML
 - MALDI-TIMS-MS(/MS) Dried Droplet (TDF) &#8594; mzML
-- MALDI-TIMS-MS Imaging Dried Droplet (TDF) &#8594; imzML (does not incorporate ion mobility data)
+- MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) &#8594; imzML (does not incorporate ion mobility data)
 
 ## Installation and Usage
 

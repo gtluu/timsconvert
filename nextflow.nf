@@ -39,7 +39,7 @@ process convert {
         mkdir spectra
         python3 $TOOL_FOLDER/run.py \
         --input $input_file \
-        --experiment $experiment \
+        --experiment ${params.experiment} \
         --outdir spectra \
         ${ms2_flag} \
         --ms1_groupby ${params.ms1_groupby} \
@@ -54,7 +54,7 @@ process convert {
         mkdir spectra
         python3 $TOOL_FOLDER/run.py \
         --input $input_file \
-        --experiment $experiment \
+        --experiment ${params.experiment} \
         --outdir spectra \
         ${ms2_flag} \
         --ms1_groupby ${params.ms1_groupby} \

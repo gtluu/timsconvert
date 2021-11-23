@@ -7,15 +7,15 @@ spectrometers (i.e. .d directory containing TDF and TSF files) to open source da
 Examples for file conversion include:
 <br>
 - LC-TIMS-MS(/MS) (TDF) &#8594; mzML
-  - Experiment Type: lc-tims-ms
+  - Experiment Type: ```lc-tims-ms```
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
-  - Experiment Type: maldi-dd
+  - Experiment Type: ```maldi-dd```
 - MALDI-MS Imaging Mass Spectrometry (TSF) &#8594; imzML
-  - Experiment Type: maldi-ims
+  - Experiment Type: ```maldi-ims```
 - MALDI-TIMS-MS(/MS) Dried Droplet (TDF) &#8594; mzML
-  - Experiment Type: maldi-tims-dd
+  - Experiment Type: ```maldi-tims-dd```
 - MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) &#8594; imzML (does not incorporate ion mobility data)
-  - Experiment Type: maldi-tims-ims
+  - Experiment Type: ```maldi-tims-ims```
 
 ## Installation and Usage
 

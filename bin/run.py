@@ -31,8 +31,6 @@ def run_tims_converter(args):
         for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
 
-        experiments = ['lc-tims-ms', 'maldi-dd', 'maldi-tims-dd', 'maldi-ims', 'maldi-tims-ims']
-
         if args['experiment'] == 'lc-tims-ms':
             logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             data = bruker_to_df(infile)
@@ -105,7 +103,7 @@ def run_tims_converter(args):
             data = tdf_data(infile, bruker_dll)
             write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
                                   run_args['imzml_mode'], run_args['centroid'])
-        
+
         run_args.clear()
 
 

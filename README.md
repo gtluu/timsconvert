@@ -34,7 +34,8 @@ necessary. All that's required is a GNPS account.
 Similar to the web version, the Nextflow workflow for TIMSCONVERT only supports LC-TIMS-MS(/MS) data currently. This 
 workflow should be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
 
-1. Download and install Anaconda. Follow the prompts to complete installation.
+1. Download and install Anaconda. Follow the prompts to complete installation. Anaconda3-2021.11 is used as an example 
+here.
 ```
 wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
 bash /path/to/Anaconda3-2021.11-Linux-x86_64.sh
@@ -63,12 +64,12 @@ git clone https://www.github.com/gtluu/timsconvert
 ```
 pip install -r /path/to/timsconvert/requirements.txt
 ```
-7. Run the ```nextflow.nf``` script provided in this repo and specify your input directory. Unless specified, all other 
+8. Run the ```nextflow.nf``` script provided in this repo and specify your input directory. Unless specified, all other 
 default parameters for all other values will be used.
 ```
 nextflow run nextflow.nf --input /path/to/your/data --experiment lc-tims-ms
 ```
-8. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
+9. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 
 ### Command Line Interface
 

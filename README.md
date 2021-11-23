@@ -7,10 +7,15 @@ spectrometers (i.e. .d directory containing TDF and TSF files) to open source da
 Examples for file conversion include:
 <br>
 - LC-TIMS-MS(/MS) (TDF) &#8594; mzML
+  - Experiment Type: lc-tims-ms
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
+  - Experiment Type: maldi-dd
 - MALDI-MS Imaging Mass Spectrometry (TSF) &#8594; imzML
+  - Experiment Type: maldi-ims
 - MALDI-TIMS-MS(/MS) Dried Droplet (TDF) &#8594; mzML
+  - Experiment Type: maldi-tims-dd
 - MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) &#8594; imzML (does not incorporate ion mobility data)
+  - Experiment Type: maldi-tims-ims
 
 ## Installation and Usage
 
@@ -58,13 +63,15 @@ pip install -r requirements.txt
 ```
 3. Use ```bin/run.py``` to run TIMSCONVERT and pass through required/desired parameters.
 ```
-python3 /path/to/timsconvert_folder/bin/run.py --input /path/to/data
+python3 /path/to/timsconvert_folder/bin/run.py --input /path/to/data --experiment lc-tims-ms
 ```
 
 ## Parameters
 ```
 Required
 --input : Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.
+--experiment : Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,
+               maldi-tims-dd, maldi-ims, or maldi-tims-ims.
 
 Optional
 --outdir : Path to folder in which to write output file(s). Defaults to .d source folder.

@@ -4,6 +4,7 @@
 
 // required params
 params.input = ''
+params.experiment = ''
 
 params.ms2_only = true  // only convert ms2 spectra?
 params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)
@@ -38,6 +39,7 @@ process convert {
         mkdir spectra
         python3 $TOOL_FOLDER/run.py \
         --input $input_file \
+        --experiment $experiment \
         --outdir spectra \
         ${ms2_flag} \
         --ms1_groupby ${params.ms1_groupby} \
@@ -52,6 +54,7 @@ process convert {
         mkdir spectra
         python3 $TOOL_FOLDER/run.py \
         --input $input_file \
+        --experiment $experiment \
         --outdir spectra \
         ${ms2_flag} \
         --ms1_groupby ${params.ms1_groupby} \

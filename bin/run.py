@@ -26,7 +26,6 @@ def run_tims_converter(args):
 
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
-        metadata = get_metadata(infile, schema)
         # Log arguments.
         for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))

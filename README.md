@@ -31,24 +31,42 @@ necessary. All that's required is a GNPS account.
 
 ### Nextflow Workflow
 
-Similar to the web version, the Nextflow workflow for TIMSCONVERT only supports LC-TIMS-MS(/MS) data currently.
+Similar to the web version, the Nextflow workflow for TIMSCONVERT only supports LC-TIMS-MS(/MS) data currently. This 
+workflow should be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
 
-1. Create a conda instance.
+1. Download and install Anaconda. Follow the prompts to complete installation.
+```
+wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
+bash /path/to/Anaconda3-2021.11-Linux-x86_64.sh
+```
+2. Add ```anaconda3/bin``` to PATH.
+```
+export PATH=$PATH:/path/to/anaconda3/bin
+```
+3. Create a conda instance.
 ```
 conda create -n timsconvert python=3.8
 ```
-2. Install Nextflow.
+4. Activate conda environment.
+```
+conda activate timsconvert
+```
+5. Install Nextflow.
 ```
 conda install -c bioconda nextflow
 ```
-3. Install dependencies.
+6. Download/clone TIMSCONVERT.
 ```
-pip install -r requirements.txt
+git clone https://www.github.com/gtluu/timsconvert
 ```
-4. Run the ```nextflow.nf``` script provided in this repo and specify your input directory. Unless specified, all other 
+7. Install dependencies.
+```
+pip install -r /path/to/timsconvert/requirements.txt
+```
+7. Run the ```nextflow.nf``` script provided in this repo and specify your input directory. Unless specified, all other 
 default parameters for all other values will be used.
 ```
-nextflow run nextflow.nf --input /path/to/your/data
+nextflow run nextflow.nf --input /path/to/your/data --experiment lc-tims-ms
 ```
 5. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 

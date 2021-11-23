@@ -29,10 +29,10 @@ necessary. All that's required is a GNPS account.
 3. Select your dataset and parameters.
 4. Submit your run.
 
-### Nextflow Workflow
+### Setting Up Your Local Environment
 
-Similar to the web version, the Nextflow workflow for TIMSCONVERT only supports LC-TIMS-MS(/MS) data currently. This 
-workflow should be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
+If you prefer to run TIMSCONVERT locally, you can set up an environment to do so. Please note that TIMSCONVERT should 
+be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
 
 1. Download and install Anaconda. Follow the prompts to complete installation. Anaconda3-2021.11 is used as an example 
 here.
@@ -52,11 +52,11 @@ conda create -n timsconvert python=3.8
 ```
 conda activate timsconvert
 ```
-5. Install Nextflow.
+5. (Optional, for Nextflow workflow only) Install Nextflow.
 ```
 conda install -c bioconda nextflow
 ```
-6. Download/clone TIMSCONVERT.
+6. Download TIMSCONVERT by cloning the Github repo.
 ```
 git clone https://www.github.com/gtluu/timsconvert
 ```
@@ -64,26 +64,30 @@ git clone https://www.github.com/gtluu/timsconvert
 ```
 pip install -r /path/to/timsconvert/requirements.txt
 ```
-8. Run the ```nextflow.nf``` script provided in this repo and specify your input directory. Unless specified, all other 
-default parameters for all other values will be used.
+
+### Nextflow Workflow
+
+Similar to the web version, the Nextflow workflow for TIMSCONVERT only supports LC-TIMS-MS(/MS) data currently.
+
+1. Run the ```nextflow.nf``` script provided in this repo and specify your input directory and experiment type. Unless 
+specified, all other default parameters for all other values will be used. See below for an explanation of all 
+parameters.
 ```
-nextflow run nextflow.nf --input /path/to/your/data --experiment lc-tims-ms
+nextflow run /path/to/timsconvert/nextflow.nf --input /path/to/your/data --experiment lc-tims-ms
 ```
-9. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
+2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
+
 
 ### Command Line Interface
 
 The CLI version of TIMSCONVERT supports conversion of all experimental data types specified above.
 
-1. Download and unzip the [CLI version](https://github.com/gtluu/timsconvert/archive/refs/heads/main.zip) of TIMSCONVERT.
-2. Install dependencies.
+1. Use ```bin/run.py``` to run TIMSCONVERT. The input directory and experiment type. Unless specified, all other 
+default parameters for all other values will be used. See below for an explanation of all parameters.
 ```
-pip install -r requirements.txt
+python3 /path/to/timsconvert/bin/run.py --input /path/to/data --experiment lc-tims-ms
 ```
-3. Use ```bin/run.py``` to run TIMSCONVERT and pass through required/desired parameters.
-```
-python3 /path/to/timsconvert_folder/bin/run.py --input /path/to/data --experiment lc-tims-ms
-```
+2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 
 ## Parameters
 ```

@@ -68,7 +68,7 @@ default parameters for all other values will be used.
 ```
 nextflow run nextflow.nf --input /path/to/your/data --experiment lc-tims-ms
 ```
-5. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
+8. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 
 ### Command Line Interface
 

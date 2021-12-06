@@ -4,8 +4,8 @@
 
 // required params
 params.input = ''
-params.experiment = ''
 
+params.experiment = 'lc-tims-ms'
 params.ms2_only = true  // only convert ms2 spectra?
 params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)
 params.encoding = 64

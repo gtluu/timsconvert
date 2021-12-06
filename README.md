@@ -93,10 +93,10 @@ python3 /path/to/timsconvert/bin/run.py --input /path/to/data --experiment lc-ti
 ```
 Required
 --input : Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.
---experiment : Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,
-               maldi-tims-dd, maldi-ims, or maldi-tims-ims.
 
 Optional
+--experiment : Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,
+               maldi-tims-dd, maldi-ims, or maldi-tims-ims. Defaults to lc-tims-ms
 --outdir : Path to folder in which to write output file(s). Defaults to .d source folder.
 --outfile : User defined filename for output if converting a single file. If input is a folder
             with multiple .d files, this parameter should not be used as it results in each file

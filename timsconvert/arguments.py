@@ -13,10 +13,11 @@ def get_args():
     # Require Arguments
     parser.add_argument('--input', help='Filepath for Bruker .d file containing TSF or TDF file or directory containing'
                                         'multiple Bruker .d files.', required=True, type=str)
-    parser.add_argument('--experiment', help='Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,'
-                                             'maldi-tims-dd, maldi-ims, or maldi-tims-ims.', required=True, type=str)
 
     # Optional Arguments
+    parser.add_argument('--experiment', help='Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,'
+                                             'maldi-tims-dd, maldi-ims, or maldi-tims-ims.', default='lc-tims-ms',
+                        type=str)
     parser.add_argument('--outdir', help='Path to folder in which to write output file(s). Default = none', default='',
                         type=str)
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'

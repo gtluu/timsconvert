@@ -25,7 +25,7 @@ The web version of TIMSCONVERT currently only supports LC-TIMS-MS(/MS) data and 
 necessary. All that's required is a GNPS account.
 
 1. Upload your data to GNPS ([instructions](https://ccms-ucsd.github.io/GNPSDocumentation/fileupload/)).
-2. Go to the [TIMSCONVERT workflow page]().
+2. Go to the [TIMSCONVERT workflow page](https://proteomics2.ucsd.edu/ProteoSAFe/index.jsp?params=%7b%22workflow%22%3A%20%22TIMSCONVERT%22%7d).
 3. Select your dataset and parameters.
 4. Submit your run.
 

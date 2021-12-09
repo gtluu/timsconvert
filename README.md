@@ -31,7 +31,7 @@ necessary. All that's required is a GNPS account.
 
 ### Setting Up Your Local Environment
 
-If you prefer to run TIMSCONVERT locally, you can set up an environment to do so. Please note that TIMSCONVERT should 
+If you prefer to run TIMSCONVERT locally via Nextflow or the CLI, you can set up an environment to do so. Please note that TIMSCONVERT should 
 be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
 
 1. Download and install Anaconda. Follow the prompts to complete installation. Anaconda3-2021.11 is used as an example 

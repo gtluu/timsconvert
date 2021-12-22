@@ -25,13 +25,13 @@ The web version of TIMSCONVERT currently only supports LC-TIMS-MS(/MS) data and 
 necessary. All that's required is a GNPS account.
 
 1. Upload your data to GNPS ([instructions](https://ccms-ucsd.github.io/GNPSDocumentation/fileupload/)).
-2. Go to the [TIMSCONVERT workflow page]().
+2. Go to the [TIMSCONVERT workflow page](https://proteomics2.ucsd.edu/ProteoSAFe/index.jsp?params=%7b%22workflow%22%3A%20%22TIMSCONVERT%22%7d).
 3. Select your dataset and parameters.
 4. Submit your run.
 
 ### Setting Up Your Local Environment
 
-If you prefer to run TIMSCONVERT locally, you can set up an environment to do so. Please note that TIMSCONVERT should 
+If you prefer to run TIMSCONVERT locally via Nextflow or the CLI, you can set up an environment to do so. Please note that TIMSCONVERT should 
 be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
 
 1. Download and install Anaconda. Follow the prompts to complete installation. Anaconda3-2021.11 is used as an example 
@@ -93,10 +93,10 @@ python3 /path/to/timsconvert/bin/run.py --input /path/to/data --experiment lc-ti
 ```
 Required
 --input : Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.
---experiment : Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,
-               maldi-tims-dd, maldi-ims, or maldi-tims-ims.
 
 Optional
+--experiment : Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,
+               maldi-tims-dd, maldi-ims, or maldi-tims-ims. Defaults to lc-tims-ms
 --outdir : Path to folder in which to write output file(s). Defaults to .d source folder.
 --outfile : User defined filename for output if converting a single file. If input is a folder
             with multiple .d files, this parameter should not be used as it results in each file

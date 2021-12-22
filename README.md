@@ -133,3 +133,4 @@ make run_test
 ## Changelog
 v 1.0.0
 - Initial release.
+- Compatibility for ESI and MALDI based experiments.

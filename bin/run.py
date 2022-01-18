@@ -34,6 +34,10 @@ def run_tims_converter(args):
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TDF':
+                logging.warning('.tdf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             data = tdf_data(infile, bruker_dll)
@@ -44,6 +48,10 @@ def run_tims_converter(args):
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TSF':
+                logging.warning('.tsf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI dried droplet data...')
             if run_args['maldi_output_file'] == 'individual':
@@ -65,6 +73,10 @@ def run_tims_converter(args):
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TDF':
+                logging.warning('.tdf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
             if run_args['maldi_output_file'] == 'individual':
@@ -88,6 +100,10 @@ def run_tims_converter(args):
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TSF':
+                logging.warning('.tsf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
             data = tsf_data(infile, bruker_dll)
@@ -97,6 +113,10 @@ def run_tims_converter(args):
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TDF':
+                logging.warning('.tdf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
             data = tdf_data(infile, bruker_dll)

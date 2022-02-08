@@ -175,6 +175,7 @@ class tdf_data(object):
         self.maldiframeinfo = None
         self.pasefframemsmsinfo = None
         self.framemsmsinfo = None
+        self.precursors = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
@@ -185,6 +186,7 @@ class tdf_data(object):
             self.get_framemsmsinfo_table()
         else:
             self.get_pasefframemsmsinfo_table()
+            self.get_precursors_table()
 
     def __del__(self):
         if hasattr(self, 'handle'):
@@ -337,9 +339,19 @@ class tdf_data(object):
 
         return result
 
-    # In house code for getting centroid spectrum for a frame.
-    def extract_centroided_spectrum_for_frame_v2(self, frame_id, num_scans, encoding, tol=0.01):
-        list_of_scan_tuples = [i for i in self.read_scans(frame_id, 0, num_scans) if i[0].size != 0 and i[1].size != 0]
+    # In house code for getting spectrum for a frame.
+    def extract_spectrum_for_frame_v2(self, frame_id, begin_scan, end_scan, encoding, tol=0.01):
+        if encoding != 0:
+            if encoding == 32:
+                encoding_dtype = np.float32
+            elif encoding == 64:
+                encoding_dtype = np.float64
+
+        list_of_scan_tuples = [i for i in self.read_scans(frame_id, begin_scan, end_scan)
+                               if i[0].size != 0 and i[1].size != 0]
+        if len(list_of_scan_tuples) == 0:
+            return (np.empty(0, dtype=encoding_dtype),
+                    np.empty(0, dtype=encoding_dtype))
         list_of_dfs = []
         for scan_tuple in list_of_scan_tuples:
             list_of_dfs.append(pd.DataFrame({'mz': self.index_to_mz(frame_id, scan_tuple[0]),
@@ -367,12 +379,6 @@ class tdf_data(object):
                 result.append(mz_array.index(i))
                 prev_mz = i
             yield result
-
-        if encoding != 0:
-            if encoding == 32:
-                encoding_dtype = np.float32
-            elif encoding == 64:
-                encoding_dtype = np.float64
 
         new_mz_array = [np.mean(list_of_mz_values)
                         for list_of_mz_values in list(get_mz_generator(frame_df['mz'].values.tolist(), tol))]
@@ -415,6 +421,11 @@ class tdf_data(object):
     def get_framemsmsinfo_table(self):
         framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
         self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
+
+    # Get Precursors table from analysis.tdf SQL database.
+    def get_precursors_table(self):
+        precursors_query = 'SELECT * FROM Precursors'
+        self.precursors = pd.read_sql_query(precursors_query, self.conn)
 
 
 if __name__ == '__main__':

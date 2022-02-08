@@ -157,65 +157,62 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding, groupby):
 
 
 # Write out mzML file using psims.
-def write_lcms_mzml(raw_data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding,
+def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding,
                     ms2_keep_n_most_abundant_peaks):
-    # Create mzML writer using psims.
+    # Initialize mzML writer using psims.
     writer = MzMLWriter(os.path.join(outdir, outfile))
 
     with writer:
-        # Begin mzML with controlled vocabularies (CV).
+        # Begin mzML with controlled vocabulatires (CV).
         writer.controlled_vocabularies()
 
-        write_mzml_metadata(raw_data, writer, infile, ms2_only)
+        write_mzml_metadata(data, writer, infile, ms2_only)
 
-        # Get MS1 frames.
-        ms1_frames = sorted(list(set(raw_data[:, :, 0]['frame_indices'])))
-        # Parse raw data to get scans.
-        parent_scans, product_scans = parse_lcms_tdf(raw_data, ms1_frames, infile, centroid, ms2_only, ms1_groupby,
-                                                     ms2_keep_n_most_abundant_peaks)
-        # Get total number of spectra to write to mzML file.
-        num_of_spectra = count_scans(parent_scans, product_scans)
+        # Begin writing out data.
+        if data.meta_data['SchemaType'] == 'TDF':
+            parent_scans, product_scans = parse_lcms_tdf(data, ms1_groupby, centroid, encoding, ms2_only)
+        # later add code for elif baf -> use baf2sql
+        num_of_spectra = len(parent_scans) + len(product_scans)
 
         logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
-        # Writing data to spectrum list.
+        # Writing data to spectrum
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
             with writer.spectrum_list(count=num_of_spectra):
-                for frame_num in ms1_frames:
-                    if ms1_groupby == 'scan':
-                        ms1_scans = sorted(list(set(raw_data[frame_num]['scan_indices'])))
-                        for scan_num in ms1_scans:
-                            spectrum = parent_scans['f' + str(frame_num) + 's' + str(scan_num)]
-                            # Write MS1 parent scan.
-                            if ms2_only == False:
-                                if spectrum != None:
-                                    scan_count += 1
-                                    spectrum['scan_number'] = scan_count
-                                    logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                    write_lcms_ms1_spectrum(writer, spectrum, encoding, ms1_groupby)
-                            # Write MS2 product scans.
-                            if 'f' + str(frame_num) + 's' + str(scan_num) in product_scans.keys():
-                                for product_scan in product_scans['f' + str(frame_num) + 's' + str(scan_num)]:
-                                    scan_count += 1
-                                    product_scan['scan_number'] = scan_count
-                                    logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                    write_lcms_ms2_spectrum(writer, spectrum, encoding, product_scan)
-                    elif ms1_groupby == 'frame':
-                        spectrum = parent_scans[frame_num]
-                        # Write MS1 parent scan.
+                if ms1_groupby == 'scan':
+                    # Write MS1 parent scans.
+                    for parent in parent_scans:
+                        products = [i for i in product_scans
+                                    if i['parent_frame'] == parent['frame'] and
+                                    i['parent_scan'] == parent['scan_number']]
+                        # Set params for scan.
                         if ms2_only == False:
-                            if spectrum != None:
-                                scan_count += 1
-                                spectrum['scan_number'] = scan_count
-                                logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_lcms_ms1_spectrum(writer, spectrum, encoding, ms1_groupby)
+                            scan_count += 1
+                            parent['scan_number'] = scan_count
+                            logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
+                            write_lcms_ms1_spectrum(writer, parent, encoding, ms1_groupby)
                         # Write MS2 product scans.
-                        if frame_num in product_scans.keys():
-                            for product_scan in product_scans[frame_num]:
-                                scan_count += 1
-                                product_scan['scan_number'] = scan_count
-                                logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
-                                write_lcms_ms2_spectrum(writer, spectrum, encoding, product_scan)
+                        for product in products:
+                            scan_count += 1
+                            product['scan_number'] = scan_count
+                            logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
+                            write_lcms_ms2_spectrum(writer, parent, encoding, product)
+                elif ms1_groupby == 'frame':
+                    # Write MS1 parent scans.
+                    for parent in parent_scans:
+                        products = [i for i in product_scans if i['parent_frame'] == parent['frame']]
+                        print(products)
+                        # Set params for scan.
+                        if ms2_only == False:
+                            scan_count += 1
+                            parent['scan_number'] = scan_count
+                            logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
+                            write_lcms_ms1_spectrum(writer, parent, encoding, ms1_groupby)
+                        for product in products:
+                            scan_count += 1
+                            product['scan_number'] = scan_count
+                            logging.info(get_timestamp() + ':' + 'Writing Scan ' + str(scan_count))
+                            write_lcms_ms2_spectrum(writer, parent, encoding, product)
 
 
 def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centroid=True, encoding=0,
@@ -225,6 +222,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
         writer = MzMLWriter(os.path.join(outdir, outfile))
 
         with writer:
+            # Begin mzML with controlled vocabulatires (CV).
             writer.controlled_vocabularies()
 
             write_mzml_metadata(data, writer, infile, ms2_only)
@@ -237,6 +235,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
             num_of_spectra = len(list_of_scan_dicts)
 
             logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+            # Writing data to spectrum list.
             with writer.run(id='run', instrument_configuration='instrument'):
                 scan_count = 0
                 with writer.spectrum_list(count=num_of_spectra):

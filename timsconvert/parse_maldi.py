@@ -25,7 +25,7 @@ def parse_maldi_tsf(tsf_data, centroid):
         mz_array = tsf_data.index_to_mz(int(row['Frame']), index_buf)
 
         if mz_array.size != 0 and intensity_array.size != 0:
-            base_peak_index = np.where(intensity_array == np.max(intensity_array))
+            base_peak_index = np.where(intensity_array == np.max(intensity_array))[0][0]
 
             if tsf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
                 coords = row['SpotName']
@@ -68,6 +68,10 @@ def parse_maldi_tsf(tsf_data, centroid):
                 scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
                 # no parent frame or scan
 
+            if len(scan_dict['mz_array']) != len(scan_dict['intensity_array']):
+                print(scan_dict)
+                print(len(scan_dict['mz_array']))
+                print(len(scan_dict['intensity_array']))
             list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts
 
@@ -91,12 +95,12 @@ def parse_maldi_tdf(tdf_data, groupby, encoding, centroid):
                 if len(scans) == 1:
                     index_buf, intensity_array = scans[0]
                 elif len(scans) != 1:
-                    print('Too Many Scans.')
+                    logging.warning(get_timestamp() + ':' + 'Too Many Scans.')
                     sys.exit(1)
                 mz_array = tdf_data.index_to_mz(int(row['Frame']), index_buf)
 
                 if mz_array.size != 0 and intensity_array.size != 0:
-                    base_peak_index = np.where(intensity_array == np.max(intensity_array))
+                    base_peak_index = np.where(intensity_array == np.max(intensity_array))[0][0]
 
                     if tdf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
                         coords = row['SpotName']
@@ -149,7 +153,7 @@ def parse_maldi_tdf(tdf_data, groupby, encoding, centroid):
                                                                                           encoding)
 
             if mz_array.size != 0 and intensity_array.size != 0:
-                base_peak_index = np.where(intensity_array == np.max(intensity_array))
+                base_peak_index = np.where(intensity_array == np.max(intensity_array))[0][0]
 
                 if tdf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
                     coords = row['SpotName']

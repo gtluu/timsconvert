@@ -22,7 +22,10 @@ def run_tims_converter(args):
             run_args['outdir'] = os.path.split(infile)[0]
         # Make output filename the default filename if not specified.
         if run_args['outfile'] == '':
-            run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            if run_args['experiment'] in ['lc-tims-ms', 'maldi-dd', 'maldi-tims-dd']:
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            elif run_args['experiment'] in ['maldi-ims', 'maldi-tims-ims']:
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
 
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)

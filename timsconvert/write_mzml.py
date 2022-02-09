@@ -90,7 +90,6 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
     # Build precursor information dict.
     precursor_info = {'mz': product_scan['selected_ion_mz'],
                       'intensity': product_scan['selected_ion_intensity'],
-                      'charge': product_scan['charge_state'],
                       #'activation': [product_scan['activation'],
                       #               {'collision energy': product_scan['collision_energy']}],
                       'activation': [{'collision energy': product_scan['collision_energy']}],
@@ -98,6 +97,8 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                                                 'upper': product_scan['isolation_upper_offset'],
                                                 'lower': product_scan['isolation_lower_offset']},
                       'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
+    if not np.isnan(product_scan['charge_state']):
+        precursor_info['charge'] = product_scan['charge_state']
 
     if parent_scan != None:
         precursor_info['spectrum_reference'] = 'scan=' + str(parent_scan['scan_number'])

@@ -202,7 +202,6 @@ def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_group
                     # Write MS1 parent scans.
                     for parent in parent_scans:
                         products = [i for i in product_scans if i['parent_frame'] == parent['frame']]
-                        print(products)
                         # Set params for scan.
                         if ms2_only == False:
                             scan_count += 1

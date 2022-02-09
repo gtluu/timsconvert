@@ -85,6 +85,7 @@ def parse_lcms_tdf(tdf_data, ms1_groupby, centroid, encoding, ms2_only):
                                      'isolation_upper_offset': float(pasefframemsmsinfo_dict['IsolationWidth']) / 2,
                                      'selected_ion_mz': pasefframemsmsinfo_dict['IsolationMz'],
                                      'selected_ion_intensity': precursor_dict['Intensity'],
+                                     'selected_ion_mobility': precursor_dict['Mobility'],
                                      'charge_state': precursor_dict['Charge'],
                                      'collision_energy': pasefframemsmsinfo_dict['CollisionEnergy'],
                                      'parent_frame': int(precursor_dict['Parent']),
@@ -153,6 +154,7 @@ def parse_lcms_tdf(tdf_data, ms1_groupby, centroid, encoding, ms2_only):
                                      'isolation_upper_offset': float(pasefframemsmsinfo_dict['IsolationWidth']) / 2,
                                      'selected_ion_mz': pasefframemsmsinfo_dict['IsolationMz'],
                                      'selected_ion_intensity': precursor_dict['Intensity'],
+                                     'selected_ion_mobility': precursor_dict['Mobility'],
                                      'charge_state': precursor_dict['Charge'],
                                      'collision_energy': pasefframemsmsinfo_dict['CollisionEnergy'],
                                      'parent_frame': int(precursor_dict['Parent'])}

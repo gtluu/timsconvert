@@ -177,11 +177,9 @@ class tdf_data(object):
         self.framemsmsinfo = None
         self.precursors = None
         self.source_file = bruker_d_folder_name
-        self.mobility_values = None
 
         self.get_global_metadata()
         self.get_frames_table()
-        self.get_mobility_values()
 
         if 'MaldiApplicationType' in self.meta_data.keys():
             self.get_maldiframeinfo_table()
@@ -395,17 +393,6 @@ class tdf_data(object):
         return (np.array(new_mz_array, dtype=encoding_dtype),
                 np.array(new_intensity_array, dtype=encoding_dtype))
 
-    # Get mobility values. Implementation from AlphaTims.
-    def get_mobility_values(self):
-        max_num_scans = max(self.frames['NumScans']) + 1
-        indices = np.arange(max_num_scans).astype(np.float64)
-        self.mobility_values = np.empty_like(indices)
-        self.dll.tims_scannum_to_oneoverk0(self.handle,
-                                           1,  # mobility_estimation_from_frame
-                                           indices.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-                                           self.mobility_values.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-                                           max_num_scans)
-
     # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
         metadata_query = 'SELECT * FROM GlobalMetadata'
@@ -439,6 +426,19 @@ class tdf_data(object):
     def get_precursors_table(self):
         precursors_query = 'SELECT * FROM Precursors'
         self.precursors = pd.read_sql_query(precursors_query, self.conn)
+        # Add mobility values to precursor table
+        # Get array of mobility values based on number of scans.
+        max_num_scans = max(self.frames['NumScans']) + 1
+        indices = np.arange(max_num_scans).astype(np.float64)
+        mobility_values = np.empty_like(indices)
+        self.dll.tims_scannum_to_oneoverk0(self.handle,
+                                           1,  # mobility_estimation_from_frame
+                                           indices.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+                                           mobility_values.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+                                           max_num_scans)
+        # Assign mobility values to precursor table.
+        precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]
+        self.precursors['Mobility'] = precursor_mobility_values
 
 
 if __name__ == '__main__':

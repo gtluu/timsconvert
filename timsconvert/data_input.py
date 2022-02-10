@@ -21,10 +21,5 @@ def schema_detection(bruker_dot_d_file):
         return 'TSF'
 
 
-# Read in Bruker .d/.tdf files into dataframe using AlphaTims.
-def bruker_to_df(filename):
-    return alphatims.bruker.TimsTOF(filename)
-
-
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)

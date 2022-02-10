@@ -22,7 +22,10 @@ def run_tims_converter(args):
             run_args['outdir'] = os.path.split(infile)[0]
         # Make output filename the default filename if not specified.
         if run_args['outfile'] == '':
-            run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            if run_args['experiment'] in ['lc-tims-ms', 'maldi-dd', 'maldi-tims-dd']:
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            elif run_args['experiment'] in ['maldi-ims', 'maldi-tims-ims']:
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
 
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
@@ -31,16 +34,27 @@ def run_tims_converter(args):
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
 
         if args['experiment'] == 'lc-tims-ms':
+            # Initialize Bruker DLL.
+            logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
+            bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TDF':
+                logging.warning('.tdf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
+            logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
-            data = bruker_to_df(infile)
+            data = tdf_data(infile, bruker_dll)
             write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['centroid'],
                             run_args['ms2_only'], run_args['ms1_groupby'], run_args['encoding'],
                             run_args['ms2_keep_n_most_abundant_peaks'])
         elif args['experiment'] == 'maldi-dd':
             # Initialize Bruker DLL.
-            # Only initialize if converting MALDI data. LCMS data currently uses AlphaTims.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TSF':
+                logging.warning('.tsf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI dried droplet data...')
             if run_args['maldi_output_file'] == 'individual':
@@ -60,9 +74,12 @@ def run_tims_converter(args):
                                 run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
         elif args['experiment'] == 'maldi-tims-dd':
             # Initialize Bruker DLL.
-            # Only initialize if converting MALDI data. LCMS data currently uses AlphaTims.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TDF':
+                logging.warning('.tdf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
             if run_args['maldi_output_file'] == 'individual':
@@ -84,9 +101,12 @@ def run_tims_converter(args):
                                 run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
         elif args['experiment'] == 'maldi-ims':
             # Initialize Bruker DLL.
-            # Only initialize if converting MALDI data. LCMS data currently uses AlphaTims.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TSF':
+                logging.warning('.tsf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
             data = tsf_data(infile, bruker_dll)
@@ -94,9 +114,12 @@ def run_tims_converter(args):
                                   run_args['imzml_mode'], run_args['centroid'])
         elif args['experiment'] == 'maldi-tims-ims':
             # Initialize Bruker DLL.
-            # Only initialize if converting MALDI data. LCMS data currently uses AlphaTims.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
             bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+            if schema != 'TDF':
+                logging.warning('.tdf file not detected...')
+                logging.warning('Exiting...')
+                sys.exit(1)
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
             data = tdf_data(infile, bruker_dll)

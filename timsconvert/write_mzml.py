@@ -173,7 +173,10 @@ def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_group
         if data.meta_data['SchemaType'] == 'TDF':
             parent_scans, product_scans = parse_lcms_tdf(data, ms1_groupby, centroid, encoding, ms2_only)
         # later add code for elif baf -> use baf2sql
-        num_of_spectra = len(parent_scans) + len(product_scans)
+        if ms2_only == False:
+            num_of_spectra = len(parent_scans) + len(product_scans)
+        elif ms2_only == True:
+            num_of_spectra = len(product_scans)
 
         logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Writing data to spectrum

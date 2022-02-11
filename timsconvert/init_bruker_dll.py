@@ -84,20 +84,22 @@ def init_bruker_dll(bruker_dll_file_name: str=BRUKER_DLL_FILE_NAME):
     bruker_dll.tims_read_pasef_profile_msms_for_frame.restype = ctypes.c_uint32
 
     # Extract spectra from frames
-    bruker_dll.tims_extract_centroided_spectrum_for_frame.argtypes = [ctypes.c_uint64,
-                                                                      ctypes.c_int64,
-                                                                      ctypes.c_uint32,
-                                                                      ctypes.c_uint32,
-                                                                      MSMS_SPECTRUM_FUNCTOR,
-                                                                      ctypes.c_void_p]
-    bruker_dll.tims_extract_centroided_spectrum_for_frame.restype = ctypes.c_uint32
-    bruker_dll.tims_extract_profile_for_frame.argtypes = [ctypes.c_uint64,
-                                                          ctypes.c_int64,
-                                                          ctypes.c_uint32,
-                                                          ctypes.c_uint32,
-                                                          MSMS_PROFILE_SPECTRUM_FUNCTOR,
-                                                          ctypes.c_void_p]
-    bruker_dll.tims_extract_profile_for_frame.restype = ctypes.c_uint32
+    # Only available in SDK version 2.8.7.1
+    if SDK_VERSION == 'sdk2871':
+        bruker_dll.tims_extract_centroided_spectrum_for_frame.argtypes = [ctypes.c_uint64,
+                                                                          ctypes.c_int64,
+                                                                          ctypes.c_uint32,
+                                                                          ctypes.c_uint32,
+                                                                          MSMS_SPECTRUM_FUNCTOR,
+                                                                          ctypes.c_void_p]
+        bruker_dll.tims_extract_centroided_spectrum_for_frame.restype = ctypes.c_uint32
+        bruker_dll.tims_extract_profile_for_frame.argtypes = [ctypes.c_uint64,
+                                                              ctypes.c_int64,
+                                                              ctypes.c_uint32,
+                                                              ctypes.c_uint32,
+                                                              MSMS_PROFILE_SPECTRUM_FUNCTOR,
+                                                              ctypes.c_void_p]
+        bruker_dll.tims_extract_profile_for_frame.restype = ctypes.c_uint32
 
     # Get m/z values from indices
     convfunc_argtypes = [ctypes.c_uint64,

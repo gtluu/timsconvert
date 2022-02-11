@@ -1,4 +1,5 @@
 import sys
+import platform
 import os
 import logging
 from timsconvert.timestamp import *
@@ -56,14 +57,18 @@ MSMS_TYPE = {'0': 'MS',
 MSMS_TYPE_CATEGORY = {'ms1': [0],
                       'ms2': [2, 8, 9]}
 
-# modified from alphatims
-if sys.platform[:5] == 'win32':
-    # change filepath later.
+if platform.system() == 'Windows':
+    if platform.architecture()[0] == '64bit':
+        BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                            os.path.join('lib', 'sdk270', 'win64', 'timsdata.dll'))
+    elif platform.architecture()[0] == '32bit':
+        BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                            os.path.join('lib', 'sdk270', 'win32', 'timsdata.dll'))
+elif platform.system() == 'Linux':
     BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                        os.path.join('lib', 'timsdata.dll'))
-elif sys.platform[:5] == 'linux':
-    BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                        os.path.join('lib', 'timsdata.so'))
+                                        os.path.join('lib', 'sdk270', 'linux64', 'timsdata.so'))
 else:
-    # Add logging warning here.
+    logging.info(get_timestamp() + ':' + 'Bruker API not found...')
+    logging.info(get_timestamp() + ':' + 'Exiting...')
     BRUKER_DLL_FILE_NAME = ''
+    sys.exit(1)

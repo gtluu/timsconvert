@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import platform
 import ctypes
 import itertools
 import sqlite3

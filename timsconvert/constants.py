@@ -51,8 +51,8 @@ SCAN_MODE_CATEGORY = {'ms1': [0],
 
 MSMS_TYPE = {'0': 'MS',
              '2': 'MALDI MS/MS',
-             '8': 'dia-PASEF',
-             '9': 'dda-PASEF'}
+             '8': 'dda-PASEF',
+             '9': 'dia-PASEF'}
 
 MSMS_TYPE_CATEGORY = {'ms1': [0],
                       'ms2': [2, 8, 9]}

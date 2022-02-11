@@ -28,6 +28,10 @@ def write_maldi_ims_imzml(data, outdir, outfile, groupby='frame', encoding=0, im
     logging.info(get_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
     with writer as imzml_file:
         for scan_dict in list_of_scan_dicts:
+            if len(scan_dict['mz_array']) != len(scan_dict['intensity_array']):
+                print(scan_dict)
+                print(len(scan_dict['mz_array']))
+                print(len(scan_dict['intensity_array']))
             imzml_file.addSpectrum(scan_dict['mz_array'],
                                    scan_dict['intensity_array'],
                                    scan_dict['coord'])

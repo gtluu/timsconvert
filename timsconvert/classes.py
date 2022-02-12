@@ -267,21 +267,23 @@ class tdf_data(object):
 
         return result
 
-    def read_pasef_profile_msms(self, precursor_list):
-        precursors_for_dll = np.array(precursor_list, dtype=np.int64)
+    # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
+    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+        def read_pasef_profile_msms(self, precursor_list):
+            precursors_for_dll = np.array(precursor_list, dtype=np.int64)
 
-        result = {}
+            result = {}
 
-        @MSMS_PROFILE_SPECTRUM_FUNCTOR
-        def callback_for_dll(precursor_id, num_points, intensity_values):
-            result[precursor_id] = intensity_values[0:num_points]
+            @MSMS_PROFILE_SPECTRUM_FUNCTOR
+            def callback_for_dll(precursor_id, num_points, intensity_values):
+                result[precursor_id] = intensity_values[0:num_points]
 
-        rc = self.dll.tims_read_pasef_profile_msms(self.handle,
-                                                   precursors_for_dll.ctypes.data_as(ctypes.POINTER(ctypes.c_int64)),
-                                                   len(precursor_list),
-                                                   callback_for_dll)
+            rc = self.dll.tims_read_pasef_profile_msms(self.handle,
+                                                       precursors_for_dll.ctypes.data_as(ctypes.POINTER(ctypes.c_int64)),
+                                                       len(precursor_list),
+                                                       callback_for_dll)
 
-        return result
+            return result
 
     def read_pasef_centroid_msms_for_frame(self, frame_id):
         result = {}
@@ -294,50 +296,54 @@ class tdf_data(object):
 
         return result
 
-    def read_pasef_profile_msms_for_frame(self, frame_id):
-        result = {}
+    # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
+    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+        def read_pasef_profile_msms_for_frame(self, frame_id):
+            result = {}
 
-        @MSMS_PROFILE_SPECTRUM_FUNCTOR
-        def callback_for_dll(precursor_id, num_points, intensity_values):
-            result[precursor_id] = intensity_values[0:num_points]
+            @MSMS_PROFILE_SPECTRUM_FUNCTOR
+            def callback_for_dll(precursor_id, num_points, intensity_values):
+                result[precursor_id] = intensity_values[0:num_points]
 
-        rc = self.dll.tims_read_pasef_profile_msms_for_frame(self.handle, frame_id, callback_for_dll)
+            rc = self.dll.tims_read_pasef_profile_msms_for_frame(self.handle, frame_id, callback_for_dll)
 
-        return result
+            return result
 
-    def extract_centroided_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
-        result = None
+    # Only define extract_centroided_spectrum_for_frame and extract_profile_spectrum_for_frame if using SDK 2.8.7.1.
+    if SDK_VERSION == 'sdk2871':
+        def extract_centroided_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
+            result = None
 
-        @MSMS_SPECTRUM_FUNCTOR
-        def callback_for_dll(precursor_id, num_peaks, mz_values, area_values):
-            nonlocal result
-            result = (mz_values[0:num_peaks], area_values[0:num_peaks])
+            @MSMS_SPECTRUM_FUNCTOR
+            def callback_for_dll(precursor_id, num_peaks, mz_values, area_values):
+                nonlocal result
+                result = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
-        rc = self.dll.tims_extract_centroided_spectrum_for_frame(self.handle,
-                                                                 frame_id,
-                                                                 scan_begin,
-                                                                 scan_end,
-                                                                 callback_for_dll,
-                                                                 None)
+            rc = self.dll.tims_extract_centroided_spectrum_for_frame(self.handle,
+                                                                     frame_id,
+                                                                     scan_begin,
+                                                                     scan_end,
+                                                                     callback_for_dll,
+                                                                     None)
 
-        return result
+            return result
 
-    def extract_profile_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
-        result = None
+        def extract_profile_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
+            result = None
 
-        @MSMS_PROFILE_SPECTRUM_FUNCTOR
-        def callback_for_dll(precursor_id, num_points, intensity_values):
-            nonlocal result
-            result = intensity_values[0:num_points]
+            @MSMS_PROFILE_SPECTRUM_FUNCTOR
+            def callback_for_dll(precursor_id, num_points, intensity_values):
+                nonlocal result
+                result = intensity_values[0:num_points]
 
-        rc = self.dll.tims_extract_profile_for_frame(self.handle,
-                                                     frame_id,
-                                                     scan_begin,
-                                                     scan_end,
-                                                     callback_for_dll,
-                                                     None)
+            rc = self.dll.tims_extract_profile_for_frame(self.handle,
+                                                         frame_id,
+                                                         scan_begin,
+                                                         scan_end,
+                                                         callback_for_dll,
+                                                         None)
 
-        return result
+            return result
 
     # In house code for getting spectrum for a frame.
     def extract_spectrum_for_frame_v2(self, frame_id, begin_scan, end_scan, encoding, tol=0.01):

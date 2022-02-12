@@ -40,11 +40,6 @@ def get_args():
     parser.add_argument('--imzml_mode', help='Whether .imzML files should be written in "processed" or "continuous" '
                                              'mode. Defaults to "processed".', default='processed', type=str)
 
-    # Advanced MS2 Centroiding Arguments: taken from alphatims.bruker.centroid_spectrum()
-    parser.add_argument('--ms2_keep_n_most_abundant_peaks', help='Keep N most abundant peaks in MS2 spectra. If -1, all'
-                                                                 'peaks are kept. Defaults to -1.', default=-1,
-                        type=int)
-
     # System Arguments
     parser.add_argument('--verbose', help='Boolean flag to detemrine whether to print logging output.',
                         action='store_true')

@@ -7,34 +7,36 @@ def init_bruker_dll(bruker_dll_file_name: str=BRUKER_DLL_FILE_NAME):
     bruker_dll = ctypes.cdll.LoadLibrary(os.path.realpath(bruker_dll_file_name))
 
     # Functions for .tsf files
-    # .tsf Open
-    bruker_dll.tsf_open.argtypes = [ctypes.c_char_p, ctypes.c_uint32]
-    bruker_dll.tsf_open.restype = ctypes.c_uint64
+    # Only load .tsf functions if on Windows; newer Linux .so library errors our due to Boost C++ lib in source code.
+    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+        # .tsf Open
+        bruker_dll.tsf_open.argtypes = [ctypes.c_char_p, ctypes.c_uint32]
+        bruker_dll.tsf_open.restype = ctypes.c_uint64
 
-    # .tsf Close
-    bruker_dll.tsf_close.argtypes = [ctypes.c_uint64]
-    bruker_dll.tsf_close.restype = None
+        # .tsf Close
+        bruker_dll.tsf_close.argtypes = [ctypes.c_uint64]
+        bruker_dll.tsf_close.restype = None
 
-    # Read in profile or line spectra
-    bruker_dll.tsf_read_line_spectrum.argtypes = [ctypes.c_uint64,
-                                                  ctypes.c_int64,
-                                                  ctypes.POINTER(ctypes.c_double),
-                                                  ctypes.POINTER(ctypes.c_float),
-                                                  ctypes.c_uint32]
-    bruker_dll.tsf_read_line_spectrum.restype = ctypes.c_uint32
-    bruker_dll.tsf_read_profile_spectrum.argtypes = [ctypes.c_uint64,
-                                                     ctypes.c_int64,
-                                                     ctypes.POINTER(ctypes.c_uint32),
-                                                     ctypes.c_uint32]
-    bruker_dll.tsf_read_profile_spectrum.restype = ctypes.c_uint32
+        # Read in profile or line spectra
+        bruker_dll.tsf_read_line_spectrum.argtypes = [ctypes.c_uint64,
+                                                      ctypes.c_int64,
+                                                      ctypes.POINTER(ctypes.c_double),
+                                                      ctypes.POINTER(ctypes.c_float),
+                                                      ctypes.c_uint32]
+        bruker_dll.tsf_read_line_spectrum.restype = ctypes.c_uint32
+        bruker_dll.tsf_read_profile_spectrum.argtypes = [ctypes.c_uint64,
+                                                         ctypes.c_int64,
+                                                         ctypes.POINTER(ctypes.c_uint32),
+                                                         ctypes.c_uint32]
+        bruker_dll.tsf_read_profile_spectrum.restype = ctypes.c_uint32
 
-    # Get m/z values from indices.
-    bruker_dll.tsf_index_to_mz.argtypes = [ctypes.c_uint64,
-                                           ctypes.c_int64,
-                                           ctypes.POINTER(ctypes.c_double),
-                                           ctypes.POINTER(ctypes.c_double),
-                                           ctypes.c_uint32]
-    bruker_dll.tsf_index_to_mz.restype = ctypes.c_uint32
+        # Get m/z values from indices.
+        bruker_dll.tsf_index_to_mz.argtypes = [ctypes.c_uint64,
+                                               ctypes.c_int64,
+                                               ctypes.POINTER(ctypes.c_double),
+                                               ctypes.POINTER(ctypes.c_double),
+                                               ctypes.c_uint32]
+        bruker_dll.tsf_index_to_mz.restype = ctypes.c_uint32
 
     # Functions for .tdf files
     # .tdf Open
@@ -73,15 +75,17 @@ def init_bruker_dll(bruker_dll_file_name: str=BRUKER_DLL_FILE_NAME):
                                                      ctypes.c_int64,
                                                      ctypes.c_uint32,
                                                      ctypes.POINTER(ctypes.c_int32))
-    bruker_dll.tims_read_pasef_profile_msms.argtypes = [ctypes.c_uint64,
-                                                        ctypes.POINTER(ctypes.c_int64),
-                                                        ctypes.c_uint32,
-                                                        MSMS_PROFILE_SPECTRUM_FUNCTOR]
-    bruker_dll.tims_read_pasef_profile_msms.restype = ctypes.c_uint32
-    bruker_dll.tims_read_pasef_profile_msms_for_frame.argtypes = [ctypes.c_uint64,
-                                                                  ctypes.c_int64,
-                                                                  MSMS_PROFILE_SPECTRUM_FUNCTOR]
-    bruker_dll.tims_read_pasef_profile_msms_for_frame.restype = ctypes.c_uint32
+    # Only available in SDK version 2.8.7.1 or 2.7.0.
+    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+        bruker_dll.tims_read_pasef_profile_msms.argtypes = [ctypes.c_uint64,
+                                                            ctypes.POINTER(ctypes.c_int64),
+                                                            ctypes.c_uint32,
+                                                            MSMS_PROFILE_SPECTRUM_FUNCTOR]
+        bruker_dll.tims_read_pasef_profile_msms.restype = ctypes.c_uint32
+        bruker_dll.tims_read_pasef_profile_msms_for_frame.argtypes = [ctypes.c_uint64,
+                                                                      ctypes.c_int64,
+                                                                      MSMS_PROFILE_SPECTRUM_FUNCTOR]
+        bruker_dll.tims_read_pasef_profile_msms_for_frame.restype = ctypes.c_uint32
 
     # Extract spectra from frames
     # Only available in SDK version 2.8.7.1
@@ -115,10 +119,12 @@ def init_bruker_dll(bruker_dll_file_name: str=BRUKER_DLL_FILE_NAME):
     bruker_dll.tims_scannum_to_oneoverk0.restype = ctypes.c_uint32
 
     # Convert 1/k0 to CCS
-    bruker_dll.tims_oneoverk0_to_ccs_for_mz.argtypes = [ctypes.c_double,
-                                                        ctypes.c_int32,
-                                                        ctypes.c_double]
-    bruker_dll.tims_oneoverk0_to_ccs_for_mz.restype = ctypes.c_double
+    # Only available in SDK version 2.8.7.1 or 2.7.0
+    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+        bruker_dll.tims_oneoverk0_to_ccs_for_mz.argtypes = [ctypes.c_double,
+                                                            ctypes.c_int32,
+                                                            ctypes.c_double]
+        bruker_dll.tims_oneoverk0_to_ccs_for_mz.restype = ctypes.c_double
 
     return bruker_dll
 

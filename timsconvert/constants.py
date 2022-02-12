@@ -67,7 +67,7 @@ if platform.system() == 'Windows':
         BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                             os.path.join('lib', SDK_VERSION, 'win32', 'timsdata.dll'))
 elif platform.system() == 'Linux':
-    SDK_VERSION = 'sdk270'
+    SDK_VERSION = 'sdk244'
     BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                         os.path.join('lib', SDK_VERSION, 'linux64', 'timsdata.so'))
 else:

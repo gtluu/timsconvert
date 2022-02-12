@@ -96,7 +96,7 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                       'isolation_window_args': {'target': product_scan['target_mz'],
                                                 'upper': product_scan['isolation_upper_offset'],
                                                 'lower': product_scan['isolation_lower_offset']},
-                      'params': {'product ion mobility': product_scan['selected_ion_mobility']}}
+                      'params': {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}}
     if not np.isnan(product_scan['charge_state']):
         precursor_info['charge'] = product_scan['charge_state']
 
@@ -133,7 +133,7 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding, groupby):
               {'lowest observed m/z': parent_scan['low_mz']}]
 
     if groupby == 'scan':
-        params.append({'ion mobility drift time': parent_scan['mobility']})
+        params.append({'inverse reduced ion mobility': parent_scan['mobility']})
         other_arrays = None
     elif groupby == 'frame':
         other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
@@ -269,7 +269,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
 
                         if data.meta_data['SchemaType'] == 'TDF':
                             if groupby == 'scan':
-                                params.append({'ion mobility drift time': scan_dict['mobility']})
+                                params.append({'inverse reduced ion mobility': scan_dict['mobility']})
                                 other_arrays = None
                             elif groupby == 'frame':
                                 other_arrays = [('ion mobility array', scan_dict['mobility_array'])]
@@ -336,7 +336,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, ms2_only, groupby, centro
 
                             if data.meta_data['SchemaType'] == 'TDF':
                                 if groupby == 'scan':
-                                    params.append({'ion mobility drift time': scan_dict['mobility']})
+                                    params.append({'inverse reduced ion mobility': scan_dict['mobility']})
                                     other_arrays = None
                                 elif groupby == 'frame':
                                     other_arrays = [('ion mobility array', scan_dict['mobility_array'])]

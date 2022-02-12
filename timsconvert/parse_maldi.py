@@ -68,10 +68,6 @@ def parse_maldi_tsf(tsf_data, centroid):
                 scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
                 # no parent frame or scan
 
-            if len(scan_dict['mz_array']) != len(scan_dict['intensity_array']):
-                print(scan_dict)
-                print(len(scan_dict['mz_array']))
-                print(len(scan_dict['intensity_array']))
             list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts
 

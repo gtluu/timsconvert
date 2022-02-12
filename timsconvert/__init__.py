@@ -13,8 +13,6 @@ import logging
 import numpy as np
 import pandas as pd
 
-import alphatims.bruker
-import alphatims.utils
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter
 

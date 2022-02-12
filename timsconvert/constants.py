@@ -59,14 +59,17 @@ MSMS_TYPE_CATEGORY = {'ms1': [0],
 
 if platform.system() == 'Windows':
     if platform.architecture()[0] == '64bit':
+        SDK_VERSION = 'sdk2871'
         BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                            os.path.join('lib', 'sdk2871', 'win64', 'timsdata.dll'))
+                                            os.path.join('lib', SDK_VERSION, 'win64', 'timsdata.dll'))
     elif platform.architecture()[0] == '32bit':
+        SDK_VERSION = 'sdk2871'
         BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                            os.path.join('lib', 'sdk2871', 'win32', 'timsdata.dll'))
+                                            os.path.join('lib', SDK_VERSION, 'win32', 'timsdata.dll'))
 elif platform.system() == 'Linux':
+    SDK_VERSION = 'sdk244'
     BRUKER_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                        os.path.join('lib', 'sdk2871', 'linux64', 'timsdata.so'))
+                                        os.path.join('lib', SDK_VERSION, 'linux64', 'timsdata.so'))
 else:
     logging.info(get_timestamp() + ':' + 'Bruker API not found...')
     logging.info(get_timestamp() + ':' + 'Exiting...')

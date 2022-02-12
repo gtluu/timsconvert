@@ -17,6 +17,10 @@ Examples for file conversion include:
 - MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) &#8594; imzML (does not incorporate ion mobility data)
   - Experiment Type: ```maldi-tims-ims```
 
+Please note that TIMSCONVERT is still actively under development and new changes are being pushed regularly. For the 
+version of TIMSCONVERT found in our [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.12.09.472024v1), 
+please see the [v1.0.0 branch here on Github](https://github.com/gtluu/timsconvert/tree/manuscript_v1.0.0).
+
 ## Installation and Usage
 
 ### GNPS Online Workflow

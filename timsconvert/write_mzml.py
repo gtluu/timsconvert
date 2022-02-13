@@ -160,8 +160,7 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding, groupby):
 
 
 # Write out mzML file using psims.
-def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding,
-                    ms2_keep_n_most_abundant_peaks):
+def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding):
     # Initialize mzML writer using psims.
     writer = MzMLWriter(os.path.join(outdir, outfile))
 

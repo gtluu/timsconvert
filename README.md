@@ -48,9 +48,10 @@ bash /path/to/Anaconda3-2021.11-Linux-x86_64.sh
 ```
 export PATH=$PATH:/path/to/anaconda3/bin
 ```
-3. Create a conda instance.
+3. Create a conda instance. You must be using Python 3.7. Newer version of Python are not guaranteed to be compatible 
+with Bruker's API in Linux.
 ```
-conda create -n timsconvert python=3.8
+conda create -n timsconvert python=3.7
 ```
 4. Activate conda environment.
 ```

@@ -155,5 +155,10 @@ if __name__ == '__main__':
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logger = logging.getLogger(__name__)
 
+    # Check to make sure using Python 3.7.
+    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
+        logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
+        sys.exit(1)
+
     # Run.
     run_tims_converter(arguments)

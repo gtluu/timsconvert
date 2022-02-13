@@ -172,6 +172,7 @@ class tdf_data(object):
 
         self.meta_data = None
         self.frames = None
+        self.ms1_frames = None
         self.maldiframeinfo = None
         self.pasefframemsmsinfo = None
         self.framemsmsinfo = None
@@ -187,6 +188,7 @@ class tdf_data(object):
         else:
             self.get_pasefframemsmsinfo_table()
             self.get_precursors_table()
+            self.subset_ms1_frames()
 
     def __del__(self):
         if hasattr(self, 'handle'):
@@ -445,6 +447,10 @@ class tdf_data(object):
         # Assign mobility values to precursor table.
         precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]
         self.precursors['Mobility'] = precursor_mobility_values
+
+    # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
+    def subset_ms1_frames(self):
+        self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]
 
 
 if __name__ == '__main__':

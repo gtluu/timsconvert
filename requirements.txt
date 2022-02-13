@@ -4,4 +4,4 @@ lxml
 psims
 pyimzML
 xmltodict
-hdf5plugins
+hdf5plugin

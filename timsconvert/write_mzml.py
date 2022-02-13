@@ -86,6 +86,7 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
     if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
         spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
         spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
+    other_arrays = [('ion mobility array', product_scan['mobility_array'])]
 
     # Build precursor information dict.
     precursor_info = {'mz': product_scan['selected_ion_mz'],
@@ -115,6 +116,7 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                           polarity=product_scan['polarity'],
                           centroided=product_scan['centroided'],
                           scan_start_time=product_scan['retention_time'],
+                          other_arrays=other_arrays,
                           params=spectrum_params,
                           precursor_information=precursor_info,
                           encoding={'m/z array': encoding_dtype,

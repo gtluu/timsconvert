@@ -5,7 +5,7 @@ import sys
 import logging
 
 
-def parse_lcms_tdf(tdf_data, ms1_groupby, centroid, encoding, ms2_only):
+def parse_lcms_tdf(tdf_data, frames_df, ms1_groupby, centroid, encoding, ms2_only):
     logging.info(get_timestamp() + ':' + 'Parsing LC-TIMS-MS/MS spectra...')
     list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
     if tdf_data.pasefframemsmsinfo is not None:
@@ -15,7 +15,7 @@ def parse_lcms_tdf(tdf_data, ms1_groupby, centroid, encoding, ms2_only):
     list_of_parent_scan_dicts = []
     list_of_product_scan_dicts = []
 
-    for index, row in tdf_data.frames.iterrows():
+    for index, row in frames_df.iterrows():
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Id'])][0]
 
         if ms1_groupby == 'scan':

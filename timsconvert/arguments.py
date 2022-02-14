@@ -41,9 +41,9 @@ def get_args():
                                              'mode. Defaults to "processed".', default='processed', type=str)
 
     # System Arguments
-    parser.add_argument('--chunk', help='Relative size of chunks of spectral data that are parsed and subsequently '
-                                        'at once. Increasing parses and write more spectra at once but increases RAM '
-                                        'usage. Default = 10.', default=10, type=int)
+    parser.add_argument('--chunk_size', help='Relative size of chunks of spectral data that are parsed and '
+                                             'subsequently at once. Increasing parses and write more spectra at once '
+                                             'but increases RAM usage. Default = 10.', default=10, type=int)
     parser.add_argument('--verbose', help='Boolean flag to detemrine whether to print logging output.',
                         action='store_true')
 

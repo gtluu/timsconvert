@@ -1,167 +1,11 @@
 from timsconvert.constants import *
 from timsconvert.timestamp import *
+from timsconvert.parse_lcms import *
 import os
 import sys
 import logging
 import numpy as np
 from psims.mzml import MzMLWriter
-
-
-def parse_lcms_tdf(tdf_data, frames_df, ms1_groupby, centroid, encoding, ms2_only):
-    logging.info(get_timestamp() + ':' + 'Parsing LC-TIMS-MS/MS spectra...')
-    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
-    if tdf_data.pasefframemsmsinfo is not None:
-        list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
-    if tdf_data.precursors is not None:
-        list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
-    list_of_parent_scan_dicts = []
-    list_of_product_scan_dicts = []
-
-    for index, row in frames_df.iterrows():
-        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(row['Id'])][0]
-
-        if ms1_groupby == 'scan':
-            if frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms1']:
-                if ms2_only == False:
-                    for scan_num in range(0, int(frames_dict['NumScans']) + 1):
-                        scans = tdf_data.read_scans(int(row['Id']), scan_num, scan_num + 1)
-                        if len(scans) == 1:
-                            index_buf, intensity_array = scans[0]
-                        elif len(scans) != 1:
-                            logging.warning(get_timestamp() + ':' + 'Too Many Scans.')
-                            sys.exit(1)
-                        mz_array = tdf_data.index_to_mz(int(row['Id']), index_buf)
-
-                        if mz_array.size != 0 and intensity_array.size != 0:
-                            base_peak_index = np.where(intensity_array == np.max(intensity_array))
-
-                            scan_dict = {'scan_number': int(scan_num),
-                                         'scan_type': 'MS1 spectrum',
-                                         'ms_level': 1,
-                                         'mz_array': mz_array,
-                                         'intensity_array': intensity_array,
-                                         'mobility': tdf_data.scan_num_to_oneoverk0(int(row['Id']), np.array([scan_num]))[0],
-                                         'polarity': frames_dict['Polarity'],
-                                         'centroided': centroid,
-                                         'retention_time': float(frames_dict['Time']),
-                                         'total_ion_current': sum(intensity_array),
-                                         'base_peak_mz': mz_array[base_peak_index][0].astype(float),
-                                         'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
-                                         'high_mz': float(max(mz_array)),
-                                         'low_mz': float(min(mz_array)),
-                                         'frame': int(row['Id'])}
-                            list_of_parent_scan_dicts.append(scan_dict)
-            elif frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms2']:
-                pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
-                                           if int(i['Frame']) == int(row['Id'])]
-                for pasefframemsmsinfo_dict in pasefframemsmsinfo_dicts:
-                    precursor_dict = [i for i in list_of_precursors_dict
-                                      if int(i['Id']) == int(pasefframemsmsinfo_dict['Precursor'])][0]
-                    scan_begin = pasefframemsmsinfo_dict['ScanNumBegin']
-                    scan_end = pasefframemsmsinfo_dict['ScanNumEnd']
-                    mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(int(row['Id']),
-                                                                                       scan_begin,
-                                                                                       scan_end,
-                                                                                       encoding)
-                    if mz_array.size != 0 and intensity_array.size != 0:
-                        base_peak_index = np.where(intensity_array == np.max(intensity_array))
-
-                        scan_dict = {'scan_number': None,
-                                     'scan_type': 'MSn spectrum',
-                                     'ms_level': 2,
-                                     'mz_array': mz_array,
-                                     'intensity_array': intensity_array,
-                                     'mobility_array': tdf_data.scan_num_to_oneoverk0(int(row['Id']),
-                                                                                      np.array(list(range(scan_begin,
-                                                                                                          scan_end)))),
-                                     'polarity': frames_dict['Polarity'],
-                                     'centroided': centroid,
-                                     'retention_time': float(frames_dict['Time']),
-                                     'total_ion_current': sum(intensity_array),
-                                     'base_peak_mz': mz_array[base_peak_index][0].astype(float),
-                                     'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
-                                     'high_mz': float(max(mz_array)),
-                                     'low_mz': float(min(mz_array)),
-                                     'target_mz': pasefframemsmsinfo_dict['IsolationMz'],
-                                     'isolation_lower_offset': float(pasefframemsmsinfo_dict['IsolationWidth']) / 2,
-                                     'isolation_upper_offset': float(pasefframemsmsinfo_dict['IsolationWidth']) / 2,
-                                     'selected_ion_mz': pasefframemsmsinfo_dict['IsolationMz'],
-                                     'selected_ion_intensity': precursor_dict['Intensity'],
-                                     'selected_ion_mobility': precursor_dict['Mobility'],
-                                     'charge_state': precursor_dict['Charge'],
-                                     'collision_energy': pasefframemsmsinfo_dict['CollisionEnergy'],
-                                     'parent_frame': int(precursor_dict['Parent']),
-                                     'parent_scan': int(scan_begin)}
-                        list_of_product_scan_dicts.append(scan_dict)
-        elif ms1_groupby == 'frame':
-            if frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms1']:
-                if ms2_only == False:
-                    mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(int(row['Id']),
-                                                                                       0,
-                                                                                       int(frames_dict['NumScans']),
-                                                                                       encoding)
-                    if mz_array.size != 0 and intensity_array.size != 0:
-                        base_peak_index = np.where(intensity_array == np.max(intensity_array))
-
-                        scan_dict = {'scan_number': None,
-                                     'scan_type': 'MS1 spectrum',
-                                     'ms_level': 1,
-                                     'mz_array': mz_array,
-                                     'intensity_array': intensity_array,
-                                     'mobility_array': tdf_data.scan_num_to_oneoverk0(int(row['Id']),
-                                                                                      np.array(list(range(1, int(frames_dict['NumScans'])+1)))),
-                                     'polarity': frames_dict['Polarity'],
-                                     'centroided': centroid,
-                                     'retention_time': float(frames_dict['Time']),
-                                     'total_ion_current': sum(intensity_array),
-                                     'base_peak_mz': mz_array[base_peak_index][0].astype(float),
-                                     'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
-                                     'high_mz': float(max(mz_array)),
-                                     'low_mz': float(min(mz_array)),
-                                     'frame': int(row['Id'])}
-                        list_of_parent_scan_dicts.append(scan_dict)
-            elif frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms2']:
-                pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
-                                            if int(i['Frame']) == int(row['Id'])]
-                for pasefframemsmsinfo_dict in pasefframemsmsinfo_dicts:
-                    precursor_dict = [i for i in list_of_precursors_dict
-                                      if int(i['Id']) == int(pasefframemsmsinfo_dict['Precursor'])][0]
-                    scan_begin = pasefframemsmsinfo_dict['ScanNumBegin']
-                    scan_end = pasefframemsmsinfo_dict['ScanNumEnd']
-                    mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(int(row['Id']),
-                                                                                       scan_begin,
-                                                                                       scan_end,
-                                                                                       encoding)
-                    if mz_array.size != 0 and intensity_array.size != 0:
-                        base_peak_index = np.where(intensity_array == np.max(intensity_array))
-
-                        scan_dict = {'scan_number': None,
-                                     'scan_type': 'MSn spectrum',
-                                     'ms_level': 2,
-                                     'mz_array': mz_array,
-                                     'intensity_array': intensity_array,
-                                     'mobility_array': tdf_data.scan_num_to_oneoverk0(int(row['Id']),
-                                                                                      np.array(list(range(scan_begin,
-                                                                                                          scan_end)))),
-                                     'polarity': frames_dict['Polarity'],
-                                     'centroided': centroid,
-                                     'retention_time': float(frames_dict['Time']),
-                                     'total_ion_current': sum(intensity_array),
-                                     'base_peak_mz': mz_array[base_peak_index][0].astype(float),
-                                     'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
-                                     'high_mz': float(max(mz_array)),
-                                     'low_mz': float(min(mz_array)),
-                                     'target_mz': pasefframemsmsinfo_dict['IsolationMz'],
-                                     'isolation_lower_offset': float(pasefframemsmsinfo_dict['IsolationWidth']) / 2,
-                                     'isolation_upper_offset': float(pasefframemsmsinfo_dict['IsolationWidth']) / 2,
-                                     'selected_ion_mz': pasefframemsmsinfo_dict['IsolationMz'],
-                                     'selected_ion_intensity': precursor_dict['Intensity'],
-                                     'selected_ion_mobility': precursor_dict['Mobility'],
-                                     'charge_state': precursor_dict['Charge'],
-                                     'collision_energy': pasefframemsmsinfo_dict['CollisionEnergy'],
-                                     'parent_frame': int(precursor_dict['Parent'])}
-                        list_of_product_scan_dicts.append(scan_dict)
-    return list_of_parent_scan_dicts, list_of_product_scan_dicts
 
 
 def write_mzml_metadata(data, writer, infile, centroid, ms2_only):
@@ -226,8 +70,14 @@ def write_mzml_metadata(data, writer, infile, centroid, ms2_only):
     writer.data_processing_list([processing])
 
 
+# Calculate the number of spectra to be written.
+def get_spectra_count(data, ms1_groupby, encoding):
+    if ms1_groupby == 'scan':
+
+
+
 # Parse out LC-MS(/MS) data and write out mzML file using psims.
-def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding):
+def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding, chunk_size):
     # Initialize mzML writer using psims.
     writer = MzMLWriter(os.path.join(outdir, outfile))
 
@@ -238,6 +88,38 @@ def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_group
         # Start write acquisition, instrument config, processing, etc. to mzML.
         write_mzml_metadata(data, writer, infile, centroid, ms2_only)
 
+        logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+        # Parse chunks of data and write to spectrum elements.
+        with writer.run(id='run', instrument_configuration='instrument'):
+            scan_count = 0
+            num_of_spectra = get_spectra_count()
+
+
+
+
+
+
+
         # Begin parsing and writing out data.
+        # add code later for elif baf -> use baf2sql
         if data.meta_data['SchemaType'] == 'TDF':
 
+
+
+
+            chunk = 0
+            while chunk + chunk_size + 1 <= len(data.ms1_frames):
+                chunk_list = []
+                print(chunk, chunk + chunk_size, chunk + 1, chunk + chunk_size + 1)
+                for i, j in zip(data.ms1_frames[chunk:chunk + chunk_size],
+                                data.ms1_frames[chunk + 1:chunk + chunk_size + 1]):
+                    chunk_list.append((int(i), int(j)))
+                chunk += chunk_size
+                print(chunk_list)
+                print(len(chunk_list))
+            else:
+                chunk_list = []
+                for i, j in zip(data.ms1_frames[chunk:-1], data.ms1_frames[chunk + 1:]):
+                    chunk_list.append((int(i), int(j)))
+                print(chunk_list)
+                print(len(chunk_list))

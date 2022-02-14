@@ -240,3 +240,4 @@ def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_group
 
         # Begin parsing and writing out data.
         if data.meta_data['SchemaType'] == 'TDF':
+

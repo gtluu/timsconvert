@@ -44,7 +44,7 @@ def run_tims_converter(args):
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             data = tdf_data(infile, bruker_dll)
-            write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['centroid'],
+            write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
                             run_args['ms2_only'], run_args['ms1_groupby'], run_args['encoding'])
         elif args['experiment'] == 'maldi-dd':
             # Initialize Bruker DLL.
@@ -69,7 +69,7 @@ def run_tims_converter(args):
                 sys.exit(1)
             data = tsf_data(infile, bruker_dll)
             write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'],
-                                run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
+                                run_args['ms2_only'], run_args['ms1_groupby'], run_args['mode'],
                                 run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
         elif args['experiment'] == 'maldi-tims-dd':
             # Initialize Bruker DLL.
@@ -96,7 +96,7 @@ def run_tims_converter(args):
                 sys.exit(1)
             data = tdf_data(infile, bruker_dll)
             write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'],
-                                run_args['ms2_only'], run_args['ms1_groupby'], run_args['centroid'],
+                                run_args['ms2_only'], run_args['ms1_groupby'], run_args['mode'],
                                 run_args['encoding'], run_args['maldi_output_file'], run_args['maldi_plate_map'])
         elif args['experiment'] == 'maldi-ims':
             # Initialize Bruker DLL.
@@ -110,7 +110,7 @@ def run_tims_converter(args):
             logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
             data = tsf_data(infile, bruker_dll)
             write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
-                                  run_args['imzml_mode'], run_args['centroid'])
+                                  run_args['imzml_mode'], run_args['mode'])
         elif args['experiment'] == 'maldi-tims-ims':
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
@@ -123,7 +123,7 @@ def run_tims_converter(args):
             logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
             data = tdf_data(infile, bruker_dll)
             write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], 'frame', run_args['encoding'],
-                                  run_args['imzml_mode'], run_args['centroid'])
+                                  run_args['imzml_mode'], run_args['mode'])
 
         run_args.clear()
 
@@ -131,8 +131,6 @@ def run_tims_converter(args):
 if __name__ == '__main__':
     # Parse arguments.
     arguments = get_args()
-    # Hardcode centroid to True. Current code does not support profile.
-    arguments['centroid'] = True
 
     # Check arguments.
     args_check(arguments)

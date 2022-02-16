@@ -23,6 +23,8 @@ def get_args():
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'
                                           'files will have same filename and overwrite each other. Default is'
                                           'none. Empty string.', default='', type=str)
+    parser.add_argument('--mode', help='Choose whether export spectra in "raw", "centroid", or "profile" formats. '
+                                       'Defaults to "raw".', default='raw', type=str)
     parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
                         action='store_true')
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
@@ -62,7 +64,14 @@ def args_check(args):
     # Check to make sure experiment type is correct.
     experiments = ['lc-tims-ms', 'maldi-dd', 'maldi-tims-dd', 'maldi-ims', 'maldi-tims-ims']
     if args['experiment'] not in experiments:
-        logging.info(get_timestamp() + ':' + 'Input path does not exist...')
+        logging.info(get_timestamp() + ':' + 'Experiment not valid. Use one of the following: "lc-tims-ms", "maldi-dd",'
+                                             ' "maldi-tims-dd", "maldi-ims", or "maldi-tims-ims"...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    mode = ['raw', 'centroid', 'profile']
+    if args['mode']  not in mode:
+        logging.info(get_timestamp() + ':' + 'Mode not valid. Use one of the following: "raw", "centroid", or '
+                                             '"profile"...')
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if output directory exists and create it if it does not.

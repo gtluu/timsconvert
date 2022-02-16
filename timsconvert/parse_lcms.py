@@ -5,7 +5,7 @@ import sys
 import logging
 
 
-def parse_lcms_tdf(tdf_data, frames_df, ms1_groupby, centroid, encoding, ms2_only):
+def parse_lcms_tdf(tdf_data, frames_df, ms1_groupby, centroid, ms2_only, encoding):
     logging.info(get_timestamp() + ':' + 'Parsing LC-TIMS-MS/MS spectra...')
     list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
     if tdf_data.pasefframemsmsinfo is not None:

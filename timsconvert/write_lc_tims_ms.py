@@ -72,9 +72,59 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only):
 
 
 # Calculate the number of spectra to be written.
-def get_spectra_count(data, ms1_groupby, encoding):
-    if ms1_groupby == 'scan':
-        pass
+# Basically an abridged version of parse_lcms_tdf to account for empty spectra that don't end up getting written.
+def get_spectra_count(tdf_data, ms1_groupby, mode, ms2_only, encoding):
+    spectra_count = 0
+
+    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
+    if tdf_data.pasefframemsmsinfo is not None:
+        list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
+    if tdf_data.precursors is not None:
+        list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
+
+    for frame in tdf_data.frames['Id'].values:
+        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(frame)][0]
+
+        if frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms1']:
+            if ms2_only == False:
+                frame_not_empty = False
+                for scan_num in range(0, int(frames_dict['NumScans'])):
+                    mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
+                                                                        mode,
+                                                                        True,
+                                                                        int(frame),
+                                                                        scan_num,
+                                                                        scan_num + 1,
+                                                                        encoding)
+                    if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                        if ms1_groupby == 'frame':
+                            frame_not_empty = True
+                        elif ms1_groupby == 'scan':
+                            spectra_count += 1
+                if frame_not_empty == True:
+                    spectra_count += 1
+        elif frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms2']:
+            precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
+            for precursor_dict in precursor_dicts:
+                pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
+                                            if int(i['Precursor']) == int(precursor_dict['Id'])]
+                frame_not_empty = False
+                for pasef_dict in pasefframemsmsinfo_dicts:
+                    scan_begin = int(pasef_dict['ScanNumBegin'])
+                    scan_end = int(pasef_dict['ScanNumEnd'])
+                    for scan_num in range(scan_begin, scan_end):
+                        mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
+                                                                            mode,
+                                                                            True,
+                                                                            int(pasef_dict['Frame']),
+                                                                            scan_begin,
+                                                                            scan_end,
+                                                                            encoding)
+                        if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                            frame_not_empty = True
+                if frame_not_empty == True:
+                    spectra_count += 1
+    return spectra_count
 
 
 # Write out parent spectrum.
@@ -208,7 +258,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
         # Parse chunks of data and write to spectrum elements.
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
-            num_of_spectra = get_spectra_count()
+            num_of_spectra = get_spectra_count(data, ms1_groupby, mode, ms2_only, encoding)
             with writer.spectrum_list(count=num_of_spectra):
                 chunk = 0
                 while chunk + chunk_size + 1 <= len(data.ms1_frames):

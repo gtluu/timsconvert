@@ -77,41 +77,6 @@ def get_spectra_count(data, ms1_groupby, encoding):
         pass
 
 
-# Get either raw (slightly modified implementation that gets centroid spectrum), quasi-profile, or centroid spectrum.
-# Returns an m/z array and intensity array.
-def extract_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, encoding):
-    if encoding == 32:
-        encoding_dtype = np.float32
-    elif encoding == 64:
-        encoding_dtype = np.float64
-
-    if mode == 'raw':
-        if not multiscan:
-            scans = tdf_data.read_scans(frame, scan_begin, scan_end)
-            if len(scans) == 1:
-                index_buf, intensity_array = scans[0]
-            elif len(scans) != 1:
-                sys.exit(1)
-            mz_array = tdf_data.index_to_mz(frame, index_buf)
-            return mz_array, intensity_array
-        elif multiscan:
-            mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(frame, scan_begin, scan_end, encoding)
-            return mz_array, intensity_array
-    elif mode == 'profile':
-        intensity_array = np.array(tdf_data.extract_profile_spectrum_for_frame(frame, scan_begin, scan_end),
-                                   dtype=encoding_dtype)
-        mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
-        mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
-        step_size = (mz_acq_range_upper - mz_acq_range_lower) / len(intensity_array)
-        mz_array = np.arange(mz_acq_range_lower, mz_acq_range_upper, step_size, dtype=encoding_dtype)
-        return mz_array, intensity_array
-    elif mode == 'centroid':
-        mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(frame, scan_begin, scan_end)
-        mz_array = np.array(mz_array, dtype=encoding_dtype)
-        intensity_array = np.array(intensity_array, dtype=encoding_dtype)
-        return mz_array, intensity_array
-
-
 # Write out parent spectrum.
 def write_lcms_ms1_spectrum(writer, parent_scan, encoding, groupby):
     # Build params

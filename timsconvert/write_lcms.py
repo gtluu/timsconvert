@@ -70,57 +70,9 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only):
 # Calculate the number of spectra to be written.
 # Basically an abridged version of parse_lcms_tdf to account for empty spectra that don't end up getting written.
 def get_spectra_count(tdf_data, ms1_groupby, mode, ms2_only, encoding):
-    spectra_count = 0
-
-    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
-    if tdf_data.pasefframemsmsinfo is not None:
-        list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
-    if tdf_data.precursors is not None:
-        list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
-
-    for frame in tdf_data.frames['Id'].values:
-        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == int(frame)][0]
-
-        if frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms1']:
-            if ms2_only == False:
-                frame_not_empty = False
-                for scan_num in range(0, int(frames_dict['NumScans'])):
-                    mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
-                                                                        mode,
-                                                                        True,
-                                                                        int(frame),
-                                                                        scan_num,
-                                                                        scan_num + 1,
-                                                                        encoding)
-                    if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
-                        if ms1_groupby == 'frame':
-                            frame_not_empty = True
-                        elif ms1_groupby == 'scan':
-                            spectra_count += 1
-                if frame_not_empty == True:
-                    spectra_count += 1
-        elif frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms2']:
-            precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
-            for precursor_dict in precursor_dicts:
-                pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
-                                            if int(i['Precursor']) == int(precursor_dict['Id'])]
-                frame_not_empty = False
-                for pasef_dict in pasefframemsmsinfo_dicts:
-                    scan_begin = int(pasef_dict['ScanNumBegin'])
-                    scan_end = int(pasef_dict['ScanNumEnd'])
-                    for scan_num in range(scan_begin, scan_end):
-                        mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
-                                                                            mode,
-                                                                            True,
-                                                                            int(pasef_dict['Frame']),
-                                                                            scan_begin,
-                                                                            scan_end,
-                                                                            encoding)
-                        if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
-                            frame_not_empty = True
-                if frame_not_empty == True:
-                    spectra_count += 1
-    return spectra_count
+    ms1_count = tdf_data.frames['MsMsType'].values.size
+    ms2_count = len(list(filter(None, tdf_data.precursors['MonoisotopicMz'].values)))
+    return ms1_count + ms2_count
 
 
 # Write out parent spectrum.
@@ -208,12 +160,10 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
 
 def write_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode, ms2_only, encoding):
     # Parse TDF data
-    logging.info(get_timestamp() + ':' + 'Parsing Frames ' + str(i) + ' - ' + str(j) + '...')
     if data.meta_data['SchemaType'] == 'TDF':
         parent_scans, product_scans = parse_lcms_tdf(data, i, j, ms1_groupby, mode, ms2_only, encoding)
     # add code latter for elif baf -> use baf2sql
     # Write MS1 parent scans.
-    logging.info(get_timestamp() + ':' + 'Writing Frames ' + str(i) + ' - ' + str(j) + '...')
     if ms2_only == False:
         for parent in parent_scans:
             if ms1_groupby == 'scan':
@@ -254,6 +204,8 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
         # Parse chunks of data and write to spectrum elements.
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
+            # Count number of spectra in run.
+            logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
             num_of_spectra = get_spectra_count(data, ms1_groupby, mode, ms2_only, encoding)
             with writer.spectrum_list(count=num_of_spectra):
                 chunk = 0
@@ -262,6 +214,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
                     for i, j in zip(data.ms1_frames[chunk: chunk + chunk_size],
                                     data.ms1_frames[chunk + 1: chunk + chunk_size + 1]):
                         chunk_list.append((int(i), int(j)))
+                    logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
                     for i, j in chunk_list:
                         scan_count = write_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode, ms2_only,
                                                          encoding)

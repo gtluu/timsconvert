@@ -21,4 +21,7 @@ from timsconvert.classes import *
 from timsconvert.constants import *
 from timsconvert.data_input import *
 from timsconvert.init_bruker_dll import *
+from timsconvert.parse_lcms import *
+from timsconvert.parse_maldi import *
 from timsconvert.timestamp import *
+from timsconvert.write_lcms import *

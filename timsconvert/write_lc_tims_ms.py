@@ -9,7 +9,7 @@ import pandas as pd
 from psims.mzml import MzMLWriter
 
 
-def write_mzml_metadata(data, writer, infile, centroid, ms2_only):
+def write_mzml_metadata(data, writer, infile, mode, ms2_only):
     # Basic file descriptions.
     file_description = []
     # Add spectra level and centroid/profile status.
@@ -18,9 +18,9 @@ def write_mzml_metadata(data, writer, infile, centroid, ms2_only):
         file_description.append('MSn spectrum')
     elif ms2_only == True:
         file_description.append('MSn spectrum')
-    if centroid:
+    if mode == 'raw' or mode == 'centroid':
         file_description.append('centroid spectrum')
-    elif not centroid:
+    elif mode == 'profile':
         file_description.append('profile spectrum')
     writer.file_description(file_description)
 
@@ -113,7 +113,7 @@ def extract_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_e
 
 
 # New version of parse_lcms_tdf?
-def parse_lcms_tdf(tdf_data, ms1_groupby, mode, ms2_only, encoding):
+def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_only, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -132,8 +132,7 @@ def parse_lcms_tdf(tdf_data, ms1_groupby, mode, ms2_only, encoding):
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 
-    #for index in range(len(tdf_data.ms1_frames)):
-    for index in range(169, 170):
+    for index in range(frame_start, frame_stop):
         frame = int(tdf_data.ms1_frames[index])
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
 
@@ -284,8 +283,91 @@ def parse_lcms_tdf(tdf_data, ms1_groupby, mode, ms2_only, encoding):
     return list_of_parent_scans, list_of_product_scans
 
 
+# Write out parent spectrum.
+def write_lcms_ms1_spectrum(writer, parent_scan, encoding, groupby):
+    # Build params
+    params = [parent_scan['scan_type'],
+              {'ms level': parent_scan['ms_level']},
+              {'total ion current': parent_scan['total_ion_current']},
+              {'base peak m/z': parent_scan['base_peak_mz']},
+              {'base peak intensity': parent_scan['base_peak_intensity']},
+              {'highest observed m/z': parent_scan['high_mz']},
+              {'lowest observed m/z': parent_scan['low_mz']}]
+
+    if groupby == 'scan':
+        params.append({'inverse reduced ion mobility': parent_scan['mobility']})
+    other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+
+    if encoding == 32:
+        encoding_dtype = np.float32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
+    # Write MS1 spectrum.
+    writer.write_spectrum(parent_scan['mz_array'],
+                          parent_scan['intensity_array'],
+                          id='scan=' + str(parent_scan['scan_number']),
+                          polarity=parent_scan['polarity'],
+                          centroided=parent_scan['centroided'],
+                          scan_start_time=parent_scan['retention_time'],
+                          other_arrays=other_arrays,
+                          params=params,
+                          encoding={'m/z array': encoding_dtype,
+                                    'intensity array': encoding_dtype,
+                                    'ion mobility array': encoding_dtype})
+
+
+# Write out product spectrum.
+def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
+    # Build params list for spectrum.
+    spectrum_params = [product_scan['scan_type'],
+                       {'ms level': product_scan['ms_level']},
+                       {'total ion current': product_scan['total_ion_current']}]
+    if 'base_peak_mz' in product_scan.keys() and 'base_peak_intensity' in product_scan.keys():
+        spectrum_params.append({'base peak m/z': product_scan['base_peak_mz']})
+        spectrum_params.append({'base peak intensity': product_scan['base_peak_intensity']})
+    if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
+        spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
+        spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
+    other_arrays = None
+
+    # Build precursor information dict.
+    precursor_info = {'mz': product_scan['selected_ion_mz'],
+                      'intensity': product_scan['selected_ion_intensity'],
+                      #'activation': [product_scan['activation'],
+                      #               {'collision energy': product_scan['collision_energy']}],
+                      'activation': [{'collision energy': product_scan['collision_energy']}],
+                      'isolation_window_args': {'target': product_scan['target_mz'],
+                                                'upper': product_scan['isolation_upper_offset'],
+                                                'lower': product_scan['isolation_lower_offset']},
+                      'params': {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}}
+    if not np.isnan(product_scan['charge_state']):
+        precursor_info['charge'] = product_scan['charge_state']
+
+    if parent_scan != None:
+        precursor_info['spectrum_reference'] = 'scan=' + str(parent_scan['scan_number'])
+
+    if encoding == 32:
+        encoding_dtype = np.float32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
+    # Write MS2 spectrum.
+    writer.write_spectrum(product_scan['mz_array'],
+                          product_scan['intensity_array'],
+                          id='scan=' + str(product_scan['scan_number']),
+                          polarity=product_scan['polarity'],
+                          centroided=product_scan['centroided'],
+                          scan_start_time=product_scan['retention_time'],
+                          other_arrays=other_arrays,
+                          params=spectrum_params,
+                          precursor_information=precursor_info,
+                          encoding={'m/z array': encoding_dtype,
+                                    'intensity array': encoding_dtype})
+
+
 # Parse out LC-MS(/MS) data and write out mzML file using psims.
-def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_groupby, encoding, chunk_size):
+def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, encoding, chunk_size):
     # Initialize mzML writer using psims.
     writer = MzMLWriter(os.path.join(outdir, outfile))
 
@@ -294,40 +376,57 @@ def write_lcms_mzml(data, infile, outdir, outfile, centroid, ms2_only, ms1_group
         writer.controlled_vocabularies()
 
         # Start write acquisition, instrument config, processing, etc. to mzML.
-        write_mzml_metadata(data, writer, infile, centroid, ms2_only)
+        write_mzml_metadata(data, writer, infile, mode, ms2_only)
 
         logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Parse chunks of data and write to spectrum elements.
         with writer.run(id='run', instrument_configuration='instrument'):
             scan_count = 0
             num_of_spectra = get_spectra_count()
+            with writer.spectrum_list(count=num_of_spectra):
+                chunk = 0
+                while chunk + chunk_size + 1 <= len(data.ms1_frames):
+                    chunk_list = []
+                    for i, j in zip(data.ms1_frames[chunk: chunk + chunk_size],
+                                    data.ms1_frames[chunk + 1: chunk + chunk_size + 1]):
+                        chunk_list.append((int(i), int(j)))
+                    for i, j in chunk_list:
+                        # Parse TDF data
+                        logging.info(get_timestamp() + ':' + 'Parsing Frames ' + str(i) + ' - ' + str(j) + '...')
+                        if data.meta_data['SchemaType'] == 'TDF':
+                            parent_scans, product_scans = parse_lcms_tdf(data, i, j, ms1_groupby, mode, ms2_only,
+                                                                         encoding)
+                        # add code latter for elif baf -> use baf2sql
+                        # Write MS1 parent scans.
+                        logging.info(get_timestamp() + ':' + 'Writing Frames ' + str(i) + ' - ' + str(j) + '...')
+                        if ms2_only == False:
+                            for parent in parent_scans:
+                                if ms1_groupby == 'scan':
+                                    products = [i for i in product_scans if i['parent_frame'] == parent['frame'] and
+                                                i['parent_scan'] == parent['scan_number']]
+                                elif ms1_groupby == 'frame':
+                                    products = [i for i in product_scans if i['parent_frame'] == parent['frame']]
+                                # Set params for scan.
+                                scan_count += 1
+                                parent['scan_number'] = scan_count
+                                write_lcms_ms1_spectrum(writer, parent, encoding, ms1_groupby)
+                                # Write MS2 Product Scans
+                                for product in products:
+                                    scan_count += 1
+                                    product['scan_number'] = scan_count
+                                    write_lcms_ms2_spectrum(writer, parent, encoding, product)
+                        elif ms2_only == True or parent_scans == []:
+                            for product in product_scans:
+                                scan_count += 1
+                                product['scan_number'] = scan_count
+                                write_lcms_ms2_spectrum(writer, None, encoding, product)
 
 
 
 
-
-
-
-        # Begin parsing and writing out data.
-        # add code later for elif baf -> use baf2sql
-        if data.meta_data['SchemaType'] == 'TDF':
-
-
-
-
-            chunk = 0
-            while chunk + chunk_size + 1 <= len(data.ms1_frames):
-                chunk_list = []
-                print(chunk, chunk + chunk_size, chunk + 1, chunk + chunk_size + 1)
-                for i, j in zip(data.ms1_frames[chunk:chunk + chunk_size],
-                                data.ms1_frames[chunk + 1:chunk + chunk_size + 1]):
-                    chunk_list.append((int(i), int(j)))
-                chunk += chunk_size
-                print(chunk_list)
-                print(len(chunk_list))
-            else:
-                chunk_list = []
-                for i, j in zip(data.ms1_frames[chunk:-1], data.ms1_frames[chunk + 1:]):
-                    chunk_list.append((int(i), int(j)))
-                print(chunk_list)
-                print(len(chunk_list))
+                    chunk += chunk_size
+                else:
+                    chunk_list = []
+                    for i, j in zip(data.ms1_frames[chunk:-1], data.ms1_frames[chunk + 1:]):
+                        chunk_list.append((int(i), int(j)))
+                    chunk_list.append((chunk_list[len(chunk_list) - 1][1], data.frames.shape[0]))

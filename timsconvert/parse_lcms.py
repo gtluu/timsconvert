@@ -60,8 +60,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 
-    for index in range(frame_start, frame_stop):
-        frame = int(tdf_data.ms1_frames[index])
+    for frame in range(frame_start, frame_stop):
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
 
         if frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms1']:
@@ -113,9 +112,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
                                              np.concatenate(frame_mobility_arrays, axis=None)),
                                             axis=-1)
                     frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
-
                     base_peak_index = np.where(frames_array[:, 1] == np.max(frames_array[:, 1]))
-
                     scan_dict = {'scan_number': None,
                                  'scan_type': 'MS1 spectrum',
                                  'ms_level': 1,
@@ -133,49 +130,29 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
                                  'low_mz': float(min(frames_array[:, 0])),
                                  'frame': frame}
                     list_of_parent_scans.append(scan_dict)
-            if int(tdf_data.ms1_frames[index + 1]) - int(tdf_data.ms1_frames[index]) > 1:
+            if frame_stop - frame_start > 1:
                 precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
                 for precursor_dict in precursor_dicts:
                     pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
                                                 if int(i['Precursor']) == int(precursor_dict['Id'])]
                     pasef_mz_arrays = []
                     pasef_intensity_arrays = []
-                    #pasef_mobility_arrays = []
                     for pasef_dict in pasefframemsmsinfo_dicts:
                         scan_begin = int(pasef_dict['ScanNumBegin'])
                         scan_end = int(pasef_dict['ScanNumEnd'])
-                        frame_mz_arrays = []
-                        frame_intensity_arrays = []
-                        #frame_mobility_arrays = []
-                        for scan_num in range(scan_begin, scan_end):
-                            mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
-                                                                                mode,
-                                                                                True,
-                                                                                int(pasef_dict['Frame']),
-                                                                                scan_begin,
-                                                                                scan_end,
-                                                                                encoding)
-                            if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
-                                #mobility = tdf_data.scan_num_to_oneoverk0(int(pasef_dict['Frame']),
-                                #                                          np.array([scan_num]))[0]
-                                #mobility_array = np.repeat(mobility, mz_array.size)
-
-                                frame_mz_arrays.append(mz_array)
-                                frame_intensity_arrays.append(intensity_array)
-                                #frame_mobility_arrays.append(mobility_array)
-                        if frame_mz_arrays and frame_intensity_arrays:
-                            frames_array = np.stack((np.concatenate(frame_mz_arrays, axis=None),
-                                                     np.concatenate(frame_intensity_arrays, axis=None)),
-                                                     #np.concatenate(frame_mobility_arrays, axis=None)),
-                                                    axis=-1)
-                            frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
-                            pasef_mz_arrays.append(frames_array[:, 0])
-                            pasef_intensity_arrays.append(frames_array[:, 1])
-                            #pasef_mobility_arrays.append(frames_array[:, 2])
+                        mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
+                                                                            mode,
+                                                                            True,
+                                                                            int(pasef_dict['Frame']),
+                                                                            scan_begin,
+                                                                            scan_end,
+                                                                            encoding)
+                        if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                            pasef_mz_arrays.append(mz_array)
+                            pasef_intensity_arrays.append(intensity_array)
                     if pasef_mz_arrays and pasef_intensity_arrays:
                         pasef_array = np.stack((np.concatenate(pasef_mz_arrays, axis=None),
                                                 np.concatenate(pasef_intensity_arrays, axis=None)),
-                                                #np.concatenate(pasef_mobility_arrays, axis=None)),
                                                axis=-1)
                         pasef_array = np.unique(pasef_array[np.argsort(pasef_array[:, 0])], axis=0)
 

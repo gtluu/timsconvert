@@ -227,3 +227,4 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
                     for i, j in chunk_list:
                         scan_count = write_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode, ms2_only,
                                                          encoding)
+    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')

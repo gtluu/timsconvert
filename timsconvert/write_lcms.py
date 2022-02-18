@@ -2,6 +2,7 @@ from timsconvert.parse_lcms import *
 import os
 import logging
 import numpy as np
+from lxml import etree as et
 from psims.mzml import MzMLWriter
 
 
@@ -69,7 +70,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only):
 
 # Calculate the number of spectra to be written.
 # Basically an abridged version of parse_lcms_tdf to account for empty spectra that don't end up getting written.
-def get_spectra_count(tdf_data, ms1_groupby, mode, ms2_only, encoding):
+def get_spectra_count(tdf_data):
     ms1_count = tdf_data.frames['MsMsType'].values.size
     ms2_count = len(list(filter(None, tdf_data.precursors['MonoisotopicMz'].values)))
     return ms1_count + ms2_count
@@ -188,10 +189,18 @@ def write_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode, ms2_o
     return scan_count
 
 
+def update_spectra_count(outdir, outfile, scan_count):
+    mzml_tree = et.parse(os.path.join(outdir, outfile))
+    mzml = mzml_tree.getroot()
+    ns = mzml.tag[:mzml.tag.find('}') + 1]
+    mzml.find('.//' + ns + 'spectrumList').set('count', str(scan_count).encode('utf-8'))
+    mzml_tree.write(os.path.join(outdir, outfile), encoding='utf-8', xml_declaration=True)
+
+
 # Parse out LC-MS(/MS) data and write out mzML file using psims.
 def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, encoding, chunk_size):
     # Initialize mzML writer using psims.
-    writer = MzMLWriter(os.path.join(outdir, outfile))
+    writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
 
     with writer:
         # Begin mzML with controlled vocabularies (CV).
@@ -206,7 +215,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
             scan_count = 0
             # Count number of spectra in run.
             logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
-            num_of_spectra = get_spectra_count(data, ms1_groupby, mode, ms2_only, encoding)
+            num_of_spectra = get_spectra_count(data)
             with writer.spectrum_list(count=num_of_spectra):
                 chunk = 0
                 while chunk + chunk_size + 1 <= len(data.ms1_frames):
@@ -227,4 +236,6 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
                     for i, j in chunk_list:
                         scan_count = write_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode, ms2_only,
                                                          encoding)
+    logging.info(get_timestamp() + ':' + 'Updating scan count...')
+    update_spectra_count(outdir, outfile, scan_count)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')

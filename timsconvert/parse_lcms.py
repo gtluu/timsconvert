@@ -7,7 +7,7 @@ import logging
 
 # Get either raw (slightly modified implementation that gets centroid spectrum), quasi-profile, or centroid spectrum.
 # Returns an m/z array and intensity array.
-def extract_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, encoding):
+def extract_lcms_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -70,13 +70,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
                     frame_intensity_arrays = []
                     frame_mobility_arrays = []
                 for scan_num in range(0, int(frames_dict['NumScans'])):
-                    mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
-                                                                        mode,
-                                                                        True,
-                                                                        frame,
-                                                                        scan_num,
-                                                                        scan_num + 1,
-                                                                        encoding)
+                    mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
+                                                                             mode,
+                                                                             True,
+                                                                             frame,
+                                                                             scan_num,
+                                                                             scan_num + 1,
+                                                                             encoding)
                     if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                         mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
                         mobility_array = np.repeat(mobility, mz_array.size)
@@ -140,13 +140,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
                     for pasef_dict in pasefframemsmsinfo_dicts:
                         scan_begin = int(pasef_dict['ScanNumBegin'])
                         scan_end = int(pasef_dict['ScanNumEnd'])
-                        mz_array, intensity_array = extract_spectrum_arrays(tdf_data,
-                                                                            mode,
-                                                                            True,
-                                                                            int(pasef_dict['Frame']),
-                                                                            scan_begin,
-                                                                            scan_end,
-                                                                            encoding)
+                        mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
+                                                                                 mode,
+                                                                                 True,
+                                                                                 int(pasef_dict['Frame']),
+                                                                                 scan_begin,
+                                                                                 scan_end,
+                                                                                 encoding)
                         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                             pasef_mz_arrays.append(mz_array)
                             pasef_intensity_arrays.append(intensity_array)

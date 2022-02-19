@@ -63,7 +63,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
     for frame in range(frame_start, frame_stop):
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
 
-        if frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms1']:
+        if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
             if ms2_only == False:
                 if ms1_groupby == 'frame':
                     frame_mz_arrays = []

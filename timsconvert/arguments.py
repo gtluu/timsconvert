@@ -29,7 +29,7 @@ def get_args():
                         action='store_true')
     parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
                                               'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
-                        default='scan', type=str)
+                        default='frame', type=str)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)
     parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '

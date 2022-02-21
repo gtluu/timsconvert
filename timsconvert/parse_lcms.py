@@ -1,5 +1,4 @@
 from timsconvert.constants import *
-from timsconvert.timestamp import *
 import numpy as np
 import sys
 import logging

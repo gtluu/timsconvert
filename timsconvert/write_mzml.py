@@ -1,9 +1,7 @@
 from timsconvert.parse_lcms import *
 import os
 import logging
-import numpy as np
 from lxml import etree as et
-from psims.mzml import MzMLWriter
 
 
 def write_mzml_metadata(data, writer, infile, mode, ms2_only):

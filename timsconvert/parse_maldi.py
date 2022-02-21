@@ -92,20 +92,48 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_end, mode, ms2_only, encoding):
                                  'high_mz': float(max(mz_array)),
                                  'low_mz': float(min(mz_array)),
                                  'frame': frame}
-                    elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-                        framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
-                                              if int(i['Frame']) == int(maldiframeinfo_dict['Frame'])][0]
-                        scan_dict['scan_type'] = 'MSn spectrum'
-                        scan_dict['ms_level'] = 2
-                        scan_dict['target_mz'] = float(framemsmsinfo_dict['TriggerMass'])
-                        scan_dict['isolation_lower_offset'] = float(framemsmsinfo_dict['IsolationWidth']) / 2
-                        scan_dict['isolation_upper_offset'] = float(framemsmsinfo_dict['IsolationWidth']) / 2
-                        scan_dict['selected_ion_mz'] = float(framemsmsinfo_dict['TriggerMass'])
-                        scan_dict['charge_state'] = framemsmsinfo_dict['PrecursorCharge']
-                        scan_dict['collision_energy'] = framemsmsinfo_dict['CollisionEnergy']
                     list_of_scan_dicts.append(scan_dict)
-        elif frames_dict['MsMsType'] in MSMS_TYPE_CATEGORY['ms2']:
-            mz_array,
+        elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
+            framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
+                                  if int(i['Frame']) == int(maldiframeinfo_dict['Frame'])][0]
+
+            mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding)
+
+            if mz_array.size != 0 and intensity_array.size != 0:
+                base_peak_index = np.where(intensity_array == np.max(intensity_array))
+
+                if tsf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                    coords = maldiframeinfo_dict['SpotName']
+                elif tsf_data.meta_data['MaldiApplicationType'] == 'Imaging':
+                    coords = []
+                    coords.append(int(maldiframeinfo_dict['XIndexPos']))
+                    coords.append(int(maldiframeinfo_dict['YIndexPos']))
+                    if 'ZIndexPos' in tsf_data.maldiframeinfo.columns:
+                        coords.append(int(maldiframeinfo_dict['ZIndexPos']))
+                    coords = tuple(coords)
+
+                scan_dict = {'scan_number': None,
+                             'scan_type': 'MSn spectrum',
+                             'ms_level': 2,
+                             'mz_array': mz_array,
+                             'intensity_array': intensity_array,
+                             'coord': coords,
+                             'polarity': frames_dict['Polarity'],
+                             'centroided': centroided,
+                             'retention_time': 0,
+                             'total_ion_current': sum(intensity_array),
+                             'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                             'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
+                             'high_mz': float(max(mz_array)),
+                             'low_mz': float(min(mz_array)),
+                             'target_mz': float(framemsmsinfo_dict['TriggerMass']),
+                             'isolation_lower_offset': float(framemsmsinfo_dict['IsolationWidth']) / 2,
+                             'isolation_upper_offset': float(framemsmsinfo_dict['IsolationWidth']) / 2,
+                             'selected_ion_mz': float(framemsmsinfo_dict['TriggerMass']),
+                             'charge_state': framemsmsinfo_dict['PrecursorCharge'],
+                             'collision_energy': framemsmsinfo_dict['CollisionEnergy']}
+                list_of_scan_dicts.append(scan_dict)
+
     return list_of_scan_dicts
 
 

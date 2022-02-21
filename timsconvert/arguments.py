@@ -12,23 +12,23 @@ def get_args():
 
     # Require Arguments
     parser.add_argument('--input', help='Filepath for Bruker .d file containing TSF or TDF file or directory containing'
-                                        'multiple Bruker .d files.', required=True, type=str)
+                                        ' multiple Bruker .d files.', required=True, type=str)
 
     # Optional Arguments
-    parser.add_argument('--experiment', help='Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,'
+    parser.add_argument('--experiment', help='Experiment performed to generate data. Should be lc-tims-ms, maldi-dd, '
                                              'maldi-tims-dd, maldi-ims, or maldi-tims-ims.', default='lc-tims-ms',
                         type=str)
     parser.add_argument('--outdir', help='Path to folder in which to write output file(s). Default = none', default='',
                         type=str)
-    parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise'
-                                          'files will have same filename and overwrite each other. Default is'
+    parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise '
+                                          'files will have same filename and overwrite each other. Default is '
                                           'none. Empty string.', default='', type=str)
     parser.add_argument('--mode', help='Choose whether export spectra in "raw", "centroid", or "profile" formats. '
                                        'Defaults to "raw".', default='raw', type=str)
     parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
                         action='store_true')
-    parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and'
-                                              'multiple scans; "frame") or one scan ("scan"). Defaults to "scan".',
+    parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and '
+                                              'multiple scans; "frame") or one scan ("scan"). Defaults to "frame".',
                         default='frame', type=str)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)

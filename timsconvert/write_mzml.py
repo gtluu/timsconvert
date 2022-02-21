@@ -1,5 +1,4 @@
 from timsconvert.parse_lcms import *
-from timsconvert.write_mzml import *
 import os
 import logging
 import numpy as np

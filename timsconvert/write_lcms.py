@@ -156,6 +156,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
                     for i, j in zip(data.ms1_frames[chunk:-1], data.ms1_frames[chunk + 1:]):
                         chunk_list.append((int(i), int(j)))
                     chunk_list.append((chunk_list[len(chunk_list) - 1][1], data.frames.shape[0]))
+                    logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
                     for i, j in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode,
                                                               ms2_only, encoding)

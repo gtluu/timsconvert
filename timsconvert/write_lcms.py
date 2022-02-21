@@ -163,3 +163,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, 
     logging.info(get_timestamp() + ':' + 'Updating scan count...')
     update_spectra_count(outdir, outfile, scan_count)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)

@@ -56,7 +56,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, imzml_mode, encoding, chu
             chunk_list = []
             for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
                 chunk_list.append((int(i), int(j)))
-            chunk_list.append((chunk_list[len(chunk_list) - 1][1], len(frames)))
+            chunk_list.append((chunk_list[len(chunk_list) - 1][1], len(frames) + 1))
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for i, j in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data, imzml_file, i, j, mode, encoding)

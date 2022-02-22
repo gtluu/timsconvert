@@ -15,9 +15,6 @@ def get_args():
                                         ' multiple Bruker .d files.', required=True, type=str)
 
     # Optional Arguments
-    parser.add_argument('--experiment', help='Experiment performed to generate data. Should be lc-tims-ms, maldi-dd, '
-                                             'maldi-tims-dd, maldi-ims, or maldi-tims-ims.', default='lc-tims-ms',
-                        type=str)
     parser.add_argument('--outdir', help='Path to folder in which to write output file(s). Default = none', default='',
                         type=str)
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise '
@@ -56,13 +53,6 @@ def args_check(args):
     # Check if input directory exists.
     if not os.path.exists(args['input']):
         logging.info(get_timestamp() + ':' + 'Input path does not exist...')
-        logging.info(get_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
-    # Check to make sure experiment type is correct.
-    experiments = ['lc-tims-ms', 'maldi-dd', 'maldi-tims-dd', 'maldi-ims', 'maldi-tims-ims']
-    if args['experiment'] not in experiments:
-        logging.info(get_timestamp() + ':' + 'Experiment not valid. Use one of the following: "lc-tims-ms", "maldi-dd",'
-                                             ' "maldi-tims-dd", "maldi-ims", or "maldi-tims-ims"...')
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     mode = ['raw', 'centroid', 'profile']

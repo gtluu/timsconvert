@@ -79,7 +79,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                 scan_count = 0
                 # Count number of spectra in run.
                 logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
-                num_of_spectra = get_spectra_count(data)
+                num_of_spectra = len(list(data.frames['Id'].values))
                 with writer.spectrum_list(count=num_of_spectra):
                     chunk = 0
                     frames = list(data.frames['Id'].values)
@@ -132,7 +132,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                 with writer:
                     writer.controlled_vocabularies()
 
-                    write_mzml_metadata(data, writer, infile, ms2_only)
+                    write_mzml_metadata(data, writer, infile, mode, ms2_only)
 
                     with writer.run(id='run', instrument_configuration='instrument'):
                         scan_count = 1

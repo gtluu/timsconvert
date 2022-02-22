@@ -2,6 +2,7 @@
 
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
+cd ../
 
 #if [ ! -d data]; then
 #  bash bin/get_data.sh

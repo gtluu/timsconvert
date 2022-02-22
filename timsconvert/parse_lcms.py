@@ -40,7 +40,7 @@ def extract_lcms_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, s
 
 
 # Parse chunks of LC-TIMS-MS(/MS) data from Bruker TDF files.
-def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_only, encoding):
+def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -64,10 +64,9 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
             if ms2_only == False:
-                if ms1_groupby == 'frame':
-                    frame_mz_arrays = []
-                    frame_intensity_arrays = []
-                    frame_mobility_arrays = []
+                frame_mz_arrays = []
+                frame_intensity_arrays = []
+                frame_mobility_arrays = []
                 for scan_num in range(0, int(frames_dict['NumScans'])):
                     mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
                                                                              mode,
@@ -80,31 +79,9 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, ms1_groupby, mode, ms2_onl
                         mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
                         mobility_array = np.repeat(mobility, mz_array.size)
 
-                        if ms1_groupby == 'frame':
-                            frame_mz_arrays.append(mz_array)
-                            frame_intensity_arrays.append(intensity_array)
-                            frame_mobility_arrays.append(mobility_array)
-                        elif ms1_groupby == 'scan':
-                            base_peak_index = np.where(intensity_array == np.max(intensity_array))
-
-                            scan_dict = {'scan_number': int(scan_num),
-                                         'scan_type': 'MS1 spectrum',
-                                         'ms_level': 1,
-                                         'mz_array': mz_array,
-                                         'intensity_array': intensity_array,
-                                         'mobility': mobility,
-                                         'mobility_array': mobility_array,
-                                         'polarity': frames_dict['Polarity'],
-                                         'centroided': centroided,
-                                         'retention_time': float(frames_dict['Time']),
-                                         'total_ion_current': sum(intensity_array),
-                                         'base_peak_mz': mz_array[base_peak_index][0].astype(float),
-                                         'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
-                                         'high_mz': float(max(mz_array)),
-                                         'low_mz': float(min(mz_array)),
-                                         'frame': frame}
-                            list_of_parent_scans.append(scan_dict)
-
+                        frame_mz_arrays.append(mz_array)
+                        frame_intensity_arrays.append(intensity_array)
+                        frame_mobility_arrays.append(mobility_array)
                 if frame_mz_arrays and frame_intensity_arrays and frame_mobility_arrays:
                     frames_array = np.stack((np.concatenate(frame_mz_arrays, axis=None),
                                              np.concatenate(frame_intensity_arrays, axis=None),

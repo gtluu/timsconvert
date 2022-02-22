@@ -45,7 +45,7 @@ def run_tims_converter(args):
             logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             data = tdf_data(infile, bruker_dll)
             write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
-                            run_args['ms2_only'], run_args['ms1_groupby'], run_args['encoding'], run_args['chunk_size'])
+                            run_args['ms2_only'], run_args['encoding'], run_args['chunk_size'])
         elif args['experiment'] == 'maldi-dd':
             # Initialize Bruker DLL.
             logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
@@ -69,7 +69,7 @@ def run_tims_converter(args):
                 sys.exit(1)
             data = tsf_data(infile, bruker_dll)
             write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'], run_args['mode'],
-                                run_args['ms2_only'], run_args['ms1_groupby'], run_args['encoding'],
+                                run_args['ms2_only'], run_args['encoding'],
                                 run_args['maldi_output_file'], run_args['maldi_plate_map'], run_args['chunk_size'])
         elif args['experiment'] == 'maldi-tims-dd':
             # Initialize Bruker DLL.
@@ -96,7 +96,7 @@ def run_tims_converter(args):
                 sys.exit(1)
             data = tdf_data(infile, bruker_dll)
             write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'], run_args['mode'],
-                                run_args['ms2_only'], run_args['ms1_groupby'], run_args['encoding'],
+                                run_args['ms2_only'], run_args['encoding'],
                                 run_args['maldi_output_file'], run_args['maldi_plate_map'], run_args['chunk_size'])
         elif args['experiment'] == 'maldi-ims':
             # Initialize Bruker DLL.

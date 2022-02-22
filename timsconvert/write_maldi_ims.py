@@ -8,7 +8,7 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, i, j, mode, encoding):
         list_of_scan_dicts = parse_maldi_tsf(data, i, j, mode, False, encoding)
     # Parse TDF data.
     elif data.meta_data['SchemaType'] == 'TDF':
-        list_of_scan_dicts = parse_maldi_tdf(data, i, j, 'frame', mode, False, encoding)
+        list_of_scan_dicts = parse_maldi_tdf(data, i, j, mode, False, encoding)
     for scan_dict in list_of_scan_dicts:
         imzml_file.addSpectrum(scan_dict['mz_array'],
                                scan_dict['intensity_array'],

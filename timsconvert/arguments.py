@@ -27,9 +27,6 @@ def get_args():
                                        'Defaults to "raw".', default='raw', type=str)
     parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
                         action='store_true')
-    parser.add_argument('--ms1_groupby', help='Define whether an individual MS1 spectrum contains one frame (and '
-                                              'multiple scans; "frame") or one scan ("scan"). Defaults to "frame".',
-                        default='frame', type=str)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)
     parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '
@@ -80,11 +77,6 @@ def args_check(args):
     # Check to make sure output filename ends in .mzML extension.
     if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
         args['outfile'] = args['outfile'] + '.mzML'
-    # Check to make sure --ms1_groupby is either 'frame' or 'scan'.
-    if args['ms1_groupby'] not in ['frame', 'scan']:
-        logging.info(get_timestamp() + ':' + '--ms1_groupby should be set to "frame" or "scan"...')
-        logging.info(get_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
     # Check to make sure --encoding is either 32 or 64.
     if args['encoding'] not in [32, 64]:
         logging.info(get_timestamp() + ':' + '--encoding should be set to "32" or "64"...')

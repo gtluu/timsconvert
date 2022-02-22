@@ -6,7 +6,7 @@ import numpy as np
 from psims.mzml import MzMLWriter
 
 
-def write_maldi_dd_spectrum(writer, data, scan, groupby, encoding):
+def write_maldi_dd_spectrum(writer, data, scan, encoding):
     # Build params
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
@@ -18,8 +18,6 @@ def write_maldi_dd_spectrum(writer, data, scan, groupby, encoding):
               {'maldi spot identifier': scan['coord']}]
 
     if data.meta_data['Schematype'] == 'TDF' and scan['ms_level'] == 1:
-        if groupby == 'scan':
-            params.append({'inverse reduced ion mobility': scan['mobility']})
         other_arrays = [('ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
@@ -43,13 +41,13 @@ def write_maldi_dd_spectrum(writer, data, scan, groupby, encoding):
                                     'ion mobility array': encoding_dtype})
 
 
-def write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode, ms2_only, encoding):
+def write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, mode, ms2_only, encoding):
     # Parse TSF data.
     if data.meta_data['SchemaType'] == 'TSF':
         list_of_scan_dicts = parse_maldi_tsf(data, i, j, mode, ms2_only, encoding)
     # Parse TDF data.
     elif data.meta_data['SchemaType'] == 'TDF':
-        list_of_scan_dicts = parse_maldi_tdf(data, i, j, ms1_groupby, mode, ms2_only, encoding)
+        list_of_scan_dicts = parse_maldi_tdf(data, i, j, mode, ms2_only, encoding)
     # Write MS1 parent scans.
     for scan_dict in list_of_scan_dicts:
         if ms2_only == True and scan_dict['ms_level'] == 1:
@@ -57,12 +55,12 @@ def write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mo
         else:
             scan_count += 1
             scan_dict['scan_number'] = scan_count
-            write_maldi_dd_spectrum(writer, data, scan_dict, ms1_groupby, encoding)
+            write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
     return scan_count
 
 
 # Parse out MALDI DD data and write out mzML file using psims.
-def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_groupby, encoding, single_file, plate_map,
+def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding, single_file, plate_map,
                         chunk_size):
     if single_file == 'combined':
         # Initialize mzML writer using psims.
@@ -92,7 +90,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_group
                         logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) +
                                      '...')
                         for i, j in chunk_list:
-                            scan_count = write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode,
+                            scan_count = write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, mode,
                                                                       ms2_only, encoding)
                         chunk += chunk_size
                     else:
@@ -103,7 +101,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_group
                         logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) +
                                      '...')
                         for i, j in chunk_list:
-                            scan_count = write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, ms1_groupby, mode,
+                            scan_count = write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, mode,
                                                                       ms2_only, encoding)
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
@@ -113,12 +111,13 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_group
         # Check to make sure plate map is a valid csv file.
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == 'csv':
             # Parse all MALDI data.
+            num_frames = data.frames.shape[0] + 1
             # Parse TSF data.
             if data.meta_data['SchemaType'] == 'TSF':
-                list_of_scan_dicts = parse_maldi_tsf(data, i, j, mode, ms2_only, encoding)
+                list_of_scan_dicts = parse_maldi_tsf(data, 0, num_frames, mode, ms2_only, encoding)
             # Parse TDF data.
             elif data.meta_data['SchemaType'] == 'TDF':
-                list_of_scan_dicts = parse_maldi_tdf(data, i, j, ms1_groupby, mode, ms2_only, encoding)
+                list_of_scan_dicts = parse_maldi_tdf(data, 0, num_frames, mode, ms2_only, encoding)
 
             # Use plate map to determine filename.
             # Names things as sample_position.mzML
@@ -142,7 +141,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, ms1_group
                             if ms2_only == True and scan_dict['ms_level'] == 1:
                                 pass
                             else:
-                                write_maldi_dd_spectrum(writer, data, scan_dict, ms1_groupby, encoding)
+                                write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
 
 
 if __name__ == '__main__':

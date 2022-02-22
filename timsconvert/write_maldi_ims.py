@@ -17,7 +17,7 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, i, j, mode, encoding):
 
 def write_maldi_ims_imzml(data, outdir, outfile, mode, imzml_mode, encoding, chunk_size):
     # Set polarity for run in imzML.
-    polarity = list(set(data.frames['Polarity'].values.toolist()))
+    polarity = list(set(data.frames['Polarity'].values.tolist()))
     if len(polarity) == 1:
         polarity = polarity[0]
         if polarity == '+':

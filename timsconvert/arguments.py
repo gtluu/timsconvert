@@ -63,7 +63,7 @@ def args_check(args):
         sys.exit(1)
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
-        os.mkdir(args['outdir'])
+        os.makedirs(args['outdir'])
     # Check to make sure output filename ends in .mzML extension.
     if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
         args['outfile'] = args['outfile'] + '.mzML'

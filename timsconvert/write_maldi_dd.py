@@ -85,7 +85,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
         logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
     elif single_file == 'individual' and plate_map != '':
         # Check to make sure plate map is a valid csv file.
-        if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == 'csv':
+        if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == '.csv':
             # Parse all MALDI data.
             num_frames = data.frames.shape[0] + 1
             # Parse TSF data.
@@ -118,10 +118,8 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                                 pass
                             else:
                                 write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
-                logging.info(get_timestamp() + ':' + 'Updating scan count...')
-                update_spectra_count(outdir, outfile, scan_count)
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
-                             os.path.join(outdir, outfile) + '...')
+                             os.path.join(outdir, output_filename) + '...')
 
 
 if __name__ == '__main__':

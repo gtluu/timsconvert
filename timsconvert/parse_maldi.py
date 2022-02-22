@@ -8,7 +8,7 @@ import logging
 def parse_maldi_plate_map(plate_map_filename):
     plate_map = pd.read_csv(plate_map_filename, header=None)
     plate_dict = {}
-    for index, row in plate_map.itterrows():
+    for index, row in plate_map.iterrows():
         for count, value in enumerate(row, start=1):
             plate_dict[chr(index + 65) + str(count)] = value
     return plate_dict
@@ -76,6 +76,10 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
     elif encoding == 64:
         encoding_dtype = np.float64
 
+    if mode == 'raw':
+        logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
+                                             'supported. Defaulting to centroid mode.')
+
     list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
     list_of_maldiframeinfo_dict = tsf_data.maldiframeinfo.to_dict(orient='records')
     if tsf_data.framemsmsinfo is not None:
@@ -90,9 +94,6 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
     for frame in range(frame_start, frame_stop):
         frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
         maldiframeinfo_dict = [i for i in list_of_maldiframeinfo_dict if int(i['Frame'] == frame)][0]
-        if mode == 'raw':
-            logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
-                                                 'supported. Defaulting to centroid mode.')
 
         if tsf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
             coords = maldiframeinfo_dict['SpotName']

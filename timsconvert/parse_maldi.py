@@ -217,7 +217,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, encoding)
                                              np.concatenate(frame_intensity_arrays, axis=None),
                                              np.concatenate(frame_mobility_arrays, axis=None)),
                                             axis=-1)
-                    frames_array = np.unique(frames_array[np.argesort(frames_array[:, 0])], axis=0)
+                    frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
                     base_peak_index = np.where(frames_array[:, 1] == np.max(frames_array[:, 1]))
                     scan_dict = {'scan_number': None,
                                  'scan_type': 'MS1 spectrum',

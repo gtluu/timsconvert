@@ -1,2 +1,3 @@
-wget "https://drive.google.com/drive/folders/1OID1BhskSSVRHsi1zZmUHSoEBfOjhf0b" --recursive
-wget "ftp://massive.ucsd.edu/MSV000084402/raw" --recursive 
+#!/bin/bash
+
+wget -r -P data --ftp-user=MSV000088438 --ftp-password=a ftp://massive.ucsd.edu

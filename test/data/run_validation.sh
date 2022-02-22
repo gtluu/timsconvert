@@ -2,19 +2,15 @@
 
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
-cd ../
-
-#if [ ! -d data]; then
-#  bash bin/get_data.sh
-#fi
+cd ../../
 
 # test lcms data
 python bin/run.py --input data/lcms --outdir data/output/lcms1 --mode raw --verbose
 python bin/run.py --input data/lcms --outdir data/output/lcms2 --mode centroid --verbose
-python bin/run.py --input data/lcms --outdir data/output/lcms3 --mode profile --verbose
+#python bin/run.py --input data/lcms --outdir data/output/lcms3 --mode profile --verbose
 python bin/run.py --input data/lcms --outdir data/output/lcms4 --mode raw --ms2_only --verbose
 python bin/run.py --input data/lcms --outdir data/output/lcms5 --mode centroid --ms2_only --verbose
-python bin/run.py --input data/lcms --outdir data/output/lcms6 --mode profile --ms2_only --verbose
+#python bin/run.py --input data/lcms --outdir data/output/lcms6 --mode profile --ms2_only --verbose
 
 # test maldi dd data
 python bin/run.py --input data/dd1 --outdir data/output/dd11 --mode raw --maldi_output_file combined --verbose

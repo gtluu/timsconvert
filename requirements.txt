@@ -1,7 +1,6 @@
-numpy==1.20
-pandas
-lxml
-psims
-pyimzML
-xmltodict
-hdf5plugin
+numpy==1.18.3
+pandas==1.0.3
+lxml==4.6.2
+psims==0.1.31
+pyimzML==1.5.1
+hdf5plugin==3.2.0

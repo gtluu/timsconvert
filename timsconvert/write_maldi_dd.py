@@ -41,24 +41,6 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
                                     'ion mobility array': encoding_dtype})
 
 
-def write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, mode, ms2_only, encoding):
-    # Parse TSF data.
-    if data.meta_data['SchemaType'] == 'TSF':
-        list_of_scan_dicts = parse_maldi_tsf(data, i, j, mode, ms2_only, encoding)
-    # Parse TDF data.
-    elif data.meta_data['SchemaType'] == 'TDF':
-        list_of_scan_dicts = parse_maldi_tdf(data, i, j, mode, ms2_only, encoding)
-    # Write MS1 parent scans.
-    for scan_dict in list_of_scan_dicts:
-        if ms2_only == True and scan_dict['ms_level'] == 1:
-            pass
-        else:
-            scan_count += 1
-            scan_dict['scan_number'] = scan_count
-            write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
-    return scan_count
-
-
 # Parse out MALDI DD data and write out mzML file using psims.
 def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding, single_file, plate_map,
                         chunk_size):
@@ -81,28 +63,22 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                 logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
                 num_of_spectra = len(list(data.frames['Id'].values))
                 with writer.spectrum_list(count=num_of_spectra):
-                    chunk = 0
-                    frames = list(data.frames['Id'].values)
-                    while chunk + chunk_size + 1 <= len(frames):
-                        chunk_list = []
-                        for i, j in zip(frames[chunk:chunk + chunk_size], frames[chunk + 1: chunk + chunk_size + 1]):
-                            chunk_list.append((int(i), int(j)))
-                        logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) +
-                                     '...')
-                        for i, j in chunk_list:
-                            scan_count = write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, mode,
-                                                                      ms2_only, encoding)
-                        chunk += chunk_size
-                    else:
-                        chunk_list = []
-                        for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
-                            chunk_list.append((int(i), int(j)))
-                        chunk_list.append((chunk_list[len(chunk_list) - 1][1], len(frames)))
-                        logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) +
-                                     '...')
-                        for i, j in chunk_list:
-                            scan_count = write_maldi_dd_chunk_to_mzml(data, writer, i, j, scan_count, mode,
-                                                                      ms2_only, encoding)
+                    # Parse all MALDI data.
+                    num_frames = data.frames.shape[0] + 1
+                    # Parse TSF data.
+                    if data.meta_data['SchemaType'] == 'TSF':
+                        list_of_scan_dicts = parse_maldi_tsf(data, 0, num_frames, mode, ms2_only, encoding)
+                    # Parse TDF data.
+                    elif data.meta_data['SchemaType'] == 'TDF':
+                        list_of_scan_dicts = parse_maldi_tdf(data, 0, num_frames, mode, ms2_only, encoding)
+                    # Write MS1 parent scans.
+                    for scan_dict in list_of_scan_dicts:
+                        if ms2_only == True and scan_dict['ms_level'] == 1:
+                            pass
+                        else:
+                            scan_count += 1
+                            scan_dict['scan_number'] = scan_count
+                            write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, scan_count)

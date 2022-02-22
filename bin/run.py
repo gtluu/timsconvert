@@ -40,11 +40,15 @@ def run_timsconvert(args):
         if schema == 'TSF':
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                if run_args['outfile'] == '':
+                    run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
                 logging.info(get_timestamp() + ':' + 'Processing MALDI dried droplet data...')
                 write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'], run_args['mode'],
                                     run_args['ms2_only'], run_args['encoding'],
                                     run_args['maldi_output_file'], run_args['maldi_plate_map'], run_args['chunk_size'])
             elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+                if run_args['outfile'] == '':
+                    run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
                 logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
                 write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], run_args['mode'],
                                       run_args['imzml_mode'], run_args['encoding'], run_args['chunk_size'])
@@ -52,6 +56,8 @@ def run_timsconvert(args):
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if 'MaldiApplicationType' in data.meta_data.keys():
                 if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                    if run_args['outfile'] == '':
+                        run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
                     logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
                     write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'],
                                         run_args['mode'],
@@ -59,10 +65,14 @@ def run_timsconvert(args):
                                         run_args['maldi_output_file'], run_args['maldi_plate_map'],
                                         run_args['chunk_size'])
                 elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+                    if run_args['outfile'] == '':
+                        run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
                     logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
                     write_maldi_ims_imzml(data, run_args['outdir'], run_args['outfile'], run_args['mode'],
                                           run_args['imzml_mode'], run_args['encoding'], run_args['chunk_size'])
             elif 'MaldiApplicationType' not in data.meta_data.keys():
+                if run_args['outfile'] == '':
+                    run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
                 logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
                 write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
                                 run_args['ms2_only'], run_args['encoding'], run_args['chunk_size'])

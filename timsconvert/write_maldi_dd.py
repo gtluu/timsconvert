@@ -25,7 +25,7 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
-        encoding_dtype = np.float32
+        encoding_dtype = np.float64
 
     # Write out spectrum.
     writer.write_spectrum(scan['mz_array'],
@@ -67,10 +67,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                     num_frames = data.frames.shape[0] + 1
                     # Parse TSF data.
                     if data.meta_data['SchemaType'] == 'TSF':
-                        list_of_scan_dicts = parse_maldi_tsf(data, 0, num_frames, mode, ms2_only, encoding)
+                        list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, encoding)
                     # Parse TDF data.
                     elif data.meta_data['SchemaType'] == 'TDF':
-                        list_of_scan_dicts = parse_maldi_tdf(data, 0, num_frames, mode, ms2_only, encoding)
+                        list_of_scan_dicts = parse_maldi_tdf(data, 1, num_frames, mode, ms2_only, encoding)
                     # Write MS1 parent scans.
                     for scan_dict in list_of_scan_dicts:
                         if ms2_only == True and scan_dict['ms_level'] == 1:
@@ -90,10 +90,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
             num_frames = data.frames.shape[0] + 1
             # Parse TSF data.
             if data.meta_data['SchemaType'] == 'TSF':
-                list_of_scan_dicts = parse_maldi_tsf(data, 0, num_frames, mode, ms2_only, encoding)
+                list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, encoding)
             # Parse TDF data.
             elif data.meta_data['SchemaType'] == 'TDF':
-                list_of_scan_dicts = parse_maldi_tdf(data, 0, num_frames, mode, ms2_only, encoding)
+                list_of_scan_dicts = parse_maldi_tdf(data, 1, num_frames, mode, ms2_only, encoding)
 
             # Use plate map to determine filename.
             # Names things as sample_position.mzML
@@ -118,6 +118,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                                 pass
                             else:
                                 write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
+                logging.info(get_timestamp() + ':' + 'Updating scan count...')
+                update_spectra_count(outdir, outfile, scan_count)
+                logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
+                             os.path.join(outdir, outfile) + '...')
 
 
 if __name__ == '__main__':

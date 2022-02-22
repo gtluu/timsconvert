@@ -3,9 +3,9 @@
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
 
-if [ ! -d data]; then
-  bash bin/get_data.sh
-fi
+#if [ ! -d data]; then
+#  bash bin/get_data.sh
+#fi
 
 # test lcms data
 python bin/run.py --input data --experiment lc-tims-ms --outdir data/output --mode raw --verbose

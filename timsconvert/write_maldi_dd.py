@@ -30,7 +30,7 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
     # Write out spectrum.
     writer.write_spectrum(scan['mz_array'],
                           scan['intensity_array'],
-                          id='scan' + str(scan['scan_number']),
+                          id='scan=' + str(scan['scan_number']),
                           polarity=scan['polarity'],
                           centroided=scan['centroided'],
                           scan_start_time=scan['retention_time'],

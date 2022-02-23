@@ -54,8 +54,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only):
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
     inst_count += 1
     detector = writer.Detector(inst_count, ['electron multiplier'])
-    inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector],
-                                                 params=[INSTRUMENT_FAMILY[data.meta_data['InstrumentFamily']]])
+    inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector])
     writer.instrument_configuration_list([inst_config])
 
     # Data processing element.

@@ -103,7 +103,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, encoding,
                 output_filename = os.path.join(outdir, plate_map_dict[scan_dict['coord']] + '_' + scan_dict['coord'] +
                                                '.mzML')
 
-                writer = MzMLWriter(output_filename)
+                writer = MzMLWriter(output_filename, close=True)
 
                 with writer:
                     writer.controlled_vocabularies()

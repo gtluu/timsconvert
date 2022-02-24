@@ -2,13 +2,13 @@ from pyimzml.ImzMLWriter import ImzMLWriter
 from timsconvert.parse_maldi import *
 
 
-def write_maldi_ims_chunk_to_imzml(data, imzml_file, i, j, mode, encoding):
+def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, encoding):
     # Parse TSF data.
     if data.meta_data['SchemaType'] == 'TSF':
-        list_of_scan_dicts = parse_maldi_tsf(data, i, j, mode, False, encoding)
+        list_of_scan_dicts = parse_maldi_tsf(data, frame_start, frame_stop, mode, False, encoding)
     # Parse TDF data.
     elif data.meta_data['SchemaType'] == 'TDF':
-        list_of_scan_dicts = parse_maldi_tdf(data, i, j, mode, False, encoding)
+        list_of_scan_dicts = parse_maldi_tdf(data, frame_start, frame_stop, mode, False, encoding)
     for scan_dict in list_of_scan_dicts:
         imzml_file.addSpectrum(scan_dict['mz_array'],
                                scan_dict['intensity_array'],
@@ -49,17 +49,18 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, imzml_mode, encoding, chu
             for i, j in zip(frames[chunk:chunk + chunk_size], frames[chunk + 1: chunk + chunk_size + 1]):
                 chunk_list.append((int(i), int(j)))
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
-            for i, j in chunk_list:
-                write_maldi_ims_chunk_to_imzml(data, imzml_file, i, j, mode, encoding)
+            for frame_start, frame_stop in chunk_list:
+                write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, encoding)
             chunk += chunk_size
         else:
             chunk_list = []
             for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
                 chunk_list.append((int(i), int(j)))
-            chunk_list.append((chunk_list[len(chunk_list) - 1][1], len(frames) + 1))
+            chunk_list.append((j, data.frames.shape[0] + 1))
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
-            for i, j in chunk_list:
-                write_maldi_ims_chunk_to_imzml(data, imzml_file, i, j, mode, encoding)
+            for frame_start, frame_stop in chunk_list:
+                write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, encoding)
+    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
 
 
 if __name__ == '__main__':

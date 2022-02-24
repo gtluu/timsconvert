@@ -18,12 +18,39 @@
             <validator type="required"/>
             <fileGenerator type="upload" purpose="spectrum" target="spectra"/>
         </parameter>
+        <parameter name="plate_map" label="MALDI Plate Map">
+            <fileGenerator type="upload" purpose="plate_map" target="plate_map"/>
+        </parameter>
 
         <!-- Conversion Parameters -->
-        <parameter name="EXPORTMS2ONLY" label="EXPORTMS2ONLY">
+        <parameter name="SPECTRAMODE" label="Spectra Export Mode">
+            <options>
+                <option value="raw" label="raw"/>
+                <option value="centroid" label="centroid"/>
+                <option value="profile" label="profile"/>
+                <validattor type="set"/>
+            </options>
+        </parameter>
+        <parameter name="EXPORTMS2ONLY" label="Export MS2 Only">
             <options>
                 <option value="True" label="True"/>
                 <option value="False" label="False"/>
+            </options>
+            <validator type="set"/>
+        </parameter>
+
+        <!-- MALDI Parameters -->
+        <parameter name="MALDIOUTPUTMODE" label="MALDI Output Mode">
+            <options>
+                <option value="combined" label="combined"/>
+                <option value="individual" label="individual"/>
+            </options>
+            <validator type="set"/>
+        </parameter>
+        <parameter name="IMZMLMODE" label="imzML Mode">
+            <options>
+                <option value="processed" label="processed"/>
+                <option value="continuous" label="continuous"/>
             </options>
             <validator type="set"/>
         </parameter>
@@ -44,9 +71,32 @@
                 </module>
             </cell>
         </row>
+        <row>
+            <cell>
+                <label>
+                    <content parameter="plate_map"/>
+                    <tooltip id="hPlateMap"/>
+                </label>
+            </cell>
+            <cell>
+                <module id="plate_map" type="fileSelector">
+                    <property name="label">MALDI Plate Map</property>
+                </module>
+            </cell>
+        </row>
     </block>
 
     <block label="Conversion Parameters">
+        <row>
+            <cell>
+                <label>
+                    <content parameter="SPECTRAMODE"/>
+                </label>
+            </cell>
+            <cell>
+                <input type="select" parameter="SPECTRAMODE"></input>
+            </cell>
+        </row>
         <row>
             <cell>
                 <label>
@@ -55,6 +105,31 @@
             </cell>
             <cell>
                 <input type="select" parameter="EXPORTMS2ONLY"></input>
+            </cell>
+        </row>
+    </block>
+
+    <block label="MALDI Parameters">
+        <row>
+            <cell>
+                <label>
+                    <content parameter="MALDIOUTPUTMODE"/>
+                </label>
+            </cell>
+            <cell>
+                <input type="select" parameter="MALDIOUTPUTMODE"></input>
+            </cell>
+        </row>
+        <row>
+            <cell>
+                <label>
+                    <content parameter="IMZMLMODE"/>
+                </label>
+            </cell>
+            <cell>
+                <label>
+                    <input type="select" parameter="IMZMLMODE"
+                </label>
             </cell>
         </row>
     </block>

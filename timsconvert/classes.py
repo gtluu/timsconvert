@@ -450,7 +450,7 @@ class tdf_data(object):
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values
+        self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
 
 
 if __name__ == '__main__':

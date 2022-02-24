@@ -46,16 +46,19 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                         plate_map, chunk_size):
     if single_file == 'combined':
         # Initialize mzML writer using psims.
+        logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
         writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
 
         with writer:
             # Begin mzML with controlled vocabularies (CV).
+            logging.info(get_timestamp() + ':' + 'Initializing controlled vocabularies...')
             writer.controlled_vocabularies()
 
             # Start write acquisition, instrument config, processing, etc. to mzML.
+            logging.info(get_timestamp() + ':' + 'Writing mzML metadata...')
             write_mzml_metadata(data, writer, infile, mode, ms2_only)
 
-            logging.info(get_timestamp() + ':' + 'Writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+            logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
             # Parse chunks of data and write to spectrum element.
             with writer.run(id='run', instrument_configuration='instrument'):
                 scan_count = 0

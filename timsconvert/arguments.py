@@ -21,7 +21,7 @@ def get_args():
                                           'files will have same filename and overwrite each other. Default is '
                                           'none. Empty string.', default='', type=str)
     parser.add_argument('--mode', help='Choose whether export spectra in "raw", "centroid", or "profile" formats. '
-                                       'Defaults to "raw".', default='raw', type=str)
+                                       'Defaults to "centroid".', default='centroid', type=str)
     parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
                         action='store_true')
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
@@ -56,7 +56,7 @@ def args_check(args):
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     mode = ['raw', 'centroid', 'profile']
-    if args['mode']  not in mode:
+    if args['mode'] not in mode:
         logging.info(get_timestamp() + ':' + 'Mode not valid. Use one of the following: "raw", "centroid", or '
                                              '"profile"...')
         logging.info(get_timestamp() + ':' + 'Exiting...')

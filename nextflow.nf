@@ -5,13 +5,15 @@
 // required params
 params.input = ''
 
-params.experiment = 'lc-tims-ms'
-params.ms2_only = true  // only convert ms2 spectra?
-params.ms1_groupby = 'scan'  // group ms1 spectra by 'frame' (will have array of mobilities; in beta) or 'scan' (each spectrum has one RT and mobility)
+params.mode = 'centroid'  // mode can be 'centroid', 'profile', or 'raw'
+params.ms2_only = false  // only convert ms2 spectra
 params.encoding = 64
 params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
 params.maldi_plate_map = ''
 params.imzml_mode = 'processed'
+
+// system params
+params.chunk_size = 10
 params.verbose = true
 
 input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
@@ -39,13 +41,13 @@ process convert {
         mkdir spectra
         python3 $TOOL_FOLDER/run.py \
         --input $input_file \
-        --experiment ${params.experiment} \
         --outdir spectra \
+        --mode ${params.mode} \
         ${ms2_flag} \
-        --ms1_groupby ${params.ms1_groupby} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --imzml_mode ${params.imzml_mode} \
+        --chunk_size ${params.chunk_size} \
         ${verbose_flag}
         """
 
@@ -54,14 +56,14 @@ process convert {
         mkdir spectra
         python3 $TOOL_FOLDER/run.py \
         --input $input_file \
-        --experiment ${params.experiment} \
         --outdir spectra \
+        --mode ${params.mode} \
         ${ms2_flag} \
-        --ms1_groupby ${params.ms1_groupby} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --maldi_plate_map = ${params.maldi_plate_map} \
         --imzml_mode ${params.imzml_mode} \
+        --chunk_size ${params.chunk_size} \
         ${verbose_flag}
         """
 }

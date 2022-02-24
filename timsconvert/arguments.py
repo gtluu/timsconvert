@@ -24,6 +24,10 @@ def get_args():
                                        'Defaults to "centroid".', default='centroid', type=str)
     parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
                         action='store_true')
+    parser.add_argument('--exclude_mobility', help='Boolean flag used to exclude trapped ion mobility spectrometry data'
+                                                   ' from exported data. Precursor ion mobility information is still '
+                                                   'exported. Recommended when exporting in profile mode due to file '
+                                                   'size.', action='store_true')
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)
     parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '

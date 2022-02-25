@@ -140,12 +140,12 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
             if frame_stop - frame_start > 1:
                 #precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
                 precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] ==
-                                                      frame].to_dict(orient='records')[0]
+                                                      frame].to_dict(orient='records')
                 for precursor_dict in precursor_dicts:
                     #pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
                     #                            if int(i['Precursor']) == int(precursor_dict['Id'])]
                     pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
-                                                                           precursor_dict['Id']].to_dict(orient='records')[0]
+                                                                           precursor_dict['Id']].to_dict(orient='records')
                     pasef_mz_arrays = []
                     pasef_intensity_arrays = []
                     for pasef_dict in pasefframemsmsinfo_dicts:

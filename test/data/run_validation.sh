@@ -152,6 +152,7 @@ out136=test/data/output/136
 
 # python
 # test lcms
+: << 'END'
 python bin/run.py --input "$MSV000084402" --outdir "$out1" --mode raw --verbose
 python bin/run.py --input "$MSV000084402" --outdir "$out2" --mode centroid --verbose
 python bin/run.py --input "$MSV000084402" --outdir "$out3" --mode raw --ms2_only --verbose
@@ -163,6 +164,7 @@ python bin/run.py --input "$MSV000084402" --outdir "$out8" --mode profile --excl
 python bin/run.py --input "$MSV000084402" --outdir "$out9" --mode raw --exclude_mobility --ms2_only --verbose
 python bin/run.py --input "$MSV000084402" --outdir "$out10" --mode centroid --exclude_mobility --ms2_only --verbose
 python bin/run.py --input "$MSV000084402" --outdir "$out11" --mode profile --exclude_mobility --ms2_only --verbose
+END
 
 python bin/run.py --input "$lcms" --outdir "$out12" --mode raw --verbose
 python bin/run.py --input "$lcms" --outdir "$out13" --mode centroid --verbose
@@ -228,6 +230,7 @@ python bin/run.py --input "$ims" --outdir "$out68" --mode profile --exclude_mobi
 
 # nextflow
 # test lcms
+: << 'END'
 nextflow bin/run.py --input "$MSV000084402" --outdir "$out69" --mode raw --verbose
 nextflow bin/run.py --input "$MSV000084402" --outdir "$out70" --mode centroid --verbose
 nextflow bin/run.py --input "$MSV000084402" --outdir "$out71" --mode raw --ms2_only --verbose
@@ -239,6 +242,7 @@ nextflow bin/run.py --input "$MSV000084402" --outdir "$out76" --mode profile --e
 nextflow bin/run.py --input "$MSV000084402" --outdir "$out77" --mode raw --exclude_mobility --ms2_only --verbose
 nextflow bin/run.py --input "$MSV000084402" --outdir "$out78" --mode centroid --exclude_mobility --ms2_only --verbose
 nextflow bin/run.py --input "$MSV000084402" --outdir "$out79" --mode profile --exclude_mobility --ms2_only --verbose
+END
 
 nextflow bin/run.py --input "$lcms" --outdir "$out80" --mode raw --verbose
 nextflow bin/run.py --input "$lcms" --outdir "$out81" --mode centroid --verbose

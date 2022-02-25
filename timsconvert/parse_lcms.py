@@ -116,7 +116,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                              int(frames_dict['NumScans']),
                                                                              encoding)
 
-                    if mz_array.size != 0 and intensity_array.size != 0:
+                    if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                         base_peak_index = np.where(intensity_array == np.max(intensity_array))
 
                         scan_dict = {'scan_number': None,

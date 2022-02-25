@@ -109,7 +109,7 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
             if ms2_only == False:
                 mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding)
 
-                if mz_array.size != 0 and intensity_array.size != 0:
+                if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                     base_peak_index = np.where(intensity_array == np.max(intensity_array))
 
                     scan_dict = {'scan_number': None,
@@ -134,7 +134,7 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
 
             mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding)
 
-            if mz_array.size != 0 and intensity_array.size != 0:
+            if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                 base_peak_index = np.where(intensity_array == np.max(intensity_array))
 
                 scan_dict = {'scan_number': None,
@@ -248,7 +248,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                                   int(frames_dict['NumScans']),
                                                                                   encoding)
 
-                    if mz_array.size != 0 and intensity_array.size != 0:
+                    if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                         base_peak_index = np.where(intensity_array == np.max(intensity_array))
 
                         scan_dict = {'scan_number': None,
@@ -279,7 +279,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                           int(frames_dict['NumScans']),
                                                                           encoding)
 
-            if mz_array.size != 0 and intensity_array.size != 0:
+            if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                 base_peak_index = np.where(intensity_array == np.max(intensity_array))
 
                 scan_dict = {'scan_number': None,

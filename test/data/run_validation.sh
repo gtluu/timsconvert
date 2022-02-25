@@ -7,7 +7,7 @@ cd ../../
 
 # save various paths to variables
 MSV000084402=test/data/massive.ucsd.edu/raw/SRM1950_20min_88_01_6950.d
-lcms=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/lcms
+lcms=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/lcms/rs17e_1mgml_1_10_1_1206.d
 dd1=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/dd
 dd2=test/data/massive.ucsd.edu/updates/2022-02-24_gbass_3339138d/raw/timsconvert_raw_data_2
 ims=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/ims

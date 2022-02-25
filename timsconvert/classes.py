@@ -36,8 +36,7 @@ class IMMS(ParameterContainer):
 class tsf_data(object):
     def __init__(self, bruker_d_folder_name: str, bruker_dll, use_recalibrated_state=True):
         self.dll = bruker_dll
-        self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'),
-                                               1 if use_recalibrated_state else 0)
+        self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'), 1 if use_recalibrated_state else 0)
         if self.handle == 0:
             throw_last_tsf_error(self.dll)
 

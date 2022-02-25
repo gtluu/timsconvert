@@ -16,7 +16,10 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
               {'highest observed m/z': parent_scan['high_mz']},
               {'lowest observed m/z': parent_scan['low_mz']}]
 
-    other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+    if 'mobility_array' in parent_scan.keys():
+        other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+    else:
+        other_arrays = None
 
     if encoding == 32:
         encoding_dtype = np.float32
@@ -49,11 +52,9 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
     if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
         spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
         spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
-    other_arrays = None
 
     # Build precursor information dict.
     precursor_info = {'mz': product_scan['selected_ion_mz'],
-                      'intensity': product_scan['selected_ion_intensity'],
                       #'activation': [product_scan['activation'],
                       #               {'collision energy': product_scan['collision_energy']}],
                       'activation': [{'collision energy': product_scan['collision_energy']}],
@@ -61,6 +62,8 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                                                 'upper': product_scan['isolation_upper_offset'],
                                                 'lower': product_scan['isolation_lower_offset']},
                       'params': {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}}
+    if 'selected_ion_intensity' in product_scan.keys():
+        precursor_info['intensity'] = product_scan['selected_ion_intensity']
     if not np.isnan(product_scan['charge_state']):
         precursor_info['charge'] = product_scan['charge_state']
 
@@ -79,7 +82,6 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                           polarity=product_scan['polarity'],
                           centroided=product_scan['centroided'],
                           scan_start_time=product_scan['retention_time'],
-                          other_arrays=other_arrays,
                           params=spectrum_params,
                           precursor_information=precursor_info,
                           encoding={'m/z array': encoding_dtype,

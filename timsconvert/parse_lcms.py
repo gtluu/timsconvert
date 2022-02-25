@@ -46,11 +46,11 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
     elif encoding == 64:
         encoding_dtype = np.float64
 
-    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
-    if tdf_data.pasefframemsmsinfo is not None:
-        list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
-    if tdf_data.precursors is not None:
-        list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
+    #list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
+    #if tdf_data.pasefframemsmsinfo is not None:
+    #    list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
+    #if tdf_data.precursors is not None:
+    #    list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
     list_of_parent_scans = []
     list_of_product_scans = []
 
@@ -60,7 +60,8 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
         centroided = True
 
     for frame in range(frame_start, frame_stop):
-        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        #frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        frames_dict = tdf_data.frames[tdf_data.frames['Id'] == frame].to_dict(orient='records')[0]
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
             if ms2_only == False:
@@ -137,10 +138,14 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                      'frame': frame}
                         list_of_parent_scans.append(scan_dict)
             if frame_stop - frame_start > 1:
-                precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
+                #precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
+                precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] ==
+                                                      frame].to_dict(orient='records')[0]
                 for precursor_dict in precursor_dicts:
-                    pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
-                                                if int(i['Precursor']) == int(precursor_dict['Id'])]
+                    #pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
+                    #                            if int(i['Precursor']) == int(precursor_dict['Id'])]
+                    pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
+                                                                           precursor_dict['Id']].to_dict(orient='records')[0]
                     pasef_mz_arrays = []
                     pasef_intensity_arrays = []
                     for pasef_dict in pasefframemsmsinfo_dicts:

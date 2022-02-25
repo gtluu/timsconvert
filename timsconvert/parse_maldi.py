@@ -80,10 +80,10 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
         logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
                                              'supported. Defaulting to centroid mode.')
 
-    list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
-    list_of_maldiframeinfo_dict = tsf_data.maldiframeinfo.to_dict(orient='records')
-    if tsf_data.framemsmsinfo is not None:
-        list_of_framemsmsinfo_dict = tsf_data.framemsmsinfo.to_dict(orient='records')
+    #list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
+    #list_of_maldiframeinfo_dict = tsf_data.maldiframeinfo.to_dict(orient='records')
+    #if tsf_data.framemsmsinfo is not None:
+    #    list_of_framemsmsinfo_dict = tsf_data.framemsmsinfo.to_dict(orient='records')
     list_of_scan_dicts = []
 
     if mode == 'profile':
@@ -92,8 +92,11 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
         centroided = True
 
     for frame in range(frame_start, frame_stop):
-        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
-        maldiframeinfo_dict = [i for i in list_of_maldiframeinfo_dict if int(i['Frame'] == frame)][0]
+        #frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        frames_dict = tsf_data.frames[tsf_data.frames['Id'] == frame].to_dict(orient='records')[0]
+        #maldiframeinfo_dict = [i for i in list_of_maldiframeinfo_dict if int(i['Frame'] == frame)][0]
+        maldiframeinfo_dict = tsf_data.maldiframeinfo[tsf_data.maldiframeinfo['Frame'] ==
+                                                      frame].to_dict(orient='records')[0]
 
         if tsf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
             coords = maldiframeinfo_dict['SpotName']
@@ -129,8 +132,10 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
                                  'frame': frame}
                     list_of_scan_dicts.append(scan_dict)
         elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-            framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
-                                  if int(i['Frame']) == int(maldiframeinfo_dict['Frame'])][0]
+            #framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
+            #                      if int(i['Frame']) == int(maldiframeinfo_dict['Frame'])][0]
+            framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
+                                                        maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
 
             mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding)
 
@@ -168,10 +173,10 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
     elif encoding == 64:
         encoding_dtype = np.float64
 
-    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
-    list_of_maldiframeinfo_dict = tdf_data.maldiframeinfo.to_dict(orient='records')
-    if tdf_data.framemsmsinfo is not None:
-        list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.to_dict(orient='records')
+    #list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
+    #list_of_maldiframeinfo_dict = tdf_data.maldiframeinfo.to_dict(orient='records')
+    #if tdf_data.framemsmsinfo is not None:
+    #    list_of_framemsmsinfo_dict = tdf_data.framemsmsinfo.to_dict(orient='records')
     list_of_scan_dicts = []
 
     if mode == 'profile':
@@ -180,8 +185,11 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
         centroided = True
 
     for frame in range(frame_start, frame_stop):
-        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
-        maldiframeinfo_dict = [i for i in list_of_maldiframeinfo_dict if int(i['Frame'] == frame)][0]
+        #frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        frames_dict = tdf_data.frames[tdf_data.frames['Id'] == frame].to_dict(orient='records')[0]
+        #maldiframeinfo_dict = [i for i in list_of_maldiframeinfo_dict if int(i['Frame'] == frame)][0]
+        maldiframeinfo_dict = tdf_data.maldiframeinfo[tdf_data.maldiframeinfo['Frame'] ==
+                                                      frame].to_dict(orient='records')[0]
 
         if tdf_data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
             coords = maldiframeinfo_dict['SpotName']
@@ -268,9 +276,12 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                      'high_mz': float(max(mz_array)),
                                      'low_mz': float(min(mz_array)),
                                      'frame': frame}
+                        list_of_scan_dicts.append(scan_dict)
         elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-            framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
-                                  if int(i['Frame']) == int(maldiframeinfo_dict['Frame'])][0]
+            #framemsmsinfo_dict = [i for i in list_of_framemsmsinfo_dict
+            #                      if int(i['Frame']) == int(maldiframeinfo_dict['Frame'])][0]
+            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
+                                                        maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
             mz_array, intensity_array = extract_maldi_tdf_spectrum_arrays(tdf_data,
                                                                           mode,
                                                                           True,

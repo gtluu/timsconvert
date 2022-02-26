@@ -32,10 +32,109 @@ class IMMS(ParameterContainer):
             self.order = order
 
 
+# modified from baf2sql.py
+class baf_data(object):
+    def __init__(self, bruker_d_folder_name: str, baf2sql_dll, raw_calibration=False, all_variables=False):
+        self.dll = baf2sql_dll
+        self.handle = self.dll.baf2sql_array_open_storage(1 if raw_calibration else 0,
+                                                          os.path.join(bruker_d_folder_name,
+                                                                       'analysis.baf').encode('utf-8'))
+
+        if self.handle == 0:
+            throw_last_baf2sql_error(self.dll)
+
+        self.all_variables = all_variables
+
+        self.meta_data = None
+        self.acquisitionkeys = None
+        self.frames = None
+        self.steps = None
+        self.variables = None
+        self.source_file = bruker_d_folder_name
+
+        self.get_sqlite_cache_filename()
+        self.conn = sqlite3.connect(os.path.join(bruker_d_folder_name, 'analysis.sqlite'))
+
+        self.get_properties()
+        self.get_acquisitionkeys_table()
+
+        self.get_spectra_table()
+        self.get_steps_table()
+        self.get_variables_table()
+
+        self.close_sql_connection()
+
+    # from Bruker baf2sql.py
+    def __del__(self):
+        self.dll.baf2sql_array_close_storage(self.handle)
+
+    # modified from baf2sql.py
+    # Find out the file name of the SQLite cache corresponding to the specified BAF file.
+    # Will be created if it doesn't exist yet.
+    def get_sqlite_cache_filename(self):
+        u8path = os.path.join(self.source_file, 'analysis.baf').encode('utf-8')
+
+        baf_len = self.dll.baf2sql_get_sqlite_cache_filename_v2(None, 0, u8path, self.all_variables)
+        if baf_len == 0:
+            throw_last_baf2sql_error(self.dll)
+
+        buf = ctypes.create_string_buffer(baf_len)
+        self.dll.baf2sql_get_sqlite_cache_filename_v2(buf, baf_len, u8path, self.all_variables)
+        return buf.value
+
+    # Returns number of elements in array with specified ID.
+    def get_array_num_elements(self, identity):
+        n = ctypes.c_uint64(0)
+        if not self.dll.baf2sql_array_get_num_elements(self.handle, identity, n):
+            throw_last_baf2sql_error(self.dll)
+        return n.value
+
+    # Returns the requested array as a double np.array.
+    def read_array_double(self, identity):
+        buf = np.empty(shape=self.get_array_num_elements(identity), dtype=np.float64)
+        if not self.dll.baf2sql_array_read_double(self.handle,
+                                                  identity,
+                                                  buf.ctypes.data_as(ctypes.POINTER(ctypes.c_double))):
+            throw_last_baf2sql_error(self.dll)
+        return buf
+
+    # Gets properties table as a dictionary.
+    def get_properties(self):
+        properties_query = 'SELECT * FROM Properties'
+        properties_df = pd.read_sql_query(properties_query, self.conn)
+        properties_dict = {}
+        for index, row in properties_df.iterrows():
+            properties_dict[row['Key']] = row['Value']
+        self.meta_data = properties_dict
+
+    # Gets AcquisitionKeys table from analysis.sqlite SQL database.
+    def get_acquisitionkeys_table(self):
+        acquisitionkeys_query = 'SELECT * FROM AcquisitionKeys'
+        self.acquisitionkeys = pd.read_sql_query(acquisitionkeys_query, self.conn)
+
+    # Get Spectra table from analysis.sqlite SQL database.
+    def get_spectra_table(self):
+        spectra_query = 'SELECT * FROM Spectra'
+        self.frames = pd.read_sql_query(spectra_query, self.conn)
+
+    # Get Steps table from analysis.sqlite SQL database; contains MS/MS metadata.
+    # May be redundant with variables table.
+    def get_steps_table(self):
+        steps_query = 'SELECT * FROM Steps'
+        self.steps = pd.read_sql_query(steps_query, self.conn)
+
+    def get_variables_table(self):
+        variables_query = 'SELECT * FROM Variables'
+        self.variables = pd.read_sql_query(variables_query, self.conn)
+
+    def close_sql_connection(self):
+        self.conn.close()
+
+
 # modified from tsfdata.py
 class tsf_data(object):
-    def __init__(self, bruker_d_folder_name: str, bruker_dll, use_recalibrated_state=True):
-        self.dll = bruker_dll
+    def __init__(self, bruker_d_folder_name: str, tdf_sdk_dll, use_recalibrated_state=True):
+        self.dll = tdf_sdk_dll
         self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'), 1 if use_recalibrated_state else 0)
         if self.handle == 0:
             throw_last_tsf_error(self.dll)
@@ -161,8 +260,8 @@ class tsf_data(object):
 
 
 class tdf_data(object):
-    def __init__(self, bruker_d_folder_name: str, bruker_dll, use_recalibrated_state=True):
-        self.dll = bruker_dll
+    def __init__(self, bruker_d_folder_name: str, tdf_sdk_dll, use_recalibrated_state=True):
+        self.dll = tdf_sdk_dll
         self.handle = self.dll.tims_open(bruker_d_folder_name.encode('utf-8'),
                                          1 if use_recalibrated_state else 0)
 
@@ -276,7 +375,7 @@ class tdf_data(object):
         return result
 
     # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
-    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+    if TDF_SDK_VERSION == 'sdk2871' or TDF_SDK_VERSION == 'sdk270':
         def read_pasef_profile_msms(self, precursor_list):
             precursors_for_dll = np.array(precursor_list, dtype=np.int64)
 
@@ -305,7 +404,7 @@ class tdf_data(object):
         return result
 
     # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
-    if SDK_VERSION == 'sdk2871' or SDK_VERSION == 'sdk270':
+    if TDF_SDK_VERSION == 'sdk2871' or TDF_SDK_VERSION == 'sdk270':
         def read_pasef_profile_msms_for_frame(self, frame_id):
             result = {}
 
@@ -318,7 +417,7 @@ class tdf_data(object):
             return result
 
     # Only define extract_centroided_spectrum_for_frame and extract_profile_spectrum_for_frame if using SDK 2.8.7.1.
-    if SDK_VERSION == 'sdk2871':
+    if TDF_SDK_VERSION == 'sdk2871':
         def extract_centroided_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
             result = None
 

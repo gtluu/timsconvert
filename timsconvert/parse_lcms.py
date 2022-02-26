@@ -4,9 +4,27 @@ import sys
 import logging
 
 
+# Get either quasi-profile or centroid spectrum.
+def extract_lcms_baf_spectrum_arrays(baf_data, frame_dict, mode, encoding):
+    if encoding == 32:
+        encoding_dtype = np.float32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
+    if mode == 'raw' or mode == 'centroid':
+        mz_array = np.array(baf_data.read_array_double(frame_dict['LineMzId']), dtype=encoding_dtype)
+        intensity_array = np.array(baf_data.read_array_double(frame_dict['LineIntensityId']), dtype=encoding_dtype)
+        return mz_array, intensity_array
+    elif mode == 'profile':
+        mz_array = np.array(baf_data.read_array_double(frame_dict['ProfileMzId']), dtype=encoding_dtype)
+        intensity_array = np.array(baf_data.read_array_double(frame_dict['ProfileIntensityId']),
+                                   dtype=encoding_dtype)
+        return mz_array, intensity_array
+
+
 # Get either raw (slightly modified implementation that gets centroid spectrum), quasi-profile, or centroid spectrum.
 # Returns an m/z array and intensity array.
-def extract_lcms_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, encoding):
+def extract_lcms_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -37,6 +55,102 @@ def extract_lcms_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, s
         mz_array = np.array(mz_array, dtype=encoding_dtype)
         intensity_array = np.array(intensity_array, dtype=encoding_dtype)
         return mz_array, intensity_array
+
+
+def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, encoding):
+    if encoding == 32:
+        encoding_dtype = np.float32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
+    #if mode == 'raw':
+    #    logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
+    #                                         'supported. Defaulting to centroid mode.')
+
+    #list_of_frames_dict = baf_data.frames.to_dict(orient='records')
+    #list_of_acquisitionkeys_dict = baf_data.acquisitionkeys.to_dict(orient='records')
+    list_of_parent_scans = []
+    list_of_product_scans = []
+
+    if mode == 'profile':
+        centroided = False
+    elif mode == 'centroid' or mode == 'raw':
+        centroided = True
+
+    for frame in range(frame_start, frame_stop):
+        #frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        frames_dict = baf_data.frames[baf_data.frames['Id'] == frame].to_dict(orient='records')[0]
+        #acquisitionkey_dict = [i for i in list_of_acquisitionkeys_dict
+        #                       if int(i['Id'] == int(frames_dict['AcquisitionKey']))][0]
+        acquisitionkey_dict = baf_data.acquisitionkeys[baf_data.acquisitionkeys['Id'] ==
+                                                       frames_dict['AcquisitionKey']].to_dict(orient='records')[0]
+
+        # Polarity == 0 -> 'positive'; Polarity == 1 -> 'negative"?
+        if int(acquisitionkey_dict['Polarity']) == 0:
+            polarity = '+'
+        elif int(acquisitionkey_dict['Polarity']) == 1:
+            polarity = '-'
+
+        # AcquisitionKey: 1 == MS1, 2 == MS/MS; MsLevel == 0 -> 1, MsLevel == 1 -> 2
+        if int(acquisitionkey_dict['MsLevel']) == 0:
+            if ms2_only == False:
+                mz_array, intensity_array = extract_lcms_baf_spectrum_arrays(baf_data, frames_dict, mode, encoding)
+
+                if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                    base_peak_index = np.where(intensity_array == np.max(intensity_array))
+
+                    scan_dict = {'scan_number': None,
+                                 'scan_type': 'MS1 spectrum',
+                                 'ms_level': 1,
+                                 'mz_array': mz_array,
+                                 'intensity_array': intensity_array,
+                                 'polarity': polarity,
+                                 'centroided': centroided,
+                                 'retention_time': float(frames_dict['Rt']),
+                                 'total_ion_current': sum(intensity_array),
+                                 'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                                 'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
+                                 'high_mz': float(max(mz_array)),
+                                 'low_mz': float(min(mz_array)),
+                                 'frame': frame}
+                    list_of_parent_scans.append(scan_dict)
+        elif int(acquisitionkey_dict['MsLevel']) == 1:
+            mz_array, intensity_array = extract_lcms_baf_spectrum_arrays(baf_data, frames_dict, mode, encoding)
+
+            if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                steps_dict = baf_data.steps[baf_data.steps['TargetSpectrum'] == frame].to_dict(orient='records')[0]
+
+                base_peak_index = np.where(intensity_array == np.max(intensity_array))
+                isolation_width = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                                  (baf_data.variables['Variable'] == 8)].to_dict(orient='records')[0]['Value'])
+
+                scan_dict = {'scan_number': None,
+                             'scan_type': 'MSn spectrum',
+                             'ms_level': 2,
+                             'mz_array': mz_array,
+                             'intensity_array': intensity_array,
+                             'polarity': polarity,
+                             'centroided': centroided,
+                             'retention_time': float(frames_dict['Rt']),
+                             'total_ion_current': sum(intensity_array),
+                             'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                             'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
+                             'high_mz': float(max(mz_array)),
+                             'low_mz': float(min(mz_array)),
+                             'target_mz': float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                                          (baf_data.variables['Variable'] == 7)].to_dict(orient='records')[0]['Value']),
+                             'isolation_lower_offset': isolation_width / 2,
+                             'isolation_upper_offset': isolation_width / 2,
+                             'selected_ion_mz': float(steps_dict['Mass']),
+                             'charge_state': baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                                                                (baf_data.variables['Variable'] ==
+                                                                 6)].to_dict(orient='records')[0]['Value'],
+                             'collision_energy': baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                                                                    (baf_data.variables['Variable'] ==
+                                                                     5)].to_dict(orient='records')[0]['Value'],
+                             'parent_frame': int(frames_dict['Parent'])}
+                list_of_product_scans.append(scan_dict)
+    return list_of_parent_scans, list_of_product_scans
 
 
 # Parse chunks of LC-TIMS-MS(/MS) data from Bruker TDF files.
@@ -70,13 +184,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                     frame_intensity_arrays = []
                     frame_mobility_arrays = []
                     for scan_num in range(0, int(frames_dict['NumScans'])):
-                        mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
-                                                                                 mode,
-                                                                                 True,
-                                                                                 frame,
-                                                                                 scan_num,
-                                                                                 scan_num + 1,
-                                                                                 encoding)
+                        mz_array, intensity_array = extract_lcms_tdf_spectrum_arrays(tdf_data,
+                                                                                     mode,
+                                                                                     True,
+                                                                                     frame,
+                                                                                     scan_num,
+                                                                                     scan_num + 1,
+                                                                                     encoding)
                         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                             mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
                             mobility_array = np.repeat(mobility, mz_array.size)
@@ -109,13 +223,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                      'frame': frame}
                         list_of_parent_scans.append(scan_dict)
                 elif exclude_mobility == True:
-                    mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
-                                                                             mode,
-                                                                             True,
-                                                                             frame,
-                                                                             0,
-                                                                             int(frames_dict['NumScans']),
-                                                                             encoding)
+                    mz_array, intensity_array = extract_lcms_tdf_spectrum_arrays(tdf_data,
+                                                                                 mode,
+                                                                                 True,
+                                                                                 frame,
+                                                                                 0,
+                                                                                 int(frames_dict['NumScans']),
+                                                                                 encoding)
 
                     if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                         base_peak_index = np.where(intensity_array == np.max(intensity_array))
@@ -151,13 +265,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                     for pasef_dict in pasefframemsmsinfo_dicts:
                         scan_begin = int(pasef_dict['ScanNumBegin'])
                         scan_end = int(pasef_dict['ScanNumEnd'])
-                        mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
-                                                                                 mode,
-                                                                                 True,
-                                                                                 int(pasef_dict['Frame']),
-                                                                                 scan_begin,
-                                                                                 scan_end,
-                                                                                 encoding)
+                        mz_array, intensity_array = extract_lcms_tdf_spectrum_arrays(tdf_data,
+                                                                                     mode,
+                                                                                     True,
+                                                                                     int(pasef_dict['Frame']),
+                                                                                     scan_begin,
+                                                                                     scan_end,
+                                                                                     encoding)
                         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                             pasef_mz_arrays.append(mz_array)
                             pasef_intensity_arrays.append(intensity_array)

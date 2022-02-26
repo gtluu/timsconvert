@@ -5,7 +5,7 @@ from timsconvert import *
 def run_timsconvert(args):
     # Initialize Bruker DLL.
     logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
-    bruker_dll = init_bruker_dll(BRUKER_DLL_FILE_NAME)
+    tdf_sdk_dll = init_tdf_sdk_dll(TDF_SDK_DLL_FILE_NAME)
 
     # Load in input data.
     logging.info(get_timestamp() + ':' + 'Loading input data...')
@@ -29,9 +29,9 @@ def run_timsconvert(args):
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
         if schema == 'TSF':
-            data = tsf_data(infile, bruker_dll)
+            data = tsf_data(infile, tdf_sdk_dll)
         elif schema == 'TDF':
-            data = tdf_data(infile, bruker_dll)
+            data = tdf_data(infile, tdf_sdk_dll)
 
         # Log arguments.
         for key, value in run_args.items():

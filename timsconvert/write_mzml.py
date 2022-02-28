@@ -1,7 +1,7 @@
 from timsconvert.parse_lcms import *
 import os
 import logging
-from lxml import etree as et
+from lxml.etree import parse, XMLParser
 
 
 def write_mzml_metadata(data, writer, infile, mode, ms2_only):
@@ -74,7 +74,8 @@ def get_spectra_count(tdf_data):
 
 
 def update_spectra_count(outdir, outfile, scan_count):
-    mzml_tree = et.parse(os.path.join(outdir, outfile))
+    huge_parser = XMLParser(huge_tree=True)
+    mzml_tree = parse(os.path.join(outdir, outfile), parser=huge_parser)
     mzml = mzml_tree.getroot()
     ns = mzml.tag[:mzml.tag.find('}') + 1]
     mzml.find('.//' + ns + 'spectrumList').set('count', str(scan_count).encode('utf-8'))

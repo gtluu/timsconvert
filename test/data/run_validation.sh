@@ -8,6 +8,7 @@ cd ../../
 # save various paths to variables
 MSV000084402=test/data/massive.ucsd.edu/raw/SRM1950_20min_88_01_6950.d
 lcms=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/lcms/rs17e_1mgml_1_10_1_1206.d
+lcms2=test/data/massive.ucsd.edu/updates/2022-02-28_gbass_dc6ca7c3/raw/timsconvert_raw_data_3/bhi_ms2_1_32_1_552.d
 dd1=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/dd
 dd2=test/data/massive.ucsd.edu/updates/2022-02-24_gbass_3339138d/raw/timsconvert_raw_data_2
 ims=test/data/massive.ucsd.edu/raw/timsconvert_raw_data/ims
@@ -81,6 +82,13 @@ out64=test/data/output/64
 out65=test/data/output/65
 out66=test/data/output/66
 out67=test/data/output/67
+out68=test/data/output/68
+out69=test/data/output/69
+out70=test/data/output/70
+out71=test/data/output/71
+out72=test/data/output/72
+out73=test/data/output/73
+out74=test/data/output/74
 
 # python
 # test lcms
@@ -109,6 +117,13 @@ python bin/run.py --input "$lcms" --outdir "$out19" --mode profile --exclude_mob
 python bin/run.py --input "$lcms" --outdir "$out20" --mode raw --exclude_mobility --ms2_only --verbose
 python bin/run.py --input "$lcms" --outdir "$out21" --mode centroid --exclude_mobility --ms2_only --verbose
 python bin/run.py --input "$lcms" --outdir "$out22" --mode profile --exclude_mobility --ms2_only --verbose
+
+python bin/run.py --input "$lcms2" --outdir "$out69" --mode raw --verbose
+python bin/run.py --input "$lcms2" --outdir "$out70" --mode centroid --verbose
+python bin/run.py --input "$lcms2" --outdir "$out71" --mode profile --verbose
+python bin/run.py --input "$lcms2" --outdir "$out72" --mode raw --ms2_only --verbose
+python bin/run.py --input "$lcms2" --outdir "$out73" --mode centroid --ms2_only --verbose
+python bin/run.py --input "$lcms2" --outdir "$out74" --mode profile --ms2_only --verbose
 
 # test maldi dd data
 python bin/run.py --input "$dd1" --outdir "$out23" --mode raw --maldi_output_file combined --verbose

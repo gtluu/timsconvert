@@ -17,7 +17,7 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
               {'lowest observed m/z': scan['low_mz']},
               {'maldi spot identifier': scan['coord']}]
 
-    if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1:
+    if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1 and scan['mobility_array'] is not None:
         other_arrays = [('ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None

@@ -16,7 +16,7 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
               {'highest observed m/z': parent_scan['high_mz']},
               {'lowest observed m/z': parent_scan['low_mz']}]
 
-    if 'mobility_array' in parent_scan.keys():
+    if 'mobility_array' in parent_scan.keys() and parent_scan['mobility_array'] is not None:
         other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
     else:
         other_arrays = None

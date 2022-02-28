@@ -134,7 +134,7 @@ python bin/run.py --input "$dd2" --outdir "$out42" --mode centroid --exclude_mob
 python bin/run.py --input "$dd2" --outdir "$out43" --mode profile --exclude_mobility --maldi_output_file combined --verbose
 python bin/run.py --input "$dd2" --outdir "$out44" --mode raw --exclude_mobility --ms2_only --maldi_output_file combined --verbose
 python bin/run.py --input "$dd2" --outdir "$out45" --mode centroid --exclude_mobility --ms2_only --maldi_output_file combined --verbose
-python bin/run.py --input "$dd2" --outdir "$out46" --mode profile --exclude_mobility --ms2_only --maldi_output_file combined --
+python bin/run.py --input "$dd2" --outdir "$out46" --mode profile --exclude_mobility --ms2_only --maldi_output_file combined --verbose
 python bin/run.py --input "$dd2" --outdir "$out47" --mode raw --maldi_output_file individual --maldi_plate_map "$plate_map" --verbose
 python bin/run.py --input "$dd2" --outdir "$out48" --mode centroid --maldi_output_file individual --maldi_plate_map "$plate_map" --verbose
 python bin/run.py --input "$dd2" --outdir "$out49" --mode profile --maldi_output_file individual --maldi_plate_map "$plate_map" --verbose

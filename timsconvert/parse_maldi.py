@@ -76,10 +76,6 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
     elif encoding == 64:
         encoding_dtype = np.float64
 
-    if mode == 'raw':
-        logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
-                                             'supported. Defaulting to centroid mode.')
-
     #list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
     #list_of_maldiframeinfo_dict = tsf_data.maldiframeinfo.to_dict(orient='records')
     #if tsf_data.framemsmsinfo is not None:

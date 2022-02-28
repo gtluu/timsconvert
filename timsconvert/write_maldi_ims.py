@@ -29,6 +29,10 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, imzml_m
     else:
         polarity = None
 
+    if data.meta_data['SchemaType'] == 'TSF' and mode == 'raw':
+        logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
+                                             'supported. Defaulting to centroid mode.')
+
     # Set centroided status.
     if mode == 'profile':
         centroided = False

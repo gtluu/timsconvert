@@ -26,6 +26,11 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
     elif encoding == 64:
         encoding_dtype = np.float64
 
+    encoding_dict = {'m/z array': encoding_dtype,
+                     'intensity array': encoding_dtype}
+    if other_arrays is not None:
+        encoding_dict['ion mobility array'] = encoding_dtype
+
     # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],
                           parent_scan['intensity_array'],
@@ -35,9 +40,7 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
                           scan_start_time=parent_scan['retention_time'],
                           other_arrays=other_arrays,
                           params=params,
-                          encoding={'m/z array': encoding_dtype,
-                                    'intensity array': encoding_dtype,
-                                    'ion mobility array': encoding_dtype})
+                          encoding=encoding_dict)
 
 
 # Write out product spectrum.

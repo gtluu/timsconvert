@@ -27,6 +27,11 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
     elif encoding == 64:
         encoding_dtype = np.float64
 
+    encoding_dict = {'m/z array': encoding_dtype,
+                     'intensity array': encoding_dtype}
+    if other_arrays is not None:
+        encoding_dict['ion mobility array'] = encoding_dtype
+
     # Write out spectrum.
     writer.write_spectrum(scan['mz_array'],
                           scan['intensity_array'],
@@ -36,9 +41,7 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
                           scan_start_time=scan['retention_time'],
                           other_arrays=other_arrays,
                           params=params,
-                          encoding={'m/z array': encoding_dtype,
-                                    'intensity array': encoding_dtype,
-                                    'ion mobility array': encoding_dtype})
+                          encoding=encoding_dict)
 
 
 # Parse out MALDI DD data and write out mzML file using psims.

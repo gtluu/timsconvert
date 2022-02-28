@@ -82,10 +82,8 @@ out65=test/data/output/65
 out66=test/data/output/66
 out67=test/data/output/67
 
-python bin/run.py --input "$lcms" --outdir "$out16" --mode profile --ms2_only --verbose
 python bin/run.py --input "$lcms" --outdir "$out17" --mode raw --exclude_mobility --verbose
 python bin/run.py --input "$lcms" --outdir "$out18" --mode centroid --exclude_mobility --verbose
 python bin/run.py --input "$lcms" --outdir "$out19" --mode profile --exclude_mobility --verbose
 
 python bin/run.py --input "$dd1" --outdir "$out25" --mode profile --maldi_output_file combined --verbose
-python bin/run.py --input "$dd2" --outdir "$out46" --mode profile --exclude_mobility --ms2_only --maldi_output_file combined --verbose

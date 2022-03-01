@@ -1,7 +1,7 @@
 from timsconvert.parse_lcms import *
 import os
 import logging
-from lxml import etree as et
+from lxml.etree import parse, XMLParser
 
 
 def write_mzml_metadata(data, writer, infile, mode, ms2_only):
@@ -67,14 +67,19 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only):
 
 # Calculate the number of spectra to be written.
 # Basically an abridged version of parse_lcms_tdf to account for empty spectra that don't end up getting written.
-def get_spectra_count(tdf_data):
-    ms1_count = tdf_data.frames['MsMsType'].values.size
-    ms2_count = len(list(filter(None, tdf_data.precursors['MonoisotopicMz'].values)))
+def get_spectra_count(data):
+    if data.meta_data['SchemaType'] == 'TDF':
+        ms1_count = data.frames[data.frames['MsMsType'] == 0]['MsMsType'].values.size
+        ms2_count = len(list(filter(None, data.precursors['MonoisotopicMz'].values)))
+    elif data.meta_data['SchemaType'] == 'Baf2Sql':
+        ms1_count = data.frames[data.frames['AcquisitionKey'] == 1]['AcquisitionKey'].values.size
+        ms2_count = data.frames[data.frames['AcquisitionKey'] == 2]['AcquisitionKey'].values.size
     return ms1_count + ms2_count
 
 
 def update_spectra_count(outdir, outfile, scan_count):
-    mzml_tree = et.parse(os.path.join(outdir, outfile))
+    huge_parser = XMLParser(huge_tree=True)
+    mzml_tree = parse(os.path.join(outdir, outfile), parser=huge_parser)
     mzml = mzml_tree.getroot()
     ns = mzml.tag[:mzml.tag.find('}') + 1]
     mzml.find('.//' + ns + 'spectrumList').set('count', str(scan_count).encode('utf-8'))

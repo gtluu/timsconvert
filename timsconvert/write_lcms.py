@@ -16,12 +16,20 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
               {'highest observed m/z': parent_scan['high_mz']},
               {'lowest observed m/z': parent_scan['low_mz']}]
 
-    other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+    if 'mobility_array' in parent_scan.keys() and parent_scan['mobility_array'] is not None:
+        other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+    else:
+        other_arrays = None
 
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
         encoding_dtype = np.float64
+
+    encoding_dict = {'m/z array': encoding_dtype,
+                     'intensity array': encoding_dtype}
+    if other_arrays is not None:
+        encoding_dict['ion mobility array'] = encoding_dtype
 
     # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],
@@ -32,9 +40,7 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
                           scan_start_time=parent_scan['retention_time'],
                           other_arrays=other_arrays,
                           params=params,
-                          encoding={'m/z array': encoding_dtype,
-                                    'intensity array': encoding_dtype,
-                                    'ion mobility array': encoding_dtype})
+                          encoding=encoding_dict)
 
 
 # Write out product spectrum.
@@ -49,18 +55,19 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
     if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
         spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
         spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
-    other_arrays = None
 
     # Build precursor information dict.
     precursor_info = {'mz': product_scan['selected_ion_mz'],
-                      'intensity': product_scan['selected_ion_intensity'],
                       #'activation': [product_scan['activation'],
                       #               {'collision energy': product_scan['collision_energy']}],
                       'activation': [{'collision energy': product_scan['collision_energy']}],
                       'isolation_window_args': {'target': product_scan['target_mz'],
                                                 'upper': product_scan['isolation_upper_offset'],
-                                                'lower': product_scan['isolation_lower_offset']},
-                      'params': {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}}
+                                                'lower': product_scan['isolation_lower_offset']}}
+    if 'selected_ion_intensity' in product_scan.keys():
+        precursor_info['intensity'] = product_scan['selected_ion_intensity']
+    if 'selected_ion_mobility' in product_scan.keys():
+        precursor_info['params'] = {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}
     if not np.isnan(product_scan['charge_state']):
         precursor_info['charge'] = product_scan['charge_state']
 
@@ -79,7 +86,6 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                           polarity=product_scan['polarity'],
                           centroided=product_scan['centroided'],
                           scan_start_time=product_scan['retention_time'],
-                          other_arrays=other_arrays,
                           params=spectrum_params,
                           precursor_information=precursor_info,
                           encoding={'m/z array': encoding_dtype,
@@ -92,7 +98,10 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
     if data.meta_data['SchemaType'] == 'TDF':
         parent_scans, product_scans = parse_lcms_tdf(data, frame_start, frame_stop, mode, ms2_only, exclude_mobility,
                                                      encoding)
-    # add code latter for elif baf -> use baf2sql
+    # Parse BAF data
+    elif data.meta_data['SchemaType'] == 'Baf2Sql':
+        parent_scans, product_scans = parse_lcms_baf(data, frame_start, frame_stop, mode, ms2_only, encoding)
+
     # Write MS1 parent scans.
     if ms2_only == False:
         for parent in parent_scans:

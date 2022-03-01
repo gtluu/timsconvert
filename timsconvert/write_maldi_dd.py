@@ -17,7 +17,7 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
               {'lowest observed m/z': scan['low_mz']},
               {'maldi spot identifier': scan['coord']}]
 
-    if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1:
+    if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1 and scan['mobility_array'] is not None:
         other_arrays = [('ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
@@ -26,6 +26,11 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
         encoding_dtype = np.float32
     elif encoding == 64:
         encoding_dtype = np.float64
+
+    encoding_dict = {'m/z array': encoding_dtype,
+                     'intensity array': encoding_dtype}
+    if other_arrays is not None:
+        encoding_dict['ion mobility array'] = encoding_dtype
 
     # Write out spectrum.
     writer.write_spectrum(scan['mz_array'],
@@ -36,9 +41,7 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
                           scan_start_time=scan['retention_time'],
                           other_arrays=other_arrays,
                           params=params,
-                          encoding={'m/z array': encoding_dtype,
-                                    'intensity array': encoding_dtype,
-                                    'ion mobility array': encoding_dtype})
+                          encoding=encoding_dict)
 
 
 # Parse out MALDI DD data and write out mzML file using psims.
@@ -70,6 +73,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                     num_frames = data.frames.shape[0] + 1
                     # Parse TSF data.
                     if data.meta_data['SchemaType'] == 'TSF':
+                        if mode == 'raw':
+                            logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
+                                                                 'centroid mode are supported. Defaulting to centroid '
+                                                                 'mode.')
                         list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, encoding)
                     # Parse TDF data.
                     elif data.meta_data['SchemaType'] == 'TDF':
@@ -94,6 +101,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
             num_frames = data.frames.shape[0] + 1
             # Parse TSF data.
             if data.meta_data['SchemaType'] == 'TSF':
+                if mode == 'raw':
+                    logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
+                                                         'centroid mode are supported. Defaulting to centroid '
+                                                         'mode.')
                 list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, encoding)
             # Parse TDF data.
             elif data.meta_data['SchemaType'] == 'TDF':

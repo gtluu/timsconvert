@@ -30,8 +30,7 @@ def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding):
         intensity_array = np.array(tsf_data.read_profile_spectrum(frame), dtype=encoding_dtype)
         mz_acq_range_lower = float(tsf_data.meta_data['MzAcqRangeLower'])
         mz_acq_range_upper = float(tsf_data.meta_data['MzAcqRangeUpper'])
-        step_size = (mz_acq_range_upper - mz_acq_range_lower) / len(intensity_array)
-        mz_array = np.arange(mz_acq_range_lower, mz_acq_range_upper, step_size, dtype=encoding_dtype)
+        mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
         return mz_array, intensity_array
 
 
@@ -60,8 +59,7 @@ def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_beg
                                    dtype=encoding_dtype)
         mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
         mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
-        step_size = (mz_acq_range_upper - mz_acq_range_lower) / len(intensity_array)
-        mz_array = np.arange(mz_acq_range_lower, mz_acq_range_upper, step_size, dtype=encoding_dtype)
+        mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
         return mz_array, intensity_array
     elif mode == 'centroid':
         mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(frame, scan_begin, scan_end)
@@ -75,10 +73,6 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
         encoding_dtype = np.float32
     elif encoding == 64:
         encoding_dtype = np.float64
-
-    if mode == 'raw':
-        logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
-                                             'supported. Defaulting to centroid mode.')
 
     #list_of_frames_dict = tsf_data.frames.to_dict(orient='records')
     #list_of_maldiframeinfo_dict = tsf_data.maldiframeinfo.to_dict(orient='records')
@@ -181,6 +175,9 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
 
     if mode == 'profile':
         centroided = False
+        exclude_mobility = True
+        logging.info(get_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
+        logging.info(get_timestamp() + ':' + 'Exporting without ion mobility data...')
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 
@@ -255,6 +252,8 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                                   0,
                                                                                   int(frames_dict['NumScans']),
                                                                                   encoding)
+                    #print(mz_array, intensity_array)
+                    #print(len(mz_array), len(intensity_array))
 
                     if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                         base_peak_index = np.where(intensity_array == np.max(intensity_array))

@@ -71,11 +71,9 @@ def get_spectra_count(data):
     if data.meta_data['SchemaType'] == 'TDF':
         ms1_count = data.frames[data.frames['MsMsType'] == 0]['MsMsType'].values.size
         ms2_count = len(list(filter(None, data.precursors['MonoisotopicMz'].values)))
-        print(ms1_count + ms2_count)
     elif data.meta_data['SchemaType'] == 'Baf2Sql':
         ms1_count = data.frames[data.frames['AcquisitionKey'] == 1]['AcquisitionKey'].values.size
         ms2_count = data.frames[data.frames['AcquisitionKey'] == 2]['AcquisitionKey'].values.size
-        print(ms1_count + ms2_count)
     return ms1_count + ms2_count
 
 

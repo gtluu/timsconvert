@@ -47,8 +47,7 @@ def extract_lcms_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begi
                                    dtype=encoding_dtype)
         mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
         mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
-        step_size = (mz_acq_range_upper - mz_acq_range_lower) / len(intensity_array)
-        mz_array = np.arange(mz_acq_range_lower, mz_acq_range_upper, step_size, dtype=encoding_dtype)
+        mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
         return mz_array, intensity_array
     elif mode == 'centroid':
         mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(frame, scan_begin, scan_end)

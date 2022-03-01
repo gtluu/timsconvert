@@ -40,17 +40,17 @@ def extract_lcms_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, s
 
 
 # Parse chunks of LC-TIMS-MS(/MS) data from Bruker TDF files.
-def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, encoding):
+def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mobility, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
         encoding_dtype = np.float64
 
-    list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
-    if tdf_data.pasefframemsmsinfo is not None:
-        list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
-    if tdf_data.precursors is not None:
-        list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
+    #list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
+    #if tdf_data.pasefframemsmsinfo is not None:
+    #    list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
+    #if tdf_data.precursors is not None:
+    #    list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
     list_of_parent_scans = []
     list_of_product_scans = []
 
@@ -60,57 +60,92 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, encoding):
         centroided = True
 
     for frame in range(frame_start, frame_stop):
-        frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        #frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        frames_dict = tdf_data.frames[tdf_data.frames['Id'] == frame].to_dict(orient='records')[0]
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
             if ms2_only == False:
-                frame_mz_arrays = []
-                frame_intensity_arrays = []
-                frame_mobility_arrays = []
-                for scan_num in range(0, int(frames_dict['NumScans'])):
+                if exclude_mobility == False:
+                    frame_mz_arrays = []
+                    frame_intensity_arrays = []
+                    frame_mobility_arrays = []
+                    for scan_num in range(0, int(frames_dict['NumScans'])):
+                        mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
+                                                                                 mode,
+                                                                                 True,
+                                                                                 frame,
+                                                                                 scan_num,
+                                                                                 scan_num + 1,
+                                                                                 encoding)
+                        if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                            mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
+                            mobility_array = np.repeat(mobility, mz_array.size)
+
+                            frame_mz_arrays.append(mz_array)
+                            frame_intensity_arrays.append(intensity_array)
+                            frame_mobility_arrays.append(mobility_array)
+                    if frame_mz_arrays and frame_intensity_arrays and frame_mobility_arrays:
+                        frames_array = np.stack((np.concatenate(frame_mz_arrays, axis=None),
+                                                 np.concatenate(frame_intensity_arrays, axis=None),
+                                                 np.concatenate(frame_mobility_arrays, axis=None)),
+                                                axis=-1)
+                        frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
+                        base_peak_index = np.where(frames_array[:, 1] == np.max(frames_array[:, 1]))
+                        scan_dict = {'scan_number': None,
+                                     'scan_type': 'MS1 spectrum',
+                                     'ms_level': 1,
+                                     'mz_array': frames_array[:, 0],
+                                     'intensity_array': frames_array[:, 1],
+                                     'mobility': None,
+                                     'mobility_array': frames_array[:, 2],
+                                     'polarity': frames_dict['Polarity'],
+                                     'centroided': centroided,
+                                     'retention_time': float(frames_dict['Time']),
+                                     'total_ion_current': sum(frames_array[:, 1]),
+                                     'base_peak_mz': frames_array[:, 0][base_peak_index][0].astype(float),
+                                     'base_peak_intensity': frames_array[:, 1][base_peak_index][0].astype(float),
+                                     'high_mz': float(max(frames_array[:, 0])),
+                                     'low_mz': float(min(frames_array[:, 0])),
+                                     'frame': frame}
+                        list_of_parent_scans.append(scan_dict)
+                elif exclude_mobility == True:
                     mz_array, intensity_array = extract_lcms_spectrum_arrays(tdf_data,
                                                                              mode,
                                                                              True,
                                                                              frame,
-                                                                             scan_num,
-                                                                             scan_num + 1,
+                                                                             0,
+                                                                             int(frames_dict['NumScans']),
                                                                              encoding)
-                    if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
-                        mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
-                        mobility_array = np.repeat(mobility, mz_array.size)
 
-                        frame_mz_arrays.append(mz_array)
-                        frame_intensity_arrays.append(intensity_array)
-                        frame_mobility_arrays.append(mobility_array)
-                if frame_mz_arrays and frame_intensity_arrays and frame_mobility_arrays:
-                    frames_array = np.stack((np.concatenate(frame_mz_arrays, axis=None),
-                                             np.concatenate(frame_intensity_arrays, axis=None),
-                                             np.concatenate(frame_mobility_arrays, axis=None)),
-                                            axis=-1)
-                    frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
-                    base_peak_index = np.where(frames_array[:, 1] == np.max(frames_array[:, 1]))
-                    scan_dict = {'scan_number': None,
-                                 'scan_type': 'MS1 spectrum',
-                                 'ms_level': 1,
-                                 'mz_array': frames_array[:, 0],
-                                 'intensity_array': frames_array[:, 1],
-                                 'mobility': None,
-                                 'mobility_array': frames_array[:, 2],
-                                 'polarity': frames_dict['Polarity'],
-                                 'centroided': centroided,
-                                 'retention_time': float(frames_dict['Time']),
-                                 'total_ion_current': sum(frames_array[:, 1]),
-                                 'base_peak_mz': frames_array[:, 0][base_peak_index][0].astype(float),
-                                 'base_peak_intensity': frames_array[:, 1][base_peak_index][0].astype(float),
-                                 'high_mz': float(max(frames_array[:, 0])),
-                                 'low_mz': float(min(frames_array[:, 0])),
-                                 'frame': frame}
-                    list_of_parent_scans.append(scan_dict)
+                    if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+                        base_peak_index = np.where(intensity_array == np.max(intensity_array))
+
+                        scan_dict = {'scan_number': None,
+                                     'scan_type': 'MS1 spectrum',
+                                     'ms_level': 1,
+                                     'mz_array': mz_array,
+                                     'intensity_array': intensity_array,
+                                     'mobility': None,
+                                     'mobility_array': None,
+                                     'polarity': frames_dict['Polarity'],
+                                     'centroided': centroided,
+                                     'retention_time': float(frames_dict['Time']),
+                                     'total_ion_current': sum(intensity_array),
+                                     'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                                     'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
+                                     'high_mz': float(max(mz_array)),
+                                     'low_mz': float(min(mz_array)),
+                                     'frame': frame}
+                        list_of_parent_scans.append(scan_dict)
             if frame_stop - frame_start > 1:
-                precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
+                #precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
+                precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] ==
+                                                      frame].to_dict(orient='records')
                 for precursor_dict in precursor_dicts:
-                    pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
-                                                if int(i['Precursor']) == int(precursor_dict['Id'])]
+                    #pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
+                    #                            if int(i['Precursor']) == int(precursor_dict['Id'])]
+                    pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
+                                                                           precursor_dict['Id']].to_dict(orient='records')
                     pasef_mz_arrays = []
                     pasef_intensity_arrays = []
                     for pasef_dict in pasefframemsmsinfo_dicts:

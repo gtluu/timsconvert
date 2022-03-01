@@ -7,6 +7,7 @@ params.input = ''
 
 params.mode = 'centroid'  // mode can be 'centroid', 'profile', or 'raw'
 params.ms2_only = false  // only convert ms2 spectra
+params.exclude_mobility = false  // exclude mobility arrays from MS1 spectra
 params.encoding = 64
 params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
 params.maldi_plate_map = ''
@@ -35,6 +36,7 @@ process convert {
     script:
     def ms2_flag = params.ms2_only == true ? "--ms2_only" : ''
     def verbose_flag = params.verbose == true ? "--verbose" : ''
+    def exclude_mobility_flag = params.exclude_mobility == true ? "--exclude_mobility" : ''
 
     if (params.maldi_plate_map == '')
         """
@@ -44,6 +46,7 @@ process convert {
         --outdir spectra \
         --mode ${params.mode} \
         ${ms2_flag} \
+        ${exclude_mobility_flag} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --imzml_mode ${params.imzml_mode} \
@@ -59,6 +62,7 @@ process convert {
         --outdir spectra \
         --mode ${params.mode} \
         ${ms2_flag} \
+        ${exclude_mobility_flag} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --maldi_plate_map = ${params.maldi_plate_map} \

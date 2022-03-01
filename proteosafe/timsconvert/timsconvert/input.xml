@@ -25,13 +25,21 @@
         <!-- Conversion Parameters -->
         <parameter name="SPECTRAMODE" label="Spectra Export Mode">
             <options>
-                <option value="raw" label="raw"/>
                 <option value="centroid" label="centroid"/>
                 <option value="profile" label="profile"/>
+                <option value="raw" label="raw"/>
                 <validattor type="set"/>
             </options>
+            <validator type="set"/>
         </parameter>
         <parameter name="EXPORTMS2ONLY" label="Export MS2 Only">
+            <options>
+                <option value="True" label="True"/>
+                <option value="False" label="False"/>
+            </options>
+            <validator type="set"/>
+        </parameter>
+        <parameter name="EXCLUDEMOBILITY" label="Exclude Mobility">
             <options>
                 <option value="True" label="True"/>
                 <option value="False" label="False"/>
@@ -107,6 +115,16 @@
                 <input type="select" parameter="EXPORTMS2ONLY"></input>
             </cell>
         </row>
+        <row>
+            <cell>
+                <label>
+                    <content parameter="EXCLUDEMOBILITY"/>
+                </label>
+            </cell>
+            <cell>
+                <input type="select" parameter="EXCLUDEMOBILITY"></input>
+            </cell>
+        </row>
     </block>
 
     <block label="MALDI Parameters">
@@ -128,7 +146,7 @@
             </cell>
             <cell>
                 <label>
-                    <input type="select" parameter="IMZMLMODE"
+                    <input type="select" parameter="IMZMLMODE"></input>
                 </label>
             </cell>
         </row>

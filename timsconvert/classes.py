@@ -36,8 +36,7 @@ class IMMS(ParameterContainer):
 class tsf_data(object):
     def __init__(self, bruker_d_folder_name: str, bruker_dll, use_recalibrated_state=True):
         self.dll = bruker_dll
-        self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'),
-                                               1 if use_recalibrated_state else 0)
+        self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'), 1 if use_recalibrated_state else 0)
         if self.handle == 0:
             throw_last_tsf_error(self.dll)
 
@@ -58,6 +57,8 @@ class tsf_data(object):
         self.get_frames_table()
         self.get_maldiframeinfo_table()
         self.get_framemsmsinfo_table()
+
+        self.close_sql_connection()
 
     # from Bruker tsfdata.py
     def __del__(self):
@@ -155,6 +156,9 @@ class tsf_data(object):
         framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
         self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
 
+    def close_sql_connection(self):
+        self.conn.close()
+
 
 class tdf_data(object):
     def __init__(self, bruker_d_folder_name: str, bruker_dll, use_recalibrated_state=True):
@@ -189,6 +193,8 @@ class tdf_data(object):
             self.get_pasefframemsmsinfo_table()
             self.get_precursors_table()
             self.subset_ms1_frames()
+
+        self.close_sql_connection()
 
     def __del__(self):
         if hasattr(self, 'handle'):
@@ -451,6 +457,9 @@ class tdf_data(object):
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
         self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
+
+    def close_sql_connection(self):
+        self.conn.close()
 
 
 if __name__ == '__main__':

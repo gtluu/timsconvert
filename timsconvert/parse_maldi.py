@@ -177,6 +177,9 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
 
     if mode == 'profile':
         centroided = False
+        exclude_mobility = True
+        logging.info(get_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
+        logging.info(get_timestamp() + ':' + '...')
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 

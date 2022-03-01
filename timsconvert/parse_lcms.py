@@ -170,6 +170,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
 
     if mode == 'profile':
         centroided = False
+        exclude_mobility = True
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 

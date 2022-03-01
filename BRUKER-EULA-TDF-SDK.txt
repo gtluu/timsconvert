@@ -83,3 +83,11 @@ Civil Procedure (ZPO), the agreement on the place of jurisdiction is replaced by
 validity of the remaining provisions of the Agreement will not be affected thereby. The Parties hereby undertake to
 substitute the invalid or lacking provision with a valid provision which comes closest to the documented intentions of
 the Parties.
+
+This is Baf2Sql (version 2.9.0), a shared library for accessing mass-spectrometry data
+stored in Bruker BAF and Calibrator.ami formats.
+
+This software uses Intel(R) Math Kernel Library
+(http://www.intel.com/software/products/mkl) and other third-party software. A full list
+of their licenses can be found in the file THIRD-PARTY-LICENSE-README.txt.
+

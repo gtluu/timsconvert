@@ -63,10 +63,11 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                       'activation': [{'collision energy': product_scan['collision_energy']}],
                       'isolation_window_args': {'target': product_scan['target_mz'],
                                                 'upper': product_scan['isolation_upper_offset'],
-                                                'lower': product_scan['isolation_lower_offset']},
-                      'params': {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}}
+                                                'lower': product_scan['isolation_lower_offset']}}
     if 'selected_ion_intensity' in product_scan.keys():
         precursor_info['intensity'] = product_scan['selected_ion_intensity']
+    if 'selected_ion_mobility' in product_scan.keys():
+        precursor_info['params'] = {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}
     if not np.isnan(product_scan['charge_state']):
         precursor_info['charge'] = product_scan['charge_state']
 
@@ -97,7 +98,10 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
     if data.meta_data['SchemaType'] == 'TDF':
         parent_scans, product_scans = parse_lcms_tdf(data, frame_start, frame_stop, mode, ms2_only, exclude_mobility,
                                                      encoding)
-    # add code latter for elif baf -> use baf2sql
+    # Parse BAF data
+    elif data.meta_data['SchemaType'] == 'Baf2Sql':
+        parent_scans, product_scans = parse_lcms_baf(data, frame_start, frame_stop, mode, ms2_only, encoding)
+
     # Write MS1 parent scans.
     if ms2_only == False:
         for parent in parent_scans:

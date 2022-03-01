@@ -48,6 +48,7 @@ class baf_data(object):
         self.meta_data = None
         self.acquisitionkeys = None
         self.frames = None
+        self.ms1_frames = None
         self.steps = None
         self.variables = None
         self.source_file = bruker_d_folder_name
@@ -61,6 +62,7 @@ class baf_data(object):
         self.get_spectra_table()
         self.get_steps_table()
         self.get_variables_table()
+        self.subset_ms1_frames()
 
         self.close_sql_connection()
 
@@ -126,6 +128,10 @@ class baf_data(object):
     def get_variables_table(self):
         variables_query = 'SELECT * FROM Variables'
         self.variables = pd.read_sql_query(variables_query, self.conn)
+
+    # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
+    def subset_ms1_frames(self):
+        self.ms1_frames = list(self.frames[self.frames['AcquisitionKey'] == 1]['Id'].values)
 
     def close_sql_connection(self):
         self.conn.close()

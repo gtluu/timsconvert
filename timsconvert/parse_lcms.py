@@ -159,10 +159,10 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
     elif encoding == 64:
         encoding_dtype = np.float64
 
-    #list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
-    #if tdf_data.pasefframemsmsinfo is not None:
+    # list_of_frames_dict = tdf_data.frames.to_dict(orient='records')
+    # if tdf_data.pasefframemsmsinfo is not None:
     #    list_of_pasefframemsmsinfo_dict = tdf_data.pasefframemsmsinfo.to_dict(orient='records')
-    #if tdf_data.precursors is not None:
+    # if tdf_data.precursors is not None:
     #    list_of_precursors_dict = tdf_data.precursors.to_dict(orient='records')
     list_of_parent_scans = []
     list_of_product_scans = []
@@ -174,7 +174,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
         centroided = True
 
     for frame in range(frame_start, frame_stop):
-        #frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
+        # frames_dict = [i for i in list_of_frames_dict if int(i['Id']) == frame][0]
         frames_dict = tdf_data.frames[tdf_data.frames['Id'] == frame].to_dict(orient='records')[0]
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
@@ -252,14 +252,15 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                      'frame': frame}
                         list_of_parent_scans.append(scan_dict)
             if frame_stop - frame_start > 1:
-                #precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
+                # precursor_dicts = [i for i in list_of_precursors_dict if int(i['Parent']) == frame]
                 precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] ==
                                                       frame].to_dict(orient='records')
                 for precursor_dict in precursor_dicts:
-                    #pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
+                    # pasefframemsmsinfo_dicts = [i for i in list_of_pasefframemsmsinfo_dict
                     #                            if int(i['Precursor']) == int(precursor_dict['Id'])]
                     pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
-                                                                           precursor_dict['Id']].to_dict(orient='records')
+                                                                           precursor_dict['Id']].to_dict(
+                        orient='records')
                     pasef_mz_arrays = []
                     pasef_intensity_arrays = []
                     for pasef_dict in pasefframemsmsinfo_dicts:
@@ -281,30 +282,45 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                axis=-1)
                         pasef_array = np.unique(pasef_array[np.argsort(pasef_array[:, 0])], axis=0)
 
-                        base_peak_index = np.where(pasef_array[:, 1] == np.max(pasef_array[:, 1]))
+                        mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
+                        mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
+                        bin_size = 0.005
+                        bins = np.arange(mz_acq_range_lower, mz_acq_range_upper, bin_size, dtype=encoding_dtype)
+
+                        unique_indices, inverse_indices = np.unique(np.digitize(pasef_array[:, 0], bins),
+                                                                    return_inverse=True)
+                        bin_counts = np.bincount(inverse_indices)
+                        np.place(bin_counts, bin_counts < 1, [1])
+
+                        mz_array = np.bincount(inverse_indices, weights=pasef_array[:, 0]) / bin_counts
+                        intensity_array = np.bincount(inverse_indices, weights=pasef_array[:, 1])
+
+                        base_peak_index = np.where(intensity_array == np.max(intensity_array))
 
                         scan_dict = {'scan_number': None,
                                      'scan_type': 'MSn spectrum',
                                      'ms_level': 2,
-                                     'mz_array': pasef_array[:, 0],
-                                     'intensity_array': pasef_array[:, 1],
+                                     'mz_array': mz_array,
+                                     'intensity_array': intensity_array,
                                      'mobility': None,
                                      'mobility_array': None,
                                      'polarity': frames_dict['Polarity'],
                                      'centroided': centroided,
                                      'retention_time': float(frames_dict['Time']),
-                                     'total_ion_current': sum(pasef_array[:, 1]),
-                                     'base_peak_mz': pasef_array[:, 0][base_peak_index][0].astype(float),
-                                     'base_peak_intensity': pasef_array[:, 1][base_peak_index][0].astype(float),
-                                     'high_mz': float(max(pasef_array[:, 0])),
-                                     'low_mz': float(min(pasef_array[:, 0])),
+                                     'total_ion_current': sum(intensity_array),
+                                     'base_peak_mz': mz_array[base_peak_index][0].astype(float),
+                                     'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
+                                     'high_mz': float(max(mz_array)),
+                                     'low_mz': float(min(mz_array)),
                                      'target_mz': float(precursor_dict['AverageMz']),
                                      'isolation_lower_offset': float(pasefframemsmsinfo_dicts[0]['IsolationWidth']) / 2,
                                      'isolation_upper_offset': float(pasefframemsmsinfo_dicts[0]['IsolationWidth']) / 2,
                                      'selected_ion_mz': float(precursor_dict['LargestPeakMz']),
                                      'selected_ion_intensity': float(precursor_dict['Intensity']),
-                                     'selected_ion_mobility': tdf_data.scan_num_to_oneoverk0(int(precursor_dict['Parent']),
-                                                              np.array([int(precursor_dict['ScanNumber'])]))[0],
+                                     'selected_ion_mobility':
+                                         tdf_data.scan_num_to_oneoverk0(int(precursor_dict['Parent']),
+                                                                        np.array([int(precursor_dict['ScanNumber'])]))[
+                                             0],
                                      'charge_state': precursor_dict['Charge'],
                                      'collision_energy': pasefframemsmsinfo_dicts[0]['CollisionEnergy'],
                                      'parent_frame': int(precursor_dict['Parent']),

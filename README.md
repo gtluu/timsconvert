@@ -6,16 +6,12 @@ TIMSCONVERT is a workflow that allows for the conversion of raw data from Bruker
 spectrometers (i.e. .d directory containing TDF and TSF files) to open source data formats (i.e. mzML and imzML).
 Examples for file conversion include:
 <br>
+- LC-MS(/MS) (BAF) &#8594; mzML
 - LC-TIMS-MS(/MS) (TDF) &#8594; mzML
-  - Experiment Type: ```lc-tims-ms```
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
-  - Experiment Type: ```maldi-dd```
 - MALDI-MS Imaging Mass Spectrometry (TSF) &#8594; imzML
-  - Experiment Type: ```maldi-ims```
 - MALDI-TIMS-MS(/MS) Dried Droplet (TDF) &#8594; mzML
-  - Experiment Type: ```maldi-tims-dd```
 - MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) &#8594; imzML (does not incorporate ion mobility data)
-  - Experiment Type: ```maldi-tims-ims```
 
 Please note that TIMSCONVERT is still actively under development and new changes are being pushed regularly. For the 
 version of TIMSCONVERT found in our [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.12.09.472024v1), 
@@ -32,11 +28,12 @@ necessary. All that's required is a GNPS account.
 2. Go to the [TIMSCONVERT workflow page](https://proteomics2.ucsd.edu/ProteoSAFe/index.jsp?params=%7b%22workflow%22%3A%20%22TIMSCONVERT%22%7d).
 3. Select your dataset and parameters.
 4. Submit your run.
+5. You will receive an email when your job has completed.
 
 ### Setting Up Your Local Environment
 
-If you prefer to run TIMSCONVERT locally via Nextflow or the CLI, you can set up an environment to do so. Please note that TIMSCONVERT should 
-be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
+If you prefer to run TIMSCONVERT locally via Nextflow or the CLI, you can set up an environment to do so. Please note
+that TIMSCONVERT should be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
 
 1. Download and install Anaconda. Follow the prompts to complete installation. Anaconda3-2021.11 is used as an example 
 here.
@@ -72,8 +69,6 @@ pip install -r /path/to/timsconvert/requirements.txt
 
 ### Nextflow Workflow
 
-Similar to the web version, the Nextflow workflow for TIMSCONVERT only supports LC-TIMS-MS(/MS) data currently.
-
 1. Run the ```nextflow.nf``` script provided in this repo and specify your input directory and experiment type. Unless 
 specified, all other default parameters for all other values will be used. See below for an explanation of all 
 parameters.
@@ -97,29 +92,29 @@ python3 /path/to/timsconvert/bin/run.py --input /path/to/data --experiment lc-ti
 ## Parameters
 ```
 Required
---input : Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.
+--input                   Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.
 
 Optional
---experiment : Experiment performed to generate data. Should be lc-tims-ms, maldi-dd,
-               maldi-tims-dd, maldi-ims, or maldi-tims-ims. Defaults to lc-tims-ms
---outdir : Path to folder in which to write output file(s). Defaults to .d source folder.
---outfile : User defined filename for output if converting a single file. If input is a folder
-            with multiple .d files, this parameter should not be used as it results in each file
-            overwriting the previous due to having the same filename.
---ms2_only : Boolean flag that specifies only MS2 spectra should be converted.
---ms1_groupby : Define whether an individual spectrum contains one frame (and multiple scans;
-                "frame") or one scan only ("scan"). Defaults to "scan".
---encoding : Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
---maldi_output_file : For MALDI dried droplet data, whether individual scans should be placed in
-                      individual files ("individual") or all into a single file ("combined").
-                      Defaults to combined.
---maldi_plate_map : Plate map to be used for parsing spots if --maldi_output_file == "individual".
-                    Should be a .csv file with no header/index.
---imzml_mode : Whether imzML files should be written in "processed" or "continuous" mode. Defaults
-               to "processed".
+--outdir                  Path to folder in which to write output file(s). Defaults to .d source folder.
+--outfile                 User defined filename for output if converting a single file. If input is a folder
+                          with msdultiple .d files, this parameter should not be used as it results in each file
+                          overwriting the previous due to having the same filename.
+--mode                    Choose whether to export spectra in "raw", "centroid", or "profile" formats. Deafults to
+                          "centroid".
+--ms2_only                Boolean flag that specifies only MS2 spectra should be converted.
+--encoding                Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
+--maldi_output_file       For MALDI dried droplet data, whether individual scans should be placed in
+                          individual files ("individual") or all into a single file ("combined").
+                          Defaults to combined.
+--maldi_plate_map         Plate map to be used for parsing spots if --maldi_output_file == "individual".
+                          Should be a .csv file with no header/index.
+--imzml_mode              Whether imzML files should be written in "processed" or "continuous" mode. Defaults
+                          to "processed".
 
 System
---verbose : Boolean flag to determine whether to print logging output.
+--chunk_size              Relative size of chunks of spectral data that are parsed and subsequently written at
+                          once. 
+--verbose                 Boolean flag to determine whether to print logging output.
 ```
 
 ## Testing
@@ -132,7 +127,7 @@ sh ./get_data.sh
 
 Run workflow
 ```
-make run_test
+sh ./run_validation.sh
 ```
 
 ## Changelog

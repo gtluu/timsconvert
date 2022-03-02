@@ -20,7 +20,7 @@ def get_args():
     parser.add_argument('--outfile', help='User defined filename for output if converting a single file, otherwise '
                                           'files will have same filename and overwrite each other. Default is '
                                           'none. Empty string.', default='', type=str)
-    parser.add_argument('--mode', help='Choose whether export spectra in "raw", "centroid", or "profile" formats. '
+    parser.add_argument('--mode', help='Choose whether export to spectra in "raw", "centroid", or "profile" formats. '
                                        'Defaults to "centroid".', default='centroid', type=str)
     parser.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
                         action='store_true')
@@ -42,8 +42,8 @@ def get_args():
 
     # System Arguments
     parser.add_argument('--chunk_size', help='Relative size of chunks of spectral data that are parsed and '
-                                             'subsequently at once. Increasing parses and write more spectra at once '
-                                             'but increases RAM usage. Default = 10.', default=10, type=int)
+                                             'subsequently written at once. Increasing parses and write more spectra '
+                                             'at once but increases RAM usage. Default = 10.', default=10, type=int)
     parser.add_argument('--verbose', help='Boolean flag to detemrine whether to print logging output.',
                         action='store_true')
 

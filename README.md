@@ -57,7 +57,7 @@ bash /path/to/Anaconda3-2021.11-Linux-x86_64.sh
 ```
 export PATH=$PATH:/path/to/anaconda3/bin
 ```
-3. Create a conda instance. You must be using Python 3.7. Newer version of Python are not guaranteed to be compatible 
+3. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible 
 with Bruker's API in Linux.
 ```
 conda create -n timsconvert python=3.7
@@ -85,7 +85,7 @@ pip install -r /path/to/timsconvert/requirements.txt
 specified, all other default parameters for all other values will be used. See below for an explanation of all 
 parameters.
 ```
-nextflow run /path/to/timsconvert/nextflow.nf --input /path/to/your/data --experiment lc-tims-ms
+nextflow run /path/to/timsconvert/nextflow.nf --input /path/to/your/data
 ```
 2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 
@@ -97,7 +97,7 @@ The CLI version of TIMSCONVERT supports conversion of all experimental data type
 1. Use ```bin/run.py``` to run TIMSCONVERT. The input directory and experiment type. Unless specified, all other 
 default parameters for all other values will be used. See below for an explanation of all parameters.
 ```
-python3 /path/to/timsconvert/bin/run.py --input /path/to/data --experiment lc-tims-ms
+python3 /path/to/timsconvert/bin/run.py --input /path/to/data
 ```
 2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 

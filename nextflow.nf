@@ -8,6 +8,7 @@ params.input = ''
 params.mode = 'centroid'  // mode can be 'centroid', 'profile', or 'raw'
 params.ms2_only = false  // only convert ms2 spectra
 params.exclude_mobility = false  // exclude mobility arrays from MS1 spectra
+params.profile_bins = 0
 params.encoding = 64
 params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
 params.maldi_plate_map = ''
@@ -47,6 +48,7 @@ process convert {
         --mode ${params.mode} \
         ${ms2_flag} \
         ${exclude_mobility_flag} \
+        --profile_bins ${params.profile_bins} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --imzml_mode ${params.imzml_mode} \
@@ -63,6 +65,7 @@ process convert {
         --mode ${params.mode} \
         ${ms2_flag} \
         ${exclude_mobility_flag} \
+        --profile_bins ${params.profile_bins} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --maldi_plate_map = ${params.maldi_plate_map} \

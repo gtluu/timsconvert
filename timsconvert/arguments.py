@@ -28,6 +28,9 @@ def get_args():
                                                    ' from exported data. Precursor ion mobility information is still '
                                                    'exported. Recommended when exporting in profile mode due to file '
                                                    'size.', action='store_true')
+    parser.add_argument('--profile_bins', help='Number of bins used to bin data when converting in profile mode. A '
+                                               'value of 0 indicates no binning is performed. Defaults to 0.',
+                        default=0, type=int)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)
     parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '

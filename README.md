@@ -8,10 +8,8 @@ that:
 1. are compatible with downstream open source data analysis platorms.
 2. incorporate trapped ion mobility spectrometry (TIMS) data into these open source formats.
 3. possess manageable file sizes.
-<br>
-<br>
-Examples for file conversion include:
-<br>
+
+#### Examples for file conversion:
 - LC-MS(/MS) (BAF) &#8594; mzML
 - LC-TIMS-MS(/MS) (TDF) &#8594; mzML
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
@@ -19,9 +17,8 @@ Examples for file conversion include:
 - MALDI-TIMS-MS(/MS) Dried Droplet (TDF) &#8594; mzML
 - MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) &#8594; imzML (does not incorporate ion mobility data)
 <br>
-<br>
 
-Examples of data analysis platforms include and are not limited to:
+#### Examples of data analysis platforms include and are not limited to:
 - [Global Natural Products Social (GNPS)](https://gnps.ucsd.edu/)
 - [Cardinal MSI](https://cardinalmsi.org/)
 
@@ -114,6 +111,11 @@ Optional
 --mode                    Choose whether to export spectra in "raw", "centroid", or "profile" formats. Deafults to
                           "centroid".
 --ms2_only                Boolean flag that specifies only MS2 spectra should be converted.
+--exclude_mobility        Boolean flag used to exclude trapped ion mobility spectrometry data from exported data. 
+                          Precursor ion mobility information is still exported. Recommended when exporting in profile 
+                          mode due to file size.
+--profile_bins            Number of bins used to bin data when converting in profile mode. A value of 0 indicates no 
+                          binning is performed. Defaults to 0.
 --encoding                Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
 --maldi_output_file       For MALDI dried droplet data, whether individual scans should be placed in
                           individual files ("individual") or all into a single file ("combined").

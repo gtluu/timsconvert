@@ -2,20 +2,23 @@ from pyimzml.ImzMLWriter import ImzMLWriter
 from timsconvert.parse_maldi import *
 
 
-def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, encoding):
+def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, profile_bins,
+                                   encoding):
     # Parse TSF data.
     if data.meta_data['SchemaType'] == 'TSF':
-        list_of_scan_dicts = parse_maldi_tsf(data, frame_start, frame_stop, mode, False, encoding)
+        list_of_scan_dicts = parse_maldi_tsf(data, frame_start, frame_stop, mode, False, profile_bins, encoding)
     # Parse TDF data.
     elif data.meta_data['SchemaType'] == 'TDF':
-        list_of_scan_dicts = parse_maldi_tdf(data, frame_start, frame_stop, mode, False, exclude_mobility, encoding)
+        list_of_scan_dicts = parse_maldi_tdf(data, frame_start, frame_stop, mode, False, exclude_mobility, profile_bins,
+                                             encoding)
     for scan_dict in list_of_scan_dicts:
         imzml_file.addSpectrum(scan_dict['mz_array'],
                                scan_dict['intensity_array'],
                                scan_dict['coord'])
 
 
-def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, imzml_mode, encoding, chunk_size):
+def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
+                          chunk_size):
     # Set polarity for run in imzML.
     polarity = list(set(data.frames['Polarity'].values.tolist()))
     if len(polarity) == 1:
@@ -55,7 +58,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, imzml_m
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for frame_start, frame_stop in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility,
-                                               encoding)
+                                               profile_bins, encoding)
             chunk += chunk_size
         else:
             chunk_list = []
@@ -65,7 +68,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, imzml_m
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for frame_start, frame_stop in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility,
-                                               encoding)
+                                               profile_bins, encoding)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
 
 

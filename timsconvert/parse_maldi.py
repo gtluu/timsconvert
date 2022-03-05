@@ -33,7 +33,7 @@ def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, profile_bins, encod
         mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
         if profile_bins != 0:
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
-            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_index=True)
+            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)
             np.place(bin_counts, bin_counts < 1, [1])
             mz_array = np.bincount(inverse_indices, weights=mz_array) / bin_counts
@@ -69,7 +69,7 @@ def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_beg
         mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
         if profile_bins != 0:
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
-            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_index=True)
+            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)
             np.place(bin_counts, bin_counts < 1, [1])
             mz_array = np.bincount(inverse_indices, weights=mz_array) / bin_counts

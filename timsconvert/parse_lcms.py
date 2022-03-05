@@ -23,7 +23,7 @@ def extract_lcms_baf_spectrum_arrays(baf_data, frame_dict, mode, profile_bins, e
             mz_acq_range_lower = float(frame_dict['MzAcqRangeLower'])
             mz_acq_range_upper = float(frame_dict['MzAcqRangeUpper'])
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
-            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_index=True)
+            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)
             np.place(bin_counts, bin_counts < 1, [1])
             mz_array = np.bincount(inverse_indices, weights=mz_array) / bin_counts
@@ -58,8 +58,9 @@ def extract_lcms_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begi
         mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
         mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
         if profile_bins != 0:
-            bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
-            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_index=True)
+            bin_size = (mz_acq_range_upper - mz_acq_range_lower) / profile_bins
+            bins = np.arange(mz_acq_range_lower, mz_acq_range_upper, bin_size, dtype=encoding_dtype)
+            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)
             np.place(bin_counts, bin_counts < 1, [1])
             mz_array = np.bincount(inverse_indices, weights=mz_array) / bin_counts

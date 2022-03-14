@@ -16,7 +16,7 @@ def parse_maldi_plate_map(plate_map_filename):
 
 # Get either quasi-profile or centroid spectrum.
 # Returns an m/z array and intensity array.
-def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding):
+def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, profile_bins, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -31,12 +31,19 @@ def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding):
         mz_acq_range_lower = float(tsf_data.meta_data['MzAcqRangeLower'])
         mz_acq_range_upper = float(tsf_data.meta_data['MzAcqRangeUpper'])
         mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
+        if profile_bins != 0:
+            bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
+            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
+            bin_counts = np.bincount(inverse_indices)
+            np.place(bin_counts, bin_counts < 1, [1])
+            mz_array = np.bincount(inverse_indices, weights=mz_array) / bin_counts
+            intensity_array = np.bincount(inverse_indices, weights=intensity_array)
         return mz_array, intensity_array
 
 
 # Get either raw (slightly modified implementation that gets centroid spectrum), quasi-profile, or centroid spectrum.
 # Returns an m/z array and intensity array.
-def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, encoding):
+def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_begin, scan_end, profile_bins, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -60,6 +67,13 @@ def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_beg
         mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
         mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
         mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
+        if profile_bins != 0:
+            bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
+            unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
+            bin_counts = np.bincount(inverse_indices)
+            np.place(bin_counts, bin_counts < 1, [1])
+            mz_array = np.bincount(inverse_indices, weights=mz_array) / bin_counts
+            intensity_array = np.bincount(inverse_indices, weights=intensity_array)
         return mz_array, intensity_array
     elif mode == 'centroid':
         mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(frame, scan_begin, scan_end)
@@ -68,7 +82,7 @@ def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_beg
         return mz_array, intensity_array
 
 
-def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding):
+def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bins, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -104,7 +118,8 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1']:
             if ms2_only == False:
-                mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding)
+                mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, profile_bins,
+                                                                              encoding)
 
                 if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                     base_peak_index = np.where(intensity_array == np.max(intensity_array))
@@ -131,7 +146,8 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
             framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
                                                         maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
 
-            mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, encoding)
+            mz_array, intensity_array = extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, profile_bins,
+                                                                          encoding)
 
             if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                 base_peak_index = np.where(intensity_array == np.max(intensity_array))
@@ -161,7 +177,7 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, encoding)
     return list_of_scan_dicts
 
 
-def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mobility, encoding):
+def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mobility, profile_bins, encoding):
     if encoding == 32:
         encoding_dtype = np.float32
     elif encoding == 64:
@@ -211,6 +227,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                                       frame,
                                                                                       scan_num,
                                                                                       scan_num + 1,
+                                                                                      profile_bins,
                                                                                       encoding)
                         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                             mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
@@ -251,6 +268,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                                   frame,
                                                                                   0,
                                                                                   int(frames_dict['NumScans']),
+                                                                                  profile_bins,
                                                                                   encoding)
                     #print(mz_array, intensity_array)
                     #print(len(mz_array), len(intensity_array))
@@ -287,6 +305,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                           frame,
                                                                           0,
                                                                           int(frames_dict['NumScans']),
+                                                                          profile_bins,
                                                                           encoding)
 
             if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:

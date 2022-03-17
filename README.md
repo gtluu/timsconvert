@@ -11,6 +11,7 @@ that:
 4. do not require any programming experience.
 
 #### Examples for file conversion:
+
 - LC-MS(/MS) (BAF) &#8594; mzML
 - LC-TIMS-MS(/MS) (TDF) &#8594; mzML
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
@@ -20,12 +21,25 @@ that:
 <br>
 
 #### Examples of data analysis platforms include and are not limited to:
+
 - [Global Natural Products Social (GNPS)](https://gnps.ucsd.edu/)
 - [Cardinal MSI](https://cardinalmsi.org/)
 
 Please note that TIMSCONVERT is still actively under development and new changes are being pushed regularly. For the 
 version of TIMSCONVERT found in our [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.12.09.472024v1), 
 please see the [v1.0.0 branch here on Github](https://github.com/gtluu/timsconvert/tree/manuscript_v1.0.0).
+
+## Dimensionality of timsTOF Data
+
+Example of dimensionality of LC-TIMS-MS/MS data and a simplified corresponding mzML schema. Elements in the simplified 
+mzML schema are color coded by the corresponding data in the chromatograms/spectra. At a given retention time in the 
+chromatogram (indicated in pink), an MS1 spectrum may be visualized in the form of a three dimensional plot generated 
+from m/z, intensity, and ion mobility arrays (indicated in orange). Precursor ions of interest found in MS1 spectra 
+(indicated in purple) can be further analyzed by plotting m/z and intensity arrays for MS/MS spectra (indicated in 
+teal). These spectral identifiers (i.e. retention time, precursor m/z, precursor 1/K0) may be used to locate the 
+corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualization software of choice.
+
+![timsTOF Data mzML](imgs/dimensions.png)
 
 ## Installation and Usage
 

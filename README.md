@@ -114,6 +114,10 @@ python3 /path/to/timsconvert/bin/run.py --input /path/to/data
 2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 
 ## Parameters
+
+Note: We recommend excluding ion mobility data (--exclude_mobility) when exporting in profile mode due to extremely 
+resulting file sizes.
+
 ```
 Required
 --input                   Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.

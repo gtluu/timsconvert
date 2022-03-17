@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     # Check arguments.
     args_check(arguments)
-    arguments['version'] = '0.1.0'
+    arguments['version'] = '1.1.0'
 
     # Initialize logger.
     logname = 'log_' + get_timestamp() + '.log'

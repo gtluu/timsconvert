@@ -1,4 +1,5 @@
 from timsconvert.constants import *
+from timsconvert.init_bruker_dll import *
 import numpy as np
 import sys
 import logging
@@ -139,7 +140,7 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                 steps_dict = baf_data.steps[baf_data.steps['TargetSpectrum'] == frame].to_dict(orient='records')[0]
 
                 base_peak_index = np.where(intensity_array == np.max(intensity_array))
-                isolation_width = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                isolation_width = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                   (baf_data.variables['Variable'] == 8)].to_dict(orient='records')[0]['Value'])
 
                 scan_dict = {'scan_number': None,
@@ -155,15 +156,15 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                              'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
                              'high_mz': float(max(mz_array)),
                              'low_mz': float(min(mz_array)),
-                             'target_mz': float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                             'target_mz': float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                           (baf_data.variables['Variable'] == 7)].to_dict(orient='records')[0]['Value']),
                              'isolation_lower_offset': isolation_width / 2,
                              'isolation_upper_offset': isolation_width / 2,
                              'selected_ion_mz': float(steps_dict['Mass']),
-                             'charge_state': baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                             'charge_state': baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                                                 (baf_data.variables['Variable'] ==
                                                                  6)].to_dict(orient='records')[0]['Value'],
-                             'collision_energy': baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                             'collision_energy': baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                                                     (baf_data.variables['Variable'] ==
                                                                      5)].to_dict(orient='records')[0]['Value'],
                              'parent_frame': int(frames_dict['Parent'])}
@@ -341,12 +342,15 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                      'selected_ion_intensity': float(precursor_dict['Intensity']),
                                      'selected_ion_mobility':
                                          tdf_data.scan_num_to_oneoverk0(int(precursor_dict['Parent']),
-                                                                        np.array([int(precursor_dict['ScanNumber'])]))[
-                                             0],
+                                         np.array([int(precursor_dict['ScanNumber'])]))[0],
                                      'charge_state': precursor_dict['Charge'],
                                      'collision_energy': pasefframemsmsinfo_dicts[0]['CollisionEnergy'],
                                      'parent_frame': int(precursor_dict['Parent']),
                                      'parent_scan': int(precursor_dict['ScanNumber'])}
+                        if not np.isnan(precursor_dict['Charge']):
+                            scan_dict['selected_ion_ccs'] = one_over_k0_to_ccs(scan_dict['selected_ion_mobility'],
+                                                                               int(precursor_dict['Charge']),
+                                                                               float(precursor_dict['LargestPeakMz']))
                         list_of_product_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 

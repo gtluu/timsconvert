@@ -140,7 +140,7 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                 steps_dict = baf_data.steps[baf_data.steps['TargetSpectrum'] == frame].to_dict(orient='records')[0]
 
                 base_peak_index = np.where(intensity_array == np.max(intensity_array))
-                isolation_width = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                isolation_width = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                   (baf_data.variables['Variable'] == 8)].to_dict(orient='records')[0]['Value'])
 
                 scan_dict = {'scan_number': None,
@@ -156,15 +156,15 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                              'base_peak_intensity': intensity_array[base_peak_index][0].astype(float),
                              'high_mz': float(max(mz_array)),
                              'low_mz': float(min(mz_array)),
-                             'target_mz': float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                             'target_mz': float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                           (baf_data.variables['Variable'] == 7)].to_dict(orient='records')[0]['Value']),
                              'isolation_lower_offset': isolation_width / 2,
                              'isolation_upper_offset': isolation_width / 2,
                              'selected_ion_mz': float(steps_dict['Mass']),
-                             'charge_state': baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                             'charge_state': baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                                                 (baf_data.variables['Variable'] ==
                                                                  6)].to_dict(orient='records')[0]['Value'],
-                             'collision_energy': baf_data.variables[(baf_data.variables['Spectrum'] == frame) |
+                             'collision_energy': baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                                                     (baf_data.variables['Variable'] ==
                                                                      5)].to_dict(orient='records')[0]['Value'],
                              'parent_frame': int(frames_dict['Parent'])}

@@ -17,7 +17,9 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
               {'lowest observed m/z': parent_scan['low_mz']}]
 
     if 'mobility_array' in parent_scan.keys() and parent_scan['mobility_array'] is not None:
-        other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+        other_arrays = [({'name': 'ion mobility array',
+                          'unit_name': 'volt-second per square centimeter'},
+                         parent_scan['mobility_array'])]
     else:
         other_arrays = None
 
@@ -68,6 +70,8 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
         precursor_info['intensity'] = product_scan['selected_ion_intensity']
     if 'selected_ion_mobility' in product_scan.keys():
         precursor_info['params'] = {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}
+    if 'selected_ion_ccs' in product_scan.keys():
+        precursor_info['params'] = {'collisional cross sectional area': product_scan['selected_ion_ccs']}
     if not np.isnan(product_scan['charge_state']):
         precursor_info['charge'] = product_scan['charge_state']
 

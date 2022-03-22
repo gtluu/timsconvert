@@ -6,8 +6,8 @@ import numpy as np
 from psims.mzml import MzMLWriter
 
 
-def write_maldi_dd_spectrum(writer, data, scan, encoding):
-    # Build params
+def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding):
+    # Build params.
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
               {'total ion current': scan['total_ion_current']},
@@ -44,6 +44,46 @@ def write_maldi_dd_spectrum(writer, data, scan, encoding):
                           other_arrays=other_arrays,
                           params=params,
                           encoding=encoding_dict)
+
+
+def write_maldi_dd_ms2_spectrum(writer, scan, encoding):
+    # Build params.
+    params = [scan['scan_type'],
+              {'ms level': scan['ms_level']},
+              {'total ion current': scan['total_ion_current']}]
+    if 'base_peak_mz' in scan.keys() and 'base_peak_intensity' in scan.keys():
+        params.append({'base peak m/z': scan['base_peak_mz']})
+        params.append({'base peak intensity': scan['base_peak_intensity']})
+    if 'high_mz' in scan.keys() and 'low_mz' in scan.keys():
+        params.append({'highest observed m/z': scan['high_mz']})
+        params.append({'lowest observed m/z': scan['low_mz']})
+
+    # Build precursor information dict.
+    precursor_info = {'mz': scan['selected_ion_mz'],
+                      'activation': [{'collision energy': scan['collision_energy']}],
+                      'isolation_window_args': {'target': scan['target_mz'],
+                                                'upper': scan['isolation_upper_offset'],
+                                                'lower': scan['isolation_lower_offset']}}
+
+    if scan['charge_state'] is not None:
+        precursor_info['charge'] = scan['charge_state']
+
+    if encoding == 32:
+        encoding_dtype = np.float32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
+    # Write out MS2 spectrum.
+    writer.write_spectrum(scan['mz_array'],
+                          scan['intensity_array'],
+                          id='scan=' + str(scan['scan_number']),
+                          polarity=scan['polarity'],
+                          centroided=scan['centroided'],
+                          scan_start_time=scan['retention_time'],
+                          params=params,
+                          precursor_information=precursor_info,
+                          encoding={'m/z array':encoding_dtype,
+                                    'intensity_array': encoding_dtype})
 
 
 # Parse out MALDI DD data and write out mzML file using psims.
@@ -92,7 +132,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                         else:
                             scan_count += 1
                             scan_dict['scan_number'] = scan_count
-                            write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
+                            if scan_dict['ms_level'] == 1:
+                                write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding)
+                            elif scan_dict['ms_level'] == 2:
+                                write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding)
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, scan_count)
@@ -136,7 +179,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                             if ms2_only == True and scan_dict['ms_level'] == 1:
                                 pass
                             else:
-                                write_maldi_dd_spectrum(writer, data, scan_dict, encoding)
+                                if scan_dict['ms_level'] == 1:
+                                    write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding)
+                                elif scan_dict['ms_level'] == 2:
+                                    write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding)
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
 

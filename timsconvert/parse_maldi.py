@@ -270,8 +270,6 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                                   int(frames_dict['NumScans']),
                                                                                   profile_bins,
                                                                                   encoding)
-                    #print(mz_array, intensity_array)
-                    #print(len(mz_array), len(intensity_array))
 
                     if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
                         base_peak_index = np.where(intensity_array == np.max(intensity_array))

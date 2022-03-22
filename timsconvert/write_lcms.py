@@ -65,13 +65,14 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                       'activation': [{'collision energy': product_scan['collision_energy']}],
                       'isolation_window_args': {'target': product_scan['target_mz'],
                                                 'upper': product_scan['isolation_upper_offset'],
-                                                'lower': product_scan['isolation_lower_offset']}}
+                                                'lower': product_scan['isolation_lower_offset']},
+                      'params': []}
     if 'selected_ion_intensity' in product_scan.keys():
         precursor_info['intensity'] = product_scan['selected_ion_intensity']
     if 'selected_ion_mobility' in product_scan.keys():
-        precursor_info['params'] = {'inverse reduced ion mobility': product_scan['selected_ion_mobility']}
+        precursor_info['params'].append({'inverse reduced ion mobility': product_scan['selected_ion_mobility']})
     if 'selected_ion_ccs' in product_scan.keys():
-        precursor_info['params'] = {'collisional cross sectional area': product_scan['selected_ion_ccs']}
+        precursor_info['params'].append({'collisional cross sectional area': product_scan['selected_ion_ccs']})
     if not np.isnan(product_scan['charge_state']):
         precursor_info['charge'] = product_scan['charge_state']
 

@@ -1,5 +1,6 @@
 import copy
 from timsconvert import *
+from tdf2mzml import *
 
 
 def run_timsconvert(args):

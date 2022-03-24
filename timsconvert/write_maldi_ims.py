@@ -1,4 +1,5 @@
 from pyimzml.ImzMLWriter import ImzMLWriter
+from pyimzml.compression import NoCompression, ZlibCompression
 from timsconvert.parse_maldi import *
 
 
@@ -18,7 +19,7 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
 
 
 def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
-                          chunk_size):
+                          compression, chunk_size):
     # Set polarity for run in imzML.
     polarity = list(set(data.frames['Polarity'].values.tolist()))
     if len(polarity) == 1:
@@ -42,10 +43,25 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 
+    if encoding == 32:
+        encoding_dtype = np.float32
+    elif encoding == 64:
+        encoding_dtype = np.float64
+
+    # Get compression type object.
+    if compression == 'zlib':
+        compression_object = ZlibCompression()
+    elif compression == 'none':
+        compression_object = NoCompression()
+
     writer = ImzMLWriter(os.path.join(outdir, outfile),
                          polarity=polarity,
                          mode=imzml_mode,
-                         spec_type=centroided)
+                         spec_type=centroided,
+                         mz_dtype=encoding_dtype,
+                         intensity_dtype=encoding_dtype,
+                         mz_compression=compression_object,
+                         intensity_compression=compression_object)
 
     logging.info(get_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
     with writer as imzml_file:

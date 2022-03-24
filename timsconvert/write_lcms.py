@@ -6,7 +6,7 @@ from psims.mzml import MzMLWriter
 
 
 # Write out parent spectrum.
-def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
+def write_lcms_ms1_spectrum(writer, parent_scan, encoding, compression):
     # Build params
     params = [parent_scan['scan_type'],
               {'ms level': parent_scan['ms_level']},
@@ -42,11 +42,12 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
                           scan_start_time=parent_scan['retention_time'],
                           other_arrays=other_arrays,
                           params=params,
-                          encoding=encoding_dict)
+                          encoding=encoding_dict,
+                          compression=compression)
 
 
 # Write out product spectrum.
-def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
+def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan, compression):
     # Build params list for spectrum.
     spectrum_params = [product_scan['scan_type'],
                        {'ms level': product_scan['ms_level']},
@@ -94,11 +95,12 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan):
                           params=spectrum_params,
                           precursor_information=precursor_info,
                           encoding={'m/z array': encoding_dtype,
-                                    'intensity array': encoding_dtype})
+                                    'intensity array': encoding_dtype},
+                          compression=compression)
 
 
 def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, mode, ms2_only, exclude_mobility,
-                             profile_bins, encoding):
+                             profile_bins, encoding, compression):
     # Parse TDF data
     if data.meta_data['SchemaType'] == 'TDF':
         parent_scans, product_scans = parse_lcms_tdf(data, frame_start, frame_stop, mode, ms2_only, exclude_mobility,
@@ -115,23 +117,23 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
             # Set params for scan.
             scan_count += 1
             parent['scan_number'] = scan_count
-            write_lcms_ms1_spectrum(writer, parent, encoding)
+            write_lcms_ms1_spectrum(writer, parent, encoding, compression)
             # Write MS2 Product Scans
             for product in products:
                 scan_count += 1
                 product['scan_number'] = scan_count
-                write_lcms_ms2_spectrum(writer, parent, encoding, product)
+                write_lcms_ms2_spectrum(writer, parent, encoding, product, compression)
     elif ms2_only == True or parent_scans == []:
         for product in product_scans:
             scan_count += 1
             product['scan_number'] = scan_count
-            write_lcms_ms2_spectrum(writer, None, encoding, product)
+            write_lcms_ms2_spectrum(writer, None, encoding, product, compression)
     return scan_count
 
 
 # Parse out LC-MS(/MS) data and write out mzML file using psims.
 def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                    chunk_size):
+                    compression, chunk_size):
     # Initialize mzML writer using psims.
     logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
     writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
@@ -162,7 +164,8 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                     logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, mode,
-                                                              ms2_only, exclude_mobility, profile_bins, encoding)
+                                                              ms2_only, exclude_mobility, profile_bins, encoding,
+                                                              compression)
                     chunk += chunk_size
                 else:
                     chunk_list = []
@@ -172,7 +175,8 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                     logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, mode,
-                                                              ms2_only, exclude_mobility, profile_bins, encoding)
+                                                              ms2_only, exclude_mobility, profile_bins, encoding,
+                                                              compression)
     logging.info(get_timestamp() + ':' + 'Updating scan count...')
     update_spectra_count(outdir, outfile, scan_count)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')

@@ -33,6 +33,8 @@ def get_args():
                         default=0, type=int)
     parser.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults'
                                            ' to 64-bit.', default=64, type=int)
+    parser.add_argument('--compression', help='Choose between ZLIB compression ("zlib") or no compression ("none"). '
+                                              'Defaults to "zlib".', default='zlib', type=str)
     parser.add_argument('--maldi_output_file', help='For MALDI dried droplet data, whether individual scans should be '
                                                     'placed in individual files ("individual") or all into a single '
                                                     'file ("combined"). Defaults to "combined".', default='combined',
@@ -77,6 +79,11 @@ def args_check(args):
     # Check to make sure --encoding is either 32 or 64.
     if args['encoding'] not in [32, 64]:
         logging.info(get_timestamp() + ':' + '--encoding should be set to "32" or "64"...')
+        logging.info(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    # Check to make sure --compression is either zlib or none.
+    if args['compression'] not in ['zlib', 'none']:
+        logging.info(get_timestamp() + ':' + '--compression should be set to "zlib" or "none"...')
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.

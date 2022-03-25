@@ -42,6 +42,7 @@ precursor_columns = [
             "Parent"
         ]
 
+
 def timing(f):
     """
     Helper function for timing other functions
@@ -378,6 +379,7 @@ def write_sourcefile_list(mzml_data_struct):
     mzml_data_struct['writer'].file_description( ["MS1 spectrum","MSn spectrum"] , sf_list )
     return 
 
+
 def write_reference_param_group_list(mzml_data_struct):
     """
     Writes the referenceable param group list
@@ -407,6 +409,7 @@ def write_reference_param_group_list(mzml_data_struct):
 
     mzml_data_struct['writer'].reference_param_group_list( rpgl_list )
     return 
+
 
 def write_software_list(mzml_data_struct):
     """
@@ -471,6 +474,7 @@ def write_software_list(mzml_data_struct):
     mzml_data_struct['writer'].software_list(software_list)
     return 
 
+
 def write_instrument_configuration_list(mzml_data_struct):
     """
     Writes the instrument configuration list
@@ -510,6 +514,7 @@ def write_instrument_configuration_list(mzml_data_struct):
     mzml_data_struct['writer'].instrument_configuration_list(instrument_configurations)
     return 
 
+
 def write_data_processing_list(mzml_data_struct):
     """
     Writes the data processing list
@@ -543,6 +548,7 @@ def write_data_processing_list(mzml_data_struct):
 
     return
 
+
 def write_header(mzml_data_struct):
     """
     Writes the data file information
@@ -572,6 +578,7 @@ def write_header(mzml_data_struct):
     write_data_processing_list( mzml_data_struct )
 
     return
+
 
 def write_precursor_frame(mzml_data_struct):
     """
@@ -642,6 +649,7 @@ def write_precursor_frame(mzml_data_struct):
 
     return
 
+
 def get_precursor_list(mzml_data_struct):
     """
     Get list of precursors in the current precursor frame
@@ -669,6 +677,7 @@ def get_precursor_list(mzml_data_struct):
         ).fetchall()
 
     return precursor_list
+
 
 def write_pasef_msms_spectrum(mzml_data_struct):
     """
@@ -775,6 +784,7 @@ def write_pasef_msms_spectrum(mzml_data_struct):
 
     return
 
+
 def process_arg(args):
     """
     Convert namespace args objet to dictionary.
@@ -794,7 +804,8 @@ def process_arg(args):
         dictionary of arguments
     """
     return vars(args)
-        
+
+
 @timing
 def write_mzml(args):
     """
@@ -815,7 +826,7 @@ def write_mzml(args):
     ### Connect to TDF DB
     logging.info("transforming TDF to mzML file: {}".format(mzml_data_struct['input']))
 
-    mzml_data_struct['td'] = timsdata.TimsData(mzml_data_struct['input'])
+    mzml_data_struct['td'] = timsdata.Tdf2mzmlTimsData(mzml_data_struct['input'])
     mzml_data_struct['data_dict'] = get_spectrum_dict(mzml_data_struct)
 
     logging.info("{} Total Frames.".format(mzml_data_struct['data_dict']['frame_count']))
@@ -868,6 +879,7 @@ def write_mzml(args):
     mzml_data_struct['writer'].end()
 
     return
+
 
 def main():
     """

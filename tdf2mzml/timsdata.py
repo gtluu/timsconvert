@@ -55,6 +55,7 @@ dll.tims_oneoverk0_to_ccs_for_mz.restype = c_double
 dll.tims_ccs_to_oneoverk0_for_mz.argtypes = [c_double, c_int32, c_double]
 dll.tims_ccs_to_oneoverk0_for_mz.restype = c_double
 
+
 def throwLastTimsDataError (dll_handle):
     """Throw last TimsData error string as an exception."""
 
@@ -62,6 +63,7 @@ def throwLastTimsDataError (dll_handle):
     buf = create_string_buffer(len)
     dll_handle.tims_get_last_error_string(buf, len)
     raise RuntimeError(buf.value)
+
 
 # Decodes a properties BLOB of type 12 (array of strings = concatenation of
 # zero-terminated UTF-8 strings). (The BLOB object returned by an SQLite query can be
@@ -85,12 +87,13 @@ def decodeArrayOfStrings (blob):
 def oneOverK0ToCCSforMz(ook0, charge, mz):
     return dll.tims_oneoverk0_to_ccs_for_mz(ook0, charge, mz)
 
+
 # Convert CCS to 1/K0 for a given charge and mz
 def ccsToOneOverK0ToCCSforMz(ccs, charge, mz):
     return dll.tims_ccs_to_oneoverk0_for_mz(ccs, charge, mz)
        
         
-class TimsData:
+class Tdf2mzmlTimsData:
 
     def __init__ (self, analysis_directory, use_recalibrated_state=False):
 
@@ -153,7 +156,6 @@ class TimsData:
     def voltageToScanNum (self, frame_id, voltages):
         return self.__callConversionFunc(frame_id, voltages, self.dll.tims_voltage_to_scannum)
 
-        
     # Output: list of tuples (indices, intensities)
     def readScans (self, frame_id, scan_begin, scan_end):
 
@@ -210,7 +212,7 @@ class TimsData:
         
         return result
 
-		# read peak-picked MS/MS spectra for a given frame; returns a dict mapping
+        # read peak-picked MS/MS spectra for a given frame; returns a dict mapping
     # 'precursor_id' to a pair of arrays (mz_values, area_values).
     def readPasefMsMsForFrame (self, frame_id):
         result = {}
@@ -228,7 +230,7 @@ class TimsData:
         
         return result
         
-		# read some "quasi profile" MS/MS spectra for a given list of precursors; returns a dict mapping
+        # read some "quasi profile" MS/MS spectra for a given list of precursors; returns a dict mapping
     # 'precursor_id' to the profil arrays (intensity_values).
     def readPasefProfileMsMs (self, precursor_list):
         precursors_for_dll = np.array(precursor_list, dtype=np.int64)

@@ -1,19 +1,11 @@
- # -*- coding: utf-8 -*-
-"""Python wrapper for timsdata.dll"""
-
 import numpy as np
 import sqlite3
-import os, sys
+import os
+import sys
 from ctypes import *
-
-if sys.platform[:5] == "win32":
-    libname = "timsdata.dll"
-elif sys.platform[:5] == "linux":
-    libname = "libtimsdata.so"
-else:
-    raise Exception("Unsupported platform.")
+from timsconvert.constants import *
     
-dll = cdll.LoadLibrary(libname)
+dll = cdll.LoadLibrary(TDF_SDK_DLL_FILE_NAME)
 dll.tims_open.argtypes = [ c_char_p, c_uint32 ]
 dll.tims_open.restype = c_uint64
 dll.tims_close.argtypes = [ c_uint64 ]

@@ -12,5 +12,6 @@ import sys
 import time
 import ctypes
 
+from timsconvert.constants import *
 from tdf2mzml.timsdata import *
 from tdf2mzml.tdf2mzml import *

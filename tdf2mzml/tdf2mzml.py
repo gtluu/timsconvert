@@ -785,29 +785,46 @@ def write_pasef_msms_spectrum(mzml_data_struct):
     return
 
 
-def process_arg(args):
+def process_arg():
     """
-    Convert namespace args objet to dictionary.
+    Parse args and convert namespace args objet to dictionary.
 
     Helper function. conversion of the args from namespace to dictionary
     allows for easier passing and modification.
 
     Parameters
     ----------
-    args : 
-    
-        args manespace object from argspars
 
     Returns
     -------
     dict : 
         dictionary of arguments
     """
+    # Argument Parser
+    parser = argparse.ArgumentParser(description="tdf2mzml")
+
+    parser.add_argument("-i", "--input", action="store", type=str, metavar="input_file", required=True)
+    parser.add_argument("-o", "--output", action="store", type=str, metavar="output_file", required=False)
+    parser.add_argument("--precision", action="store", type=float, metavar="value", default=10.0,)
+    parser.add_argument("--ms1_threshold", action="store", type=float, metavar="value", default=100.0,)
+    parser.add_argument("--ms2_threshold", action="store", type=float, metavar="value", default=10,)
+    parser.add_argument("--ms2_nlargest", action="store", type=int, metavar="value", default=-1,)
+    parser.add_argument("-s", "--start_frame", action="store", type=int, metavar="value", default=-1,)
+    parser.add_argument("-e", "--end_frame", action="store", type=int, metavar="value", default=-1,)
+    parser.add_argument("--ms1_type", action="store", choices=['raw', 'profile', 'centroid'], metavar="value",
+                        default='centroid',)
+    parser.add_argument("--compression", action="store", choices=['zlib', 'none'], metavar="value", default='none',)
+
+    args = parser.parse_args()
+
+    if args.output == None:
+        args.output = os.path.normpath(re.sub('d[/]?$', 'mzml', args.input))
+
     return vars(args)
 
 
 @timing
-def write_mzml(args):
+def write_mzml():
     """
     Write mzml file
 
@@ -815,13 +832,12 @@ def write_mzml(args):
 
     Parameters
     ----------
-    args : args manespace object from argspars
 
     Returns
     -------
     None
     """
-    mzml_data_struct = process_arg(args)
+    mzml_data_struct = process_arg()
     
     ### Connect to TDF DB
     logging.info("transforming TDF to mzML file: {}".format(mzml_data_struct['input']))
@@ -885,7 +901,7 @@ def main():
     """
     Main Function
 
-    Parse arguments and start writing
+    Start writing
 
     Parameters
     ----------
@@ -895,102 +911,9 @@ def main():
     -------
     None
     """
-    # Argument Parser
-    parser = argparse.ArgumentParser(description="tdf2mzml")
-
-    parser.add_argument(
-        "-i","--input",
-        action="store",
-        type=str,
-        metavar="input_file",
-        required=True
-    )
-
-    parser.add_argument(
-        "-o","--output",
-        action="store",
-        type=str,
-        metavar="output_file",
-        required=False
-    )
-
-    parser.add_argument(
-        "--precision",
-        action="store",
-        type=float,
-        metavar="value",
-        default=10.0,
-    )
-
-    parser.add_argument(
-        "--ms1_threshold",
-        action="store",
-        type=float,
-        metavar="value",
-        default=100.0,
-    )
-
-    parser.add_argument(
-        "--ms2_threshold",
-        action="store",
-        type=float,
-        metavar="value",
-        default=10,
-    )
-
-    parser.add_argument(
-        "--ms2_nlargest",
-        action="store",
-        type=int,
-        metavar="value",
-        default=-1,
-    )
-
-    parser.add_argument(
-        '-s',
-        "--start_frame",
-        action="store",
-        type=int,
-        metavar="value",
-        default=-1,
-    )
-
-    parser.add_argument(
-        '-e',
-        "--end_frame",
-        action="store",
-        type=int,
-        metavar="value",
-        default=-1,
-    )
-
-    parser.add_argument(
-        '--ms1_type',
-        action="store",
-        choices=['raw', 'profile', 'centroid'],
-        metavar="value",
-        default='centroid',
-    )
-
-    parser.add_argument(
-        '--compression',
-        action="store",
-        choices=['zlib', 'none'],
-        metavar="value",
-        default='none',
-    )
-
     logging.basicConfig(level=logging.INFO)
-
-    args = parser.parse_args()
-
-    if args.output == None:
-        args.output = os.path.normpath(re.sub('d[/]?$', 'mzml', args.input))
-
-    write_mzml(args)
+    write_mzml()
 
 
 if __name__ == "__main__":
-
     main()
-

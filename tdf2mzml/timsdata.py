@@ -77,8 +77,6 @@ def decodeArrayOfStrings (blob):
     if blob[-1] != 0:
         raise ValueError("Illegal BLOB contents.") # trailing nonsense
 
-    if sys.version_info.major == 2:
-        return unicode(str(blob), 'utf-8').split('\0')[:-1]
     if sys.version_info.major == 3:
         return str(blob, 'utf-8').split('\0')[:-1]
         
@@ -96,9 +94,6 @@ class TimsData:
 
     def __init__ (self, analysis_directory, use_recalibrated_state=False):
 
-        if sys.version_info.major == 2:
-            if not isinstance(analysis_directory, unicode):
-                raise ValueError("analysis_directory must be a Unicode string.")
         if sys.version_info.major == 3:
             if not isinstance(analysis_directory, str):
                 raise ValueError("analysis_directory must be a string.")

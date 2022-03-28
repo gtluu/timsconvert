@@ -785,21 +785,7 @@ def write_pasef_msms_spectrum(mzml_data_struct):
     return
 
 
-def process_arg():
-    """
-    Parse args and convert namespace args objet to dictionary.
-
-    Helper function. conversion of the args from namespace to dictionary
-    allows for easier passing and modification.
-
-    Parameters
-    ----------
-
-    Returns
-    -------
-    dict : 
-        dictionary of arguments
-    """
+def process_tdf2mzml_args():
     # Argument Parser
     parser = argparse.ArgumentParser(description="tdf2mzml")
 
@@ -824,7 +810,7 @@ def process_arg():
 
 
 @timing
-def write_mzml():
+def tdf2mzml_write_mzml():
     """
     Write mzml file
 
@@ -837,7 +823,7 @@ def write_mzml():
     -------
     None
     """
-    mzml_data_struct = process_arg()
+    mzml_data_struct = process_tdf2mzml_args()
     
     ### Connect to TDF DB
     logging.info("transforming TDF to mzML file: {}".format(mzml_data_struct['input']))
@@ -897,23 +883,5 @@ def write_mzml():
     return
 
 
-def main():
-    """
-    Main Function
-
-    Start writing
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    None
-    """
-    logging.basicConfig(level=logging.INFO)
-    write_mzml()
-
-
 if __name__ == "__main__":
-    main()
+    logger = logging.getLogger(__name__)

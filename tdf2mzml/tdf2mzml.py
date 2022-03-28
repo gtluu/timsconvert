@@ -24,6 +24,7 @@ import sqlite3, sys, time
 import sys
 import time
 import timsdata as timsdata
+from timsconvert.write_mzml import *
 
 NAME = 'tdf2mzml' 
 MAJOR_VERSION = '0.3'
@@ -613,39 +614,39 @@ def write_precursor_frame(mzml_data_struct):
     ms1_mz_array = np.asarray(ms1_data[0])
     ms1_i_array = np.asarray(ms1_data[1])
 
-    # Write MS1 Spectrum
-    
-    mzml_data_struct['current_precursor']['spectrum_id'] = "index={}".format(mzml_data_struct['scan_index'])
+    # Write MS1 Spectrum if not empty.
+    if ms1_mz_array.size != 0 and ms1_i_array.size != 0 and ms1_mz_array.size == ms1_i_array.size:
+        mzml_data_struct['current_precursor']['spectrum_id'] = "scan={}".format(mzml_data_struct['scan_index'])
 
-    if len(ms1_mz_array) > 1:
-        #base_peak_intensity = np.max(ms1_i_array)
-        total_ion_intensity = ms1_i_array.sum()
-        bp_index = np.argmax(ms1_i_array)
-        base_peak_intensity = ms1_i_array[bp_index]
-        base_peak_mz = ms1_mz_array[bp_index]
+        if len(ms1_mz_array) > 1:
+            #base_peak_intensity = np.max(ms1_i_array)
+            total_ion_intensity = ms1_i_array.sum()
+            bp_index = np.argmax(ms1_i_array)
+            base_peak_intensity = ms1_i_array[bp_index]
+            base_peak_mz = ms1_mz_array[bp_index]
 
-    else:
-        #TODO fix handling for sparce MS1/MS2 data the following is a crude fixe
-        base_peak_intensity = total_ion_intensity = 0.0
-        base_peak_mz = 0.0
-        
-    mzml_data_struct['writer'].write_spectrum(
-        ms1_mz_array, 
-        ms1_i_array, 
-        id=mzml_data_struct['current_precursor']['spectrum_id'], 
-        centroided=centroided_flag,
-        scan_start_time=scan_start_time, 
-        scan_window_list=[( mzml_data_struct['data_dict']['mz_acq_range_lower'] , mzml_data_struct['data_dict']['mz_acq_range_upper'] )],
-        compression=mzml_data_struct['compression'],
-        params=[
-                {"ms level": 1}, 
-                {"total ion current": total_ion_intensity},
-                {"base peak intensity": base_peak_intensity, 'unit_accession': 'MS:1000131'},
-                {"base peak m/z": base_peak_mz, 'unit_name': 'm/z'}
-            ]
-        )
+        else:
+            #TODO fix handling for sparce MS1/MS2 data the following is a crude fixe
+            base_peak_intensity = total_ion_intensity = 0.0
+            base_peak_mz = 0.0
 
-    mzml_data_struct['scan_index'] += 1
+        mzml_data_struct['writer'].write_spectrum(
+            ms1_mz_array,
+            ms1_i_array,
+            id=mzml_data_struct['current_precursor']['spectrum_id'],
+            centroided=centroided_flag,
+            scan_start_time=scan_start_time,
+            scan_window_list=[( mzml_data_struct['data_dict']['mz_acq_range_lower'] , mzml_data_struct['data_dict']['mz_acq_range_upper'] )],
+            compression=mzml_data_struct['compression'],
+            params=[
+                    {"ms level": 1},
+                    {"total ion current": total_ion_intensity},
+                    {"base peak intensity": base_peak_intensity, 'unit_accession': 'MS:1000131'},
+                    {"base peak m/z": base_peak_mz, 'unit_name': 'm/z'}
+                ]
+            )
+
+        mzml_data_struct['scan_index'] += 1
 
     return
 
@@ -701,86 +702,87 @@ def write_pasef_msms_spectrum(mzml_data_struct):
     ms2_mz_array = np.asarray(result[0])
     ms2_i_array = np.asarray(result[1])
 
-    # Set Precuror metadata
-    # TODO add additional metada
-    # TODO clarify correct m/z for precursor to use for Isolation Width
-        
-    msn_spectrum_id = "index={}".format(mzml_data_struct['scan_index'])
+    if ms2_mz_array.size != 0 and ms2_i_array.size != 0 and ms2_mz_array.size == ms2_i_array.size:
+        # Set Precuror metadata
+        # TODO add additional metada
+        # TODO clarify correct m/z for precursor to use for Isolation Width
 
-    parent_frame_list = mzml_data_struct['td'].conn.execute("SELECT Frame From PasefFrameMsMsInfo where Precursor={}".format(precursor['Id'])).fetchall()
-    parent_frame_string = " ".join([str(item[0]) for item in parent_frame_list])
+        msn_spectrum_id = "scan={}".format(mzml_data_struct['scan_index'])
 
-    pasef_frame_columns = ['IsolationMz','CollisionEnergy', 'IsolationWidth']
-    pasef_frame_info_list = mzml_data_struct['td'].conn.execute(
-        "SELECT {} From PasefFrameMsMsInfo where Precursor={}".format(
-            ",".join(pasef_frame_columns), 
-            precursor['Id']
-            )
-        ).fetchone()
+        parent_frame_list = mzml_data_struct['td'].conn.execute("SELECT Frame From PasefFrameMsMsInfo where Precursor={}".format(precursor['Id'])).fetchall()
+        parent_frame_string = " ".join([str(item[0]) for item in parent_frame_list])
 
-    pasef_frame = {pasef_frame_columns[i]: pasef_frame_info_list[i] for i in range(len(pasef_frame_columns))} 
+        pasef_frame_columns = ['IsolationMz','CollisionEnergy', 'IsolationWidth']
+        pasef_frame_info_list = mzml_data_struct['td'].conn.execute(
+            "SELECT {} From PasefFrameMsMsInfo where Precursor={}".format(
+                ",".join(pasef_frame_columns),
+                precursor['Id']
+                )
+            ).fetchone()
 
-    precursor_info = dict()
-    
-    ion_mobilitiy = mzml_data_struct['td'].scanNumToOneOverK0 (precursor['Parent'], [ precursor['ScanNumber'] ]) [0]
-    precursor_info['params'] = [
-                {"inverse reduced ion mobility": ion_mobilitiy, 'unit_accession': 'MS:1002814'}
+        pasef_frame = {pasef_frame_columns[i]: pasef_frame_info_list[i] for i in range(len(pasef_frame_columns))}
+
+        precursor_info = dict()
+
+        ion_mobilitiy = mzml_data_struct['td'].scanNumToOneOverK0 (precursor['Parent'], [ precursor['ScanNumber'] ]) [0]
+        precursor_info['params'] = [
+                    {"inverse reduced ion mobility": ion_mobilitiy, 'unit_accession': 'MS:1002814'}
+                ]
+
+        precursor_info["spectrum_reference"] = mzml_data_struct['current_precursor']['spectrum_id']
+
+        # TODO find the correct metadata and apply it here properly
+        precursor_info["activation"] = [
+                "CID",
+                {"collision energy": pasef_frame["CollisionEnergy"]}
+                ]
+
+        precursor_info["isolation_window_args"] = dict()
+
+        if precursor['Charge'] != None:
+            precursor_mz = precursor['MonoisotopicMz']
+            precursor_info["mz"] = precursor_mz
+            precursor_info["isolation_window_args"]["target"] = precursor_mz
+
+            isolation_offset = pasef_frame["IsolationMz"] - precursor_mz
+            isolation_width = pasef_frame["IsolationWidth"]/2.0
+
+            precursor_info["isolation_window_args"]["lower"] = isolation_width - isolation_offset
+            precursor_info["isolation_window_args"]["upper"] = isolation_width + isolation_offset
+
+            precursor_info["charge"]  = precursor['Charge']
+        else:
+            precursor_mz = precursor['LargestPeakMz']
+            precursor_info["mz"] = precursor_mz
+            precursor_info["isolation_window_args"]["target"] = precursor_mz
+
+            isolation_offset = pasef_frame["IsolationMz"] - precursor_mz
+            isolation_width = pasef_frame["IsolationWidth"]/2.0
+
+            precursor_info["isolation_window_args"]["lower"] = isolation_width - isolation_offset
+            precursor_info["isolation_window_args"]["upper"] = isolation_width + isolation_offset
+
+            precursor_info["charge"]  = 2
+
+        mzml_data_struct['writer'].write_spectrum(
+            ms2_mz_array,
+            ms2_i_array,
+            id=msn_spectrum_id,
+            centroided=True,
+            scan_start_time=mzml_data_struct['current_precursor']['start_time'],
+            scan_window_list=[(
+                mzml_data_struct['data_dict']['mz_acq_range_lower'],
+                mzml_data_struct['data_dict']['mz_acq_range_upper']
+            )],
+            compression=mzml_data_struct['compression'],
+            precursor_information=precursor_info,
+            params=[
+                {"ms level": 2},
+                {"total ion current": ms2_i_array.sum()}
             ]
-            
-    precursor_info["spectrum_reference"] = mzml_data_struct['current_precursor']['spectrum_id']
+        )
 
-    # TODO find the correct metadata and apply it here properly
-    precursor_info["activation"] = [
-            "CID", 
-            {"collision energy": pasef_frame["CollisionEnergy"]}
-            ]
-
-    precursor_info["isolation_window_args"] = dict()
-    
-    if precursor['Charge'] != None:
-        precursor_mz = precursor['MonoisotopicMz']
-        precursor_info["mz"] = precursor_mz
-        precursor_info["isolation_window_args"]["target"] = precursor_mz
-
-        isolation_offset = pasef_frame["IsolationMz"] - precursor_mz
-        isolation_width = pasef_frame["IsolationWidth"]/2.0
-
-        precursor_info["isolation_window_args"]["lower"] = isolation_width - isolation_offset
-        precursor_info["isolation_window_args"]["upper"] = isolation_width + isolation_offset
-
-        precursor_info["charge"]  = precursor['Charge']
-    else:
-        precursor_mz = precursor['LargestPeakMz']
-        precursor_info["mz"] = precursor_mz
-        precursor_info["isolation_window_args"]["target"] = precursor_mz
-
-        isolation_offset = pasef_frame["IsolationMz"] - precursor_mz
-        isolation_width = pasef_frame["IsolationWidth"]/2.0
-
-        precursor_info["isolation_window_args"]["lower"] = isolation_width - isolation_offset
-        precursor_info["isolation_window_args"]["upper"] = isolation_width + isolation_offset
-
-        precursor_info["charge"]  = 2
-
-    mzml_data_struct['writer'].write_spectrum(
-        ms2_mz_array, 
-        ms2_i_array, 
-        id=msn_spectrum_id, 
-        centroided=True,
-        scan_start_time=mzml_data_struct['current_precursor']['start_time'], 
-        scan_window_list=[( 
-            mzml_data_struct['data_dict']['mz_acq_range_lower'],
-            mzml_data_struct['data_dict']['mz_acq_range_upper'] 
-        )],
-        compression=mzml_data_struct['compression'],
-        precursor_information=precursor_info,
-        params=[
-            {"ms level": 2}, 
-            {"total ion current": ms2_i_array.sum()}
-        ]
-    )
-
-    mzml_data_struct['scan_index'] += 1
+        mzml_data_struct['scan_index'] += 1
 
     return
 
@@ -870,6 +872,7 @@ def tdf2mzml_write_mzml(args):
 
     logging.info("Writing final mzML")
     mzml_data_struct['writer'].end()
+    update_spectra_count(args['outdir'], args['outfile'], mzml_data_struct['scan_index'])
 
     return
 

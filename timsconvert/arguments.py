@@ -66,6 +66,7 @@ def get_args():
     tdf2mzml_args.add_argument('--precision', help='Precision.', default=10.0, type=float)
     tdf2mzml_args.add_argument('--ms1_threshold', help='Intensity threshold for MS1 data.', default=100, type=float)
     tdf2mzml_args.add_argument('--ms2_threshold', help='Intensity threshold for MS2 data.', default=10, type=float)
+    tdf2mzml_args.add_argument('--ms2_nlargest', help='N Largest MS2.', default=-1, type=int)
 
     # Return parser
     arguments = parser.parse_args()

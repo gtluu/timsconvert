@@ -785,32 +785,23 @@ def write_pasef_msms_spectrum(mzml_data_struct):
     return
 
 
-def process_tdf2mzml_args():
-    # Argument Parser
-    parser = argparse.ArgumentParser(description="tdf2mzml")
+def process_tdf2mzml_args(args):
+    mzml_data_struct = {'input': args['infile'],
+                        'output': os.path.join(args['outdir'], args['outfile']),
+                        'precision': args['precision'],
+                        'ms1_threshold': args['ms1_threshold'],
+                        'ms2_threshold': args['ms2_threshold'],
+                        'ms2_nlargest': args['ms2_nlargest'],
+                        'start_frame': args['start_frame'],
+                        'end_frame': args['end_frame'],
+                        'ms1_type': args['mode'],
+                        'compression': args['compression']}
 
-    parser.add_argument("-i", "--input", action="store", type=str, metavar="input_file", required=True)
-    parser.add_argument("-o", "--output", action="store", type=str, metavar="output_file", required=False)
-    parser.add_argument("--precision", action="store", type=float, metavar="value", default=10.0,)
-    parser.add_argument("--ms1_threshold", action="store", type=float, metavar="value", default=100.0,)
-    parser.add_argument("--ms2_threshold", action="store", type=float, metavar="value", default=10,)
-    parser.add_argument("--ms2_nlargest", action="store", type=int, metavar="value", default=-1,)
-    parser.add_argument("-s", "--start_frame", action="store", type=int, metavar="value", default=-1,)
-    parser.add_argument("-e", "--end_frame", action="store", type=int, metavar="value", default=-1,)
-    parser.add_argument("--ms1_type", action="store", choices=['raw', 'profile', 'centroid'], metavar="value",
-                        default='centroid',)
-    parser.add_argument("--compression", action="store", choices=['zlib', 'none'], metavar="value", default='none',)
-
-    args = parser.parse_args()
-
-    if args.output == None:
-        args.output = os.path.normpath(re.sub('d[/]?$', 'mzml', args.input))
-
-    return vars(args)
+    return mzml_data_struct
 
 
 @timing
-def tdf2mzml_write_mzml():
+def tdf2mzml_write_mzml(args):
     """
     Write mzml file
 
@@ -823,7 +814,7 @@ def tdf2mzml_write_mzml():
     -------
     None
     """
-    mzml_data_struct = process_tdf2mzml_args()
+    mzml_data_struct = process_tdf2mzml_args(args)
     
     ### Connect to TDF DB
     logging.info("transforming TDF to mzML file: {}".format(mzml_data_struct['input']))

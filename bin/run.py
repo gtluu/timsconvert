@@ -82,9 +82,12 @@ def run_timsconvert(args):
                 if run_args['outfile'] == '':
                     run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
                 logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
-                write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
-                                run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
-                                run_args['encoding'], run_args['compression'], run_args['chunk_size'])
+                if run_args['lcms_backend'] == 'timsconvert':
+                    write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
+                                    run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
+                                    run_args['encoding'], run_args['compression'], run_args['chunk_size'])
+                elif run_args['lcms_backend'] == 'tdf2mzml':
+                    tdf2mzml_write_mzml(args)
         elif schema == 'BAF':
             logging.info(get_timestamp() + ':' + '.baf file detected...')
             if run_args['outfile'] == '':

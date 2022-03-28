@@ -53,6 +53,8 @@ def get_args():
 
     # TIMSCONVERT System Arguments
     system = parser.add_argument_group('TIMSCONVERT System Parameters')
+    system.add_argument('--lcms_backend', help='Choose whether to use "timsconvert" or "tdf2mzml" backend for '
+                                               'LC-TIMS-MS/MS data conversion.', default='timsconvert', type=str)
     system.add_argument('--chunk_size', help='Relative size of chunks of spectral data that are parsed and '
                                              'subsequently written at once. Increasing parses and write more spectra '
                                              'at once but increases RAM usage. Default = 10.', default=10, type=int)

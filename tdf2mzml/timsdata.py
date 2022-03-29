@@ -1,7 +1,5 @@
 import numpy as np
 import sqlite3
-import os
-import sys
 from ctypes import *
 from timsconvert.constants import *
     

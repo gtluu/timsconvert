@@ -11,19 +11,11 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree. 
 
-import argparse 
 import collections 
 import hashlib
-import logging
-import math
-import numpy as np
-import os
 from psims.mzml import MzMLWriter
-import re
-import sqlite3, sys, time
-import sys
 import time
-import timsdata as timsdata
+import tdf2mzml.timsdata as timsdata
 from timsconvert.write_mzml import *
 
 NAME = 'tdf2mzml' 

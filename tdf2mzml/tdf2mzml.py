@@ -821,50 +821,50 @@ def tdf2mzml_write_mzml(args):
     logging.info("{} MS1 Frames.".format(mzml_data_struct['data_dict']['ms1_spectra_count']))
     logging.info("{} MS2 Merged Scans.".format(mzml_data_struct['data_dict']['ms2_spectra_count']))    
     
-    logging.info("writting to mzML file: {}".format(mzml_data_struct['output']))
-    mzml_data_struct['writer'] = MzMLWriter(mzml_data_struct['output'])
-    mzml_data_struct['writer'].begin()
-    write_header(mzml_data_struct)
+    logging.info("writing to mzML file: {}".format(mzml_data_struct['output']))
+    mzml_data_struct['writer'] = MzMLWriter(mzml_data_struct['output'], close=True)
 
-    # Get Spectra number in specified range
-    total_spectra_count = get_num_spectra(mzml_data_struct)
-    logging.info("Processing {} Spectra.".format(total_spectra_count))
-    logging.info("Reading, Merging and Formating Frames for mzML")
-    
-    with mzml_data_struct['writer'].run(id=1, instrument_configuration='IC1', start_time=mzml_data_struct['data_dict']['acq_date_time']):
-        with mzml_data_struct['writer'].spectrum_list(count=total_spectra_count):
-            # Process Frames
-            mzml_data_struct['scan_loop_time1'] = time.time()
-            mzml_data_struct['scan_index'] = 1
+    with mzml_data_struct['writer']:
+        write_header(mzml_data_struct)
 
-            mzml_data_struct['precursor_frames'] = mzml_data_struct['td'].conn.execute("SELECT * From Frames where MsMsType=0").fetchall()
-            # Check upper frame range
-            if mzml_data_struct['end_frame'] == -1 or mzml_data_struct['end_frame'] > mzml_data_struct['data_dict']['frame_count']:
-                mzml_data_struct['end_frame'] = mzml_data_struct['data_dict']['frame_count']
-                
-            for precursor_frame in mzml_data_struct['precursor_frames']:
-                # Get Precursor Frame ID
-                mzml_data_struct['current_precursor'] = {}
-                mzml_data_struct['current_precursor']['id'] = precursor_frame[0]
-                mzml_data_struct['current_precursor']['start_time'] = precursor_frame[1]/60
-               
-                if mzml_data_struct['current_precursor']['id'] < mzml_data_struct['start_frame'] or mzml_data_struct['current_precursor']['id'] > mzml_data_struct['end_frame']:
-                    continue
+        # Get Spectra number in specified range
+        total_spectra_count = get_num_spectra(mzml_data_struct)
+        #logging.info("Processing {} Spectra.".format(total_spectra_count))
+        logging.info("Reading, Merging and Formating Frames for mzML")
 
-                write_precursor_frame(mzml_data_struct)
+        with mzml_data_struct['writer'].run(id=1, instrument_configuration='IC1', start_time=mzml_data_struct['data_dict']['acq_date_time']):
+            with mzml_data_struct['writer'].spectrum_list(count=total_spectra_count):
+                # Process Frames
+                mzml_data_struct['scan_loop_time1'] = time.time()
+                mzml_data_struct['scan_index'] = 1
 
-                logging.debug(mzml_data_struct['scan_index'])
-                scan_progress(mzml_data_struct)
-                
-                for precursor_data in get_precursor_list(mzml_data_struct):
-                    mzml_data_struct['current_precursor']['data'] = precursor_data
-                    write_pasef_msms_spectrum(mzml_data_struct)
-        
+                mzml_data_struct['precursor_frames'] = mzml_data_struct['td'].conn.execute("SELECT * From Frames where MsMsType=0").fetchall()
+                # Check upper frame range
+                if mzml_data_struct['end_frame'] == -1 or mzml_data_struct['end_frame'] > mzml_data_struct['data_dict']['frame_count']:
+                    mzml_data_struct['end_frame'] = mzml_data_struct['data_dict']['frame_count']
+
+                for precursor_frame in mzml_data_struct['precursor_frames']:
+                    # Get Precursor Frame ID
+                    mzml_data_struct['current_precursor'] = {}
+                    mzml_data_struct['current_precursor']['id'] = precursor_frame[0]
+                    mzml_data_struct['current_precursor']['start_time'] = precursor_frame[1]/60
+
+                    if mzml_data_struct['current_precursor']['id'] < mzml_data_struct['start_frame'] or mzml_data_struct['current_precursor']['id'] > mzml_data_struct['end_frame']:
+                        continue
+
+                    write_precursor_frame(mzml_data_struct)
+
+                    logging.debug(mzml_data_struct['scan_index'])
                     scan_progress(mzml_data_struct)
 
+                    for precursor_data in get_precursor_list(mzml_data_struct):
+                        mzml_data_struct['current_precursor']['data'] = precursor_data
+                        write_pasef_msms_spectrum(mzml_data_struct)
+
+                        scan_progress(mzml_data_struct)
+
     logging.info("Writing final mzML")
-    mzml_data_struct['writer'].end()
-    update_spectra_count(args['outdir'], args['outfile'], mzml_data_struct['scan_index'])
+    update_spectra_count(args['outdir'], args['outfile'], mzml_data_struct['scan_index'] - 1)
 
     return
 

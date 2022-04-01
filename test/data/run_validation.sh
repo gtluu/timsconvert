@@ -89,6 +89,17 @@ out71=test/data/output/71
 out72=test/data/output/72
 out73=test/data/output/73
 out74=test/data/output/74
+out75=test/data/output/75
+out76=test/data/output/76
+out77=test/data/output/77
+out78=test/data/output/78
+out79=test/data/output/79
+out80=test/data/output/80
+out81=test/data/output/81
+out82=test/data/output/82
+out83=test/data/output/83
+out84=test/data/output/84
+out85=test/data/output/85
 
 # python
 # test lcms
@@ -117,6 +128,18 @@ python bin/run.py --input "$lcms" --outdir "$out19" --mode profile --exclude_mob
 python bin/run.py --input "$lcms" --outdir "$out20" --mode raw --exclude_mobility --ms2_only --verbose
 python bin/run.py --input "$lcms" --outdir "$out21" --mode centroid --exclude_mobility --ms2_only --verbose
 python bin/run.py --input "$lcms" --outdir "$out22" --mode profile --exclude_mobility --ms2_only --verbose
+
+python bin/run.py --input "$lcms" --outdir "$out75" --mode raw --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out76" --mode centroid --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out77" --mode raw --ms2_only --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out78" --mode centroid --ms2_only --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out79" --mode profile --ms2_only --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out80" --mode raw --exclude_mobility --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out81" --mode centroid --exclude_mobility --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out82" --mode profile --exclude_mobility --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out83" --mode raw --exclude_mobility --ms2_only --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out84" --mode centroid --exclude_mobility --ms2_only --lcms_backend tdf2mzml --verbose
+python bin/run.py --input "$lcms" --outdir "$out85" --mode profile --exclude_mobility --ms2_only --lcms_backend tdf2mzml --verbose
 
 python bin/run.py --input "$lcms2" --outdir "$out69" --mode raw --verbose
 python bin/run.py --input "$lcms2" --outdir "$out70" --mode centroid --verbose

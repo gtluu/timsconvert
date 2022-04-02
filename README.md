@@ -82,9 +82,12 @@ conda activate timsconvert
 ```
 conda install -c bioconda nextflow
 ```
-6. Download TIMSCONVERT by cloning the Github repo.
+6. Download TIMSCONVERT by cloning the Github repo. It may be necessary to explicitly allow for the use of symbolic 
+links using by adding the ```-c core.symlinks=true``` parameter on Windows.
 ```
 git clone https://www.github.com/gtluu/timsconvert
+or
+git clone -c core.symlinks=true https://www.github.com/gtluu/timsconvert
 ```
 7. Install dependencies.
 ```

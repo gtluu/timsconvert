@@ -28,3 +28,6 @@ from timsconvert.write_lcms import *
 from timsconvert.write_maldi_dd import *
 from timsconvert.write_maldi_ims import *
 from timsconvert.write_mzml import *
+
+from tdf2mzml.timsdata import *
+from tdf2mzml.tdf2mzml import *

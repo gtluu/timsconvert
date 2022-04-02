@@ -24,19 +24,20 @@ def get_args():
                                             'Empty string.', default='', type=str)
     optional.add_argument('--mode', help='Choose whether export to spectra in "raw", "centroid", or "profile" formats. '
                                          'Defaults to "centroid".', default='centroid', type=str)
-    optional.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be converted.',
-                          action='store_true')
-    optional.add_argument('--exclude_mobility', help='Boolean flag used to exclude trapped ion mobility spectrometry '
-                                                     'data from exported data. Precursor ion mobility information is '
-                                                     'still exported. Recommended when exporting in profile mode due '
-                                                     'to file size.', action='store_true')
-    optional.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). '
-                                             'Defaults to 64-bit.', default=64, type=int)
     optional.add_argument('--compression', help='Choose between ZLIB compression ("zlib") or no compression ("none"). '
                                                 'Defaults to "zlib".', default='zlib', type=str)
 
     # TIMSCONVERT Arguments
-    timsconvert_args = parser.add_argument_group('TIMSCONVERT Parameters')
+    timsconvert_args = parser.add_argument_group('TIMSCONVERT Optional Parameters')
+    timsconvert_args.add_argument('--ms2_only', help='Boolean flag that specifies only MS2 spectra should be '
+                                                     'converted.', action='store_true')
+    timsconvert_args.add_argument('--exclude_mobility', help='Boolean flag used to exclude trapped ion mobility '
+                                                             'spectrometry data from exported data. Precursor ion '
+                                                             'mobility information is still exported. Recommended when '
+                                                             'exporting in profile mode due to file size.',
+                                  action='store_true')
+    timsconvert_args.add_argument('--encoding', help='Choose encoding for binary arrays: 32-bit ("32") or 64-bit '
+                                                     '("64"). Defaults to 64-bit.', default=64, type=int)
     timsconvert_args.add_argument('--profile_bins', help='Number of bins used to bin data when converting in profile '
                                                          'mode. A value of 0 indicates no binning is performed. '
                                                          'Defaults to 0.', default=0, type=int)
@@ -62,7 +63,7 @@ def get_args():
                         action='store_true')
 
     # tdf2mzml Arguments
-    tdf2mzml_args = parser.add_argument_group('tdf2mzml Parameters')
+    tdf2mzml_args = parser.add_argument_group('tdf2mzml Optional Parameters')
     tdf2mzml_args.add_argument('--start_frame', help='Start frame.', default=-1, type=int)
     tdf2mzml_args.add_argument('--end_frame', help='End frame.', default=-1, type=int)
     tdf2mzml_args.add_argument('--precision', help='Precision.', default=10.0, type=float)

@@ -17,9 +17,13 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding):
               {'lowest observed m/z': parent_scan['low_mz']}]
 
     if 'mobility_array' in parent_scan.keys() and parent_scan['mobility_array'] is not None:
-        other_arrays = [({'name': 'ion mobility array',
-                          'unit_name': 'volt-second per square centimeter'},
-                         parent_scan['mobility_array'])]
+        # This version only works with newer versions of psims.
+        # Currently unusable due to boost::interprocess error on Linux.
+        # other_arrays = [({'name': 'ion mobility array',
+        #                  'unit_name': 'volt-second per square centimeter'},
+        #                 parent_scan['mobility_array'])]
+        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
+        other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
     else:
         other_arrays = None
 

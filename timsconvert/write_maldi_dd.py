@@ -18,9 +18,13 @@ def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding):
               {'maldi spot identifier': scan['coord']}]
 
     if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1 and scan['mobility_array'] is not None:
-        other_arrays = [({'name': 'ion mobility array',
-                          'unit_name': 'volt-second per square centimeter'},
-                         scan['mobility_array'])]
+        # This version only works with newer versions of psims.
+        # Currently unusable due to boost::interprocess error on Linux.
+        # other_arrays = [({'name': 'ion mobility array',
+        #                  'unit_name': 'volt-second per square centimeter'},
+        #                 scan['mobility_array'])]
+        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
+        other_arrays = [('ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
 

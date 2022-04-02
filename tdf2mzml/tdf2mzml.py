@@ -158,7 +158,9 @@ def profile_precursor_frame(mzml_data_struct):
     precursor_frame_id = mzml_data_struct['current_precursor']['id'] 
     num_scans = mzml_data_struct['td'].conn.execute("SELECT NumScans FROM Frames WHERE Id={0}".format(precursor_frame_id)).fetchone()[0]
     i_array = mzml_data_struct['td'].extractProfileForFrame(precursor_frame_id, 0, num_scans)
-    m_array = mzml_data_struct['td'].indexToMz(precursor_frame_id,list(range(0, num_scans) ))
+    m_array = np.linspace(mzml_data_struct['data_dict']['mz_acq_range_lower'],
+                          mzml_data_struct['data_dict']['mz_acq_range_upper'],
+                          len(i_array))
     
     return np.array([m_array, i_array])
 
@@ -599,6 +601,7 @@ def write_precursor_frame(mzml_data_struct):
         centroided_flag = True
     elif mzml_data_struct['ms1_type'] == 'profile': 
         ms1_data = profile_precursor_frame(mzml_data_struct)
+        centroided_flag = False
     elif mzml_data_struct['ms1_type'] == 'centroid':                    
         ms1_data = centroid_precursor_frame(mzml_data_struct)
         centroided_flag = True

@@ -606,9 +606,10 @@ def write_precursor_frame(mzml_data_struct):
     ms1_mz_array = np.asarray(ms1_data[0])
     ms1_i_array = np.asarray(ms1_data[1])
 
+    mzml_data_struct['current_precursor']['spectrum_id'] = "scan={}".format(mzml_data_struct['scan_index'])
+
     # Write MS1 Spectrum if not empty.
     if ms1_mz_array.size != 0 and ms1_i_array.size != 0 and ms1_mz_array.size == ms1_i_array.size:
-        mzml_data_struct['current_precursor']['spectrum_id'] = "scan={}".format(mzml_data_struct['scan_index'])
 
         if len(ms1_mz_array) > 1:
             #base_peak_intensity = np.max(ms1_i_array)
@@ -721,8 +722,7 @@ def write_pasef_msms_spectrum(mzml_data_struct):
                     {"inverse reduced ion mobility": ion_mobilitiy, 'unit_accession': 'MS:1002814'}
                 ]
 
-        # Not used due to breaking when omitting empty spectra.
-        #precursor_info["spectrum_reference"] = mzml_data_struct['current_precursor']['spectrum_id']
+        precursor_info["spectrum_reference"] = mzml_data_struct['current_precursor']['spectrum_id']
 
         # TODO find the correct metadata and apply it here properly
         precursor_info["activation"] = [

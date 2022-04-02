@@ -721,7 +721,8 @@ def write_pasef_msms_spectrum(mzml_data_struct):
                     {"inverse reduced ion mobility": ion_mobilitiy, 'unit_accession': 'MS:1002814'}
                 ]
 
-        precursor_info["spectrum_reference"] = mzml_data_struct['current_precursor']['spectrum_id']
+        # Not used due to breaking when omitting empty spectra.
+        #precursor_info["spectrum_reference"] = mzml_data_struct['current_precursor']['spectrum_id']
 
         # TODO find the correct metadata and apply it here properly
         precursor_info["activation"] = [

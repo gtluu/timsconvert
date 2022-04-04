@@ -5,7 +5,11 @@
 // required params
 params.input = ''
 
+// optional params
 params.mode = 'centroid'  // mode can be 'centroid', 'profile', or 'raw'
+params.compression = 'zlib' // zlib or none
+
+// timsconvert params
 params.ms2_only = false  // only convert ms2 spectra
 params.exclude_mobility = false  // exclude mobility arrays from MS1 spectra
 params.profile_bins = 0
@@ -14,9 +18,18 @@ params.maldi_output_file = 'combined' // choose whether MALDI spectra are output
 params.maldi_plate_map = ''
 params.imzml_mode = 'processed'
 
-// system params
+// timsconvert system params
+params.lcms_backend = 'timsconvert'
 params.chunk_size = 10
 params.verbose = true
+
+// tdf2mzml params
+params.start_frame = -1
+params.end_frame = -1
+params.precision = 10.0
+params.ms1_threshold = 100
+params.ms2_threshold = 10
+params.ms2_nlargest = -1
 
 input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
 
@@ -46,14 +59,22 @@ process convert {
         --input $input_file \
         --outdir spectra \
         --mode ${params.mode} \
+        --compression ${params.compression} \
         ${ms2_flag} \
         ${exclude_mobility_flag} \
         --profile_bins ${params.profile_bins} \
         --encoding ${params.encoding} \
         --maldi_output_file ${params.maldi_output_file} \
         --imzml_mode ${params.imzml_mode} \
+        --lcms_backend ${params.lcms_backend} \
         --chunk_size ${params.chunk_size} \
-        ${verbose_flag}
+        ${verbose_flag} \
+        --start_frame ${params.start_frame} \
+        --end_frame ${params.end_frame} \
+        --precision ${params.precision} \
+        --ms1_threshold ${params.ms1_threshold} \
+        --ms2_threshold ${params.ms2_threshold} \
+        --ms2_nlargest ${params.ms2_nlargest}
         """
 
     else if (params.maldi_plate_map != '')
@@ -63,6 +84,7 @@ process convert {
         --input $input_file \
         --outdir spectra \
         --mode ${params.mode} \
+        --compression ${params.compression} \
         ${ms2_flag} \
         ${exclude_mobility_flag} \
         --profile_bins ${params.profile_bins} \
@@ -70,8 +92,15 @@ process convert {
         --maldi_output_file ${params.maldi_output_file} \
         --maldi_plate_map = ${params.maldi_plate_map} \
         --imzml_mode ${params.imzml_mode} \
+        --lcms_backend ${params.lcms_backend} \
         --chunk_size ${params.chunk_size} \
-        ${verbose_flag}
+        ${verbose_flag} \
+        --start_frame ${params.start_frame} \
+        --end_frame ${params.end_frame} \
+        --precision ${params.precision} \
+        --ms1_threshold ${params.ms1_threshold} \
+        --ms2_threshold ${params.ms2_threshold} \
+        --ms2_nlargest ${params.ms2_nlargest}
         """
 }
 

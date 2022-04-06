@@ -2,9 +2,9 @@
 
 ## About
 
-TIMSCONVERT is a workflow designed for mass spectrometrists that allows for the conversion of raw data from Bruker timsTOF Pro, fleX, and SCP mass 
-spectrometers (i.e. .d directory containing BAF, TDF, and TSF files) to open source data formats (i.e. mzML and imzML)
-that:
+TIMSCONVERT is a workflow designed for mass spectrometrists that allows for the conversion of raw data from Bruker 
+timsTOF Pro, fleX, and SCP mass spectrometers (i.e. .d directory containing BAF, TDF, and TSF files) to open source 
+data formats (i.e. mzML and imzML) that:
 1. are compatible with downstream open source data analysis platorms.
 2. incorporate trapped ion mobility spectrometry (TIMS) data into these open source formats.
 3. possess manageable file sizes.
@@ -57,10 +57,12 @@ necessary. All that's required is a GNPS account.
 ### Setting Up Your Local Environment
 
 If you prefer to run TIMSCONVERT locally via Nextflow or the CLI, you can set up an environment to do so. Please note
-that TIMSCONVERT should be run under Linux or Windows Subsystem for Linux (WSL) if using Windows 10.
+that TIMSCONVERT should be run under Linux or Windows. macOS is not supported.
 
-1. Download and install Anaconda. Follow the prompts to complete installation. Anaconda3-2021.11 is used as an example 
-here.
+#### Install Anaconda on Linux
+
+1. Download and install Anaconda for [Linux](https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh). 
+Follow the prompts to complete installation. Anaconda3-2021.11 for Linux is used as an example here.
 ```
 wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
 bash /path/to/Anaconda3-2021.11-Linux-x86_64.sh
@@ -69,6 +71,15 @@ bash /path/to/Anaconda3-2021.11-Linux-x86_64.sh
 ```
 export PATH=$PATH:/path/to/anaconda3/bin
 ```
+
+#### Install Anaconda on Windows.
+
+1. Download and install Anaconda for [Windows](https://repo.anaconda.com/archive/Anaconda3-2021.11-Windows-x86_64.exe). 
+Follow the prompts to complete installation.
+2. Run ```Anaconda Prompt (R-MINI~1)``` as Administrator.
+
+#### Set Up ```conda env```
+
 3. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible 
 with Bruker's API in Linux.
 ```
@@ -82,6 +93,9 @@ conda activate timsconvert
 ```
 conda install -c bioconda nextflow
 ```
+
+#### Install TIMSCONVERT
+
 6. Download TIMSCONVERT by cloning the Github repo. It may be necessary to explicitly allow for the use of symbolic 
 links using by adding the ```-c core.symlinks=true``` parameter on Windows.
 ```
@@ -122,23 +136,26 @@ Note: We recommend excluding ion mobility data (--exclude_mobility) when exporti
 resulting file sizes.
 
 ```
-Required
+Required Parameters
 --input                   Bruker .d file containing TSF/TDF or directory containing multiple Bruker .d files.
 
-Optional
+Optional Parameters
 --outdir                  Path to folder in which to write output file(s). Defaults to .d source folder.
 --outfile                 User defined filename for output if converting a single file. If input is a folder
                           with msdultiple .d files, this parameter should not be used as it results in each file
                           overwriting the previous due to having the same filename.
 --mode                    Choose whether to export spectra in "raw", "centroid", or "profile" formats. Deafults to
                           "centroid".
+--compression             Choose between ZLIB compression ("zlib") or no compression ("none"). Defaults to "zlib".
+
+TIMSCONVERT Optional Parameters
 --ms2_only                Boolean flag that specifies only MS2 spectra should be converted.
 --exclude_mobility        Boolean flag used to exclude trapped ion mobility spectrometry data from exported data. 
                           Precursor ion mobility information is still exported. Recommended when exporting in profile 
                           mode due to file size.
+--encoding                Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
 --profile_bins            Number of bins used to bin data when converting in profile mode. A value of 0 indicates no 
                           binning is performed. Defaults to 0.
---encoding                Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
 --maldi_output_file       For MALDI dried droplet data, whether individual scans should be placed in
                           individual files ("individual") or all into a single file ("combined").
                           Defaults to combined.
@@ -147,10 +164,19 @@ Optional
 --imzml_mode              Whether imzML files should be written in "processed" or "continuous" mode. Defaults
                           to "processed".
 
-System
+TIMSCONVERT System Parameters
+--lcms_backend            Choose whether to use "timsconvert" or "tdf2mzml" backend for LC-TIMS-MS/MS data conversion.
 --chunk_size              Relative size of chunks of spectral data that are parsed and subsequently written at
                           once. 
 --verbose                 Boolean flag to determine whether to print logging output.
+
+tdf2mzml Optional Parameters
+--start_frame             Start frame.
+--end_frame               End frame.
+--precision               Precision.
+--ms1_threshold           Intensity threshold for MS1 data.
+--ms2_threshold           Intensity threshold for MS2 data.
+--ms2_nlargest            N Largest MS2.
 ```
 
 ## Testing

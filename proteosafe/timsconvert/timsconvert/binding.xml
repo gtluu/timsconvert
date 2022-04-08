@@ -22,7 +22,7 @@
         <productionToOutput port="demangled_spectra" production="demangled_spectra"/>
     </bind>
 
-    <bind action="nf_process" tool="nf_process">
+    <bind action="timsconvert_nf_process" tool="nf_process">
         <inputAsRequirement port="demangled_spectra" requirement="demangled_spectra"/>
         <inputAsRequirement port="workflowParameters" requirement="workflowParameters"/>
         <productionToOutput port="workflow_results" production="workflow_results"/>

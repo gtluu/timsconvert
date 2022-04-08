@@ -16,7 +16,7 @@
     </action>
 
     <collection name="workflow_results"/>
-    <action name="nf_process">
+    <action name="timsconvert_nf_process">
         <input  port="demangled_spectra"             collection="demangled_spectra"/>
         <input  port="workflowParameters"            object="workflowParameters"/>
         <output port="workflow_results"              collection="workflow_results"/>

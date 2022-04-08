@@ -239,9 +239,7 @@
                 </label>
             </cell>
             <cell>
-                <label>
-                    <input type="select" parameter="IMZMLMODE"></input>
-                </label>
+                <input type="select" parameter="IMZMLMODE"></input>
             </cell>
         </row>
     </block>

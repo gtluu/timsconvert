@@ -100,7 +100,7 @@
         </parameter>
 
         <!-- tdf2mzml Parameters -->
-        <parameter name="STARTFRAME" label="Start Frame">
+        <!-- <parameter name="STARTFRAME" label="Start Frame">
             <validator type="integer"/>
             <default value="-1"/>
         </parameter>
@@ -124,7 +124,7 @@
             <validator type="integer"/>
             <default value="-1"/>
         </parameter>
-    </parameters>
+    </parameters> -->
 
     <block label="File Selection">
         <row>
@@ -259,7 +259,7 @@
         </row>
     </block>
 
-    <block label="tdf2mzml Parameters">
+    <!-- <block label="tdf2mzml Parameters">
         <row>
             <cell>
                 <label>
@@ -320,5 +320,5 @@
                 <input type="text" parameter="MS2NLARGEST"></input>
             </cell>
         </row>
-    </block>
+    </block> -->
 </interface>

@@ -23,23 +23,15 @@
         </parameter>
 
         <!-- Conversion Parameters -->
-        <parameter name="SPECTRAMODE" label="Spectra Export Mode">
+        <!-- <parameter name="SPECTRAMODE" label="Spectra Export Mode">
             <options>
                 <option value="centroid" label="centroid"/>
-                <!-- <option value="profile" label="profile"/> -->
+                <option value="profile" label="profile"/>
                 <option value="raw" label="raw"/>
             </options>
             <validator type="set"/>
             <default value="centroid"/>
-        </parameter>
-        <parameter name="COMPRESSION" label="Compression">
-            <options>
-                <option value="zlib" label="zlib"/>
-                <option value="none" label="none"/>
-            </options>
-            <validator type="set"/>
-            <default value="zlib"/>
-        </parameter>
+        </parameter> -->
 
         <!-- TIMSCONVERT Parameters -->
         <parameter name="EXPORTMS2ONLY" label="Export MS2 Only">
@@ -57,14 +49,6 @@
             </options>
             <validator type="set"/>
             <default value="False"/>
-        </parameter>
-        <parameter name="ENCODING" label="Binary Array Encoding">
-            <options>
-                <option value="64" label="64"/>
-                <option value="32" label="32"/>
-            </options>
-            <validator type="set"/>
-            <default value="64"/>
         </parameter>
         <!-- <parameter name="PROFILEBINS" label="Number of Profile Bins">
             <validator type="integer"/>
@@ -89,7 +73,7 @@
             <default value="processed"/>
         </parameter>
 
-        <!-- TIMSCONVERT Advanced Parameters -->
+        <!-- Advanced Parameters -->
         <parameter name="LCMSBACKEND" label="LCMS Backend">
             <options>
                 <option value="timsconvert" label="timsconvert"/>
@@ -97,6 +81,22 @@
             </options>
             <validator type="set"/>
             <default value="timsconvert"/>
+        </parameter>
+        <parameter name="COMPRESSION" label="Compression">
+            <options>
+                <option value="zlib" label="zlib"/>
+                <option value="none" label="none"/>
+            </options>
+            <validator type="set"/>
+            <default value="zlib"/>
+        </parameter>
+        <parameter name="ENCODING" label="Binary Array Encoding">
+            <options>
+                <option value="64" label="64"/>
+                <option value="32" label="32"/>
+            </options>
+            <validator type="set"/>
+            <default value="64"/>
         </parameter>
 
         <!-- tdf2mzml Parameters -->
@@ -156,7 +156,7 @@
     </block>
 
     <block label="Conversion Parameters">
-        <row>
+        <!-- <row>
             <cell>
                 <label>
                     <content parameter="SPECTRAMODE"/>
@@ -165,17 +165,7 @@
             <cell>
                 <input type="select" parameter="SPECTRAMODE"></input>
             </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="COMPRESSION"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="select" parameter="COMPRESSION"></input>
-            </cell>
-        </row>
+        </row> -->
     </block>
 
     <block label="TIMSCONVERT Parameters">
@@ -197,16 +187,6 @@
             </cell>
             <cell>
                 <input type="select" parameter="EXCLUDEMOBILITY"></input>
-            </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="ENCODING"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="select" parameter="ENCODING"></input>
             </cell>
         </row>
         <!-- <row>
@@ -244,7 +224,7 @@
         </row>
     </block>
 
-    <block label="TIMSCONVERT Advanced Parameters">
+    <block label="Advanced Parameters">
         <row>
             <cell>
                 <label>
@@ -253,6 +233,26 @@
             </cell>
             <cell>
                 <input type="select" parameter="LCMSBACKEND"></input>
+            </cell>
+        </row>
+        <row>
+            <cell>
+                <label>
+                    <content parameter="COMPRESSION"/>
+                </label>
+            </cell>
+            <cell>
+                <input type="select" parameter="COMPRESSION"></input>
+            </cell>
+        </row>
+        <row>
+            <cell>
+                <label>
+                    <content parameter="ENCODING"/>
+                </label>
+            </cell>
+            <cell>
+                <input type="select" parameter="ENCODING"></input>
             </cell>
         </row>
     </block>

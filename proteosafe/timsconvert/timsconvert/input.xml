@@ -27,7 +27,7 @@
             <options>
                 <option value="centroid" label="centroid"/>
                 <option value="profile" label="profile"/>
-                <option value="raw" label="raw"/>
+                <!-- <option value="raw" label="raw"/> -->
             </options>
             <validator type="set"/>
             <default value="centroid"/>
@@ -66,10 +66,10 @@
             <validator type="set"/>
             <default value="64"/>
         </parameter>
-        <parameter name="PROFILEBINS" label="Number of Profile Bins">
+        <!-- <parameter name="PROFILEBINS" label="Number of Profile Bins">
             <validator type="integer"/>
             <default value="0"/>
-        </parameter>
+        </parameter> -->
 
         <!-- TIMSCONVERT MALDI Parameters -->
         <parameter name="MALDIOUTPUTMODE" label="MALDI Output Mode">
@@ -209,7 +209,7 @@
                 <input type="select" parameter="ENCODING"></input>
             </cell>
         </row>
-        <row>
+        <!-- <row>
             <cell>
                 <label>
                     <content parameter="PROFILEBINS"/>
@@ -218,7 +218,7 @@
             <cell>
                 <input type="text" parameter="PROFILEBINS"></input>
             </cell>
-        </row>
+        </row> -->
     </block>
 
     <block label="TIMSCONVERT MALDI Parameters">

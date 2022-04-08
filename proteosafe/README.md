@@ -5,7 +5,7 @@ On the GNPS side, to get everything set up for this template workflow, need a fe
 Installing Conda Enviornment
 
 ```
-conda create -n timsconvert python=3.8
+conda create -n timsconvert python=3.7
 ```
 
 Installing dependencies

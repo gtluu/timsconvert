@@ -10,8 +10,8 @@ params.mode = 'centroid'  // mode can be 'centroid', 'profile', or 'raw'
 params.compression = 'zlib' // zlib or none
 
 // timsconvert params
-params.ms2_only = false  // only convert ms2 spectra
-params.exclude_mobility = false  // exclude mobility arrays from MS1 spectra
+params.ms2_only = 'False'  // only convert ms2 spectra
+params.exclude_mobility = 'False'  // exclude mobility arrays from MS1 spectra
 params.profile_bins = 0
 params.encoding = 64
 params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
@@ -21,7 +21,7 @@ params.imzml_mode = 'processed'
 // timsconvert system params
 params.lcms_backend = 'timsconvert'
 params.chunk_size = 10
-params.verbose = true
+params.verbose = 'True'
 
 // tdf2mzml params
 params.start_frame = -1
@@ -48,9 +48,9 @@ process convert {
     file "spectra/*mzML" into _spectra_ch
 
     script:
-    def ms2_flag = params.ms2_only == true ? "--ms2_only" : ''
-    def verbose_flag = params.verbose == true ? "--verbose" : ''
-    def exclude_mobility_flag = params.exclude_mobility == true ? "--exclude_mobility" : ''
+    def ms2_flag = params.ms2_only == 'True' ? "--ms2_only" : ''
+    def verbose_flag = params.verbose == 'True' ? "--verbose" : ''
+    def exclude_mobility_flag = params.exclude_mobility == 'True' ? "--exclude_mobility" : ''
 
     if (params.maldi_plate_map == '')
         """

@@ -26,8 +26,8 @@
         <parameter name="SPECTRAMODE" label="Spectra Export Mode">
             <options>
                 <option value="centroid" label="centroid"/>
-                <option value="profile" label="profile"/>
-                <!-- <option value="raw" label="raw"/> -->
+                <!-- <option value="profile" label="profile"/> -->
+                <option value="raw" label="raw"/>
             </options>
             <validator type="set"/>
             <default value="centroid"/>

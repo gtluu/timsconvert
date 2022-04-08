@@ -123,8 +123,8 @@
         <parameter name="MS2NLARGEST" label="N Largest MS2">
             <validator type="integer"/>
             <default value="-1"/>
-        </parameter>
-    </parameters> -->
+        </parameter> -->
+    </parameters>
 
     <block label="File Selection">
         <row>

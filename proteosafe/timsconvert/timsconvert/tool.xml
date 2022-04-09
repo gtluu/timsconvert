@@ -45,7 +45,7 @@
             <arg valueRef="workflowParameters"/>
             <arg pathRef="nextflow.script"/>
             <arg pathRef="conda_activate_path"/>
-            <arg value="alphatims"/>
+            <arg value="timsconvert"/>
 
             <arg option="-metricoutput" valueRef="workflow_results"/>
 

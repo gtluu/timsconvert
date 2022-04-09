@@ -1,6 +1,6 @@
 <toolset>
     <!-- Demangling -->
-    <pathSet base="miniconda3_gamma/envs/alphatims/bin">
+    <pathSet base="miniconda3_gamma/envs/timsconvert/bin">
         <toolPath tool="demangle_spectra" path="python3"/>
     </pathSet>
     <pathSet base="$base">
@@ -21,7 +21,7 @@
         </execution>
     </tool>
 
-    <pathSet base="miniconda3_gamma/envs/alphatims/bin">
+    <pathSet base="miniconda3_gamma/envs/timsconvert/bin">
         <toolPath tool="nf_process" path="python3"/>
         <pathVar name="python_runtime" path="python3"/>
     </pathSet>

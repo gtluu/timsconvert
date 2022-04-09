@@ -14,4 +14,5 @@ Installing dependencies
 conda install -n timsconvert -c bioconda nextflow
 conda activate timsconvert 
 pip install -r requirements.txt
+pip install xmltodict requests
 ```

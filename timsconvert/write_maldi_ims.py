@@ -12,10 +12,17 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
     elif data.meta_data['SchemaType'] == 'TDF':
         list_of_scan_dicts = parse_maldi_tdf(data, frame_start, frame_stop, mode, False, exclude_mobility, profile_bins,
                                              encoding)
-    for scan_dict in list_of_scan_dicts:
-        imzml_file.addSpectrum(scan_dict['mz_array'],
-                               scan_dict['intensity_array'],
-                               scan_dict['coord'])
+    if data.meta_data['SchemaType'] == 'TSF':
+        for scan_dict in list_of_scan_dicts:
+            imzml_file.addSpectrum(scan_dict['mz_array'],
+                                   scan_dict['intensity_array'],
+                                   scan_dict['coord'])
+    elif data.meta_data['SchemaType'] == 'TDF' and not exclude_mobility == True:
+        for scan_dict in list_of_scan_dicts:
+            imzml_file.addSpectrum(scan_dict['mz_array'],
+                                   scan_dict['intensity_array'],
+                                   scan_dict['mobility_array'],
+                                   scan_dict['coord'])
 
 
 def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
@@ -60,8 +67,10 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                          spec_type=centroided,
                          mz_dtype=encoding_dtype,
                          intensity_dtype=encoding_dtype,
+                         mobility_dtype=encoding_dtype,
                          mz_compression=compression_object,
-                         intensity_compression=compression_object)
+                         intensity_compression=compression_object,
+                         mobility_compression=compression_object)
 
     logging.info(get_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
     with writer as imzml_file:

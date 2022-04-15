@@ -107,6 +107,11 @@ git clone -c core.symlinks=true https://www.github.com/gtluu/timsconvert
 ```
 pip install -r /path/to/timsconvert/requirements.txt
 ```
+8. You will also need to install our forked version of pyimzML, which has added support for ion mobility arrays in imzML
+ data from imaging mass spectrometry experiments.
+```
+pip install git+https://github.com/gtluu/pyimzML
+```
 
 ### Nextflow Workflow
 

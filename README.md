@@ -149,7 +149,7 @@ Optional Parameters
 --outfile                 User defined filename for output if converting a single file. If input is a folder
                           with msdultiple .d files, this parameter should not be used as it results in each file
                           overwriting the previous due to having the same filename.
---mode                    Choose whether to export spectra in "raw", "centroid", or "profile" formats. Deafults to
+--mode                    Choose whether to export spectra in "raw" or "centroid" formats. Deafults to
                           "centroid".
 --compression             Choose between ZLIB compression ("zlib") or no compression ("none"). Defaults to "zlib".
 
@@ -159,8 +159,6 @@ TIMSCONVERT Optional Parameters
                           Precursor ion mobility information is still exported. Recommended when exporting in profile 
                           mode due to file size.
 --encoding                Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
---profile_bins            Number of bins used to bin data when converting in profile mode. A value of 0 indicates no 
-                          binning is performed. Defaults to 0.
 --maldi_output_file       For MALDI dried droplet data, whether individual scans should be placed in
                           individual files ("individual") or all into a single file ("combined").
                           Defaults to combined.

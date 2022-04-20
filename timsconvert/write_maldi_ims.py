@@ -17,12 +17,18 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
             imzml_file.addSpectrum(scan_dict['mz_array'],
                                    scan_dict['intensity_array'],
                                    scan_dict['coord'])
-    elif data.meta_data['SchemaType'] == 'TDF' and not exclude_mobility == True:
-        for scan_dict in list_of_scan_dicts:
-            imzml_file.addSpectrum(scan_dict['mz_array'],
-                                   scan_dict['intensity_array'],
-                                   scan_dict['mobility_array'],
-                                   scan_dict['coord'])
+    elif data.meta_data['SchemaType'] == 'TDF':
+        if exclude_mobility == False:
+            for scan_dict in list_of_scan_dicts:
+                imzml_file.addSpectrum(scan_dict['mz_array'],
+                                       scan_dict['intensity_array'],
+                                       scan_dict['coord'],
+                                       mobilities=scan_dict['mobility_array'])
+        elif exclude_mobility == True:
+            for scan_dict in list_of_scan_dicts:
+                imzml_file.addSpectrum(scan_dict['mz_array'],
+                                       scan_dict['intensity_array'],
+                                       scan_dict['coord'])
 
 
 def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
@@ -61,16 +67,28 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
     elif compression == 'none':
         compression_object = NoCompression()
 
-    writer = ImzMLWriter(os.path.join(outdir, outfile),
-                         polarity=polarity,
-                         mode=imzml_mode,
-                         spec_type=centroided,
-                         mz_dtype=encoding_dtype,
-                         intensity_dtype=encoding_dtype,
-                         mobility_dtype=encoding_dtype,
-                         mz_compression=compression_object,
-                         intensity_compression=compression_object,
-                         mobility_compression=compression_object)
+    if exclude_mobility == False:
+        writer = ImzMLWriter(os.path.join(outdir, outfile),
+                             polarity=polarity,
+                             mode=imzml_mode,
+                             spec_type=centroided,
+                             mz_dtype=encoding_dtype,
+                             intensity_dtype=encoding_dtype,
+                             mobility_dtype=encoding_dtype,
+                             mz_compression=compression_object,
+                             intensity_compression=compression_object,
+                             mobility_compression=compression_object,
+                             include_mobility=True)
+    elif exclude_mobility == True:
+        writer = ImzMLWriter(os.path.join(outdir, outfile),
+                             polarity=polarity,
+                             mode=imzml_mode,
+                             spec_type=centroided,
+                             mz_dtype=encoding_dtype,
+                             intensity_dtype=encoding_dtype,
+                             mz_compression=compression_object,
+                             intensity_compression=compression_object,
+                             include_mobility=False)
 
     logging.info(get_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
     with writer as imzml_file:

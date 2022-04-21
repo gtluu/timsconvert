@@ -149,7 +149,7 @@ docker build --tag timsconvert .
 ```
 2. Run the Docker image in a container.
 ```
-docker run -rm -it -v /path/to/data:/data timsconvert --input /data --outdir /data
+docker run --rm -it -v /path/to/data:/data timsconvert --input /data --outdir /data
 ```
 
 ## Parameters

@@ -40,7 +40,7 @@ def parse_request_data(request):
 
 def run_timsconvert_process(args):
     # Build TIMSCONVERT command.
-    run_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'bin', 'run.py')
+    run_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'run.py')
     cmd = 'python ' + run_path + ' '
     for key, value in args.items():
         if value == 'True':

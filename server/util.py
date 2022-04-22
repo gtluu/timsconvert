@@ -1,7 +1,7 @@
 import os
 import tarfile
 import subprocess
-from timsconvert_server.constants import UPLOAD_FOLDER
+from server.constants import UPLOAD_FOLDER
 
 
 def decompress_tarball(uploaded_data_path):

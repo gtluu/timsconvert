@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_executor import Executor
-from timsconvert_server.constants import *
+from server.constants import *
 
 
 app = Flask(__name__, template_folder=TEMPLATES_DIR)

@@ -1,7 +1,7 @@
 from flask import render_template, request, url_for, redirect, send_from_directory
-from timsconvert_server.apps import *
-from timsconvert_server.util import *
-from timsconvert_server.constants import *
+from server.apps import *
+from server.util import *
+from server.constants import *
 
 
 @app.route('/', methods=['GET'])

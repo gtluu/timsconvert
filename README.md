@@ -115,6 +115,8 @@ pip install git+https://github.com/gtluu/pyimzML
 
 ### Nextflow Workflow
 
+A Nextflow workflow has been provided to run TIMSCONVERT.
+
 1. Run the ```nextflow.nf``` script provided in this repo and specify your input directory and experiment type. Unless 
 specified, all other default parameters for all other values will be used. See below for an explanation of all 
 parameters.
@@ -131,9 +133,24 @@ The CLI version of TIMSCONVERT supports conversion of all experimental data type
 1. Use ```bin/run.py``` to run TIMSCONVERT. The input directory and experiment type. Unless specified, all other 
 default parameters for all other values will be used. See below for an explanation of all parameters.
 ```
+python /path/to/timsconvert/bin/run.py --input /path/to/data
+or
 python3 /path/to/timsconvert/bin/run.py --input /path/to/data
 ```
 2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
+
+### Docker
+
+A Dockerfile has also been provided to run TIMSCONVERT inside a Docker container.
+
+1. Build the Docker image.
+```
+docker build --tag timsconvert .
+```
+2. Run the Docker image in a container.
+```
+docker run --rm -it -v /path/to/data:/data timsconvert --input /data --outdir /data
+```
 
 ## Parameters
 

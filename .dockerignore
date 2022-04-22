@@ -1,3 +1,4 @@
+.git
 *pyc
 /.ipynb_checkpoints
 /.idea
@@ -9,3 +10,6 @@
 /data
 /timsconvert.egg-info
 /dist
+.gitignore
+README.md
+changelog.txt

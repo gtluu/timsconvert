@@ -14,3 +14,4 @@ SQLAlchemy==1.3.16
 flask==2.1.1
 Jinja2==3.1.1
 flask_executor==0.10.0
+requests==2.27.1

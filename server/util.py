@@ -1,60 +1,52 @@
+import sys
 import os
 import tarfile
-import subprocess
+#import subprocess
+import requests
 from server.constants import UPLOAD_FOLDER
+
+
+def upload_data(filename):
+    url = 'http://localhost:5000/upload'
+    files = {'data': ('data.tar.gz', open(filename, 'rb'))}
+    req = requests.post(url, files=files)
+    print(req.text, file=sys.stdout)
+    return req.text  # uploaded_data_path
 
 
 def decompress_tarball(uploaded_data_path):
     if uploaded_data_path.endswith('.tar.gz'):
         with tarfile.open(uploaded_data_path) as tarball:
             tarball.extractall(UPLOAD_FOLDER)
-        tarball_filename = uploaded_data_path[:-7]
-        return tarball_filename
+        tarball_dirname = uploaded_data_path[:-7]
+        return tarball_dirname
 
 
-def parse_request_data(request):
-    # Save uploaded files.
-    uploaded_data = request.files['data']
-    uploaded_data_path = os.path.join(UPLOAD_FOLDER, uploaded_data.filename)
-    uploaded_data.save(uploaded_data_path)
-
-    if str(request.form['plate_map_present']) == 'True':
-        uploaded_plate_map = request.files['plate_map']
-        uploaded_plate_map_path = os.path.join(UPLOAD_FOLDER, uploaded_plate_map.filename)
-        uploaded_plate_map.save(uploaded_plate_map_path)
-    elif str(request.form['plate_map_present']) == 'False':
-        uploaded_plate_map_path = ''
-
-    # Get args for TIMSCONVERT.
-    args = {'--input': decompress_tarball(uploaded_data_path),
-            '--outdir': os.path.join(UPLOAD_FOLDER, 'output'),
-            '--maldi_plate_map': uploaded_plate_map_path,
-            '--ms2_only': str(request.form['ms2_only']),
-            '--exclude_mobility': str(request.form['exclude_mobility']),
-            '--maldi_output_file': str(request.form['maldi_output_mode']),
-            '--imzml_mode': str(request.form['imzml_mode']),
-            '--verbose': 'True'}
-
+def get_default_args(job_uuid):
+    print('Getting args')
+    args = {'uuid': job_uuid,
+            'input': decompress_tarball(os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz')),
+            'outdir': os.path.join(UPLOAD_FOLDER, str(job_uuid), 'output'),
+            'outfile': '',
+            'mode': 'centroid',
+            'compression': 'zlib',
+            'ms2_only': False,
+            'exclude_mobility': False,
+            'encoding': 64,
+            'profile_bins': 0,
+            'maldi_output_file': 'combined',
+            'maldi_plate_map': '',  # check if exists in tarball and if not make it blank
+            'imzml_mode': 'processed',
+            'lcms_backend': 'timsconvert',
+            'chunk_size': 10,
+            'verbose': True,
+            'start_frame': -1,
+            'end_frame': -1,
+            'precision': 10.0,
+            'ms1_threshold': 100.0,
+            'ms2_threshold': 10.0,
+            'ms2_nlargest': -1}
     return args
-
-
-def run_timsconvert_process(args):
-    # Build TIMSCONVERT command.
-    run_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'run.py')
-    cmd = 'python ' + run_path + ' '
-    for key, value in args.items():
-        if value == 'True':
-            cmd += str(key) + ' '
-        elif value != '' and value != 'False':
-            cmd += str(key) + ' ' + str(value) + ' '
-
-    # Run TIMSCONVERT.
-    subprocess.call(cmd, shell=True)
-
-    # Update job status.
-    with open(os.path.join(UPLOAD_FOLDER, 'status.txt'), 'w') as status_file:
-        status_file.write('done')
-    return
 
 
 def compress_output(output_directory_path):

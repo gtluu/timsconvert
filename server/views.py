@@ -1,35 +1,60 @@
 from flask import render_template, request, url_for, redirect, send_from_directory
-from server.apps import *
+import uuid
+import requests
+import json
+from server.apps import app, executor
 from server.util import *
 from server.constants import *
+from run import *
 
 
 @app.route('/', methods=['GET'])
 def index():
+    # Hard code filename for now
+    #filename = 'C:\\Users\\gordon\\Data\\data.tar.gz'
+    #job_uuid = upload_data(filename)
+    #print(str(job_uuid), file=sys.stdout)
+    #return redirect(url_for('run', job_uuid=str(job_uuid)))
     return render_template('timsconvert.html')
 
 
-@app.route('/run', methods=['GET', 'POST'])
-def run():
+@app.route('/upload', methods=['POST'])
+def upload():
     if request.method == 'POST':
-        args = parse_request_data(request)
-
-        executor.submit(run_timsconvert_process, args)
-
-        with open(os.path.join(UPLOAD_FOLDER, 'status.txt'), 'w') as status_file:
-            status_file.write('running')
-
-        return redirect(url_for('status'))
+        uploaded_data = request.files['data']
+        job_uuid = str(uuid.uuid4())
+        uploaded_data_path = os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz')  # replace filename with uuid
+        uploaded_data.save(uploaded_data_path)
+        return job_uuid
 
 
-@app.route('/status', methods=['GET', 'POST'])
-def status():
-    with open(os.path.join(UPLOAD_FOLDER, 'status.txt'), 'r') as status_file:
-        status = status_file.read()
-        if status == 'running':
-            return render_template('status.html')
-        elif status == 'done':
-            return redirect(url_for('results'))
+@app.route('/run/<job_uuid>', methods=['GET', 'POST'])
+def run(job_uuid):
+    print(request.method, file=sys.stdout)
+    print('1')
+    print('1', file=sys.stdout)
+    print('2', file=sys.stdout)
+    url = 'http://localhost:5000/run_timsconvert_job'
+    print(url, file=sys.stdout)
+    print('3', file=sys.stdout)
+    requests.post(url, params={'uuid': job_uuid})
+    print('4', file=sys.stdout)
+    return redirect(url_for('status', job_uuid=job_uuid))
+
+
+@app.route('/run_timsconvert_job', methods=['POST'])
+def run_timsconvert_job(job_uuid):
+    print('5', file=sys.stdout)
+    if request.method == 'POST':
+        args = get_default_args(job_uuid)
+        executor.submit(run_timsconvert, args)
+        return 'ok'
+
+
+@app.route('/status/<job_uuid>', methods=['GET'])
+def status(job_uuid):
+    # if status done, redirect to results. if not, redirect to status.
+    return render_template('status.html')
 
 
 @app.route('/results', methods=['GET'])

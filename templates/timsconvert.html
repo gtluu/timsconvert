@@ -51,59 +51,9 @@
         </style>
     </head>
 	<body>
-        <p style="font-size:24pt">Convert Data with TIMSCONVERT</p>
+        <p style="font-size:24pt">Data has been Uploaded to TIMSCONVERT</p>
         <br>
         <form action="/run" method="POST" enctype="multipart/form-data">
-            <label for="data">Raw Input Data</label>
-            <br>
-            <input type="file" id="data" name="data"/>
-            <br>
-            <br>
-            <label for="plate_map_present">Upload Plate Map?</label>
-            <br>
-            <select id="plate_map_present" name="plate_map_present">
-                <option value="False">False</option>
-                <option value="True">True</option>
-            </select>
-            <br>
-            <br>
-            <label for="plate_map">MALDI Plate Map</label>
-            <br>
-            <input type="file" id="plate_map" name="plate_map"/>
-            <br>
-            <br>
-            <label for="ms2_only">Export MS2 Only</label>
-            <br>
-            <select id="ms2_only" name="ms2_only">
-                <option value="False">False</option>
-                <option value="True">True</option>
-            </select>
-            <br>
-            <br>
-            <label for="exclude_mobility">Exclude Mobility</label>
-            <br>
-            <select id="exclude_mobility" name="exclude_mobility">
-                <option value="False">False</option>
-                <option value="True">True</option>
-            </select>
-            <br>
-            <br>
-            <label for="maldi_output_mode">MALDI Output Mode</label>
-            <br>
-            <select id="maldi_output_mode" name="maldi_output_mode">
-                <option value="combined">combined</option>
-                <option value="individual">individual</option>
-            </select>
-            <br>
-            <br>
-            <label for="imzml_mode">imzML Mode</label>
-            <br>
-            <select id="imzml_mode" name="imzml_mode">
-                <option value="processed">Processed</option>
-                <option value="continuous">Continuous</option>
-            </select>
-            <br>
-            <br>
             <input type="submit" value="Run TIMSCONVERT"/>
         </form>
     </body>

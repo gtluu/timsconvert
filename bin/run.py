@@ -4,6 +4,28 @@ from tdf2mzml import *
 
 
 def run_timsconvert(args):
+    # Initialize logger.
+    logname = 'log_' + get_timestamp() + '.log'
+    if args['outdir'] == '':
+        if os.path.isdir(args['input']):
+            logfile = os.path.join(args['input'], logname)
+        else:
+            logfile = os.path.split(args['input'])[0]
+            logfile = os.path.join(logfile, logname)
+    else:
+        logfile = os.path.join(args['outdir'], logname)
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    logging.basicConfig(filename=logfile, level=logging.INFO)
+    if args['verbose']:
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    logger = logging.getLogger(__name__)
+
+    # Check to make sure using Python 3.7.
+    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
+        logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
+        sys.exit(1)
+
     # Initialize Bruker DLL.
     logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
     tdf_sdk_dll = init_tdf_sdk_dll(TDF_SDK_DLL_FILE_NAME)
@@ -100,33 +122,11 @@ def run_timsconvert(args):
 
 if __name__ == '__main__':
     # Parse arguments.
-    arguments = get_args()
+    args = get_args()
 
     # Check arguments.
-    args_check(arguments)
-    arguments['version'] = '1.1.0'
-
-    # Initialize logger.
-    logname = 'log_' + get_timestamp() + '.log'
-    if arguments['outdir'] == '':
-        if os.path.isdir(arguments['input']):
-            logfile = os.path.join(arguments['input'], logname)
-        else:
-            logfile = os.path.split(arguments['input'])[0]
-            logfile = os.path.join(logfile, logname)
-    else:
-        logfile = os.path.join(arguments['outdir'], logname)
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-    logging.basicConfig(filename=logfile, level=logging.INFO)
-    if arguments['verbose']:
-        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    logger = logging.getLogger(__name__)
-
-    # Check to make sure using Python 3.7.
-    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
-        logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
-        sys.exit(1)
+    args_check(args)
+    args['version'] = '1.1.0'
 
     # Run.
-    run_timsconvert(arguments)
+    run_timsconvert(args)

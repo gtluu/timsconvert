@@ -18,7 +18,3 @@ def schema_detection(bruker_dot_d_file):
         return 'TSF'
     elif '.baf' in exts and '.tdf' not in exts and '.tsf' not in exts:
         return 'BAF'
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

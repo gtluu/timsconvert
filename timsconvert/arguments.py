@@ -121,7 +121,3 @@ def args_check(args):
         logging.info(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     return args
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

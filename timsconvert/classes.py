@@ -565,7 +565,3 @@ class tdf_data(object):
 
     def close_sql_connection(self):
         self.conn.close()
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

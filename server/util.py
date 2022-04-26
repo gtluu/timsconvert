@@ -3,7 +3,6 @@ import os
 import shutil
 import sqlite3
 import tarfile
-#import subprocess
 import requests
 from server.constants import UPLOAD_FOLDER, JOBS_DB
 
@@ -60,6 +59,7 @@ def add_job_to_db(job_uuid):
 def compress_output(output_directory_path, job_uuid):
     with tarfile.open(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'), 'w:gz') as newtar:
         newtar.add(os.path.join(output_directory_path, 'output'), 'spectra')
+    shutil.rmtree(os.path.join(UPLOAD_FOLDER, job_uuid))
     return
 
 

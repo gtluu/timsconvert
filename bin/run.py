@@ -1,4 +1,3 @@
-import copy
 from timsconvert import *
 from tdf2mzml import *
 
@@ -6,6 +5,8 @@ from tdf2mzml import *
 def run_timsconvert(args):
     # Args check.
     args_check(args)
+    # Check arguments.
+    args['version'] = '1.1.0'
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
@@ -22,9 +23,6 @@ def run_timsconvert(args):
     logging.basicConfig(filename=logfile, level=logging.INFO)
     if args['verbose']:
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    logger = logging.getLogger(__name__)
-    #file_handler = logging.FileHandler(filename=logfile)
-    #logger.addHandler(file_handler)
 
     # Check to make sure using Python 3.7.
     if not sys.version_info.major == 3 and sys.version_info.minor == 7:
@@ -141,18 +139,14 @@ def run_timsconvert(args):
             cur.execute('UPDATE jobs SET status=? WHERE id=?', ('DONE', args['uuid']))
             conn.commit()
 
-    #logging.shutdown()
-    #for han in logger.handlers:
-        #logger.removeHandler(han)
-    #file_handler.close()
+    for hand in logging.getLogger().handlers:
+        logging.getLogger().removeHandler(hand)
+    logging.shutdown()
 
 
 if __name__ == '__main__':
     # Parse arguments.
     args = get_args()
-
-    # Check arguments.
-    args['version'] = '1.1.0'
 
     # Run.
     run_timsconvert(args)

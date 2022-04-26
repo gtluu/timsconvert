@@ -1,11 +1,9 @@
 from flask import render_template, request, url_for, redirect, send_from_directory
 import uuid
-import requests
-import json
 from server.apps import app, executor
 from server.util import *
 from server.constants import *
-from run import *
+#from bin.run import run_timsconvert
 
 
 @app.route('/', methods=['GET'])
@@ -14,8 +12,8 @@ def index():
     #filename = 'C:\\Users\\gordon\\Data\\data.tar.gz'
     #job_uuid = upload_data(filename)
     #print(str(job_uuid), file=sys.stdout)
-    #return redirect(url_for('run', job_uuid=str(job_uuid)))
-    return render_template('timsconvert.html')
+    #return redirect(url_for('job', job_uuid=str(job_uuid)))
+    return render_template('timsconvert_old.html')
 
 
 @app.route('/upload', methods=['POST'])
@@ -28,8 +26,8 @@ def upload():
         return job_uuid
 
 
-@app.route('/run/<job_uuid>', methods=['GET', 'POST'])
-def run(job_uuid):
+@app.route('/job/<job_uuid>', methods=['GET', 'POST'])
+def job(job_uuid):
     print(request.method, file=sys.stdout)
     print('1')
     print('1', file=sys.stdout)
@@ -49,6 +47,12 @@ def run_timsconvert_job(job_uuid):
         args = get_default_args(job_uuid)
         executor.submit(run_timsconvert, args)
         return 'ok'
+
+
+@app.route('/status', methods=['GET'])
+def status2():
+    # if status done, redirect to results. if not, redirect to status.
+    return render_template('status.html')
 
 
 @app.route('/status/<job_uuid>', methods=['GET'])

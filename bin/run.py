@@ -4,7 +4,10 @@ from tdf2mzml import *
 
 
 def run_timsconvert(args):
-    # Initialize logger.
+    # Args check.
+    args_check(args)
+
+    # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
     if args['outdir'] == '':
         if os.path.isdir(args['input']):
@@ -20,11 +23,21 @@ def run_timsconvert(args):
     if args['verbose']:
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logger = logging.getLogger(__name__)
+    #file_handler = logging.FileHandler(filename=logfile)
+    #logger.addHandler(file_handler)
 
     # Check to make sure using Python 3.7.
     if not sys.version_info.major == 3 and sys.version_info.minor == 7:
         logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
         sys.exit(1)
+
+    # Update jobs.db if running on server.
+    if 'uuid' in args.keys():
+        with sqlite3.connect(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                                          'db', 'jobs.db')) as conn:
+            cur = conn.cursor()
+            cur.execute('UPDATE jobs SET status=? WHERE id=?', ('RUNNING', args['uuid']))
+            conn.commit()
 
     # Initialize Bruker DLL.
     logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
@@ -119,13 +132,26 @@ def run_timsconvert(args):
                             run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
                             run_args['encoding'], run_args['compression'], run_args['chunk_size'])
 
+    # Update jobs.db if running on server.
+    if 'uuid' in args.keys():
+        with sqlite3.connect(
+                os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                             'db', 'jobs.db')) as conn:
+            cur = conn.cursor()
+            cur.execute('UPDATE jobs SET status=? WHERE id=?', ('DONE', args['uuid']))
+            conn.commit()
+
+    #logging.shutdown()
+    #for han in logger.handlers:
+        #logger.removeHandler(han)
+    #file_handler.close()
+
 
 if __name__ == '__main__':
     # Parse arguments.
     args = get_args()
 
     # Check arguments.
-    args_check(args)
     args['version'] = '1.1.0'
 
     # Run.

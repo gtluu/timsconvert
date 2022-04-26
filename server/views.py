@@ -69,3 +69,9 @@ def results(job_uuid):
 def download_results():
     job_uuid = request.args.get('uuid')
     return send_from_directory(UPLOAD_FOLDER, job_uuid + '_output.tar.gz')
+
+
+@app.route('/cleanup')
+def cleanup():
+    executor.submit(rebirth)
+    return 'ok'

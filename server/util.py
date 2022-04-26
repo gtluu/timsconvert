@@ -60,5 +60,9 @@ def add_job_to_db(job_uuid):
 def compress_output(output_directory_path, job_uuid):
     with tarfile.open(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'), 'w:gz') as newtar:
         newtar.add(os.path.join(output_directory_path, 'output'), 'spectra')
-    #shutil.rmtree(output_directory_path)
     return
+
+
+def rebirth():
+    shutil.rmtree(UPLOAD_FOLDER)
+    os.mkdir(UPLOAD_FOLDER)

@@ -12,10 +12,14 @@ def download_timsconvert_job(uuid, output):
     # req = requests.post(status_url)
     req = requests.get(job_url)
     if req.status_code == 200:
-        # Write downloaded data.
-        with open(os.path.join(output, uuid + '.tar.gz'), 'wb') as tarball:
-            tarball.write(req.content)
-        logging.info(get_timestamp() + ': Data ' + uuid + '.tar.gz has been downloaded to ' + output)
+        if req.text != 'DELETED':
+            # Write downloaded data.
+            with open(os.path.join(output, uuid + '.tar.gz'), 'wb') as tarball:
+                tarball.write(req.content)
+            logging.info(get_timestamp() + ': Data ' + uuid + '.tar.gz has been downloaded to ' + output)
+        else:
+            logging.info(get_timestamp() + ': Data for job ' + uuid + ' has been deleted from servers. Please re-run.')
+            sys.exit(1)
     else:
         logging.info(get_timestamp() + ':' + 'TIMSCONVERT results could not be downloaded.')
         req.raise_for_status()

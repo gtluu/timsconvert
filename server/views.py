@@ -56,10 +56,16 @@ def download_results():
     if request.method == 'GET':
         # Get UUID from GET request.
         job_uuid = request.args.get('uuid')
-        # Compress data for download.
-        compress_data(job_uuid)
-        # Download data.
-        return send_from_directory(UPLOAD_FOLDER, job_uuid + '_output.tar.gz')
+        # Check to make sure data not deleted.
+        jobs_table = get_jobs_table()
+        file_presence = jobs_table.loc[jobs_table['id'] == job_uuid]['data'].values[0]
+        if str(file_presence) == 'ON_SERVER':
+            # Compress data for download.
+            compress_data(job_uuid)
+            # Download data.
+            return send_from_directory(UPLOAD_FOLDER, job_uuid + '_output.tar.gz')
+        elif str(file_presence) == 'DELETED':
+            return 'DELETED'
 
 
 @app.route('/purge')

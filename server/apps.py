@@ -4,7 +4,7 @@ from server.constants import *
 
 
 # Make Flask instance.
-app = Flask(__name__, template_folder=TEMPLATES_DIR)
+app = Flask(__name__)
 
 # Create and set upload folder.
 if not os.path.exists(UPLOAD_FOLDER):

@@ -19,7 +19,7 @@ def index():
 def upload():
     if request.method == 'POST':
         uploaded_data = request.files['data']
-        job_uuid = str(uuid.uuid4().hex)
+        job_uuid = generate_uuid()
         uploaded_data_path = os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz')  # replace filename with uuid
         uploaded_data.save(uploaded_data_path)
         return job_uuid
@@ -39,18 +39,17 @@ def run_timsconvert_job():
         #job_uuid = request.json['uuid']
         job_uuid = request.args.get('uuid')
         args = get_default_args(job_uuid)
-        #run_timsconvert(args)
-        executor.submit_stored(job_uuid, run_timsconvert, args)
+        #run_timsconvert(args)  <- synchronous
+        executor.submit_stored(job_uuid, run_timsconvert, args)  # <- asynchronous
+        # async job needed for rendering the status page immediately
         #executor.shutdown(wait=True)
         return 'ok'
 
 
 @app.route('/status/<job_uuid>', methods=['GET'])
 def status(job_uuid):
-    with sqlite3.connect(JOBS_DB) as conn:
-        query = 'SELECT * FROM jobs'
-        jobs_table = pd.read_sql_query(query, conn)
-        status = jobs_table.loc[jobs_table['id'] == job_uuid]['status'].values[0]
+    jobs_table = get_jobs_table()
+    status = jobs_table.loc[jobs_table['id'] == job_uuid]['status'].values[0]
     if status == 'PENDING' or status == 'RUNNING':
         return render_template('status.html', uuid=job_uuid)
     elif status == 'DONE':
@@ -71,7 +70,7 @@ def download_results():
     return send_from_directory(UPLOAD_FOLDER, job_uuid + '_output.tar.gz')
 
 
-@app.route('/cleanup')
-def cleanup():
-    executor.submit(rebirth)
+@app.route('/purge')
+def purge():
+    executor.submit(cleanup_server)
     return 'ok'

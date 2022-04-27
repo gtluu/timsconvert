@@ -1,7 +1,8 @@
+import sqlite3
+import shutil
 import tarfile
 import requests
 from client.constants import URL, LOCAL_JOBS_DB
-from client.init_client_db import *
 from timsconvert.arguments import *
 from timsconvert.timestamp import *
 
@@ -24,28 +25,32 @@ def submit_timsconvert_job(args):
     if not args['input'].endswith('.tar.gz'):
         tarball = 'tmp.tar.gz'
         with tarfile.open(tarball, 'w:gz') as newtar:
-            newtar.add(args['input'])
+            if args['input'].endswith('.d'):
+                shutil.copytree(args['input'], os.path.join('tmp', os.path.split(args['input'])[-1]))
+                newtar.add('tmp', 'data')
+                shutil.rmtree(os.path.join('tmp', os.path.split(args['input'])[-1]))
+                os.rmdir('tmp')
+            else:
+                newtar.add(args['input'], 'data')
     else:
         tarball = args['input']
 
     # Upload data.
     job_uuid = upload_data(tarball)
 
-    # Start job on server.
-    run_url = URL + '/run_timsconvert_job?uuid=' + job_uuid
-    req = requests.post(run_url, json=args)
-
     # Delete tmp tarball.
     if tarball == 'tmp.tar.gz':
         os.remove(tarball)
 
+    # Start job on server.
+    run_url = URL + '/run_timsconvert_job?uuid=' + job_uuid
+    req = requests.post(run_url, json=args)
+
     # Check for errors and add to local sqlite3 db.
     if req.status_code == 200:
-        if not os.path.exists(LOCAL_JOBS_DB):
-            init_client_db()
         with sqlite3.connect(LOCAL_JOBS_DB) as conn:
             cur = conn.cursor()
-            cur.execute('INSERT INTO jobs (id,start_time) VALUES (?,?)',
+            cur.execute('INSERT INTO local_jobs (id,start_time) VALUES (?,?)',
                         (job_uuid, datetime.datetime.now()))
             conn.commit()
         logging.info(get_timestamp() +
@@ -59,15 +64,38 @@ def submit_timsconvert_job(args):
 
 
 if __name__ == '__main__':
+    # Initialize local_jobs.db if not already done.
+    # Directory to create sqlite3 database file in.
+    db_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'db')
+
+    # Create db folder if not already made.
+    if not os.path.exists(db_folder):
+        os.mkdir(db_folder)
+
+    # Make the table.
+    conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                        os.path.join('db', 'local_jobs.db')))
+    create_table = 'CREATE TABLE IF NOT EXISTS local_jobs' \
+                   '("id" varchar(36) NOT NULL UNIQUE,' \
+                   '"start_time" timestamp,' \
+                   'PRIMARY KEY (id))'
+    conn.execute(create_table)
+
+    conn.close()
+
     # Get arguments.
     args = get_args()
-    args_check(args)
+    args = args_check(args)
 
-    # Initialize logger.
+    # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
+    if args['outdir'] == '':
+        logfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), logname)
+    else:
+        logfile = os.path.join(args['outdir'], logname)
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
-    logging.basicConfig(filename=logname, level=logging.INFO)
+    logging.basicConfig(filename=logfile, level=logging.INFO)
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     # Submit job.

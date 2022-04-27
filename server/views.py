@@ -32,9 +32,9 @@ def run_timsconvert_job():
         args = get_default_args(job_uuid)
         # Get args from json and modify args with args found in json.
         req_args = request.get_json()
-        print(args)
-        for key, value in req_args:
-            args[key] = value
+        for key, value in req_args.items():
+            if key != 'input' and key != 'outdir' and key != 'outfile':
+                args[key] = value
         args_check(args)
         run_timsconvert(args)
         return 'ok'
@@ -48,7 +48,7 @@ def status():
         # Get job status.
         jobs_table = get_jobs_table()
         status = jobs_table.loc[jobs_table['id'] == job_uuid]['status'].values[0]
-        return str(job_uuid) + ': ' + str(status)
+        return str(job_uuid) + ' Job Status: ' + str(status)
 
 
 @app.route('/download_results', methods=['GET'])
@@ -57,7 +57,7 @@ def download_results():
         # Get UUID from GET request.
         job_uuid = request.args.get('uuid')
         # Compress data for download.
-        compress_data(os.path.join(UPLOAD_FOLDER, str(job_uuid)), job_uuid)
+        compress_data(job_uuid)
         # Download data.
         return send_from_directory(UPLOAD_FOLDER, job_uuid + '_output.tar.gz')
 

@@ -1,3 +1,5 @@
+import os
+import sys
 import requests
 from client.arguments import *
 from client.constants import URL
@@ -7,7 +9,6 @@ from timsconvert.timestamp import *
 
 def check_timsconvert_job_status(job_uuid):
     status_url = URL + '/status?uuid=' + job_uuid
-    #req = requests.post(status_url)
     req = requests.get(status_url)
     if req.status_code == 200:
         logging.info(req.text)
@@ -19,18 +20,20 @@ def check_timsconvert_job_status(job_uuid):
 if __name__ == '__main__':
     # Get arguments.
     args = get_args()
-    args_check(args)
+    args = args_check(args)
 
-    # Initialize logger.
+    # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
+    if args['output'] == '':
+        logfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), logname)
+    else:
+        logfile = os.path.join(args['output'], logname)
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
-    logging.basicConfig(filename=logname, level=logging.INFO)
+    logging.basicConfig(filename=logfile, level=logging.INFO)
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     # Check job status.
-    if args['uuid'] == '':
-        args['uuid'] = select_job()
     check_timsconvert_job_status(args['uuid'])
 
     # Shut down logger.

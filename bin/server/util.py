@@ -3,9 +3,17 @@ import datetime
 import shutil
 import sqlite3
 import tarfile
+import requests
 import uuid
 import pandas as pd
 from server.constants import UPLOAD_FOLDER, JOBS_DB
+
+
+def upload_data(filename):
+    url = 'http://localhost:5000/upload'
+    files = {'data': ('data.tar.gz', open(filename, 'rb'))}
+    req = requests.post(url, files=files)
+    return req.text  # uploaded_data_path
 
 
 def get_jobs_table():
@@ -34,7 +42,7 @@ def decompress_tarball(uploaded_data_path):
 
 def get_default_args(job_uuid):
     args = {'uuid': job_uuid,
-            'input': os.path.join(UPLOAD_FOLDER, str(job_uuid)),
+            'input': decompress_tarball(os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz')),
             'outdir': os.path.join(UPLOAD_FOLDER, str(job_uuid), 'output'),
             'outfile': '',
             'mode': 'centroid',
@@ -58,7 +66,7 @@ def get_default_args(job_uuid):
     return args
 
 
-def add_file_to_db(job_uuid):
+def add_job_to_db(job_uuid):
     with sqlite3.connect(JOBS_DB) as conn:
         cur = conn.cursor()
         cur.execute('INSERT INTO jobs (id,status,start_time,data) VALUES (?,?,?,?)',
@@ -66,9 +74,9 @@ def add_file_to_db(job_uuid):
         conn.commit()
 
 
-def compress_data(job_uuid):
+def compress_output(output_directory_path, job_uuid):
     with tarfile.open(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'), 'w:gz') as newtar:
-        newtar.add(os.path.join(UPLOAD_FOLDER, str(job_uuid), 'output'), 'spectra')
+        newtar.add(os.path.join(output_directory_path, 'output'), 'spectra')
     return
 
 

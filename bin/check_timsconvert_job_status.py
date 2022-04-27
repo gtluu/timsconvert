@@ -34,7 +34,11 @@ if __name__ == '__main__':
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     # Check job status.
-    check_timsconvert_job_status(args['uuid'])
+    if isinstance(args['uuid'], list):
+        for ident in args['uuid']:
+            check_timsconvert_job_status(ident)
+    else:
+        check_timsconvert_job_status(args['uuid'])
 
     # Shut down logger.
     for hand in logging.getLogger().handlers:

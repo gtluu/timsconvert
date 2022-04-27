@@ -7,15 +7,15 @@ from client.select_job import *
 from timsconvert.timestamp import *
 
 
-def download_timsconvert_job(args):
-    job_url = URL + '/download_results?uuid=' + args['uuid']
+def download_timsconvert_job(uuid, output):
+    job_url = URL + '/download_results?uuid=' + uuid
     # req = requests.post(status_url)
     req = requests.get(job_url)
     if req.status_code == 200:
         # Write downloaded data.
-        with open(os.path.join(args['output'], args['uuid'] + '.tar.gz'), 'wb') as tarball:
+        with open(os.path.join(output, uuid + '.tar.gz'), 'wb') as tarball:
             tarball.write(req.content)
-        logging.info(get_timestamp() + ': Data ' + args['uuid'] + '.tar.gz has been downloaded to ' + args['output'])
+        logging.info(get_timestamp() + ': Data ' + uuid + '.tar.gz has been downloaded to ' + output)
     else:
         logging.info(get_timestamp() + ':' + 'TIMSCONVERT results could not be downloaded.')
         req.raise_for_status()
@@ -38,7 +38,11 @@ if __name__ == '__main__':
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     # Download data.
-    download_timsconvert_job(args)
+    if isinstance(args['uuid'], list):
+        for ident in args['uuid']:
+            download_timsconvert_job(ident, args['output'])
+    else:
+        download_timsconvert_job(args['uuid'], args['output'])
 
     # Shut down logger.
     for hand in logging.getLogger().handlers:

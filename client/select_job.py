@@ -1,4 +1,3 @@
-import logging
 import sqlite3
 import pandas as pd
 from client.constants import LOCAL_JOBS_DB

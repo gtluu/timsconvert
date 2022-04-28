@@ -1,24 +1,24 @@
 import os
-import sys
 import requests
+import logging
 from client.arguments import *
-from client.constants import URL
 from client.select_job import *
 from timsconvert.timestamp import *
 
 
-def download_timsconvert_job(uuid, output):
-    job_url = URL + '/download_results?uuid=' + uuid
+def download_timsconvert_job(job_uuid, output, url):
+    job_url = url + '/download_results?uuid=' + job_uuid
     # req = requests.post(status_url)
     req = requests.get(job_url)
     if req.status_code == 200:
         if req.text != 'DELETED':
             # Write downloaded data.
-            with open(os.path.join(output, uuid + '.tar.gz'), 'wb') as tarball:
+            with open(os.path.join(output, job_uuid + '.tar.gz'), 'wb') as tarball:
                 tarball.write(req.content)
-            logging.info(get_timestamp() + ': Data ' + uuid + '.tar.gz has been downloaded to ' + output)
+            logging.info(get_timestamp() + ': Data ' + job_uuid + '.tar.gz has been downloaded to ' + output)
         else:
-            logging.info(get_timestamp() + ': Data for job ' + uuid + ' has been deleted from servers. Please re-run.')
+            logging.info(get_timestamp() + ': Data for job ' + job_uuid + ' has been deleted from servers. '
+                                                                          'Please re-run.')
             sys.exit(1)
     else:
         logging.info(get_timestamp() + ':' + 'TIMSCONVERT results could not be downloaded.')
@@ -42,11 +42,11 @@ if __name__ == '__main__':
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     # Download data.
-    if isinstance(args['uuid'], list):
-        for ident in args['uuid']:
-            download_timsconvert_job(ident, args['output'])
+    if isinstance(args['id'], list):
+        for ident in args['id']:
+            download_timsconvert_job(ident, args['output'], args['url'])
     else:
-        download_timsconvert_job(args['uuid'], args['output'])
+        download_timsconvert_job(args['id'], args['output'], args['url'])
 
     # Shut down logger.
     for hand in logging.getLogger().handlers:

@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import logging
+import requests
 from timsconvert.timestamp import *
 
 
@@ -33,6 +34,7 @@ def arg_descriptions():
                                   'at once. Increasing parses and write more spectra at once but increases RAM usage. '
                                   'Default = 10.',
                     'verbose': 'Boolean flag to determine whether to print logging output.',
+                    'url': 'URL for server to run TIMSCONVERT (if submitting job through API). Default = GNPS server',
                     'start_frame': 'Start frame.',
                     'end_frame': 'End frame.',
                     'precision': 'Precision.',
@@ -43,7 +45,7 @@ def arg_descriptions():
 
 
 # Parse arguments for CLI usage
-def get_args():
+def get_args(server=False):
     desc = arg_descriptions()
 
     # Initialize parser.
@@ -55,7 +57,7 @@ def get_args():
 
     # Optional Arguments
     optional = parser.add_argument_group('Optional Parameters')
-    optional.add_argument('--outdir', help=desc['outdiir'], default='', type=str)
+    optional.add_argument('--outdir', help=desc['outdir'], default='', type=str)
     optional.add_argument('--outfile', help=desc['outfile'], default='', type=str)
     optional.add_argument('--mode', help=desc['mode'], default='centroid', type=str, choices=['raw', 'centroid'])
     optional.add_argument('--compression', help=desc['compression'], default='zlib', type=str, choices=['zlib', 'none'])
@@ -78,6 +80,9 @@ def get_args():
                         choices=['timsconvert', 'tdf2mzml'])
     system.add_argument('--chunk_size', help=desc['chunk_size'], default=10, type=int)
     system.add_argument('--verbose', help=desc['verbose'], action='store_true')
+    if server:
+        # change to GNPS URL later
+        system.add_argument('--url', help=desc['url'], default='http://localhost:5000', type=str)
 
     # tdf2mzml Arguments
     tdf2mzml_args = parser.add_argument_group('tdf2mzml Optional Parameters')
@@ -117,4 +122,11 @@ def args_check(args):
                 logging.info(get_timestamp() + ':' + 'Plate map path does not exist...')
                 logging.info(get_timestamp() + ':' + 'Exiting...')
                 sys.exit(1)
+    # Check if server URL is valid.
+    if 'url' in args.keys():
+        response = requests.get(args['url'])
+        if response.status_code != 200:
+            logging.info(get_timestamp() + ':' + 'URL is not valid or server is down...')
+            logging.info(get_timestamp() + ':' + 'Exiting...')
+            response.raise_for_status()
     return args

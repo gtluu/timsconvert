@@ -7,6 +7,7 @@ import itertools
 import sqlite3
 import copy
 import glob
+import requests
 import datetime
 import logging
 

@@ -6,6 +6,11 @@ from timsconvert.arguments import *
 from bin.run import run_timsconvert
 
 
+@app.route('/', methods=['GET'])
+def index():
+    return 'ok'
+
+
 @app.route('/upload', methods=['POST'])
 def upload():
     if request.method == 'POST':

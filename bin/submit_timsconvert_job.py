@@ -2,15 +2,17 @@ import sqlite3
 import shutil
 import tarfile
 import requests
-from client.constants import URL, LOCAL_JOBS_DB
+from client.constants import LOCAL_JOBS_DB
 from timsconvert.arguments import *
 from timsconvert.timestamp import *
 
 
-def upload_data(filename):
+def upload_data(filename, url):
     # Upload data.
-    files = {'data': ('data.tar.gz', open(filename, 'rb'))}
-    req = requests.post(URL + '/upload', files=files)
+    data_obj = open(filename, 'rb')
+    files = {'data': ('data.tar.gz', data_obj)}
+    req = requests.post(url + '/upload', files=files)
+    data_obj.close()
     if req.status_code == 200:
         job_uuid = req.text
         logging.info(get_timestamp() + ':' + 'Data uploaded.')
@@ -23,7 +25,7 @@ def upload_data(filename):
 def submit_timsconvert_job(args):
     # tar data.
     if not args['input'].endswith('.tar.gz'):
-        tarball = 'tmp.tar.gz'
+        tarball = args['input'] + '.tar.gz'
         with tarfile.open(tarball, 'w:gz') as newtar:
             if args['input'].endswith('.d'):
                 shutil.copytree(args['input'], os.path.join('tmp', os.path.split(args['input'])[-1]))
@@ -36,14 +38,13 @@ def submit_timsconvert_job(args):
         tarball = args['input']
 
     # Upload data.
-    job_uuid = upload_data(tarball)
+    job_uuid = upload_data(tarball, args['url'])
 
     # Delete tmp tarball.
-    if tarball == 'tmp.tar.gz':
-        os.remove(tarball)
+    os.remove(tarball)
 
     # Start job on server.
-    run_url = URL + '/run_timsconvert_job?uuid=' + job_uuid
+    run_url = args['url'] + '/run_timsconvert_job?uuid=' + job_uuid
     req = requests.post(run_url, json=args)
 
     # Check for errors and add to local sqlite3 db.
@@ -85,7 +86,7 @@ if __name__ == '__main__':
     conn.close()
 
     # Get arguments.
-    args = get_args()
+    args = get_args(server=True)
     args = args_check(args)
 
     # Initialize logger if not running on server.

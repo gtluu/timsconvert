@@ -8,7 +8,7 @@ import uuid
 import pandas as pd
 from flask import Flask, request, send_from_directory
 from redis import Redis
-from rq import Queue
+from rq import Queue, Worker, Connection
 import server.apps
 import server.views
 import server.util

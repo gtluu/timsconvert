@@ -43,7 +43,7 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 
 ## Installation and Usage
 
-### GNPS Online Workflow
+### GNPS Online Workflow (Coming Soon)
 
 The web version of TIMSCONVERT currently only supports LC-TIMS-MS(/MS) data and can be found here. No installation is 
 necessary. All that's required is a GNPS account.
@@ -158,7 +158,7 @@ docker build --tag timsconvert_server -f Dockerfile.server .
 docker run --rm -it -v /path/to/data:/data timsconvert --input /data --outdir /data
 ```
 
-### GNPS API
+### GNPS API (Coming Soon)
 
 We have developed an API to programmatically submit TIMSCONVERT jobs to GNPS.
 

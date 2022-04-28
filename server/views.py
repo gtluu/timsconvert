@@ -1,5 +1,6 @@
 from flask import request, send_from_directory
-from server.apps import app, executor
+from rq import Retry
+from server.apps import app, q
 from server.util import *
 from server.constants import *
 from timsconvert.arguments import *
@@ -41,7 +42,8 @@ def run_timsconvert_job():
             if key != 'input' and key != 'outdir' and key != 'outfile':
                 args[key] = value
         args_check(args)
-        run_timsconvert(args)
+        #run_timsconvert(args)
+        q.enqueue(run_timsconvert, args, retry=Retry(max=3))
         return job_uuid
 
 
@@ -76,5 +78,6 @@ def download_results():
 @app.route('/purge')
 # Remove data older than 7 days.
 def purge():
-    executor.submit(cleanup_server)
+    #cleanup_server()
+    q.enqueue(cleanup_server, retry=Retry(max=1))
     return 'ok'

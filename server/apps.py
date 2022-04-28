@@ -1,5 +1,6 @@
 from flask import Flask
-from flask_executor import Executor
+from redis import Redis
+from rq import Queue
 from server.constants import *
 
 
@@ -13,7 +14,5 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Set max file size.
 app.config['MAX_CONTENT_PATH'] = 1000000000
 
-# Make Executor instance.
-executor = Executor(app)
-# Set executor to only use one thread.
-app.config['EXECUTOR_MAX_WORKERS'] = 1
+# Queue configuration.
+q = Queue(connection=Redis())

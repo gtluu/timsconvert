@@ -6,7 +6,8 @@ from timsconvert.timestamp import *
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--uuid', help='UUID for TIMSCONVERT job.', required=True, nargs='+', type=str)
+    parser.add_argument('-u', '--uuid', help='Hexidecimal UUID for TIMSCONVERT job.', required=True, nargs='+',
+                        type=str)
     parser.add_argument('-o', '--output', help='Directory to download converted data to.', default='', type=str)
     arguments = parser.parse_args()
     return vars(arguments)

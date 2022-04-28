@@ -53,11 +53,12 @@ def submit_timsconvert_job(args):
             cur.execute('INSERT INTO local_jobs (id,start_time) VALUES (?,?)',
                         (job_uuid, datetime.datetime.now()))
             conn.commit()
+        logging.info(get_timestamp() + ': JOB ID: ' + job_uuid)
         logging.info(get_timestamp() +
                      ':' +
                      'TIMSCONVERT job has been submitted to GNPS. Use "python client_check_status.py" to check on job '
                      'status.')
-        return 'ok'
+        return job_uuid
     else:
         logging.info(get_timestamp() + ':' + 'TIMSCONVERT job was not submitted. Please try again.')
         req.raise_for_status()

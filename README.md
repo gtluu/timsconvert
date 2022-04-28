@@ -105,7 +105,11 @@ git clone -c core.symlinks=true https://www.github.com/gtluu/timsconvert
 ```
 7. Install dependencies.
 ```
+# TIMSCONVERT dependencies
 pip install -r /path/to/timsconvert/requirements.txt
+
+# TIMSCONVERT server/client dependencies
+pip install -r /path/to/timsconvert/requirements_server.txt
 ```
 8. You will also need to install our forked version of pyimzML, which has added support for ion mobility arrays in imzML
  data from imaging mass spectrometry experiments.
@@ -154,10 +158,37 @@ docker build --tag timsconvert_server -f Dockerfile.server .
 docker run --rm -it -v /path/to/data:/data timsconvert --input /data --outdir /data
 ```
 
-## Parameters
+### GNPS API
 
-Note: We recommend excluding ion mobility data (--exclude_mobility) when exporting in profile mode due to extremely 
-resulting file sizes.
+We have developed an API to programmatically submit TIMSCONVERT jobs to GNPS.
+
+1. Submit a job to GNPS. Enter any TIMSCONVERT parameters you wish to change. Otherwise, the default parameters will 
+be used. A job ID will be returned.
+```
+python /path/to/timsconvert/bin/submit_timsconvert_job.py --input /path/to/data
+or
+python3 /path/to/timsconvert/bin/submit_timsconvert_job.py --input /path/to/data
+
+>>> Job ID: <job_id>
+```
+2. Check the status of your job.
+```
+python /path/to/timsconvert/bin/check_timsconvert_job_status.py -u <job_id>
+or
+python3 /path/to/timsconvert/bin/check_timsconvert_job_status.py -u <job_id>
+
+>>> <job_id> Job Status: PENDING
+>>> <job_id> Job Status: RUNNING
+>>> <job_id> Job Status: DONE
+```
+3. Once your job is complete, download your data. Data is downloaded as a tar file.
+```
+python /path/to/timsconvert/bin/download_timsconvert_job.py -u <job_id> -o /path/to/download/directory
+or
+python3 /path/to/timsconvert/bin/download_timsconvert_job.py -u <job_id> -o /path/to/download/directory
+```
+
+## Parameters
 
 ```
 Required Parameters

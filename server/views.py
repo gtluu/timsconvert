@@ -37,7 +37,7 @@ def run_timsconvert_job():
                 args[key] = value
         args_check(args)
         run_timsconvert(args)
-        return 'ok'
+        return job_uuid
 
 
 @app.route('/status', methods=['GET'])

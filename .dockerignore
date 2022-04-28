@@ -12,4 +12,6 @@
 /dist
 .gitignore
 README.md
+/imgs
 changelog.txt
+/db

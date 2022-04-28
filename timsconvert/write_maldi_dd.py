@@ -191,7 +191,3 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                     write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

@@ -332,7 +332,3 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                 list_of_scan_dicts.append(scan_dict)
 
     return list_of_scan_dicts
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

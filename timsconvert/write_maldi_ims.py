@@ -113,7 +113,3 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                 write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility,
                                                profile_bins, encoding)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

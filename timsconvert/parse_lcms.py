@@ -353,7 +353,3 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                                float(precursor_dict['LargestPeakMz']))
                         list_of_product_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)

@@ -1,9 +1,42 @@
-import copy
 from timsconvert import *
 from tdf2mzml import *
 
 
 def run_timsconvert(args):
+    # Args check.
+    args_check(args)
+    # Check arguments.
+    args['version'] = '1.1.0'
+
+    # Initialize logger if not running on server.
+    logname = 'log_' + get_timestamp() + '.log'
+    if args['outdir'] == '':
+        if os.path.isdir(args['input']):
+            logfile = os.path.join(args['input'], logname)
+        else:
+            logfile = os.path.split(args['input'])[0]
+            logfile = os.path.join(logfile, logname)
+    else:
+        logfile = os.path.join(args['outdir'], logname)
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    logging.basicConfig(filename=logfile, level=logging.INFO)
+    if args['verbose']:
+        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+    # Check to make sure using Python 3.7.
+    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
+        logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
+        sys.exit(1)
+
+    # Update jobs.db if running on server.
+    if 'uuid' in args.keys():
+        with sqlite3.connect(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                                          'db', 'jobs.db')) as conn:
+            cur = conn.cursor()
+            cur.execute('UPDATE jobs SET status=? WHERE id=?', ('RUNNING', args['uuid']))
+            conn.commit()
+
     # Initialize Bruker DLL.
     logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
     tdf_sdk_dll = init_tdf_sdk_dll(TDF_SDK_DLL_FILE_NAME)
@@ -97,36 +130,23 @@ def run_timsconvert(args):
                             run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
                             run_args['encoding'], run_args['compression'], run_args['chunk_size'])
 
+    # Update jobs.db if running on server.
+    if 'uuid' in args.keys():
+        with sqlite3.connect(
+                os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                             'db', 'jobs.db')) as conn:
+            cur = conn.cursor()
+            cur.execute('UPDATE jobs SET status=? WHERE id=?', ('DONE', args['uuid']))
+            conn.commit()
+
+    for hand in logging.getLogger().handlers:
+        logging.getLogger().removeHandler(hand)
+    logging.shutdown()
+
 
 if __name__ == '__main__':
     # Parse arguments.
-    arguments = get_args()
-
-    # Check arguments.
-    args_check(arguments)
-    arguments['version'] = '1.1.0'
-
-    # Initialize logger.
-    logname = 'log_' + get_timestamp() + '.log'
-    if arguments['outdir'] == '':
-        if os.path.isdir(arguments['input']):
-            logfile = os.path.join(arguments['input'], logname)
-        else:
-            logfile = os.path.split(arguments['input'])[0]
-            logfile = os.path.join(logfile, logname)
-    else:
-        logfile = os.path.join(arguments['outdir'], logname)
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-    logging.basicConfig(filename=logfile, level=logging.INFO)
-    if arguments['verbose']:
-        logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    logger = logging.getLogger(__name__)
-
-    # Check to make sure using Python 3.7.
-    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
-        logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
-        sys.exit(1)
+    args = get_args()
 
     # Run.
-    run_timsconvert(arguments)
+    run_timsconvert(args)

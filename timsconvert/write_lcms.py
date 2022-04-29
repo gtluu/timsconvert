@@ -19,11 +19,11 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding, compression):
     if 'mobility_array' in parent_scan.keys() and parent_scan['mobility_array'] is not None:
         # This version only works with newer versions of psims.
         # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'ion mobility array',
+        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
         #                  'unit_name': 'volt-second per square centimeter'},
         #                 parent_scan['mobility_array'])]
         # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
-        other_arrays = [('ion mobility array', parent_scan['mobility_array'])]
+        other_arrays = [('mean inverse reduced ion mobility array', parent_scan['mobility_array'])]
     else:
         other_arrays = None
 
@@ -35,7 +35,7 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding, compression):
     encoding_dict = {'m/z array': encoding_dtype,
                      'intensity array': encoding_dtype}
     if other_arrays is not None:
-        encoding_dict['ion mobility array'] = encoding_dtype
+        encoding_dict['mean inverse reduced ion mobility array'] = encoding_dtype
 
     # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],

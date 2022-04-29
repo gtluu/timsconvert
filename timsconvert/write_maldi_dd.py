@@ -20,11 +20,11 @@ def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression):
     if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1 and scan['mobility_array'] is not None:
         # This version only works with newer versions of psims.
         # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'ion mobility array',
+        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
         #                  'unit_name': 'volt-second per square centimeter'},
         #                 scan['mobility_array'])]
         # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
-        other_arrays = [('ion mobility array', scan['mobility_array'])]
+        other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
 
@@ -36,7 +36,7 @@ def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression):
     encoding_dict = {'m/z array': encoding_dtype,
                      'intensity array': encoding_dtype}
     if other_arrays is not None:
-        encoding_dict['ion mobility array'] = encoding_dtype
+        encoding_dict['mean inverse reduced ion mobility array'] = encoding_dtype
 
     # Write out spectrum.
     writer.write_spectrum(scan['mz_array'],

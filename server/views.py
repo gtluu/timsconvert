@@ -48,7 +48,6 @@ def run_timsconvert_job():
             if key != 'input' and key != 'outdir' and key != 'outfile':
                 args[key] = value
         args_check(args)
-        #run_timsconvert(args)
         q.enqueue(run_timsconvert, args, retry=Retry(max=3))
         return job_uuid
 
@@ -81,9 +80,22 @@ def download_results():
             return 'DELETED'
 
 
-@app.route('/purge')
+@app.route('/purge', methods=['GET'])
 # Remove data older than 7 days.
 def purge():
-    #cleanup_server()
-    q.enqueue(cleanup_server, retry=Retry(max=1))
+    if request.method == 'GET':
+        if 'uuid' in request.args:
+            # Get UUID from GET request.
+            job_uuid = request.args.get('uuid')
+            # Check to make sure data not deleted.
+            jobs_table = get_jobs_table()
+            file_presence = jobs_table.loc[jobs_table['id'] == job_uuid]['data'].values[0]
+            if str(file_presence) == 'ON_SERVER':
+                # Delete data.
+                q.enqueue(cleanup_server_by_uuid, job_uuid)
+                return 'DELETED'
+            elif str(file_presence) == 'DELETED':
+                return 'DELETED'
+        else:
+            q.enqueue(cleanup_server)
     return 'ok'

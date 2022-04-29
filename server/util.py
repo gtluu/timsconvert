@@ -93,3 +93,18 @@ def cleanup_server():
                 cur.execute('UPDATE jobs SET data=? WHERE id=?', ('DELETED', row['id']))
                 conn.commit()
     return
+
+
+# Delete data by UUID.
+def cleanup_server_by_uuid(uuid):
+    with sqlite3.connect(JOBS_DB) as conn:
+        cur = conn.cursor()
+        # Delete uploaded tarball.
+        os.remove(os.path.join(UPLOAD_FOLDER, str(uuid) + '.tar.gz'))
+        # Delete untared raw and converted datta.
+        shutil.rmtree(os.path.join(UPLOAD_FOLDER, str(uuid)))
+        # Delete converted tarball.
+        os.remove(os.path.join(UPLOAD_FOLDER, str(uuid) + '_output.tar.gz'))
+        cur.execute('UPDATE jobs SET data=? WHERE id=?', ('DELETED', str(uuid)))
+        conn.commit()
+    return

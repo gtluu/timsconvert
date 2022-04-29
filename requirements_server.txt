@@ -15,5 +15,5 @@ flask==2.1.1
 Jinja2==3.1.1
 flask_executor==0.10.0
 requests==2.27.1
-redis
-rq
+redis==4.2.2
+rq==1.10.1

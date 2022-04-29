@@ -13,3 +13,4 @@ import server.apps
 import server.views
 import server.util
 import server.constants
+import bin.run

@@ -16,15 +16,21 @@ def upload():
     if request.method == 'POST':
         # Get tarball.
         uploaded_data = request.files['data']
+        if 'plate_map' in request.files.keys():
+            uploaded_plate_map = request.files['plate_map']
         # Get UUID for job.
         job_uuid = generate_uuid()
         # Save tarball to server.
-        uploaded_data_path = os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz')  # replace filename with uuid
+        uploaded_data_path = os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz')
         uploaded_data.save(uploaded_data_path)
         # Add job to new row in sqlite3.db
         add_file_to_db(job_uuid)
         # Decompress uploaded data.
         decompress_tarball(os.path.join(UPLOAD_FOLDER, str(job_uuid) + '.tar.gz'))
+        if 'plate_map' in request.files['plate_map']:
+            uploaded_plate_map_path = os.path.join(UPLOAD_FOLDER, str(job_uuid), 'data',
+                                                   str(job_uuid) + '_plate_map.csv')
+            uploaded_plate_map.save(uploaded_plate_map_path)
         return job_uuid
 
 

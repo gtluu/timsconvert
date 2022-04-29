@@ -7,12 +7,17 @@ from timsconvert.arguments import *
 from timsconvert.timestamp import *
 
 
-def upload_data(filename, url):
+def upload_data(filename, plate_map, url):
     # Upload data.
     data_obj = open(filename, 'rb')
     files = {'data': ('data.tar.gz', data_obj)}
+    if plate_map != '':
+        plate_map_obj = open(plate_map, 'rb')
+        files['plate_map'] = ('plate_map.csv', plate_map_obj)
     req = requests.post(url + '/upload', files=files)
     data_obj.close()
+    if plate_map != '':
+        plate_map_obj.close()
     if req.status_code == 200:
         job_uuid = req.text
         logging.info(get_timestamp() + ':' + 'Data uploaded.')
@@ -38,7 +43,7 @@ def submit_timsconvert_job(args):
         tarball = args['input']
 
     # Upload data.
-    job_uuid = upload_data(tarball, args['url'])
+    job_uuid = upload_data(tarball, args['plate_map'], args['url'])
 
     # Delete tmp tarball.
     os.remove(tarball)

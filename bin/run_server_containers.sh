@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker run --rm timsconvert_server
-docker run --rm timsconvert_worker
-docker run --rm redis
-docker run --rm rq_dashboard
+docker run --rm -it --detach timsconvert_server
+docker run --rm -it --detach timsconvert_worker
+docker run --rm -it --detach redis
+docker run --rm -it --detach rq_dashboard

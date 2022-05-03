@@ -1,9 +1,8 @@
 import os
 import requests
 import logging
-from client.arguments import *
-from client.select_job import *
-from timsconvert.timestamp import *
+from arguments import *
+from select_job import *
 
 
 def download_timsconvert_job(job_uuid, output, url):

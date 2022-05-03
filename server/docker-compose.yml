@@ -17,7 +17,7 @@ services:
     command: /app/run_server.sh
     environment:
       VIRTUAL_HOST: timsconvert-server.ucsd.edu
-      VIRTUAL_PORT: 5000
+      VIRTUAL_PORT: 6521
       LETSENCRYPT_HOST: timsconvert-server.ucsd.edu
       LETSENCRYPT_EMAIL: miw023@ucsd.edu
 

@@ -42,14 +42,14 @@
             <validator type="set"/>
             <default value="False"/>
         </parameter>
-        <parameter name="EXCLUDEMOBILITY" label="Exclude Mobility">
+        <!-- <parameter name="EXCLUDEMOBILITY" label="Exclude Mobility">
             <options>
                 <option value="True" label="True"/>
                 <option value="False" label="False"/>
             </options>
             <validator type="set"/>
             <default value="False"/>
-        </parameter>
+        </parameter> -->
         <!-- <parameter name="PROFILEBINS" label="Number of Profile Bins">
             <validator type="integer"/>
             <default value="0"/>
@@ -179,7 +179,7 @@
                 <input type="select" parameter="EXPORTMS2ONLY"></input>
             </cell>
         </row>
-        <row>
+        <!-- <row>
             <cell>
                 <label>
                     <content parameter="EXCLUDEMOBILITY"/>
@@ -188,7 +188,7 @@
             <cell>
                 <input type="select" parameter="EXCLUDEMOBILITY"></input>
             </cell>
-        </row>
+        </row> -->
         <!-- <row>
             <cell>
                 <label>

@@ -11,7 +11,7 @@ params.compression = 'zlib' // zlib or none
 
 // timsconvert params
 params.ms2_only = 'False'  // only convert ms2 spectra
-params.exclude_mobility = 'False'  // exclude mobility arrays from MS1 spectra
+params.exclude_mobility = 'True'  // exclude mobility arrays from MS1 spectra
 params.encoding = 64
 params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
 params.maldi_plate_map = ''

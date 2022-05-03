@@ -1,10 +1,10 @@
 from flask import request, send_from_directory
 from rq import Retry
-from server.apps import app, q
-from server.util import *
-from server.constants import *
+from apps import app, q
+from util import *
+from constants import *
 from timsconvert.arguments import *
-from bin.run import run_timsconvert
+from timsconvert.run import run_timsconvert
 
 
 @app.route('/', methods=['GET'])

@@ -1,7 +1,7 @@
 import os
 import sqlite3
-from server.apps import app
-from server.constants import JOBS_DB
+from apps import app
+from constants import JOBS_DB
 
 
 if __name__ == '__main__':

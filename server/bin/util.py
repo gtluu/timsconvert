@@ -5,7 +5,7 @@ import sqlite3
 import tarfile
 import uuid
 import pandas as pd
-from server.constants import UPLOAD_FOLDER, JOBS_DB
+from constants import UPLOAD_FOLDER, JOBS_DB
 
 
 def get_jobs_table():

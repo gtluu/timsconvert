@@ -1,7 +1,7 @@
 from flask import Flask
 from redis import Redis
 from rq import Queue
-from server.constants import *
+from constants import *
 
 
 # Make Flask instance.

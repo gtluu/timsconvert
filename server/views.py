@@ -48,7 +48,8 @@ def run_timsconvert_job():
             if key != 'input' and key != 'outdir' and key != 'outfile':
                 args[key] = value
         args_check(args)
-        q.enqueue(run_timsconvert, args, retry=Retry(max=3))
+        #q.enqueue(run_timsconvert, args, retry=Retry(max=3))
+        run_timsconvert(args)
         return job_uuid
 
 

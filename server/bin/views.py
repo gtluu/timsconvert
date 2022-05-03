@@ -53,4 +53,6 @@ def download_results():
         elif str(file_presence) == 'DELETED':
             return 'DELETED'
 
+        # TODO: Add synchronous cleanup
+
 

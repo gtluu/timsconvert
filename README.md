@@ -151,8 +151,6 @@ A Dockerfile has also been provided to run TIMSCONVERT inside a Docker container
 1. Build the Docker image.
 ```
 docker build --tag timsconvert -f Dockerfile.timsconvert .
-or
-docker build --tag timsconvert_server -f Dockerfile.server .
 ```
 2. Run the Docker image in a container.
 ```

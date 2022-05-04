@@ -1,6 +1,7 @@
 download_test:
 	mkdir test_data
 	wget -r -P "test_data" ftp://massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d
+	tar -czvf SRM1950_20min_88_01_6950.d.tar.gz test_data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d.tar.gz
 
 run_test:
-	python bin/client.py --input test_data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d
+	python bin/client.py --input test_data/massive.ucsd.edu/MSV000084402/raw/SRM1950_20min_88_01_6950.d.tar.gz

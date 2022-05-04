@@ -1,9 +1,9 @@
 FROM python:3.7
-WORKDIR /app
-COPY requirements.txt /app
+WORKDIR /client
+COPY requirements.txt /client
 
 RUN pip3 install -r requirements.txt
 
-COPY . /app
+COPY . /client
 
 ENTRYPOINT ["python3", "/app/bin/client.py"]

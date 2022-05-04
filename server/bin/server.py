@@ -3,6 +3,7 @@ import shutil
 import tarfile
 import uuid
 import subprocess
+import json
 from flask import Flask, request, send_from_directory
 
 # Path to data location
@@ -17,6 +18,11 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Set max file size.
 app.config['MAX_CONTENT_PATH'] = 1000000000
+
+
+@app.route('/heartbeat', methods=['GET'])
+def render_heartbeat():
+    return json.dumps({'status': 'success'})
 
 
 @app.route('/convert', methods=['POST'])

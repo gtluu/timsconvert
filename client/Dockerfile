@@ -6,4 +6,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . /client
 
-ENTRYPOINT ["python3", "/app/bin/client.py"]
+ENTRYPOINT ["python3", "/client/bin/client.py"]

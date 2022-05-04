@@ -2,7 +2,7 @@ version: '3'
 services:
   timsconvert-server:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
     container_name: timsconvert-server
     volumes:

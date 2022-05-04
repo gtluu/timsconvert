@@ -1,20 +1,11 @@
-FROM ubuntu:18.04
-FROM mono:latest
+FROM continuumio/miniconda3:4.10.3
+MAINTAINER Mingxun Wang "mwang87@gmail.com"
 
+RUN apt-get update && apt-get install -y build-essential
 
-RUN apt-get update -y
-RUN apt-get install -y python3-pip python3-dev build-essential
-
-RUN pip3 install flask
-RUN pip3 install gunicorn
-RUN pip3 install requests
-
-RUN apt-get install -y git
-
-RUN apt-get install zip unzip
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+RUN pip install git+https://github.com/gtluu/pyimzML
 
 COPY . /app
-
-RUN pip3 install -r /app/requirements.txt
-
 WORKDIR /app

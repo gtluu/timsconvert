@@ -1,3 +1,4 @@
 #!/bin/bash
 
-gunicorn -b 127.0.0.1:6521 --timeout 3600 --keep-alive 3600 run_server:app
+python ./main.py
+#gunicorn -w 6 --threads=12 --worker-class=gthread -b 0.0.0.0:5000 --timeout 120 --max-requests 500 --max-requests-jitter 100 --graceful-timeout 120 app:server --access-logfile /app/logs/access.log

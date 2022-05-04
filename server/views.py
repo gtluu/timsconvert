@@ -37,7 +37,7 @@ def convert():
     # Build TIMSCONVERT command.
     run_script = "/app/timsconvert/bin/run.py"
     input_file = glob.glob(os.path.join(temp_dir, '*.d'))[0]
-    output_file = os.path.join(temp_dir, 'output.mzML')
+    output_file = 'output.mzML'
     cmd = 'python {} --input {} --outfile {}'.format(run_script, input_file, output_file)
 
     # Run TIMSCONVERT
@@ -50,4 +50,4 @@ def convert():
     # os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'))
 
     # Send files to client.
-    return send_from_directory(UPLOAD_FOLDER, os.path.basename(output_file))
+    return send_from_directory(UPLOAD_FOLDER, output_file)

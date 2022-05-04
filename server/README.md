@@ -7,3 +7,9 @@ make server-compose-interactive
 ```
 
 The server will be run at localhost:6521
+
+To check that its running, go to 
+
+```
+http://localhost:6521/heartbeat
+```

@@ -21,7 +21,7 @@ app.config['MAX_CONTENT_PATH'] = 1000000000
 
 @app.route('/convert', methods=['POST'])
 def convert():
-    if request.method == 'POST'
+    if request.method == 'POST':
         # Generate UUID.
         job_uuid = str(uuid.uuid4().hex)
 

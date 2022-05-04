@@ -6,6 +6,9 @@ from app import app
 import os
 import glob
 import json
+import tarfile
+import subprocess
+
 
 UPLOAD_FOLDER = "./data"
 
@@ -18,32 +21,33 @@ def convert():
     # Generate UUID.
     job_uuid = str(uuid.uuid4().hex)
 
+    # Creating outputing directory
+    temp_dir = os.path.join(UPLOAD_FOLDER, job_uuid)
+    os.makedirs(temp_dir) # Making sure the folder exists
+
     # Get tarball and save to server.
     uploaded_data = request.files['data']
-    uploaded_data_path = os.path.join(UPLOAD_FOLDER, job_uuid + '.tar.gz')
+    uploaded_data_path = os.path.join(UPLOAD_FOLDER, job_uuid, 'upload.tar.gz')
     uploaded_data.save(uploaded_data_path)
 
     # Decompress uploaded data.
     with tarfile.open(uploaded_data_path) as tarball:
-        tarball_dirname = os.path.join(UPLOAD_FOLDER, job_uuid)
-        tarball.extractall(tarball_dirname)
+        tarball.extractall(temp_dir)
 
     # Build TIMSCONVERT command.
-    run_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'run.py')
-    outdir_path = os.path.join(UPLOAD_FOLDER, job_uuid, 'output')
-    cmd = 'python ' + run_path + ' --input ' + tarball_dirname + ' --outdir ' + outdir_path
+    run_script = "/app/timsconvert/bin/run.py"
+    input_file = glob.glob(os.path.join(temp_dir, '*.d'))[0]
+    output_file = os.path.join(temp_dir, 'output.mzML')
+    cmd = 'python {} --input {} --outfile {}'.format(run_script, input_file, output_file)
 
     # Run TIMSCONVERT
-    subprocess.call(cmd, shell=True)
+    #subprocess.call(cmd, shell=True)
+    os.system(cmd)
 
-    # Compress converted data.
-    with tarfile.open(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'), 'w:gz') as newtar:
-        newtar.add(os.path.join(UPLOAD_FOLDER, job_uuid, 'output'), 'spectra')
-
-    # Clean up files.
-    os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '.tar.gz'))
-    shutil.rmtree(os.path.join(UPLOAD_FOLDER, job_uuid))
-    os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'))
+    # Clean up files, we will do this later
+    # os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '.tar.gz'))
+    # shutil.rmtree(os.path.join(UPLOAD_FOLDER, job_uuid))
+    # os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'))
 
     # Send files to client.
-    return send_from_directory(UPLOAD_FOLDER, job_uuid + '_output.tar.gz')
+    return send_from_directory(UPLOAD_FOLDER, os.path.basename(output_file))

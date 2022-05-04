@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.10.3
+FROM continuumio/miniconda3:4.11.0
 MAINTAINER Mingxun Wang "mwang87@gmail.com"
 
 RUN apt-get update && apt-get install -y build-essential

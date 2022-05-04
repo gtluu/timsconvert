@@ -7,8 +7,6 @@ import os
 import glob
 import json
 import tarfile
-import subprocess
-
 
 UPLOAD_FOLDER = "./data"
 
@@ -41,13 +39,7 @@ def convert():
     cmd = 'python {} --input {} --outfile {}'.format(run_script, input_file, output_file)
 
     # Run TIMSCONVERT
-    #subprocess.call(cmd, shell=True)
     os.system(cmd)
-
-    # Clean up files, we will do this later
-    # os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '.tar.gz'))
-    # shutil.rmtree(os.path.join(UPLOAD_FOLDER, job_uuid))
-    # os.remove(os.path.join(UPLOAD_FOLDER, job_uuid + '_output.tar.gz'))
 
     # Send files to client.
     return send_from_directory(UPLOAD_FOLDER, output_file)

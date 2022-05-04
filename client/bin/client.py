@@ -21,7 +21,7 @@ def submit_timsconvert_job(filename, url):
                 newtar.add(filename, 'data')
 
     # Upload data
-    data_obj = open(filename, 'rb')
+    data_obj = open(filename + '.tar.gz', 'rb')
     files = {'data': ('data.tar.gz', data_obj)}
     req = requests.post(url + '/convert', files=files)
     data_obj.close()

@@ -4,7 +4,7 @@ import tarfile
 import requests
 import argparse
 
-URL = 'http://localhost:6521'
+URL = 'http://localhost:5000'
 
 
 def submit_timsconvert_job(filename, url):

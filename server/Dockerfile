@@ -13,7 +13,8 @@ RUN apt-get install -y git
 
 RUN apt-get install zip unzip
 
-RUN pip3 install -r requirements.txt
-
 COPY . /app
+
+RUN pip3 install -r /app/requirements.txt
+
 WORKDIR /app

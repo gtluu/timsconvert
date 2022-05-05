@@ -36,7 +36,8 @@ def convert():
     run_script = "/app/timsconvert/bin/run.py"
     input_file = glob.glob(os.path.join(temp_dir, '*.d'))[0]
     output_file = 'output'
-    cmd = 'python {} --input {} --outfile {}'.format(run_script, input_file, output_file)
+    # hard code exclude mobility for now
+    cmd = 'python {} --input {} --outfile {} --exclude_mobility'.format(run_script, input_file, output_file)
 
     # Run TIMSCONVERT
     os.system(cmd)

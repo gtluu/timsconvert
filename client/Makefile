@@ -5,11 +5,11 @@ download_test:
 	wget -r ftp://massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd/rs17e_1mgml_no_tims_1_0_C2_MS.d
 	tar -czvf maldi_qtof_dd.d.tar.gz -C massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd rs17e_1mgml_no_tims_1_0_C2_MS.d
 
-	wget -r ftp://massive.ucsd.edu/MSV000088438/updates/2022-02-24_gbass_3339138d/raw/timsconvert_raw_data_2/brevi_bracy.d
-	tar -czvf maldi_qtof_dd_autox.d.tar.gz -C massive.ucsd.edu/MSV000088438/updates/2022-02-24_gbass_3339138d/raw/timsconvert_raw_data_2 SRM1950_20min_88_01_6950.d
+	wget -r ftp://massive.ucsd.edu/MSV000088438/updates/2022-02-24_gbass_3339138d/raw/timsconvert_raw_data_2/brevi_brachy.d
+	tar -czvf maldi_qtof_dd_autox.d.tar.gz -C massive.ucsd.edu/MSV000088438/updates/2022-02-24_gbass_3339138d/raw/timsconvert_raw_data_2 brevi_brachy.d
 
 	wget -r ftp://massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd/rs17e_1mgml_1_0_C2_MS.d
-	tar -czvf maldi_tims_qtof_dd.d.tar.gz -C massive.ucsd.edu/MSV000084402/raw/timsconvert_raw_data/dd rs17e_1mgml_1_0_C2_MS.d
+	tar -czvf maldi_tims_qtof_dd.d.tar.gz -C massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd rs17e_1mgml_1_0_C2_MS.d
 
 	wget -r ftp://massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/ims/20210920_vc_rugose_1mMTCA_gordon/20210920_vc_rugose_1mMTCA_gordon.d
 	tar -czvf maldi_qtof_msi.d.tar.gz -C massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/ims/20210920_vc_rugose_1mMTCA_gordon 20210920_vc_rugose_1mMTCA_gordon.d

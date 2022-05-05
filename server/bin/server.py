@@ -44,7 +44,7 @@ def convert():
         # Build TIMSCONVERT command.
         run_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'run.py')
         outdir_path = os.path.join(UPLOAD_FOLDER, job_uuid, 'output')
-        cmd = 'python ' + run_path + ' --input ' + tarball_dirname + ' --outdir ' + outdir_path
+        cmd = 'python ' + run_path + ' --input ' + tarball_dirname + ' --outdir ' + outdir_path + ' --verbose'
 
         # Run TIMSCONVERT
         subprocess.call(cmd, shell=True)

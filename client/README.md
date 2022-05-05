@@ -23,5 +23,5 @@ conda install -c bioconda nextflow
 To test nextflow workflow
 
 ```
-make nextflow_test
+make run_nextflow_test
 ```

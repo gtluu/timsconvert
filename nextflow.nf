@@ -35,7 +35,6 @@ params.ms2_nlargest = -1
 // local or GNPS server
 // choose whether to run locally or via GNPS servers ('local' or 'server')
 params.location = 'local'
-params.server_output_filename = 'timsconvert'
 
 input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
 
@@ -112,8 +111,7 @@ process convert {
         """
         mkdir spectra
         python3 $CLIENT_FOLDER/client.py \
-        --input $input_file \
-        --output ${params.server_output_filename}
+        --input $input_file
         """
 }
 

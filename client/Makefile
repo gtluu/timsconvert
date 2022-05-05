@@ -1,6 +1,6 @@
 download_test:
-	wget -r ftp://massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/lcms/rs17e_1mgml_1_10_1_1206.d
-	tar -czvf lc_tims_msms.d.tar.gz -C massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/lcms rs17e_1mgml_1_10_1_1206.d
+	wget -r ftp://massive.ucsd.edu/MSV000088438/updates/2022-05-05_gbass_c9522c16/raw/timsconvert_raw_data_4/mini_tdf_1_1_1_1565.d
+	tar -czvf lc_tims_msms.d.tar.gz -C massive.ucsd.edu/MSV000088438/updates/2022-05-05_gbass_c9522c16/raw/timsconvert_raw_data_4 mini_tdf_1_1_1_1565.d
 
 	wget -r ftp://massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd/rs17e_1mgml_no_tims_1_0_C2_MS.d
 	tar -czvf maldi_qtof_dd.d.tar.gz -C massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd rs17e_1mgml_no_tims_1_0_C2_MS.d

@@ -30,14 +30,6 @@ def run_timsconvert(args):
         logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
         sys.exit(1)
 
-    # Update jobs.db if running on server.
-    if 'uuid' in args.keys():
-        with sqlite3.connect(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-                                          'db', 'jobs.db')) as conn:
-            cur = conn.cursor()
-            cur.execute('UPDATE jobs SET status=? WHERE id=?', ('RUNNING', args['uuid']))
-            conn.commit()
-
     # Initialize Bruker DLL.
     logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
     tdf_sdk_dll = init_tdf_sdk_dll(TDF_SDK_DLL_FILE_NAME)
@@ -130,15 +122,6 @@ def run_timsconvert(args):
             write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
                             run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
                             run_args['encoding'], run_args['compression'], run_args['chunk_size'])
-
-    # Update jobs.db if running on server.
-    if 'uuid' in args.keys():
-        with sqlite3.connect(
-                os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-                             'db', 'jobs.db')) as conn:
-            cur = conn.cursor()
-            cur.execute('UPDATE jobs SET status=? WHERE id=?', ('DONE', args['uuid']))
-            conn.commit()
 
     for hand in logging.getLogger().handlers:
         logging.getLogger().removeHandler(hand)

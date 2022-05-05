@@ -98,7 +98,7 @@ conda install -c bioconda nextflow
 
 6. Download TIMSCONVERT by cloning the Github repo (you will need to have [Git](https://git-scm.com/downloads) and 
 ensure that the option to enable symbolic links was checked during installation). It may be necessary to explicitly
-allow for the use of symbolic links using by adding the ```-c core.symlinks=true``` parameter on Windows.
+allow for the use of symbolic links by adding the ```-c core.symlinks=true``` parameter on Windows.
 ```
 git clone https://www.github.com/gtluu/timsconvert
 or
@@ -108,9 +108,6 @@ git clone -c core.symlinks=true https://www.github.com/gtluu/timsconvert
 ```
 # TIMSCONVERT dependencies
 pip install -r /path/to/timsconvert/requirements.txt
-
-# TIMSCONVERT server/client dependencies
-pip install -r /path/to/timsconvert/requirements_server.txt
 ```
 8. You will also need to install our forked version of pyimzML, which has added support for ion mobility arrays in imzML
  data from imaging mass spectrometry experiments.
@@ -155,36 +152,6 @@ docker build --tag timsconvert -f Dockerfile.timsconvert .
 2. Run the Docker image in a container.
 ```
 docker run --rm -it -v /path/to/data:/data timsconvert --input /data --outdir /data
-```
-
-### GNPS API (Coming Soon)
-
-We have developed an API to programmatically submit TIMSCONVERT jobs to GNPS.
-
-1. Submit a job to GNPS. Enter any TIMSCONVERT parameters you wish to change. Otherwise, the default parameters will 
-be used. A job ID will be returned.
-```
-python /path/to/timsconvert/bin/submit_timsconvert_job.py --input /path/to/data
-or
-python3 /path/to/timsconvert/bin/submit_timsconvert_job.py --input /path/to/data
-
->>> Job ID: <job_id>
-```
-2. Check the status of your job.
-```
-python /path/to/timsconvert/bin/check_timsconvert_job_status.py -u <job_id>
-or
-python3 /path/to/timsconvert/bin/check_timsconvert_job_status.py -u <job_id>
-
->>> <job_id> Job Status: PENDING
->>> <job_id> Job Status: RUNNING
->>> <job_id> Job Status: DONE
-```
-3. Once your job is complete, download your data. Data is downloaded as a tar file.
-```
-python /path/to/timsconvert/bin/download_timsconvert_job.py -u <job_id> -o /path/to/download/directory
-or
-python3 /path/to/timsconvert/bin/download_timsconvert_job.py -u <job_id> -o /path/to/download/directory
 ```
 
 ## Parameters

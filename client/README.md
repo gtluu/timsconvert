@@ -9,3 +9,9 @@ make download_test
 ```
 make run_test
 ```
+
+To test nextflow workflow
+
+```
+make nextflow_test
+```

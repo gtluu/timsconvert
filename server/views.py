@@ -35,11 +35,21 @@ def convert():
     # Build TIMSCONVERT command.
     run_script = "/app/timsconvert/bin/run.py"
     input_file = glob.glob(os.path.join(temp_dir, '*.d'))[0]
-    output_file = 'output.mzML'
+    output_file = 'output'
     cmd = 'python {} --input {} --outfile {}'.format(run_script, input_file, output_file)
 
     # Run TIMSCONVERT
     os.system(cmd)
 
+    # Tar output files.
+    output_tar = 'output.tar.gz'
+    if os.path.exists('output.mzML'):
+        with tarfile.open(output_tar, 'w:gz') as newtar:
+            newtar.add('output.mzML', 'spectra')
+    elif os.path.exists('output.imzML') and os.path.exists('output.ibd'):
+        with tarfile.open('output.tar.gz', 'w:gz') as newtar:
+            newtar.add('output.imzML', 'spectra')
+            newtar.add('output.ibd', 'spectra')
+
     # Send files to client.
-    return send_from_directory(UPLOAD_FOLDER, output_file)
+    return send_from_directory(UPLOAD_FOLDER, output_tar)

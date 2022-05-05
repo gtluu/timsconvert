@@ -13,7 +13,7 @@ def submit_timsconvert_job(filename, url):
     data_obj.close()
 
     # Download data
-    with open(os.path.join('timsconvert_job.tar.gz'), 'wb') as dl_tarball:
+    with open(os.path.join('spectra', 'timsconvert_job.tar.gz'), 'wb') as dl_tarball:
         dl_tarball.write(req.content)
 
     if req.status_code == 200:

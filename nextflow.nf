@@ -51,7 +51,7 @@ process convert {
     file input_file from input_ch
 
     output:
-    file "spectra/*mzML" into _spectra_ch
+    file "spectra/*" into _spectra_ch
 
     script:
     def ms2_flag = params.ms2_only == 'True' ? "--ms2_only" : ''

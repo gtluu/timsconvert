@@ -58,8 +58,8 @@ process convert {
     def verbose_flag = params.verbose == 'True' ? "--verbose" : ''
     def exclude_mobility_flag = params.exclude_mobility == 'True' ? "--exclude_mobility" : ''
 
-    if (params.location == 'local')
-        if (params.maldi_plate_map == '')
+    if (params.location == 'local') {
+        if (params.maldi_plate_map == '') {
             """
             mkdir spectra
             python3 $TOOL_FOLDER/run.py \
@@ -82,8 +82,7 @@ process convert {
             --ms2_threshold ${params.ms2_threshold} \
             --ms2_nlargest ${params.ms2_nlargest}
             """
-
-        else if (params.maldi_plate_map != '')
+        } else if (params.maldi_plate_map != '') {
             """
             mkdir spectra
             python3 $TOOL_FOLDER/run.py \
@@ -107,12 +106,14 @@ process convert {
             --ms2_threshold ${params.ms2_threshold} \
             --ms2_nlargest ${params.ms2_nlargest}
             """
-    else if (params.location == 'server')
+        }
+    } else if (params.location == 'server') {
         """
         mkdir spectra
         python3 $CLIENT_FOLDER/client.py \
         --input $input_file
         """
+    }
 }
 
 process summarize {

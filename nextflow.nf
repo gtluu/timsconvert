@@ -6,7 +6,7 @@
 params.input = ''
 
 // optional params
-params.mode = 'centroid'  // mode can be 'centroid', 'profile', or 'raw'
+params.mode = 'centroid'  // mode can be 'centroid' or 'raw'
 params.compression = 'zlib' // zlib or none
 
 // timsconvert params
@@ -38,6 +38,7 @@ input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
 
 // Boiler Plate
 TOOL_FOLDER = "$baseDir/bin"
+CLIENT_FOLDER = "$baseDir/client/bin"
 params.publishdir = "nf_output"
 
 // Process
@@ -105,54 +106,11 @@ process convert {
             --ms2_nlargest ${params.ms2_nlargest}
             """
     else if (params.location == 'server')
-        if (params.maldi_plate_map == '')
-            """
-            mkdir spectra
-            python3 $TOOL_FOLDER/submit_timsconvert_job.py \
-            --input $input_file \
-            --outdir spectra \
-            --mode ${params.mode} \
-            --compression ${params.compression} \
-            ${ms2_flag} \
-            ${exclude_mobility_flag} \
-            --encoding ${params.encoding} \
-            --maldi_output_file ${params.maldi_output_file} \
-            --imzml_mode ${params.imzml_mode} \
-            --lcms_backend ${params.lcms_backend} \
-            --chunk_size ${params.chunk_size} \
-            ${verbose_flag} \
-            --start_frame ${params.start_frame} \
-            --end_frame ${params.end_frame} \
-            --precision ${params.precision} \
-            --ms1_threshold ${params.ms1_threshold} \
-            --ms2_threshold ${params.ms2_threshold} \
-            --ms2_nlargest ${params.ms2_nlargest}
-            """
-
-        else if (params.maldi_plate_map != '')
-            """
-            mkdir spectra
-            python3 $TOOL_FOLDER/submit_timsconvert_job.py \
-            --input $input_file \
-            --outdir spectra \
-            --mode ${params.mode} \
-            --compression ${params.compression} \
-            ${ms2_flag} \
-            ${exclude_mobility_flag} \
-            --encoding ${params.encoding} \
-            --maldi_output_file ${params.maldi_output_file} \
-            --maldi_plate_map = ${params.maldi_plate_map} \
-            --imzml_mode ${params.imzml_mode} \
-            --lcms_backend ${params.lcms_backend} \
-            --chunk_size ${params.chunk_size} \
-            ${verbose_flag} \
-            --start_frame ${params.start_frame} \
-            --end_frame ${params.end_frame} \
-            --precision ${params.precision} \
-            --ms1_threshold ${params.ms1_threshold} \
-            --ms2_threshold ${params.ms2_threshold} \
-            --ms2_nlargest ${params.ms2_nlargest}
-            """
+        """
+        mkdir spectra
+        python3 $CLIENT_FOLDER/client.py \
+        --input $input_file
+        """
 }
 
 process summarize {

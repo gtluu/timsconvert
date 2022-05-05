@@ -24,3 +24,11 @@ run_test:
 	python3 ./bin/client.py --input maldi_tims_qtof_dd.d.tar.gz
 	python3 ./bin/client.py --input maldi_qtof_msi.d.tar.gz
 	python3 ./bin/client.py --input maldi_tims_qtof_msi.d.tar.gz
+
+run_nextflow_test:
+    nextflow run ../nextflow.nf --input lc_tims_msms.d.tar.gz
+	nextflow run ../nextflow.nf --input maldi_qtof_dd.d.tar.gz
+	nextflow run ../nextflow.nf --input maldi_qtof_dd_autox.d.tar.gz
+	nextflow run ../nextflow.nf --input maldi_tims_qtof_dd.d.tar.gz
+	nextflow run ../nextflow.nf --input maldi_qtof_msi.d.tar.gz
+	nextflow run ../nextflow.nf --input maldi_tims_qtof_msi.d.tar.gz

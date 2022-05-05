@@ -17,7 +17,11 @@ conda create -n client python=3.7
 
 conda activate client
 
+pip install requests
+
 conda install -c bioconda nextflow
+
+nextflow
 ```
 
 To test nextflow workflow

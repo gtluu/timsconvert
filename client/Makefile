@@ -18,9 +18,9 @@ download_test:
 	tar -czvf maldi_tims_qtof_msi.d.tar.gz -C massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/ims/20210921_vc_rugose_tims_gordon 20210921_vc_rugose_tims_gordon.d
 
 run_test:
-	python ./bin/client.py --input lc_tims_msms.d.tar.gz --output lc_tims_msms_converted.d.tar.gz
-	python ./bin/client.py --input maldi_qtof_dd.d.tar.gz --output maldi_qtof_dd_converted.d.tar.gz
-	python ./bin/client.py --input maldi_qtof_dd_autox.d.tar.gz --output maldi_qtof_dd_autox_converted.d.tar.gz
-	python ./bin/client.py --input maldi_tims_qtof_dd.d.tar.gz --output maldi_tims_qtof_dd_converted.d.tar.gz
-	python ./bin/client.py --input maldi_qtof_msi.d.tar.gz --output maldi_qtof_msi_converted.d.tar.gz
-	python ./bin/client.py --input maldi_tims_qtof_msi.d.tar.gz --output maldi_tims_qtof_msi_converted.d.tar.gz
+	python3 ./bin/client.py --input lc_tims_msms.d.tar.gz --output lc_tims_msms_converted.d.tar.gz
+	python3 ./bin/client.py --input maldi_qtof_dd.d.tar.gz --output maldi_qtof_dd_converted.d.tar.gz
+	python3 ./bin/client.py --input maldi_qtof_dd_autox.d.tar.gz --output maldi_qtof_dd_autox_converted.d.tar.gz
+	python3 ./bin/client.py --input maldi_tims_qtof_dd.d.tar.gz --output maldi_tims_qtof_dd_converted.d.tar.gz
+	python3 ./bin/client.py --input maldi_qtof_msi.d.tar.gz --output maldi_qtof_msi_converted.d.tar.gz
+	python3 ./bin/client.py --input maldi_tims_qtof_msi.d.tar.gz --output maldi_tims_qtof_msi_converted.d.tar.gz

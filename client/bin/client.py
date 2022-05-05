@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # Initialize parser.
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', help='Input tarball.', required=True, type=str)
-    parser.add_argument('--oupput', help='Output filename.', required=True, type=str)
+    parser.add_argument('--output', help='Output filename.', required=True, type=str)
     arguments = vars(parser.parse_args())
 
     submit_timsconvert_job(arguments['input'], arguments['output'], URL)

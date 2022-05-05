@@ -17,7 +17,7 @@ conda create -n client python=3.7
 
 conda activate client
 
-pip install requests
+pip install requests pandas
 
 conda install -c bioconda nextflow
 

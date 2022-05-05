@@ -111,7 +111,8 @@ process convert {
         """
         mkdir spectra
         python3 $CLIENT_FOLDER/client.py \
-        --input $input_file
+        --input $input_file \
+        --outdir spectra
         """
     }
 }

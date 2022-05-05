@@ -45,11 +45,11 @@ def convert():
     output_tar = os.path.join(temp_dir, 'output.tar.gz')
     if os.path.exists(os.path.join(temp_dir, 'output.mzML')):
         with tarfile.open(output_tar, 'w:gz') as newtar:
-            newtar.add(os.path.join(temp_dir, 'output.mzML'), 'spectra')
+            newtar.add(os.path.join(temp_dir, 'output.mzML'), 'output')
     elif os.path.exists(os.path.join(temp_dir, 'output.imzML')) and os.path.exists(os.path.join(temp_dir, 'output.ibd')):
         with tarfile.open(output_tar, 'w:gz') as newtar:
-            newtar.add(os.path.join(temp_dir, 'output.imzML'))
-            newtar.add(os.path.join(temp_dir, 'output.ibd'))
+            newtar.add(os.path.join(temp_dir, 'output.imzML'), 'output')
+            newtar.add(os.path.join(temp_dir, 'output.ibd'), 'output')
 
     # Send files to client.
     return send_from_directory(temp_dir, 'output.tar.gz')

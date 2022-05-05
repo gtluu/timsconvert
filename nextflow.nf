@@ -1,5 +1,7 @@
 #!~/bin nextflow
 
+nextflow.enable.dsl=1
+
 // params
 
 // required params

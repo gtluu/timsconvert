@@ -34,7 +34,7 @@ def convert():
 
     # Build TIMSCONVERT command.
     run_script = "/app/timsconvert/bin/run.py"
-    input_file = glob.glob(os.path.join(temp_dir, '*.d'))[0]
+    input_file = glob.glob(os.path.join(temp_dir, 'data', '*.d'))[0]
     output_file = 'output'
     # hard code exclude mobility for now
     cmd = 'python {} --input {} --outfile {} --exclude_mobility'.format(run_script, input_file, output_file)

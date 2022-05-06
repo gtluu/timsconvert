@@ -44,13 +44,13 @@ def convert():
 
     # Tar output files.
     output_tar = os.path.join(temp_dir, 'output.tar.gz')
-    if os.path.exists(os.path.join(temp_dir, 'output.mzML')):
+    if os.path.exists(os.path.join(temp_dir, 'data', 'output.mzML')):
         with tarfile.open(output_tar, 'w:gz') as newtar:
-            newtar.add(os.path.join(temp_dir, 'output.mzML'), 'output.mzML')
-    elif os.path.exists(os.path.join(temp_dir, 'output.imzML')) and os.path.exists(os.path.join(temp_dir, 'output.ibd')):
+            newtar.add(os.path.join(temp_dir, 'data', 'output.mzML'), 'output.mzML')
+    elif os.path.exists(os.path.join(temp_dir, 'data', 'output.imzML')) and os.path.exists(os.path.join(temp_dir, 'data', 'output.ibd')):
         with tarfile.open(output_tar, 'w:gz') as newtar:
-            newtar.add(os.path.join(temp_dir, 'output.imzML'), 'output.imzML')
-            newtar.add(os.path.join(temp_dir, 'output.ibd'), 'output.ibd')
+            newtar.add(os.path.join(temp_dir, 'data', 'output.imzML'), 'output.imzML')
+            newtar.add(os.path.join(temp_dir, 'data', 'output.ibd'), 'output.ibd')
 
     # Send files to client.
     return send_from_directory(temp_dir, 'output.tar.gz')

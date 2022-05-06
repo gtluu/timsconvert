@@ -201,13 +201,14 @@ tdf2mzml Optional Parameters
 
 Get test data
 ```
-cd test/data
-sh ./get_data.sh
+cd test
+make download_test
 ```
 
 Run workflow
 ```
-sh ./run_validation.sh
+make run_test
+make run_nextflow_test
 ```
 
 ## Changelog

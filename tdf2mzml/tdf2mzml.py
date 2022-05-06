@@ -1160,6 +1160,7 @@ def tdf2mzml_write_mzml(args):
                     #     scan_progress(mzml_data_struct)
 
         logging.info("Writing final mzML")
+        update_spectra_count(args['outdir'], args['outfile'], mzml_data_struct['scan_index'] - 1)
 
     return
 

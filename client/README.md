@@ -6,6 +6,12 @@ To test this
 make download_test
 ```
 
+Install requirements if needed
+```
+pip install -r requirements.txt
+```
+
+
 ```
 make run_test
 ```

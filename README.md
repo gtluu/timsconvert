@@ -3,12 +3,11 @@
 ## About
 
 TIMSCONVERT is a workflow designed for mass spectrometrists that allows for the conversion of raw data from Bruker 
-timsTOF Pro, fleX, and SCP mass spectrometers (i.e. .d directory containing BAF, TDF, and TSF files) to open source 
+timsTOF Pro and fleX mass spectrometers (i.e. .d directory containing BAF, TDF, and TSF files) to open source 
 data formats (i.e. mzML and imzML) that:
 1. are compatible with downstream open source data analysis platorms.
 2. incorporate trapped ion mobility spectrometry (TIMS) data into these open source formats.
-3. possess manageable file sizes.
-4. do not require any programming experience.
+3. do not require any programming experience.
 
 #### Examples for file conversion:
 

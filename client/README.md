@@ -17,7 +17,7 @@ make run_test
 ```
 
 
-If nextflow is not already installed, an environment should be created and nextflow should be installed.
+An environment should be created and nextflow should be installed.
 ```
 conda create --prefix ./conda/env/client python=3.7
 

@@ -31,8 +31,6 @@ def submit_timsconvert_job(filename, output_dir, url):
 
     # Decompress uploaded data.
     with tarfile.open(result_tar_filename) as tarball:
-        print(tarball.getnames())
-        print(filename)
         if "output.mzML" in tarball.getnames():
             output_filename = os.path.join(output_dir, os.path.basename(filename.replace(".d", ".mzML")))
             temp_filename = os.path.join(output_dir, "output.mzML")

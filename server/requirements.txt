@@ -1,0 +1,4 @@
+Flask
+gunicorn
+pandas
+psims==0.1.34

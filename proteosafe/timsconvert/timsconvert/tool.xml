@@ -54,17 +54,18 @@
             <!-- Mapping Input Files into NextFlow -->
             <arg option="-newparameters" value="publishdir:workflow_results"/>
             <arg option="-newparameters" value="input:demangled_spectra/**/*.d"/>
+            <arg option="-newparameters" value="location:server"/>
+            
 
             <!-- Mapping Proteosafe param to nextflow params -->
-            <arg option="-parametermapping" value="EXPORTMS2ONLY:ms2_only"/>
+            <!-- <arg option="-parametermapping" value="EXPORTMS2ONLY:ms2_only"/>
             <arg option="-parametermapping" value="SPECTRAMODE:mode"/>
             <arg option="-parametermapping" value="LCMSBACKEND:lcms_backend"/>
             <arg option="-parametermapping" value="COMPRESSION:compression"/>
             <arg option="-parametermapping" value="EXCLUDEMOBILITY:exclude_mobility"/>
             <arg option="-parametermapping" value="ENCODING:encoding"/>
             <arg option="-parametermapping" value="MALDIOUTPUTMODE:maldi_output_file"/>
-            <arg option="-parametermapping" value="IMZMLMODE:imzml_mode"/>
-            <arg option="-parametermapping" value="IMZMLMODE:imzml_mode"/>
+            <arg option="-parametermapping" value="IMZMLMODE:imzml_mode"/> -->
             
             
         </execution>

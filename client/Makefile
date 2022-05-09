@@ -15,6 +15,11 @@ run_test:
 	python3 ./bin/client.py --input massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/ims/20210920_vc_rugose_1mMTCA_gordon/20210920_vc_rugose_1mMTCA_gordon.d
 	python3 ./bin/client.py --input massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/ims/20210921_vc_rugose_tims_gordon/20210921_vc_rugose_tims_gordon.d
 
+run_remote_test:
+	mkdir -p spectra
+	python3 ./bin/client.py --input massive.ucsd.edu/MSV000088438/updates/2022-05-05_gbass_c9522c16/raw/timsconvert_raw_data_4/mini_tdf_1_1_1_1565.d --host "gnpsserver1.ucsd.edu:6521"
+	
+
 run_nextflow_test:
 	./conda/env/client/bin/nextflow run ../nextflow.nf --input massive.ucsd.edu/MSV000088438/updates/2022-05-05_gbass_c9522c16/raw/timsconvert_raw_data_4/mini_tdf_1_1_1_1565.d --location server
 	./conda/env/client/bin/nextflow run ../nextflow.nf --input massive.ucsd.edu/MSV000088438/raw/timsconvert_raw_data/dd/rs17e_1mgml_no_tims_1_0_C2_MS.d --location server

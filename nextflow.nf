@@ -112,7 +112,8 @@ process convert {
         mkdir spectra
         python3 $CLIENT_FOLDER/client.py \
         --input $input_file \
-        --outdir spectra
+        --outdir spectra \
+        --host "gnpsserver1.ucsd.edu:6521"
         """
     }
 }

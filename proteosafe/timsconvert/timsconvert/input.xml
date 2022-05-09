@@ -18,9 +18,9 @@
             <validator type="required"/>
             <fileGenerator type="upload" purpose="spectrum" target="spectra"/>
         </parameter>
-        <parameter name="plate_map" label="MALDI Plate Map">
+        <!-- <parameter name="plate_map" label="MALDI Plate Map">
             <fileGenerator type="upload" purpose="plate_map" target="plate_map"/>
-        </parameter>
+        </parameter> -->
 
         <!-- Conversion Parameters -->
         <!-- <parameter name="SPECTRAMODE" label="Spectra Export Mode">
@@ -34,14 +34,14 @@
         </parameter> -->
 
         <!-- TIMSCONVERT Parameters -->
-        <parameter name="EXPORTMS2ONLY" label="Export MS2 Only">
+        <!-- <parameter name="EXPORTMS2ONLY" label="Export MS2 Only">
             <options>
                 <option value="True" label="True"/>
                 <option value="False" label="False"/>
             </options>
             <validator type="set"/>
             <default value="False"/>
-        </parameter>
+        </parameter> -->
         <!-- <parameter name="EXCLUDEMOBILITY" label="Exclude Mobility">
             <options>
                 <option value="True" label="True"/>
@@ -56,7 +56,7 @@
         </parameter> -->
 
         <!-- TIMSCONVERT MALDI Parameters -->
-        <parameter name="MALDIOUTPUTMODE" label="MALDI Output Mode">
+        <!-- <parameter name="MALDIOUTPUTMODE" label="MALDI Output Mode">
             <options>
                 <option value="combined" label="combined"/>
                 <option value="individual" label="individual"/>
@@ -71,10 +71,10 @@
             </options>
             <validator type="set"/>
             <default value="processed"/>
-        </parameter>
+        </parameter> -->
 
         <!-- Advanced Parameters -->
-        <parameter name="LCMSBACKEND" label="LCMS Backend">
+        <!-- <parameter name="LCMSBACKEND" label="LCMS Backend">
             <options>
                 <option value="timsconvert" label="timsconvert"/>
                 <option value="tdf2mzml" label="tdf2mzml"/>
@@ -97,7 +97,7 @@
             </options>
             <validator type="set"/>
             <default value="64"/>
-        </parameter>
+        </parameter> -->
 
         <!-- tdf2mzml Parameters -->
         <!-- <parameter name="STARTFRAME" label="Start Frame">
@@ -140,7 +140,7 @@
                 </module>
             </cell>
         </row>
-        <row>
+        <!-- <row>
             <cell>
                 <label>
                     <content parameter="plate_map"/>
@@ -152,11 +152,11 @@
                     <property name="label">MALDI Plate Map</property>
                 </module>
             </cell>
-        </row>
+        </row> -->
     </block>
 
-    <block label="Conversion Parameters">
-        <!-- <row>
+    <!-- <block label="Conversion Parameters">
+        <row>
             <cell>
                 <label>
                     <content parameter="SPECTRAMODE"/>
@@ -165,10 +165,10 @@
             <cell>
                 <input type="select" parameter="SPECTRAMODE"></input>
             </cell>
-        </row> -->
-    </block>
+        </row>
+    </block> -->
 
-    <block label="TIMSCONVERT Parameters">
+    <!-- <block label="TIMSCONVERT Parameters">
         <row>
             <cell>
                 <label>
@@ -179,7 +179,7 @@
                 <input type="select" parameter="EXPORTMS2ONLY"></input>
             </cell>
         </row>
-        <!-- <row>
+        <row>
             <cell>
                 <label>
                     <content parameter="EXCLUDEMOBILITY"/>
@@ -188,8 +188,8 @@
             <cell>
                 <input type="select" parameter="EXCLUDEMOBILITY"></input>
             </cell>
-        </row> -->
-        <!-- <row>
+        </row> 
+        <row>
             <cell>
                 <label>
                     <content parameter="PROFILEBINS"/>
@@ -198,10 +198,10 @@
             <cell>
                 <input type="text" parameter="PROFILEBINS"></input>
             </cell>
-        </row> -->
-    </block>
+        </row>
+    </block> -->
 
-    <block label="TIMSCONVERT MALDI Parameters">
+    <!-- <block label="TIMSCONVERT MALDI Parameters">
         <row>
             <cell>
                 <label>
@@ -255,7 +255,7 @@
                 <input type="select" parameter="ENCODING"></input>
             </cell>
         </row>
-    </block>
+    </block> -->
 
     <!-- <block label="tdf2mzml Parameters">
         <row>

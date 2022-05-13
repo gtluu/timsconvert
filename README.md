@@ -42,16 +42,27 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 
 ## Installation and Usage
 
-### GNPS Online Workflow (Coming Soon)
+### GNPS TIMSCONVERT Workflow
 
-The web version of TIMSCONVERT currently only supports LC-TIMS-MS(/MS) data and can be found here. No installation is 
-necessary. All that's required is a GNPS account.
+The web version of TIMSCONVERT currently supports various data formats listed below. No installation is necessary. All 
+that's required is a GNPS account.
 
 1. Upload your data to GNPS ([instructions](https://ccms-ucsd.github.io/GNPSDocumentation/fileupload/)).
 2. Go to the [TIMSCONVERT workflow page](https://proteomics2.ucsd.edu/ProteoSAFe/index.jsp?params=%7b%22workflow%22%3A%20%22TIMSCONVERT%22%7d).
-3. Select your dataset and parameters.
+3. Select your dataset.
 4. Submit your run.
 5. You will receive an email when your job has completed.
+
+#### Compatible file types in GNPS TIMSCONVERT Workflow
+
+| Acquisition Mode                        | Raw File Format | Converted File Format | Compatible?        |
+|-----------------------------------------|-----------------|-----------------------|--------------------|
+| LC-MS(/MS)                              | BAF             | mzML                  | :x:                |
+| LC-TIMS-MS(/MS)                         | TDF             | mzML                  | :heavy_check_mark: |
+| MALDI-MS(/MS) Dried Droplet             | TSF             | mzML                  | :heavy_check_mark: |
+| MALDI-MS Imaging Mass Spectrometry      | TSF             | imzML                 | :heavy_check_mark: |
+| MALDI-TIMS-MS(/MS) Dried Droplet        | TDF             | mzML                  | :heavy_check_mark: |
+| MALDI-TIMS-MS Imaging Mass Spectrometry | TDF             | imzML                 | :heavy_check_mark: |
 
 ### Setting Up Your Local Environment
 

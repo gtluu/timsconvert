@@ -94,8 +94,8 @@ def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression):
 
 # Parse out MALDI DD data and write out mzML file using psims.
 def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                        compression, single_file, plate_map, chunk_size):
-    if single_file == 'combined':
+                        compression, maldi_output_file, plate_map, barebones_metadata, chunk_size):
+    if maldi_output_file == 'combined':
         # Initialize mzML writer using psims.
         logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
         writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
@@ -107,7 +107,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
             # Start write acquisition, instrument config, processing, etc. to mzML.
             logging.info(get_timestamp() + ':' + 'Writing mzML metadata...')
-            write_mzml_metadata(data, writer, infile, mode, ms2_only)
+            write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
             logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
             # Parse chunks of data and write to spectrum element.
@@ -146,7 +146,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, scan_count)
         logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
-    elif single_file == 'individual' and plate_map != '':
+    elif maldi_output_file == 'individual' and plate_map != '':
         # Check to make sure plate map is a valid csv file.
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == '.csv':
             # Parse all MALDI data.
@@ -176,7 +176,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                 with writer:
                     writer.controlled_vocabularies()
 
-                    write_mzml_metadata(data, writer, infile, mode, ms2_only)
+                    write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
                     with writer.run(id='run', instrument_configuration='instrument'):
                         scan_count = 1
@@ -191,3 +191,64 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                     write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
+    elif maldi_output_file == 'sample' and plate_map != '':
+        # Check to make sure plate map is a valid csv file.
+        if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == '.csv':
+            # Parse all MALDI data.
+            num_frames = data.frames.shape[0] + 1
+            # Parse TSF data.
+            if data.meta_data['SchemaType'] == 'TSF':
+                if mode == 'raw':
+                    logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
+                                                         'centroid mode are supported. Defaulting to centroid '
+                                                         'mode.')
+                list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, profile_bins, encoding)
+            # Parse TDF data.
+            elif data.meta_data['SchemaType'] == 'TDF':
+                list_of_scan_dicts = parse_maldi_tdf(data, 1, num_frames, mode, ms2_only, exclude_mobility,
+                                                     profile_bins, encoding)
+
+            # Parse plate map.
+            plate_map_dict = parse_maldi_plate_map(plate_map)
+
+            # Get coordinates for each condition replicate.
+            conditions = [str(value) for key, value in plate_map_dict.items()]
+            conditions = sorted(list(set(conditions)))
+
+            dict_of_scan_lists = {}
+            for i in conditions:
+                dict_of_scan_lists[i] = []
+
+            for key, value in plate_map_dict.items():
+                try:
+                    dict_of_scan_lists[value].append(key)
+                except KeyError:
+                    pass
+
+            for key, value in dict_of_scan_lists.items():
+                if key != 'nan':
+                    output_filename = os.path.join(outdir, key + '.mzML')
+
+                    writer = MzMLWriter(output_filename, close=True)
+
+                    with writer:
+                        writer.controlled_vocabularies()
+                        write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
+                        with writer.run(id='run', instrument_configuration='instrument'):
+                            scan_count = len(value)
+                            with writer.spectrum_list(count=scan_count):
+                                condition_scan_dicts = [i for i in list_of_scan_dicts if i['coord'] in value]
+                                scan_count = 0
+                                for scan_dict in condition_scan_dicts:
+                                    if ms2_only == True and scan_dict['ms_level'] == 1:
+                                        pass
+                                    else:
+                                        scan_count += 1
+                                        scan_dict['scan_number'] = scan_count
+                                        if scan_dict['ms_level'] == 1:
+                                            write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+                                        elif scan_dict['ms_level'] == 2:
+                                            write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
+
+                    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
+                                 os.path.join(outdir, outfile) + '...')

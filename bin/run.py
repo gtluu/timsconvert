@@ -76,7 +76,7 @@ def run_timsconvert(args):
                 write_maldi_dd_mzml(data, run_args['infile'], run_args['outdir'], run_args['outfile'], run_args['mode'],
                                     run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
                                     run_args['encoding'], run_args['compression'], run_args['maldi_output_file'],
-                                    run_args['maldi_plate_map'], run_args['chunk_size'])
+                                    run_args['maldi_plate_map'], run_args['barebones_metadata'], run_args['chunk_size'])
             elif data.meta_data['MaldiApplicationType'] == 'Imaging':
                 if run_args['outfile'] == '':
                     run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
@@ -95,7 +95,7 @@ def run_timsconvert(args):
                                         run_args['mode'], run_args['ms2_only'], run_args['exclude_mobility'],
                                         run_args['profile_bins'], run_args['encoding'], run_args['compression'],
                                         run_args['maldi_output_file'], run_args['maldi_plate_map'],
-                                        run_args['chunk_size'])
+                                        run_args['barebones_metadata'], run_args['chunk_size'])
                 elif data.meta_data['MaldiApplicationType'] == 'Imaging':
                     if run_args['outfile'] == '':
                         run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
@@ -111,7 +111,8 @@ def run_timsconvert(args):
                 if run_args['lcms_backend'] == 'timsconvert':
                     write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
                                     run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
-                                    run_args['encoding'], run_args['compression'], run_args['chunk_size'])
+                                    run_args['encoding'], run_args['compression'], run_args['barebones_metadata'],
+                                    run_args['chunk_size'])
                 elif run_args['lcms_backend'] == 'tdf2mzml':
                     tdf2mzml_write_mzml(run_args)
         elif schema == 'BAF':
@@ -121,7 +122,8 @@ def run_timsconvert(args):
             logging.info(get_timestamp() + ':' + 'Processing LC-MS data...')
             write_lcms_mzml(data, infile, run_args['outdir'], run_args['outfile'], run_args['mode'],
                             run_args['ms2_only'], run_args['exclude_mobility'], run_args['profile_bins'],
-                            run_args['encoding'], run_args['compression'], run_args['chunk_size'])
+                            run_args['encoding'], run_args['compression'], run_args['barebones_metadata'],
+                            run_args['chunk_size'])
 
     for hand in logging.getLogger().handlers:
         logging.getLogger().removeHandler(hand)

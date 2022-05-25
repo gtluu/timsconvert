@@ -137,7 +137,7 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
 
 # Parse out LC-MS(/MS) data and write out mzML file using psims.
 def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                    compression, chunk_size):
+                    compression, barebones_metadata, chunk_size):
     # Initialize mzML writer using psims.
     logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
     writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
@@ -149,7 +149,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
 
         # Start write acquisition, instrument config, processing, etc. to mzML.
         logging.info(get_timestamp() + ':' + 'Writing mzML metadata...')
-        write_mzml_metadata(data, writer, infile, mode, ms2_only)
+        write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
         logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Parse chunks of data and write to spectrum elements.

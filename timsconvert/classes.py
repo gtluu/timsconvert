@@ -457,6 +457,9 @@ class tdf_data(object):
                                                          callback_for_dll,
                                                          None)
 
+            print(rc)
+            print(result)
+
             return result
 
     # In house code for getting spectrum for a frame.

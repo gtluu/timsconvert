@@ -217,7 +217,6 @@ class tsf_data(object):
         return (index_buf[0:required_len], intensity_buf[0:required_len])
 
     # modified from Bruker tsfdata.py
-    # currently unsure of how to get m/z values/indices
     def read_profile_spectrum(self, frame_id):
         while True:
             cnt = int(self.profile_buffer_size)
@@ -235,7 +234,9 @@ class tsf_data(object):
             else:
                 break
 
-        return intensity_buf[0:required_len]
+        index_buf = np.arange(0, intensity_buf.size, dtype=np.float64)
+
+        return (index_buf[0:required_len], intensity_buf[0:required_len])
 
     # Gets global metadata table as a dictionary.
     def get_global_metadata(self):

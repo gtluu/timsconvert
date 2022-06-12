@@ -20,7 +20,6 @@ def arg_descriptions():
                                         'exported data. Precursor ion mobility information is still exported.',
                     'encoding': 'Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults to '
                                 '64-bit.',
-                    'barebones_metadata'
                     'profile_bins': 'Number of bins used to bin data when converting in profile mode. A value of 0'
                                     'indicates no binning is performed. Defaults to 0.',
                     'barebones_metadata': 'Only use basic mzML metadata. Use if downstream data analysis tools throw '
@@ -64,7 +63,7 @@ def get_args(server=False):
     optional = parser.add_argument_group('Optional Parameters')
     optional.add_argument('--outdir', help=desc['outdir'], default='', type=str)
     optional.add_argument('--outfile', help=desc['outfile'], default='', type=str)
-    optional.add_argument('--mode', help=desc['mode'], default='centroid', type=str, choices=['raw', 'centroid'])
+    optional.add_argument('--mode', help=desc['mode'], default='centroid', type=str, choices=['raw', 'centroid', 'profile'])
     optional.add_argument('--compression', help=desc['compression'], default='zlib', type=str, choices=['zlib', 'none'])
 
     # TIMSCONVERT Arguments
@@ -73,7 +72,7 @@ def get_args(server=False):
     timsconvert_args.add_argument('--exclude_mobility', help=desc['exclude_mobility'], action='store_true')
     timsconvert_args.add_argument('--encoding', help=desc['encoding'], default=64, type=int, choices=[32, 64])
     timsconvert_args.add_argument('--barebones_metadata', help=desc['barebones_metadata'], action='store_true')
-    #timsconvert_args.add_argument('--profile_bins', help=desc['profile_bins'], default=0, type=int)
+    timsconvert_args.add_argument('--profile_bins', help=desc['profile_bins'], default=0, type=int)
     timsconvert_args.add_argument('--maldi_output_file', help=desc['maldi_output_file'], default='combined', type=str,
                                   choices=['combined', 'individual', 'sample'])
     timsconvert_args.add_argument('--maldi_plate_map', help=desc['maldi_plate_map'], default='', type=str)

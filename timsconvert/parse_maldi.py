@@ -27,10 +27,10 @@ def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, profile_bins, encod
         mz_array = tsf_data.index_to_mz(frame, index_buf)
         return mz_array, intensity_array
     elif mode == 'profile':
-        intensity_array = np.array(tsf_data.read_profile_spectrum(frame), dtype=encoding_dtype)
-        mz_acq_range_lower = float(tsf_data.meta_data['MzAcqRangeLower'])
-        mz_acq_range_upper = float(tsf_data.meta_data['MzAcqRangeUpper'])
-        mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
+        index_buf, intensity_array = np.array(tsf_data.read_profile_spectrum(frame), dtype=encoding_dtype)
+        mz_array = tsf_data.index_to_mz(frame, index_buf)
+        mz_acq_range_lower = float(mz_array[0])
+        mz_acq_range_upper = float(mz_array[-1])
         if profile_bins != 0:
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
             unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)

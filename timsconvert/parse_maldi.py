@@ -30,9 +30,9 @@ def extract_maldi_tsf_spectrum_arrays(tsf_data, mode, frame, profile_bins, encod
         index_buf, intensity_array = tsf_data.read_profile_spectrum(frame)
         intensity_array = np.array(intensity_array, dtype=encoding_dtype)
         mz_array = tsf_data.index_to_mz(frame, index_buf)
-        mz_acq_range_lower = float(mz_array[0])
-        mz_acq_range_upper = float(mz_array[-1])
         if profile_bins != 0:
+            mz_acq_range_lower = float(mz_array[0])
+            mz_acq_range_upper = float(mz_array[-1])
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
             unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)
@@ -63,12 +63,12 @@ def extract_maldi_tdf_spectrum_arrays(tdf_data, mode, multiscan, frame, scan_beg
             mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(frame, scan_begin, scan_end, encoding)
             return mz_array, intensity_array
     elif mode == 'profile':
-        intensity_array = np.array(tdf_data.extract_profile_spectrum_for_frame(frame, scan_begin, scan_end),
-                                   dtype=encoding_dtype)
-        mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
-        mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
-        mz_array = np.linspace(mz_acq_range_lower, mz_acq_range_upper, len(intensity_array), dtype=encoding_dtype)
+        index_buf, intensity_array = tdf_data.extract_profile_spectrum_for_frame(frame, scan_begin, scan_end)
+        intensity_array = np.array(intensity_array, dtype=encoding_dtype)
+        mz_array = tdf_data.index_to_mz(frame, index_buf)
         if profile_bins != 0:
+            mz_acq_range_lower = float(mz_array[0])
+            mz_acq_range_upper = float(mz_array[-1])
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
             unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)

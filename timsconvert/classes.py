@@ -457,10 +457,9 @@ class tdf_data(object):
                                                          callback_for_dll,
                                                          None)
 
-            print(rc)
-            print(result)
+            index_buf = np.arange(0, len(result), dtype=np.float64)
 
-            return result
+            return (index_buf, result)
 
     # In house code for getting spectrum for a frame.
     def extract_spectrum_for_frame_v2(self, frame_id, begin_scan, end_scan, encoding, tol=0.01):

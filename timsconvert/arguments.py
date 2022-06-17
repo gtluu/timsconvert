@@ -20,7 +20,7 @@ def arg_descriptions():
                                         'exported data. Precursor ion mobility information is still exported.',
                     'encoding': 'Choose encoding for binary arrays: 32-bit ("32") or 64-bit ("64"). Defaults to '
                                 '64-bit.',
-                    'profile_bins': 'Number of bins used to bin data when converting in profile mode. A value of 0'
+                    'profile_bins': 'Number of bins used to bin data when converting in profile mode. A value of 0 '
                                     'indicates no binning is performed. Defaults to 0.',
                     'barebones_metadata': 'Only use basic mzML metadata. Use if downstream data analysis tools throw '
                                           'errors with descriptive CV terms.',

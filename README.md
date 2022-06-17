@@ -185,6 +185,10 @@ TIMSCONVERT Optional Parameters
                           Precursor ion mobility information is still exported. Recommended when exporting in profile 
                           mode due to file size.
 --encoding                Choose encoding for binary arrays. 32-bit ("32") or 64-bit ("64"). Defaults to 64-bit.
+--barebones_metadata      Only use basic mzML metadata. Use if downstream data analysis tools throw errors with 
+                          descriptive CV terms.
+--profile_bins            Number of bins used to bin data when converting in profile mode. A value of 0 indicates no 
+                          binning is performed. Default s to 0
 --maldi_output_file       For MALDI dried droplet data, whether individual scans should be placed in
                           individual files ("individual") or all into a single file ("combined").
                           Defaults to combined.

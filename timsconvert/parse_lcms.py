@@ -21,8 +21,8 @@ def extract_lcms_baf_spectrum_arrays(baf_data, frame_dict, mode, profile_bins, e
         intensity_array = np.array(baf_data.read_array_double(frame_dict['ProfileIntensityId']),
                                    dtype=encoding_dtype)
         if profile_bins != 0:
-            mz_acq_range_lower = float(frame_dict['MzAcqRangeLower'])
-            mz_acq_range_upper = float(frame_dict['MzAcqRangeUpper'])
+            mz_acq_range_lower = float(mz_array[0])
+            mz_acq_range_upper = float(mz_array[-1])
             bins = np.linspace(mz_acq_range_lower, mz_acq_range_upper, profile_bins, dtype=encoding_dtype)
             unique_indices, inverse_indices = np.unique(np.digitize(mz_array, bins), return_inverse=True)
             bin_counts = np.bincount(inverse_indices)

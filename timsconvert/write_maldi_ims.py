@@ -82,6 +82,9 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
     elif data.meta_data['SchemaType'] == 'TDF':
         if mode == 'profile':
             exclude_mobility = True
+            logging.info(
+                get_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
+            logging.info(get_timestamp() + ':' + 'Exporting without ion mobility data...')
         if exclude_mobility == False:
             writer = ImzMLWriter(os.path.join(outdir, outfile),
                                  polarity=polarity,

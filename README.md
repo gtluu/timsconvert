@@ -9,6 +9,12 @@ data formats (i.e. mzML and imzML) that:
 2. incorporate trapped ion mobility spectrometry (TIMS) data into these open source formats.
 3. do not require any programming experience.
 
+If you use TIMSCONVERT, please cite us:
+
+Gordon T. Luu, Michael A. Freitas, Itzel Lizama-Chamu, Catherine S. McCaughey, Laura M. Sanchez, Mingxun Wang. (2022). 
+TIMSCONVERT: A workflow to convert trapped ion mobility data to open formats. *Bioinformatics*; btac419. 
+DOI: [10.1093/bioinformatics/btac419](https://doi.org/10.1093/bioinformatics/btac419).
+
 #### Examples for file conversion:
 
 - LC-MS(/MS) (BAF) &#8594; mzML
@@ -24,9 +30,7 @@ data formats (i.e. mzML and imzML) that:
 - [Global Natural Products Social (GNPS)](https://gnps.ucsd.edu/)
 - [Cardinal MSI](https://cardinalmsi.org/)
 
-Please note that TIMSCONVERT is still actively under development and new changes are being pushed regularly. For the 
-version of TIMSCONVERT found in our [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2021.12.09.472024v1), 
-please see the [v1.0.0 branch here on Github](https://github.com/gtluu/timsconvert/tree/manuscript_v1.0.0).
+Please note that TIMSCONVERT is still actively under development and new changes are being pushed regularly.
 
 ## Dimensionality of timsTOF Data
 

@@ -98,7 +98,8 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
     if maldi_output_file == 'combined':
         # Initialize mzML writer using psims.
         logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
-        writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
+        #writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
+        writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
 
         with writer:
             # Begin mzML with controlled vocabularies (CV).

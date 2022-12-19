@@ -79,10 +79,10 @@ def get_spectra_count(data):
     return ms1_count + ms2_count
 
 
-def update_spectra_count(outdir, outfile, scan_count):
+def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     with open(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', 'r') as in_stream, \
             open(os.path.join(outdir, outfile), 'w') as out_stream:
         for line in in_stream:
-            out_stream.write(line.replace('      <spectrumList count="1000" defaultDataProcessingRef="exportation">',
+            out_stream.write(line.replace('      <spectrumList count="' + str(num_of_spectra) + '" defaultDataProcessingRef="exportation">',
                                           '      <spectrumList count="' + str(scan_count) + '" defaultDataProcessingRef="exportation">'))
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')

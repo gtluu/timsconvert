@@ -145,7 +145,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                 write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
-        update_spectra_count(outdir, outfile, scan_count)
+        update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
         logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
     elif maldi_output_file == 'individual' and plate_map != '':
         # Check to make sure plate map is a valid csv file.

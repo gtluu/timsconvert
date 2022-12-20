@@ -6,7 +6,7 @@ import numpy as np
 from psims.mzml import MzMLWriter
 
 
-def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression):
+def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
     # Build params.
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
@@ -15,7 +15,8 @@ def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression):
               {'base peak intensity': scan['base_peak_intensity']},
               {'highest observed m/z': scan['high_mz']},
               {'lowest observed m/z': scan['low_mz']},
-              {'maldi spot identifier': scan['coord']}]
+              {'maldi spot identifier': scan['coord']},
+              {'spectrum title': title}]
 
     if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1 and scan['mobility_array'] is not None:
         # This version only works with newer versions of psims.
@@ -51,11 +52,12 @@ def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression):
                           compression=compression)
 
 
-def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression):
+def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression, title=None):
     # Build params.
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
-              {'total ion current': scan['total_ion_current']}]
+              {'total ion current': scan['total_ion_current']},
+              {'spectrum title': title}]
     if 'base_peak_mz' in scan.keys() and 'base_peak_intensity' in scan.keys():
         params.append({'base peak m/z': scan['base_peak_mz']})
         params.append({'base peak intensity': scan['base_peak_intensity']})
@@ -140,9 +142,11 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                             scan_count += 1
                             scan_dict['scan_number'] = scan_count
                             if scan_dict['ms_level'] == 1:
-                                write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+                                write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                                            title=os.path.splitext(outfile)[0])
                             elif scan_dict['ms_level'] == 2:
-                                write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
+                                write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression,
+                                                            title=os.path.splitext(outfile)[0])
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
@@ -187,9 +191,11 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                 pass
                             else:
                                 if scan_dict['ms_level'] == 1:
-                                    write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+                                    write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                                                title=plate_map_dict[scan_dict['coord']])
                                 elif scan_dict['ms_level'] == 2:
-                                    write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
+                                    write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression,
+                                                                title=plate_map_dict[scan_dict['coord']])
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
     elif maldi_output_file == 'sample' and plate_map != '':
@@ -247,9 +253,11 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                         scan_count += 1
                                         scan_dict['scan_number'] = scan_count
                                         if scan_dict['ms_level'] == 1:
-                                            write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+                                            write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                                                        title=key)
                                         elif scan_dict['ms_level'] == 2:
-                                            write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression)
+                                            write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression,
+                                                                        title=key)
 
                     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                                  os.path.join(outdir, outfile) + '...')

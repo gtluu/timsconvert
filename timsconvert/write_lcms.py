@@ -181,6 +181,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                         scan_count = write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, mode,
                                                               ms2_only, exclude_mobility, profile_bins, encoding,
                                                               compression)
-    logging.info(get_timestamp() + ':' + 'Updating scan count...')
-    update_spectra_count(outdir, outfile, scan_count)
-    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+
+    if num_of_spectra != scan_count:
+        logging.info(get_timestamp() + ':' + 'Updating scan count...')
+        update_spectra_count(outdir, outfile, scan_count)
+    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
+                 os.path.join(outdir, outfile) + '...')

@@ -86,4 +86,3 @@ def update_spectra_count(outdir, outfile, scan_count):
     ns = mzml.tag[:mzml.tag.find('}') + 1]
     mzml.find('.//' + ns + 'spectrumList').set('count', str(scan_count).encode('utf-8'))
     mzml_tree.write(os.path.join(outdir, outfile), encoding='utf-8', xml_declaration=True)
-    mzml_tree.close()

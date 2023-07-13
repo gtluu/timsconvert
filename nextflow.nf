@@ -1,6 +1,6 @@
 #!~/bin nextflow
 
-//nextflow.enable.dsl=1
+nextflow.enable.dsl=2
 
 // params
 
@@ -36,8 +36,6 @@ params.ms2_nlargest = -1
 // choose whether to run locally or via GNPS servers ('local' or 'server')
 params.location = 'local'
 
-input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
-
 // Boiler Plate
 TOOL_FOLDER = "$baseDir/bin"
 CLIENT_FOLDER = "$baseDir/client/bin"
@@ -48,10 +46,10 @@ process convert {
     publishDir "$params.publishdir", mode: 'copy'
 
     input:
-    file input_file from input_ch
+    file input_file
 
     output:
-    file "spectra/*" into _spectra_ch
+    file "spectra/*"
 
     script:
     def ms2_flag = params.ms2_only == 'True' ? "--ms2_only" : ''
@@ -122,7 +120,7 @@ process summarize {
     publishDir "$params.publishdir", mode: 'copy'
 
     input:
-    file "spectra/*" from _spectra_ch.collect()
+    file "spectra/*"
 
     output:
     file "results_file.tsv"
@@ -135,3 +133,8 @@ process summarize {
 }
 
 
+workflow {
+    input_ch = Channel.fromPath(params.input, type:'dir', checkIfExists: true)
+    converted_data_ch = convert(input_ch)
+    summarize(converted_data_ch.collect())
+}

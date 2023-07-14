@@ -185,6 +185,6 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
 
     if num_of_spectra != scan_count:
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
-        update_spectra_count(outdir, outfile, scan_count)
+        update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                  os.path.join(outdir, outfile) + '...')

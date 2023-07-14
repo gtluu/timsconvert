@@ -1162,7 +1162,7 @@ def tdf2mzml_write_mzml(args):
     if total_spectra_count != mzml_data_struct['scan_index']-1:
         logging.info('Updating scan count...')
         update_spectra_count(
-            args['outdir'], args['outfile'], mzml_data_struct['scan_index'] - 1)
+            args['outdir'], args['outfile'], total_spectra_count, mzml_data_struct['scan_index'] - 1)
     logging.info('Finished writing to .mzML file ' +
                  os.path.join(args['outdir'], args['outfile']) + '...')
 

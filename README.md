@@ -61,12 +61,13 @@ that's required is a GNPS account.
 
 | Acquisition Mode                        | Raw File Format | Converted File Format | Compatible?        |
 |-----------------------------------------|-----------------|-----------------------|--------------------|
-| LC-MS(/MS)                              | .d/BAF             | mzML                  | :x:                |
-| LC-TIMS-MS(/MS)                         | .d/TDF             | mzML                  | :heavy_check_mark: |
-| MALDI-MS(/MS) Dried Droplet             | .d/TSF             | mzML                  | :heavy_check_mark: |
-| MALDI-MS Imaging Mass Spectrometry      | .d/TSF             | imzML                 | :heavy_check_mark: |
-| MALDI-TIMS-MS(/MS) Dried Droplet        | .d/TDF             | mzML                  | :heavy_check_mark: |
-| MALDI-TIMS-MS Imaging Mass Spectrometry | .d/TDF             | imzML                 | :heavy_check_mark: |
+| LC-MS(/MS)                              | .d/BAF          | mzML                  | :x:                |
+| LC-MS(/MS)                              | .d/TSF          | mzML                  | :x:                |
+| LC-TIMS-MS(/MS)                         | .d/TDF          | mzML                  | :heavy_check_mark: |
+| MALDI-MS(/MS) Dried Droplet             | .d/TSF          | mzML                  | :heavy_check_mark: |
+| MALDI-MS Imaging Mass Spectrometry      | .d/TSF          | imzML                 | :heavy_check_mark: |
+| MALDI-TIMS-MS(/MS) Dried Droplet        | .d/TDF          | mzML                  | :heavy_check_mark: |
+| MALDI-TIMS-MS Imaging Mass Spectrometry | .d/TDF          | imzML                 | :heavy_check_mark: |
 
 ### Setting Up Your Local Environment
 

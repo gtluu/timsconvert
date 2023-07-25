@@ -17,7 +17,7 @@ DOI: [10.1093/bioinformatics/btac419](https://doi.org/10.1093/bioinformatics/bta
 
 #### Examples for file conversion:
 
-- LC-MS(/MS) (BAF) &#8594; mzML
+- LC-MS(/MS) (BAF or TSF) &#8594; mzML
 - LC-TIMS-MS(/MS) (TDF) &#8594; mzML
 - MALDI-MS(/MS) Dried Droplet (TSF) &#8594; mzML
 - MALDI-MS Imaging Mass Spectrometry (TSF) &#8594; imzML

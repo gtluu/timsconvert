@@ -1,6 +1,8 @@
-This is the client to interact with the server to send over a file to be converted. 
+Test TIMSCONVERT locally
 
-To test this
+To test this (from this directory)
+
+Download test data
 
 ```
 make download_test
@@ -20,7 +22,7 @@ pip install -r ../requirements.txt
 pip install git+https://github.com/gtluu/pyimzML
 ```
 
-To test python CLI workflow
+To test Python CLI workflow
 
 ```
 make run_test

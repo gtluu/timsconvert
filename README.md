@@ -217,15 +217,23 @@ tdf2mzml Optional Parameters
 
 ## Testing
 
-Get test data
+To test TIMSCONVERT locally:
+
+Download test data
 ```
 cd test
 make download_test
 ```
 
-Run workflow
+To test Python CLI workflow
 ```
+cd test
 make run_test
+```
+
+To test nextflow workflow
+```
+cd test
 make run_nextflow_test
 ```
 

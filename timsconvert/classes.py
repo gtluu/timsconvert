@@ -17,21 +17,6 @@ MSMS_PROFILE_SPECTRUM_FUNCTOR = ctypes.CFUNCTYPE(None,
                                                  ctypes.POINTER(ctypes.c_int32))
 
 
-# currently nonfunctional class for adding TIMS to instrument configuration
-# may not be supported with current CV dictionary
-class IMMS(ParameterContainer):
-    def __init(self, order, params=None, context=NullMap, **kwargs):
-        params = self.prepare_params(params, **kwargs)
-        super(IMMS, self).__init__('ion mobility mass spectrometer',
-                                   params,
-                                   dict(order=order),
-                                   context=context)
-        try:
-            self.order = int(order)
-        except (ValueError, TypeError):
-            self.order = order
-
-
 # modified from baf2sql.py
 class baf_data(object):
     def __init__(self, bruker_d_folder_name: str, baf2sql_dll, raw_calibration=False, all_variables=False):

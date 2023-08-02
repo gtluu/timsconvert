@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='timsconvert',
-    version='1.0.2',
+    version='1.1.2',
     packages=['timsconvert'],
     url='https://github.com/gtluu/timsconvert',
     license='Apache License',

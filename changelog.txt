@@ -1,3 +1,7 @@
+v 1.1.2
+- Update spectrum counting functions.
+- Add option for barebones metadata.
+
 v 1.1.0
 - No longer relies on AlphaTims to read TDF data.
 - Add different versions of TDF-SDK.

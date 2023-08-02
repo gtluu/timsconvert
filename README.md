@@ -236,8 +236,3 @@ To test nextflow workflow
 cd test
 make run_nextflow_test
 ```
-
-## Changelog
-v 1.0.0
-- Initial release.
-- Compatibility for ESI and MALDI based experiments.

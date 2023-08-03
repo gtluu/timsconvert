@@ -42,13 +42,14 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
 
     # Instrument configuration.
     inst_count = 0
-    if data.meta_data['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys():
+    if data.meta_data['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys() \
+            and 'MaldiApplicationType' not in data.meta_data.keys():
         inst_count += 1
         source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[data.meta_data['InstrumentSourceType']]])
     # If source isn't found in the GlobalMetadata SQL table, hard code source to ESI
-    else:
+    elif 'MaldiApplicationType' in data.metadata.keys():
         inst_count += 1
-        source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE['1']])
+        source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
 
     # Analyzer and detector hard coded for timsTOF fleX
     inst_count += 1

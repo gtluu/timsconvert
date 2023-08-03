@@ -84,8 +84,7 @@ def run_timsconvert(args):
                                 run_args['compression'],
                                 run_args['maldi_output_file'],
                                 run_args['maldi_plate_map'],
-                                run_args['barebones_metadata'],
-                                run_args['chunk_size'])
+                                run_args['barebones_metadata'])
 
         # TSF MALDI-qTOF MSI Dataset
         elif schema == 'TSF' and data.meta_data['MaldiApplicationType'] == 'Imaging':
@@ -122,8 +121,7 @@ def run_timsconvert(args):
                                 run_args['compression'],
                                 run_args['maldi_output_file'],
                                 run_args['maldi_plate_map'],
-                                run_args['barebones_metadata'],
-                                run_args['chunk_size'])
+                                run_args['barebones_metadata'])
 
         # TDF MALDI-TIMS-qTOF MSI Dataset
         elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'Imaging':

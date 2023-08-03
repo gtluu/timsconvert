@@ -100,7 +100,7 @@ def get_encoding_dtype(encoding):
 
 # Write out MS1 spectrum in psims.
 def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
-    # Build params
+    # Build params list for spectrum.
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
               {'total ion current': scan['total_ion_current']},
@@ -140,89 +140,53 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
                           compression=compression)
 
 
-# Write out parent spectrum.
-def write_lcms_ms1_spectrum(writer, parent_scan, encoding, compression):
-    # Build params
-    params = [parent_scan['scan_type'],
-              {'ms level': parent_scan['ms_level']},
-              {'total ion current': parent_scan['total_ion_current']},
-              {'base peak m/z': parent_scan['base_peak_mz']},
-              {'base peak intensity': parent_scan['base_peak_intensity']},
-              {'highest observed m/z': parent_scan['high_mz']},
-              {'lowest observed m/z': parent_scan['low_mz']}]
-
-    if 'mobility_array' in parent_scan.keys() and parent_scan['mobility_array'] is not None:
-        # This version only works with newer versions of psims.
-        # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
-        #                  'unit_name': 'volt-second per square centimeter'},
-        #                 parent_scan['mobility_array'])]
-        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
-        other_arrays = [('mean inverse reduced ion mobility array', parent_scan['mobility_array'])]
-    else:
-        other_arrays = None
-
-    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
-                     'intensity array': get_encoding_dtype(encoding)}
-    if other_arrays is not None:
-        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
-
-    # Write MS1 spectrum.
-    writer.write_spectrum(parent_scan['mz_array'],
-                          parent_scan['intensity_array'],
-                          id='scan=' + str(parent_scan['scan_number']),
-                          polarity=parent_scan['polarity'],
-                          centroided=parent_scan['centroided'],
-                          scan_start_time=parent_scan['retention_time'],
-                          other_arrays=other_arrays,
-                          params=params,
-                          encoding=encoding_dict,
-                          compression=compression)
-
-
-# Write out product spectrum.
-def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan, compression):
+# Write out MS/MS spectrum in psims.
+def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=None, title=None):
     # Build params list for spectrum.
-    spectrum_params = [product_scan['scan_type'],
-                       {'ms level': product_scan['ms_level']},
-                       {'total ion current': product_scan['total_ion_current']}]
-    if 'base_peak_mz' in product_scan.keys() and 'base_peak_intensity' in product_scan.keys():
-        spectrum_params.append({'base peak m/z': product_scan['base_peak_mz']})
-        spectrum_params.append({'base peak intensity': product_scan['base_peak_intensity']})
-    if 'high_mz' in product_scan.keys() and 'low_mz' in product_scan.keys():
-        spectrum_params.append({'highest observed m/z': product_scan['high_mz']})
-        spectrum_params.append({'lowest observed m/z': product_scan['low_mz']})
+    params = [scan['scan_type'],
+              {'ms level': scan['ms_level']},
+              {'total ion current': scan['total_ion_current']}]
+    if 'MaldiApplicationType' in data.meta_data.keys():
+        params.append({'spectrum title': title})
+    if 'base_peak_mz' in scan.keys() and 'base_peak_intensity' in scan.keys():
+        params.append({'base peak m/z': scan['base_peak_mz']})
+        params.append({'base peak intensity': scan['base_peak_intensity']})
+    if 'high_mz' in scan.keys() and 'low_mz' in scan.keys():
+        params.append({'highest observed m/z': scan['high_mz']})
+        params.append({'lowest observed m/z': scan['low_mz']})
 
     # Build precursor information dict.
-    precursor_info = {'mz': product_scan['selected_ion_mz'],
-                      'activation': [{'collision energy': product_scan['collision_energy']}],
-                      'isolation_window_args': {'target': product_scan['target_mz'],
-                                                'upper': product_scan['isolation_upper_offset'],
-                                                'lower': product_scan['isolation_lower_offset']},
-                      'params': []}
-    if 'selected_ion_intensity' in product_scan.keys():
-        precursor_info['intensity'] = product_scan['selected_ion_intensity']
-    if 'selected_ion_mobility' in product_scan.keys():
-        precursor_info['params'].append({'inverse reduced ion mobility': product_scan['selected_ion_mobility']})
-    if 'selected_ion_ccs' in product_scan.keys():
-        precursor_info['params'].append({'collisional cross sectional area': product_scan['selected_ion_ccs']})
-    if not np.isnan(product_scan['charge_state']) and int(product_scan['charge_state']) != 0:
-        precursor_info['charge'] = product_scan['charge_state']
+    precursor_info = {'mz': scan['selected_ion_mz'],
+                      'activation': [{'collision energy': scan['collision_energy']}],
+                      'isolation_window_args': {'target': scan['target_mz'],
+                                                'upper': scan['isolation_upper_offset'],
+                                                'lower': scan['isolation_lower_offset']}}
+
+    if scan['selected_ion_intensity'] is not None:
+        precursor_info['intensity'] = scan['selected_ion_intensity']
+    if scan['selected_ion_mobility'] is not None:
+        precursor_info['params'].append({'inverse reduced ion mobility': scan['selected_ion_mobility']})
+    if scan['selected_ion_ccs'] is not None:
+        precursor_info['params'].append({'collisional cross sectional area': scan['selected_ion_ccs']})
+    if scan['charge_state'] is not None and \
+            scan['charge_state'] is not np.isnan(scan['charge_state']) and \
+            int(scan['charge_state']) != 0:
+        precursor_info['charge'] = scan['charge_state']
 
     if parent_scan is not None:
         precursor_info['spectrum_reference'] = 'scan=' + str(parent_scan['scan_number'])
 
-    # Write MS2 spectrum.
-    writer.write_spectrum(product_scan['mz_array'],
-                          product_scan['intensity_array'],
-                          id='scan=' + str(product_scan['scan_number']),
-                          polarity=product_scan['polarity'],
-                          centroided=product_scan['centroided'],
-                          scan_start_time=product_scan['retention_time'],
-                          params=spectrum_params,
+    # Write out MS2 spectrum.
+    writer.write_spectrum(scan['mz_array'],
+                          scan['intensity_array'],
+                          id='scan=' + str(scan['scan_number']),
+                          polarity=scan['polarity'],
+                          centroided=scan['centroided'],
+                          scan_start_time=scan['retention_time'],
+                          params=params,
                           precursor_information=precursor_info,
                           encoding={'m/z array': get_encoding_dtype(encoding),
-                                    'intensity array': get_encoding_dtype(encoding)},
+                                    'intensity_array': get_encoding_dtype(encoding)},
                           compression=compression)
 
 
@@ -255,17 +219,17 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
             # Set params for scan.
             scan_count += 1
             parent['scan_number'] = scan_count
-            write_lcms_ms1_spectrum(writer, parent, encoding, compression)
+            write_ms1_spectrum(writer, data, parent, encoding, compression)
             # Write MS2 Product Scans
             for product in products:
                 scan_count += 1
                 product['scan_number'] = scan_count
-                write_lcms_ms2_spectrum(writer, parent, encoding, product, compression)
+                write_ms2_spectrum(writer, data, product, encoding, compression, parent_scan=parent)
     elif ms2_only or parent_scans == []:
         for product in product_scans:
             scan_count += 1
             product['scan_number'] = scan_count
-            write_lcms_ms2_spectrum(writer, None, encoding, product, compression)
+            write_ms2_spectrum(writer, data, product, encoding, compression)
     return scan_count
 
 
@@ -341,87 +305,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                  os.path.join(outdir, outfile) + '...')
 
 
-def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
-    # Build params.
-    params = [scan['scan_type'],
-              {'ms level': scan['ms_level']},
-              {'total ion current': scan['total_ion_current']},
-              {'base peak m/z': scan['base_peak_mz']},
-              {'base peak intensity': scan['base_peak_intensity']},
-              {'highest observed m/z': scan['high_mz']},
-              {'lowest observed m/z': scan['low_mz']},
-              {'maldi spot identifier': scan['coord']},
-              {'spectrum title': title}]
-
-    if data.meta_data['SchemaType'] == 'TDF' and scan['ms_level'] == 1 and scan['mobility_array'] is not None:
-        # This version only works with newer versions of psims.
-        # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
-        #                  'unit_name': 'volt-second per square centimeter'},
-        #                 scan['mobility_array'])]
-        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
-        other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
-    else:
-        other_arrays = None
-
-    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
-                     'intensity array': get_encoding_dtype(encoding)}
-    if other_arrays is not None:
-        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
-
-    # Write out spectrum.
-    writer.write_spectrum(scan['mz_array'],
-                          scan['intensity_array'],
-                          id='scan=' + str(scan['scan_number']),
-                          polarity=scan['polarity'],
-                          centroided=scan['centroided'],
-                          scan_start_time=scan['retention_time'],
-                          other_arrays=other_arrays,
-                          params=params,
-                          encoding=encoding_dict,
-                          compression=compression)
-
-
-def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression, title=None):
-    # Build params.
-    params = [scan['scan_type'],
-              {'ms level': scan['ms_level']},
-              {'total ion current': scan['total_ion_current']},
-              {'spectrum title': title}]
-    if 'base_peak_mz' in scan.keys() and 'base_peak_intensity' in scan.keys():
-        params.append({'base peak m/z': scan['base_peak_mz']})
-        params.append({'base peak intensity': scan['base_peak_intensity']})
-    if 'high_mz' in scan.keys() and 'low_mz' in scan.keys():
-        params.append({'highest observed m/z': scan['high_mz']})
-        params.append({'lowest observed m/z': scan['low_mz']})
-
-    # Build precursor information dict.
-    precursor_info = {'mz': scan['selected_ion_mz'],
-                      'activation': [{'collision energy': scan['collision_energy']}],
-                      'isolation_window_args': {'target': scan['target_mz'],
-                                                'upper': scan['isolation_upper_offset'],
-                                                'lower': scan['isolation_lower_offset']}}
-
-    if scan['charge_state'] is not None:
-        precursor_info['charge'] = scan['charge_state']
-
-    # Write out MS2 spectrum.
-    writer.write_spectrum(scan['mz_array'],
-                          scan['intensity_array'],
-                          id='scan=' + str(scan['scan_number']),
-                          polarity=scan['polarity'],
-                          centroided=scan['centroided'],
-                          scan_start_time=scan['retention_time'],
-                          params=params,
-                          precursor_information=precursor_info,
-                          encoding={'m/z array': get_encoding_dtype(encoding),
-                                    'intensity_array': get_encoding_dtype(encoding)},
-                          compression=compression)
-
-
 # Parse out MALDI DD data and write out mzML file using psims.
 def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                        compression, maldi_output_file, plate_map, barebones_metadata, chunk_size):
+                        compression, maldi_output_file, plate_map, barebones_metadata):
 
     # All spectra from a given TSF or TDF file are combined into a single mzML file.
     if maldi_output_file == 'combined':
@@ -479,18 +365,11 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                             scan_count += 1
                             scan_dict['scan_number'] = scan_count
                             if scan_dict['ms_level'] == 1:
-                                write_maldi_dd_ms1_spectrum(writer,
-                                                            data,
-                                                            scan_dict,
-                                                            encoding,
-                                                            compression,
-                                                            title=os.path.splitext(outfile)[0])
+                                write_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                                   title=os.path.splitext(outfile)[0])
                             elif scan_dict['ms_level'] == 2:
-                                write_maldi_dd_ms2_spectrum(writer,
-                                                            scan_dict,
-                                                            encoding,
-                                                            compression,
-                                                            title=os.path.splitext(outfile)[0])
+                                write_ms2_spectrum(writer, data, scan_dict, encoding, compression,
+                                                   title=os.path.splitext(outfile)[0])
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
@@ -549,18 +428,11 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                 pass
                             else:
                                 if scan_dict['ms_level'] == 1:
-                                    write_maldi_dd_ms1_spectrum(writer,
-                                                                data,
-                                                                scan_dict,
-                                                                encoding,
-                                                                compression,
-                                                                title=plate_map_dict[scan_dict['coord']])
+                                    write_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                                       title=plate_map_dict[scan_dict['coord']])
                                 elif scan_dict['ms_level'] == 2:
-                                    write_maldi_dd_ms2_spectrum(writer,
-                                                                scan_dict,
-                                                                encoding,
-                                                                compression,
-                                                                title=plate_map_dict[scan_dict['coord']])
+                                    write_ms2_spectrum(writer, data, scan_dict, encoding, compression,
+                                                       title=plate_map_dict[scan_dict['coord']])
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
 
@@ -632,18 +504,11 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                         scan_count += 1
                                         scan_dict['scan_number'] = scan_count
                                         if scan_dict['ms_level'] == 1:
-                                            write_maldi_dd_ms1_spectrum(writer,
-                                                                        data,
-                                                                        scan_dict,
-                                                                        encoding,
-                                                                        compression,
-                                                                        title=key)
+                                            write_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                                               title=key)
                                         elif scan_dict['ms_level'] == 2:
-                                            write_maldi_dd_ms2_spectrum(writer,
-                                                                        scan_dict,
-                                                                        encoding,
-                                                                        compression,
-                                                                        title=key)
+                                            write_ms2_spectrum(writer, data, scan_dict, encoding, compression,
+                                                               title=key)
 
                     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                                  os.path.join(outdir, outfile) + '...')

@@ -89,7 +89,7 @@ def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression, title=None)
                           scan_start_time=scan['retention_time'],
                           params=params,
                           precursor_information=precursor_info,
-                          encoding={'m/z array':encoding_dtype,
+                          encoding={'m/z array': encoding_dtype,
                                     'intensity_array': encoding_dtype},
                           compression=compression)
 
@@ -97,10 +97,11 @@ def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression, title=None)
 # Parse out MALDI DD data and write out mzML file using psims.
 def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
                         compression, maldi_output_file, plate_map, barebones_metadata, chunk_size):
+
+    # All spectra from a given TSF or TDF file are combined into a single mzML file.
     if maldi_output_file == 'combined':
         # Initialize mzML writer using psims.
         logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
-        #writer = MzMLWriter(os.path.join(outdir, outfile), close=True)
         writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
 
         with writer:
@@ -128,29 +129,49 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                             logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
                                                                  'centroid mode are supported. Defaulting to centroid '
                                                                  'mode.')
-                        list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, profile_bins,
+                        list_of_scan_dicts = parse_maldi_tsf(data,
+                                                             1,
+                                                             num_frames,
+                                                             mode,
+                                                             ms2_only,
+                                                             profile_bins,
                                                              encoding)
                     # Parse TDF data.
                     elif data.meta_data['SchemaType'] == 'TDF':
-                        list_of_scan_dicts = parse_maldi_tdf(data, 1, num_frames, mode, ms2_only, exclude_mobility,
-                                                             profile_bins, encoding)
+                        list_of_scan_dicts = parse_maldi_tdf(data,
+                                                             1,
+                                                             num_frames,
+                                                             mode,
+                                                             ms2_only,
+                                                             exclude_mobility,
+                                                             profile_bins,
+                                                             encoding)
                     # Write MS1 parent scans.
                     for scan_dict in list_of_scan_dicts:
-                        if ms2_only == True and scan_dict['ms_level'] == 1:
+                        if ms2_only and scan_dict['ms_level'] == 1:
                             pass
                         else:
                             scan_count += 1
                             scan_dict['scan_number'] = scan_count
                             if scan_dict['ms_level'] == 1:
-                                write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                write_maldi_dd_ms1_spectrum(writer,
+                                                            data,
+                                                            scan_dict,
+                                                            encoding,
+                                                            compression,
                                                             title=os.path.splitext(outfile)[0])
                             elif scan_dict['ms_level'] == 2:
-                                write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression,
+                                write_maldi_dd_ms2_spectrum(writer,
+                                                            scan_dict,
+                                                            encoding,
+                                                            compression,
                                                             title=os.path.splitext(outfile)[0])
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
         logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+
+    # Each spectrum in a given TSF or TDF file is output as its own individual mzML file.
     elif maldi_output_file == 'individual' and plate_map != '':
         # Check to make sure plate map is a valid csv file.
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == '.csv':
@@ -162,19 +183,31 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                     logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
                                                          'centroid mode are supported. Defaulting to centroid '
                                                          'mode.')
-                list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, profile_bins, encoding)
+                list_of_scan_dicts = parse_maldi_tsf(data,
+                                                     1,
+                                                     num_frames,
+                                                     mode,
+                                                     ms2_only,
+                                                     profile_bins,
+                                                     encoding)
             # Parse TDF data.
             elif data.meta_data['SchemaType'] == 'TDF':
-                list_of_scan_dicts = parse_maldi_tdf(data, 1, num_frames, mode, ms2_only, exclude_mobility,
-                                                     profile_bins, encoding)
+                list_of_scan_dicts = parse_maldi_tdf(data,
+                                                     1,
+                                                     num_frames,
+                                                     mode,
+                                                     ms2_only,
+                                                     exclude_mobility,
+                                                     profile_bins,
+                                                     encoding)
 
             # Use plate map to determine filename.
             # Names things as sample_position.mzML
             plate_map_dict = parse_maldi_plate_map(plate_map)
 
             for scan_dict in list_of_scan_dicts:
-                output_filename = os.path.join(outdir, plate_map_dict[scan_dict['coord']] + '_' + scan_dict['coord'] +
-                                               '.mzML')
+                output_filename = os.path.join(outdir,
+                                               plate_map_dict[scan_dict['coord']] + '_' + scan_dict['coord'] + '.mzML')
 
                 writer = MzMLWriter(output_filename, close=True)
 
@@ -187,17 +220,26 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                         scan_count = 1
                         scan_dict['scan_number'] = scan_count
                         with writer.spectrum_list(count=scan_count):
-                            if ms2_only == True and scan_dict['ms_level'] == 1:
+                            if ms2_only and scan_dict['ms_level'] == 1:
                                 pass
                             else:
                                 if scan_dict['ms_level'] == 1:
-                                    write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                    write_maldi_dd_ms1_spectrum(writer,
+                                                                data,
+                                                                scan_dict,
+                                                                encoding,
+                                                                compression,
                                                                 title=plate_map_dict[scan_dict['coord']])
                                 elif scan_dict['ms_level'] == 2:
-                                    write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression,
+                                    write_maldi_dd_ms2_spectrum(writer,
+                                                                scan_dict,
+                                                                encoding,
+                                                                compression,
                                                                 title=plate_map_dict[scan_dict['coord']])
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
+
+    # Group spectra from a given TSF or TDF file by sample name based on user provided plate map.
     elif maldi_output_file == 'sample' and plate_map != '':
         # Check to make sure plate map is a valid csv file.
         if os.path.exists(plate_map) and os.path.splitext(plate_map)[1] == '.csv':
@@ -209,11 +251,23 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                     logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
                                                          'centroid mode are supported. Defaulting to centroid '
                                                          'mode.')
-                list_of_scan_dicts = parse_maldi_tsf(data, 1, num_frames, mode, ms2_only, profile_bins, encoding)
+                list_of_scan_dicts = parse_maldi_tsf(data,
+                                                     1,
+                                                     num_frames,
+                                                     mode,
+                                                     ms2_only,
+                                                     profile_bins,
+                                                     encoding)
             # Parse TDF data.
             elif data.meta_data['SchemaType'] == 'TDF':
-                list_of_scan_dicts = parse_maldi_tdf(data, 1, num_frames, mode, ms2_only, exclude_mobility,
-                                                     profile_bins, encoding)
+                list_of_scan_dicts = parse_maldi_tdf(data,
+                                                     1,
+                                                     num_frames,
+                                                     mode,
+                                                     ms2_only,
+                                                     exclude_mobility,
+                                                     profile_bins,
+                                                     encoding)
 
             # Parse plate map.
             plate_map_dict = parse_maldi_plate_map(plate_map)
@@ -247,16 +301,23 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                 condition_scan_dicts = [i for i in list_of_scan_dicts if i['coord'] in value]
                                 scan_count = 0
                                 for scan_dict in condition_scan_dicts:
-                                    if ms2_only == True and scan_dict['ms_level'] == 1:
+                                    if ms2_only and scan_dict['ms_level'] == 1:
                                         pass
                                     else:
                                         scan_count += 1
                                         scan_dict['scan_number'] = scan_count
                                         if scan_dict['ms_level'] == 1:
-                                            write_maldi_dd_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                            write_maldi_dd_ms1_spectrum(writer,
+                                                                        data,
+                                                                        scan_dict,
+                                                                        encoding,
+                                                                        compression,
                                                                         title=key)
                                         elif scan_dict['ms_level'] == 2:
-                                            write_maldi_dd_ms2_spectrum(writer, scan_dict, encoding, compression,
+                                            write_maldi_dd_ms2_spectrum(writer,
+                                                                        scan_dict,
+                                                                        encoding,
+                                                                        compression,
                                                                         title=key)
 
                     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +

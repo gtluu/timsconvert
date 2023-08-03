@@ -125,7 +125,6 @@ def args_check(args):
         sys.exit(1)
     elif args['maldi_output_file'] != '' \
             and args['maldi_output_file'] in ['individual', 'sample'] \
-            and args['maldi_plate_map'] != '' \
             and not os.path.exists(args['maldi_plate_map']):
         print(get_timestamp() + ':' + 'Plate map path does not exist...')
         print(get_timestamp() + ':' + 'Exiting...')

@@ -5,28 +5,37 @@ from timsconvert.parse_maldi import *
 
 def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, profile_bins,
                                    encoding):
-    # Parse TSF data.
+    # Parse and write TSF data.
     if data.meta_data['SchemaType'] == 'TSF':
-        list_of_scan_dicts = parse_maldi_tsf(data, frame_start, frame_stop, mode, False, profile_bins, encoding)
-    # Parse TDF data.
-    elif data.meta_data['SchemaType'] == 'TDF':
-        list_of_scan_dicts = parse_maldi_tdf(data, frame_start, frame_stop, mode, False, exclude_mobility, profile_bins,
+        list_of_scan_dicts = parse_maldi_tsf(data,
+                                             frame_start,
+                                             frame_stop, mode,
+                                             False,
+                                             profile_bins,
                                              encoding)
-    if data.meta_data['SchemaType'] == 'TSF':
         for scan_dict in list_of_scan_dicts:
             imzml_file.addSpectrum(scan_dict['mz_array'],
                                    scan_dict['intensity_array'],
                                    scan_dict['coord'])
+    # Parse TDF data.
     elif data.meta_data['SchemaType'] == 'TDF':
+        list_of_scan_dicts = parse_maldi_tdf(data,
+                                             frame_start,
+                                             frame_stop,
+                                             mode,
+                                             False,
+                                             exclude_mobility,
+                                             profile_bins,
+                                             encoding)
         if mode == 'profile':
             exclude_mobility = True
-        if exclude_mobility == False:
+        if not exclude_mobility:
             for scan_dict in list_of_scan_dicts:
                 imzml_file.addSpectrum(scan_dict['mz_array'],
                                        scan_dict['intensity_array'],
                                        scan_dict['coord'],
                                        mobilities=scan_dict['mobility_array'])
-        elif exclude_mobility == True:
+        elif exclude_mobility:
             for scan_dict in list_of_scan_dicts:
                 imzml_file.addSpectrum(scan_dict['mz_array'],
                                        scan_dict['intensity_array'],
@@ -37,14 +46,10 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                           compression, chunk_size):
     # Set polarity for run in imzML.
     polarity = list(set(data.frames['Polarity'].values.tolist()))
-    if len(polarity) == 1:
-        polarity = polarity[0]
-        if polarity == '+':
-            polarity = 'positive'
-        elif polarity == '-':
-            polarity = 'negative'
-        else:
-            polarity = None
+    if len(polarity) == 1 and polarity[0] == '+':
+        polarity = 'positive'
+    elif len(polarity) == 1 and polarity[0] == '-':
+        polarity = 'negative'
     else:
         polarity = None
 
@@ -85,7 +90,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             logging.info(
                 get_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
             logging.info(get_timestamp() + ':' + 'Exporting without ion mobility data...')
-        if exclude_mobility == False:
+        if not exclude_mobility:
             writer = ImzMLWriter(os.path.join(outdir, outfile),
                                  polarity=polarity,
                                  mode=imzml_mode,
@@ -97,7 +102,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  intensity_compression=compression_object,
                                  mobility_compression=compression_object,
                                  include_mobility=True)
-        elif exclude_mobility == True:
+        elif exclude_mobility:
             writer = ImzMLWriter(os.path.join(outdir, outfile),
                                  polarity=polarity,
                                  mode=imzml_mode,
@@ -118,8 +123,14 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                 chunk_list.append((int(i), int(j)))
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for frame_start, frame_stop in chunk_list:
-                write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility,
-                                               profile_bins, encoding)
+                write_maldi_ims_chunk_to_imzml(data,
+                                               imzml_file,
+                                               frame_start,
+                                               frame_stop,
+                                               mode,
+                                               exclude_mobility,
+                                               profile_bins,
+                                               encoding)
             chunk += chunk_size
         else:
             chunk_list = []
@@ -128,6 +139,12 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             chunk_list.append((j, data.frames.shape[0] + 1))
             logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for frame_start, frame_stop in chunk_list:
-                write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility,
-                                               profile_bins, encoding)
+                write_maldi_ims_chunk_to_imzml(data,
+                                               imzml_file,
+                                               frame_start,
+                                               frame_stop,
+                                               mode,
+                                               exclude_mobility,
+                                               profile_bins,
+                                               encoding)
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')

@@ -5,16 +5,16 @@ from psims.mzml.components import ParameterContainer, NullMap
 from timsconvert.init_bruker_dll import *
 
 
-MSMS_SPECTRUM_FUNCTOR = ctypes.CFUNCTYPE(None,
-                                         ctypes.c_int64,
-                                         ctypes.c_uint32,
-                                         ctypes.POINTER(ctypes.c_double),
-                                         ctypes.POINTER(ctypes.c_float))
+MSMS_SPECTRUM_FUNCTOR = CFUNCTYPE(None,
+                                  c_int64,
+                                  c_uint32,
+                                  POINTER(c_double),
+                                  POINTER(c_float))
 
-MSMS_PROFILE_SPECTRUM_FUNCTOR = ctypes.CFUNCTYPE(None,
-                                                 ctypes.c_int64,
-                                                 ctypes.c_uint32,
-                                                 ctypes.POINTER(ctypes.c_int32))
+MSMS_PROFILE_SPECTRUM_FUNCTOR = CFUNCTYPE(None,
+                                          c_int64,
+                                          c_uint32,
+                                          POINTER(c_int32))
 
 
 # modified from baf2sql.py
@@ -65,13 +65,13 @@ class baf_data(object):
         if baf_len == 0:
             throw_last_baf2sql_error(self.dll)
 
-        buf = ctypes.create_string_buffer(baf_len)
+        buf = create_string_buffer(baf_len)
         self.dll.baf2sql_get_sqlite_cache_filename_v2(buf, baf_len, u8path, self.all_variables)
         return buf.value
 
     # Returns number of elements in array with specified ID.
     def get_array_num_elements(self, identity):
-        n = ctypes.c_uint64(0)
+        n = c_uint64(0)
         if not self.dll.baf2sql_array_get_num_elements(self.handle, identity, n):
             throw_last_baf2sql_error(self.dll)
         return n.value
@@ -81,7 +81,7 @@ class baf_data(object):
         buf = np.empty(shape=self.get_array_num_elements(identity), dtype=np.float64)
         if not self.dll.baf2sql_array_read_double(self.handle,
                                                   identity,
-                                                  buf.ctypes.data_as(ctypes.POINTER(ctypes.c_double))):
+                                                  buf.data_as(POINTER(c_double))):
             throw_last_baf2sql_error(self.dll)
         return buf
 
@@ -166,8 +166,8 @@ class tsf_data(object):
         out = np.empty(shape=cnt, dtype=np.float64)
         success = func(self.handle,
                        frame_id,
-                       in_array.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-                       out.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+                       in_array.data_as(POINTER(c_double)),
+                       out.data_as(POINTER(c_double)),
                        cnt)
 
         if success == 0:
@@ -188,8 +188,8 @@ class tsf_data(object):
 
             required_len = self.dll.tsf_read_line_spectrum(self.handle,
                                                            frame_id,
-                                                           index_buf.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-                                                           intensity_buf.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                                                           index_buf.data_as(POINTER(c_double)),
+                                                           intensity_buf.data_as(POINTER(c_float)),
                                                            self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
@@ -209,7 +209,7 @@ class tsf_data(object):
 
             required_len = self.dll.tsf_read_profile_spectrum(self.handle,
                                                               frame_id,
-                                                              intensity_buf.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),
+                                                              intensity_buf.data_as(POINTER(c_uint32)),
                                                               self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
@@ -301,8 +301,8 @@ class tdf_data(object):
         out = np.empty(shape=cnt, dtype=np.float64)
         success = func(self.handle,
                        frame_id,
-                       in_array.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-                       out.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+                       in_array.data_as(POINTER(c_double)),
+                       out.data_as(POINTER(c_double)),
                        cnt)
 
         if success == 0:
@@ -328,7 +328,7 @@ class tdf_data(object):
                                                        frame_id,
                                                        scan_begin,
                                                        scan_end,
-                                                       buf.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),
+                                                       buf.data_as(POINTER(c_uint32)),
                                                        length)
 
             if required_len > length:
@@ -360,7 +360,7 @@ class tdf_data(object):
             result[precursor_id] = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
         rc = self.dll.tims_read_pasef_msms(self.handle,
-                                           precursors_for_dll.ctypes.data_as(ctypes.POINTER(ctypes.c_int64)),
+                                           precursors_for_dll.data_as(POINTER(c_int64)),
                                            len(precursor_list),
                                            callback_for_dll)
 
@@ -378,7 +378,7 @@ class tdf_data(object):
                 result[precursor_id] = intensity_values[0:num_points]
 
             rc = self.dll.tims_read_pasef_profile_msms(self.handle,
-                                                       precursors_for_dll.ctypes.data_as(ctypes.POINTER(ctypes.c_int64)),
+                                                       precursors_for_dll.data_as(POINTER(c_int64)),
                                                        len(precursor_list),
                                                        callback_for_dll)
 
@@ -540,8 +540,8 @@ class tdf_data(object):
         mobility_values = np.empty_like(indices)
         self.dll.tims_scannum_to_oneoverk0(self.handle,
                                            1,  # mobility_estimation_from_frame
-                                           indices.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
-                                           mobility_values.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+                                           indices.data_as(POINTER(c_double)),
+                                           mobility_values.data_as(POINTER(c_double)),
                                            max_num_scans)
         # Assign mobility values to precursor table.
         precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]

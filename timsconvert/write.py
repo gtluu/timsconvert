@@ -12,21 +12,21 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # Basic file descriptions.
     file_description = []
     # Add spectra level and centroid/profile status.
-    if ms2_only == False:
+    # TODO: need to add logic to check Frames table for MS1 and MSn SpectrumType
+    if not ms2_only:
         file_description.append('MS1 spectrum')
         file_description.append('MSn spectrum')
-    elif ms2_only == True:
+    elif ms2_only:
         file_description.append('MSn spectrum')
     if mode == 'raw' or mode == 'centroid':
         file_description.append('centroid spectrum')
     elif mode == 'profile':
         file_description.append('profile spectrum')
-    writer.file_description(file_description)
-
     # Source file
     sf = writer.SourceFile(os.path.split(infile)[0],
                            os.path.split(infile)[1],
                            id=os.path.splitext(os.path.split(infile)[1])[0])
+    writer.file_description(file_contents=file_description, source_files=sf)
 
     # Add list of software.
     if not barebones_metadata:
@@ -45,14 +45,12 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
                               psims_software])
 
     # Instrument configuration.
-    inst_count = 0
+    inst_count = 1
     if data.meta_data['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys() \
             and 'MaldiApplicationType' not in data.meta_data.keys():
-        inst_count += 1
         source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[data.meta_data['InstrumentSourceType']]])
     # If source isn't found in the GlobalMetadata SQL table, hard code source to ESI
     elif 'MaldiApplicationType' in data.metadata.keys():
-        inst_count += 1
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
 
     # Analyzer and detector hard coded for timsTOF fleX
@@ -65,9 +63,9 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
 
     # Data processing element.
     if not barebones_metadata:
-        proc_methods = []
-        proc_methods.append(writer.ProcessingMethod(order=1, software_reference='psims-writer',
-                                                    params=['Conversion to mzML']))
+        proc_methods = [writer.ProcessingMethod(order=1,
+                                                software_reference='psims-writer',
+                                                params=['Conversion to mzML'])]
         processing = writer.DataProcessing(proc_methods, id='exportation')
         writer.data_processing_list([processing])
 
@@ -93,6 +91,55 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')
 
 
+def get_encoding_dtype(encoding):
+    if encoding == 32:
+        return np.float32
+    elif encoding == 64:
+        return np.float64
+
+
+# Write out MS1 spectrum in psims.
+def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
+    # Build params
+    params = [scan['scan_type'],
+              {'ms level': scan['ms_level']},
+              {'total ion current': scan['total_ion_current']},
+              {'base peak m/z': scan['base_peak_mz']},
+              {'base peak intensity': scan['base_peak_intensity']},
+              {'highest observed m/z': scan['high_mz']},
+              {'lowest observed m/z': scan['low_mz']}]
+    if 'MaldiApplicationType' in data.meta_data.keys():
+        params.append({'maldi spot identifier': scan['coord']})
+        params.append({'spectrum title': title})
+
+    if scan['mobility_array'] is not None:
+        # This version only works with newer versions of psims.
+        # Currently unusable due to boost::interprocess error on Linux.
+        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
+        #                  'unit_name': 'volt-second per square centimeter'},
+        #                 parent_scan['mobility_array'])]
+        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
+        other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
+    else:
+        other_arrays = None
+
+    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
+                     'intensity array': get_encoding_dtype(encoding)}
+    if other_arrays is not None:
+        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
+
+    writer.write_spectrum(scan['mz_array'],
+                          scan['intensity_array'],
+                          id='scan=' + str(scan['scan_number']),
+                          polarity=scan['polarity'],
+                          centroided=scan['centroided'],
+                          scan_start_time=scan['retention_time'],
+                          other_arrays=other_arrays,
+                          params=params,
+                          encoding=encoding_dict,
+                          compression=compression)
+
+
 # Write out parent spectrum.
 def write_lcms_ms1_spectrum(writer, parent_scan, encoding, compression):
     # Build params
@@ -115,15 +162,10 @@ def write_lcms_ms1_spectrum(writer, parent_scan, encoding, compression):
     else:
         other_arrays = None
 
-    if encoding == 32:
-        encoding_dtype = np.float32
-    elif encoding == 64:
-        encoding_dtype = np.float64
-
-    encoding_dict = {'m/z array': encoding_dtype,
-                     'intensity array': encoding_dtype}
+    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
+                     'intensity array': get_encoding_dtype(encoding)}
     if other_arrays is not None:
-        encoding_dict['mean inverse reduced ion mobility array'] = encoding_dtype
+        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
 
     # Write MS1 spectrum.
     writer.write_spectrum(parent_scan['mz_array'],
@@ -170,11 +212,6 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan, compres
     if parent_scan is not None:
         precursor_info['spectrum_reference'] = 'scan=' + str(parent_scan['scan_number'])
 
-    if encoding == 32:
-        encoding_dtype = np.float32
-    elif encoding == 64:
-        encoding_dtype = np.float64
-
     # Write MS2 spectrum.
     writer.write_spectrum(product_scan['mz_array'],
                           product_scan['intensity_array'],
@@ -184,8 +221,8 @@ def write_lcms_ms2_spectrum(writer, parent_scan, encoding, product_scan, compres
                           scan_start_time=product_scan['retention_time'],
                           params=spectrum_params,
                           precursor_information=precursor_info,
-                          encoding={'m/z array': encoding_dtype,
-                                    'intensity array': encoding_dtype},
+                          encoding={'m/z array': get_encoding_dtype(encoding),
+                                    'intensity array': get_encoding_dtype(encoding)},
                           compression=compression)
 
 
@@ -327,15 +364,10 @@ def write_maldi_dd_ms1_spectrum(writer, data, scan, encoding, compression, title
     else:
         other_arrays = None
 
-    if encoding == 32:
-        encoding_dtype = np.float32
-    elif encoding == 64:
-        encoding_dtype = np.float64
-
-    encoding_dict = {'m/z array': encoding_dtype,
-                     'intensity array': encoding_dtype}
+    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
+                     'intensity array': get_encoding_dtype(encoding)}
     if other_arrays is not None:
-        encoding_dict['mean inverse reduced ion mobility array'] = encoding_dtype
+        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
 
     # Write out spectrum.
     writer.write_spectrum(scan['mz_array'],
@@ -373,11 +405,6 @@ def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression, title=None)
     if scan['charge_state'] is not None:
         precursor_info['charge'] = scan['charge_state']
 
-    if encoding == 32:
-        encoding_dtype = np.float32
-    elif encoding == 64:
-        encoding_dtype = np.float64
-
     # Write out MS2 spectrum.
     writer.write_spectrum(scan['mz_array'],
                           scan['intensity_array'],
@@ -387,8 +414,8 @@ def write_maldi_dd_ms2_spectrum(writer, scan, encoding, compression, title=None)
                           scan_start_time=scan['retention_time'],
                           params=params,
                           precursor_information=precursor_info,
-                          encoding={'m/z array': encoding_dtype,
-                                    'intensity_array': encoding_dtype},
+                          encoding={'m/z array': get_encoding_dtype(encoding),
+                                    'intensity_array': get_encoding_dtype(encoding)},
                           compression=compression)
 
 
@@ -682,11 +709,6 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
     elif mode == 'centroid' or mode == 'raw':
         centroided = True
 
-    if encoding == 32:
-        encoding_dtype = np.float32
-    elif encoding == 64:
-        encoding_dtype = np.float64
-
     # Get compression type object.
     if compression == 'zlib':
         compression_object = ZlibCompression()
@@ -698,8 +720,8 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                              polarity=polarity,
                              mode=imzml_mode,
                              spec_type=centroided,
-                             mz_dtype=encoding_dtype,
-                             intensity_dtype=encoding_dtype,
+                             mz_dtype=get_encoding_dtype(encoding),
+                             intensity_dtype=get_encoding_dtype(encoding),
                              mz_compression=compression_object,
                              intensity_compression=compression_object,
                              include_mobility=False)
@@ -714,9 +736,9 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  polarity=polarity,
                                  mode=imzml_mode,
                                  spec_type=centroided,
-                                 mz_dtype=encoding_dtype,
-                                 intensity_dtype=encoding_dtype,
-                                 mobility_dtype=encoding_dtype,
+                                 mz_dtype=get_encoding_dtype(encoding),
+                                 intensity_dtype=get_encoding_dtype(encoding),
+                                 mobility_dtype=get_encoding_dtype(encoding),
                                  mz_compression=compression_object,
                                  intensity_compression=compression_object,
                                  mobility_compression=compression_object,
@@ -726,8 +748,8 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  polarity=polarity,
                                  mode=imzml_mode,
                                  spec_type=centroided,
-                                 mz_dtype=encoding_dtype,
-                                 intensity_dtype=encoding_dtype,
+                                 mz_dtype=get_encoding_dtype(encoding),
+                                 intensity_dtype=get_encoding_dtype(encoding),
                                  mz_compression=compression_object,
                                  intensity_compression=compression_object,
                                  include_mobility=False)

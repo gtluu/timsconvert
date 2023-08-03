@@ -102,7 +102,7 @@ def run_timsconvert(args):
                                   run_args['imzml_mode'],
                                   run_args['encoding'],
                                   run_args['compression'],
-                                  un_args['chunk_size'])
+                                  run_args['chunk_size'])
 
         # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
         elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
@@ -191,6 +191,11 @@ def run_timsconvert(args):
                             run_args['compression'],
                             run_args['barebones_metadata'],
                             run_args['chunk_size'])
+
+        else:
+            logging.warning(get_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +
+                            infile + '...')
+            logging.warning(get_timestamp() + ':' + 'Exiting...')
 
     for hand in logging.getLogger().handlers:
         logging.getLogger().removeHandler(hand)

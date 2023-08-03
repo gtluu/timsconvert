@@ -365,10 +365,18 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                             scan_count += 1
                             scan_dict['scan_number'] = scan_count
                             if scan_dict['ms_level'] == 1:
-                                write_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                write_ms1_spectrum(writer,
+                                                   data,
+                                                   scan_dict,
+                                                   encoding,
+                                                   compression,
                                                    title=os.path.splitext(outfile)[0])
                             elif scan_dict['ms_level'] == 2:
-                                write_ms2_spectrum(writer, data, scan_dict, encoding, compression,
+                                write_ms2_spectrum(writer,
+                                                   data,
+                                                   scan_dict,
+                                                   encoding,
+                                                   compression,
                                                    title=os.path.splitext(outfile)[0])
 
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
@@ -428,10 +436,18 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                 pass
                             else:
                                 if scan_dict['ms_level'] == 1:
-                                    write_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                    write_ms1_spectrum(writer,
+                                                       data,
+                                                       scan_dict,
+                                                       encoding,
+                                                       compression,
                                                        title=plate_map_dict[scan_dict['coord']])
                                 elif scan_dict['ms_level'] == 2:
-                                    write_ms2_spectrum(writer, data, scan_dict, encoding, compression,
+                                    write_ms2_spectrum(writer,
+                                                       data,
+                                                       scan_dict,
+                                                       encoding,
+                                                       compression,
                                                        title=plate_map_dict[scan_dict['coord']])
                 logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
@@ -504,10 +520,18 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                         scan_count += 1
                                         scan_dict['scan_number'] = scan_count
                                         if scan_dict['ms_level'] == 1:
-                                            write_ms1_spectrum(writer, data, scan_dict, encoding, compression,
+                                            write_ms1_spectrum(writer,
+                                                               data,
+                                                               scan_dict,
+                                                               encoding,
+                                                               compression,
                                                                title=key)
                                         elif scan_dict['ms_level'] == 2:
-                                            write_ms2_spectrum(writer, data, scan_dict, encoding, compression,
+                                            write_ms2_spectrum(writer,
+                                                               data,
+                                                               scan_dict,
+                                                               encoding,
+                                                               compression,
                                                                title=key)
 
                     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +

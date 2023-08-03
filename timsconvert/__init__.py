@@ -2,7 +2,6 @@ import argparse
 import os
 import sys
 import platform
-import ctypes
 import itertools
 import sqlite3
 import copy
@@ -13,6 +12,9 @@ import logging
 
 import numpy as np
 import pandas as pd
+
+from ctypes import (cdll, POINTER, CFUNCTYPE, create_string_buffer,
+                    c_char_p, c_void_p, c_double, c_float, c_int, c_int64, c_int32, c_uint64, c_uint32)
 
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter

@@ -134,7 +134,7 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
     scan_dict['target_mz'] = float(precursor_dict['AverageMz'])
     scan_dict['isolation_lower_offset'] = float(pasefframemsmsinfo_dicts[0]['IsolationWidth']) / 2
     scan_dict['isolation_upper_offset'] = float(pasefframemsmsinfo_dicts[0]['IsolationWidth']) / 2
-    scan_dict['selected_ion_mz'] = float(precursor_dict['LargestPeakMz']),
+    scan_dict['selected_ion_mz'] = float(precursor_dict['LargestPeakMz'])
     scan_dict['selected_ion_intensity'] = float(precursor_dict['Intensity'])
     scan_dict['selected_ion_mobility'] = tdf_data.scan_num_to_oneoverk0(int(precursor_dict['Parent']),
                                          np.array([int(precursor_dict['ScanNumber'])]))[0]

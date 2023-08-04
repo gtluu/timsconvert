@@ -180,7 +180,7 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
                           params=params,
                           precursor_information=precursor_info,
                           encoding={'m/z array': get_encoding_dtype(encoding),
-                                    'intensity_array': get_encoding_dtype(encoding)},
+                                    'intensity array': get_encoding_dtype(encoding)},
                           compression=compression)
 
 

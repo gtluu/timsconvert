@@ -49,7 +49,7 @@ SCAN_MODE_CATEGORY = {'ms1': [0],
                       'ms2': [1, 2, 3, 4, 5, 6, 9, 10]}
 
 MSMS_TYPE = {'0': 'MS',
-             '2': 'MALDI MS/MS',
+             '2': 'TSF MS/MS',
              '8': 'dda-PASEF',
              '9': 'dia-PASEF'}
 

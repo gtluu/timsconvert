@@ -1,4 +1,5 @@
 from timsconvert.parse import *
+from timsconvert.classes import *
 import os
 import logging
 from lxml.etree import parse, XMLParser
@@ -12,12 +13,31 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # Basic file descriptions.
     file_description = []
     # Add spectra level and centroid/profile status.
-    # TODO: need to add logic to check Frames table for MS1 and MSn SpectrumType
-    if not ms2_only:
-        file_description.append('MS1 spectrum')
-        file_description.append('MSn spectrum')
-    elif ms2_only:
-        file_description.append('MSn spectrum')
+    if isinstance(data, baf_data):
+        ms_levels = list(set(data.acquisitionkeys['MsLevel'].values.tolist()))
+        ms_levels = [int(i) for i in ms_levels]
+        if 0 in ms_levels:
+            file_description.append('MS1 spectrum')
+        if 1 in ms_levels:
+            file_description.append('MSn spectrum')
+    elif isinstance(data, tsf_data) or isinstance(data, tdf_data):
+        ms_levels = list(set(data.frames['MsMsType'].values.tolist()))
+        ms_levels = [int(i) for i in ms_levels]
+        ms_levels_tmp = []
+        for i in ms_levels:
+            if i in MSMS_TYPE_CATEGORY['ms1']:
+                ms_levels_tmp.append('MS1 spectrum')
+            elif i in MSMS_TYPE_CATEGORY['ms2']:
+                ms_levels_tmp.append('MSn spectrum')
+        ms_levels_tmp = list(set(ms_levels_tmp))
+        for i in ms_levels_tmp:
+            file_description.append(i)
+    else:
+        if not ms2_only:
+            file_description.append('MS1 spectrum')
+            file_description.append('MSn spectrum')
+        elif ms2_only:
+            file_description.append('MSn spectrum')
     if mode == 'raw' or mode == 'centroid':
         file_description.append('centroid spectrum')
     elif mode == 'profile':

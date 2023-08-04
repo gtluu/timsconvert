@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from psims.mzml.components import ParameterContainer, NullMap
 from timsconvert.init_bruker_dll import *
+from timsconvert.metadata_formatting import get_encoding_dtype, get_centroid_status
 
 
 MSMS_SPECTRUM_FUNCTOR = CFUNCTYPE(None,
@@ -81,7 +82,7 @@ class baf_data(object):
         buf = np.empty(shape=self.get_array_num_elements(identity), dtype=np.float64)
         if not self.dll.baf2sql_array_read_double(self.handle,
                                                   identity,
-                                                  buf.data_as(POINTER(c_double))):
+                                                  buf.ctypes.data_as(POINTER(c_double))):
             throw_last_baf2sql_error(self.dll)
         return buf
 
@@ -166,8 +167,8 @@ class tsf_data(object):
         out = np.empty(shape=cnt, dtype=np.float64)
         success = func(self.handle,
                        frame_id,
-                       in_array.data_as(POINTER(c_double)),
-                       out.data_as(POINTER(c_double)),
+                       in_array.ctypes.data_as(POINTER(c_double)),
+                       out.ctypes.data_as(POINTER(c_double)),
                        cnt)
 
         if success == 0:
@@ -188,8 +189,8 @@ class tsf_data(object):
 
             required_len = self.dll.tsf_read_line_spectrum(self.handle,
                                                            frame_id,
-                                                           index_buf.data_as(POINTER(c_double)),
-                                                           intensity_buf.data_as(POINTER(c_float)),
+                                                           index_buf.ctypes.data_as(POINTER(c_double)),
+                                                           intensity_buf.ctypes.data_as(POINTER(c_float)),
                                                            self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
@@ -209,7 +210,7 @@ class tsf_data(object):
 
             required_len = self.dll.tsf_read_profile_spectrum(self.handle,
                                                               frame_id,
-                                                              intensity_buf.data_as(POINTER(c_uint32)),
+                                                              intensity_buf.ctypes.data_as(POINTER(c_uint32)),
                                                               self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
@@ -301,8 +302,8 @@ class tdf_data(object):
         out = np.empty(shape=cnt, dtype=np.float64)
         success = func(self.handle,
                        frame_id,
-                       in_array.data_as(POINTER(c_double)),
-                       out.data_as(POINTER(c_double)),
+                       in_array.ctypes.data_as(POINTER(c_double)),
+                       out.ctypes.data_as(POINTER(c_double)),
                        cnt)
 
         if success == 0:
@@ -328,7 +329,7 @@ class tdf_data(object):
                                                        frame_id,
                                                        scan_begin,
                                                        scan_end,
-                                                       buf.data_as(POINTER(c_uint32)),
+                                                       buf.ctypes.data_as(POINTER(c_uint32)),
                                                        length)
 
             if required_len > length:
@@ -360,7 +361,7 @@ class tdf_data(object):
             result[precursor_id] = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
         rc = self.dll.tims_read_pasef_msms(self.handle,
-                                           precursors_for_dll.data_as(POINTER(c_int64)),
+                                           precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
                                            len(precursor_list),
                                            callback_for_dll)
 
@@ -378,7 +379,7 @@ class tdf_data(object):
                 result[precursor_id] = intensity_values[0:num_points]
 
             rc = self.dll.tims_read_pasef_profile_msms(self.handle,
-                                                       precursors_for_dll.data_as(POINTER(c_int64)),
+                                                       precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
                                                        len(precursor_list),
                                                        callback_for_dll)
 
@@ -448,17 +449,11 @@ class tdf_data(object):
 
     # In house code for getting spectrum for a frame.
     def extract_spectrum_for_frame_v2(self, frame_id, begin_scan, end_scan, encoding, tol=0.01):
-        if encoding != 0:
-            if encoding == 32:
-                encoding_dtype = np.float32
-            elif encoding == 64:
-                encoding_dtype = np.float64
-
         list_of_scan_tuples = [i for i in self.read_scans(frame_id, begin_scan, end_scan)
                                if i[0].size != 0 and i[1].size != 0]
         if len(list_of_scan_tuples) == 0:
-            return (np.empty(0, dtype=encoding_dtype),
-                    np.empty(0, dtype=encoding_dtype))
+            return (np.empty(0, dtype=get_encoding_dtype(encoding)),
+                    np.empty(0, dtype=get_encoding_dtype(encoding)))
         list_of_dfs = []
         for scan_tuple in list_of_scan_tuples:
             list_of_dfs.append(pd.DataFrame({'mz': self.index_to_mz(frame_id, scan_tuple[0]),
@@ -497,8 +492,8 @@ class tdf_data(object):
                 tmp_list.append(frame_df['intensity'].values.tolist()[index])
             new_intensity_array.append(sum(tmp_list))
 
-        return (np.array(new_mz_array, dtype=encoding_dtype),
-                np.array(new_intensity_array, dtype=encoding_dtype))
+        return (np.array(new_mz_array, dtype=get_encoding_dtype(encoding)),
+                np.array(new_intensity_array, dtype=get_encoding_dtype(encoding)))
 
     # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
@@ -540,8 +535,8 @@ class tdf_data(object):
         mobility_values = np.empty_like(indices)
         self.dll.tims_scannum_to_oneoverk0(self.handle,
                                            1,  # mobility_estimation_from_frame
-                                           indices.data_as(POINTER(c_double)),
-                                           mobility_values.data_as(POINTER(c_double)),
+                                           indices.ctypes.data_as(POINTER(c_double)),
+                                           mobility_values.ctypes.data_as(POINTER(c_double)),
                                            max_num_scans)
         # Assign mobility values to precursor table.
         precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]

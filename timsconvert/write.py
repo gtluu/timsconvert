@@ -1,4 +1,5 @@
 from timsconvert.parse import *
+from timsconvert.metadata_formatting import get_encoding_dtype
 import os
 import logging
 from lxml.etree import parse, XMLParser
@@ -89,13 +90,6 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
             out_stream.write(line.replace('      <spectrumList count="' + str(num_of_spectra) + '" defaultDataProcessingRef="exportation">',
                                           '      <spectrumList count="' + str(scan_count) + '" defaultDataProcessingRef="exportation">'))
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')
-
-
-def get_encoding_dtype(encoding):
-    if encoding == 32:
-        return np.float32
-    elif encoding == 64:
-        return np.float64
 
 
 # Write out MS1 spectrum in psims.

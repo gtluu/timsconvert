@@ -96,10 +96,14 @@ def get_spectra_count(data):
     if data.meta_data['SchemaType'] == 'TDF':
         ms1_count = data.frames[data.frames['MsMsType'] == 0]['MsMsType'].values.size
         ms2_count = len(list(filter(None, data.precursors['MonoisotopicMz'].values)))
+        ms_count = ms1_count + ms2_count
+    elif data.meta_data['SchemaType'] == 'TSF':
+        ms_count = data.frames.shape[0]
     elif data.meta_data['SchemaType'] == 'Baf2Sql':
         ms1_count = data.frames[data.frames['AcquisitionKey'] == 1]['AcquisitionKey'].values.size
         ms2_count = data.frames[data.frames['AcquisitionKey'] == 2]['AcquisitionKey'].values.size
-    return ms1_count + ms2_count
+        ms_count = ms1_count + ms2_count
+    return ms_count
 
 
 def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
@@ -216,6 +220,15 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      exclude_mobility,
                                                      profile_bins,
                                                      encoding)
+    # Parse TSF data
+    elif data.meta_data['SchemaType'] == 'TSF':
+        parent_scans, product_scans = parse_lcms_tsf(data,
+                                                     frame_start,
+                                                     frame_stop,
+                                                     mode,
+                                                     ms2_only,
+                                                     profile_bins,
+                                                     encoding)
     # Parse BAF data
     elif data.meta_data['SchemaType'] == 'Baf2Sql':
         parent_scans, product_scans = parse_lcms_baf(data,
@@ -315,6 +328,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
     if num_of_spectra != scan_count:
         logging.info(get_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
+    else:
+        logging.info(get_timestamp() + ':' + 'Renaming mzML file...')
+        os.rename(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', os.path.join(outdir, outfile))
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                  os.path.join(outdir, outfile) + '...')
 

@@ -85,8 +85,29 @@ def run_timsconvert(args):
                             run_args['barebones_metadata'],
                             run_args['chunk_size'])
 
+        # TSF ESI-MS Dataset
+        elif schema == 'TSF' and 'MaldiApplicationType' not in data.meta_data.keys():
+            logging.info(get_timestamp() + ':' + '.tsf file detected...')
+            if run_args['outfile'] == '':
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            logging.info(get_timestamp() + ':' + 'Processing LC-MS data...')
+            write_lcms_mzml(data,
+                            run_args['infile'],
+                            run_args['outdir'],
+                            run_args['outfile'],
+                            run_args['mode'],
+                            run_args['ms2_only'],
+                            run_args['exclude_mobility'],
+                            run_args['profile_bins'],
+                            run_args['encoding'],
+                            run_args['compression'],
+                            run_args['barebones_metadata'],
+                            run_args['chunk_size'])
+
         # TSF MALDI-qTOF Dried Droplet Dataset
-        elif schema == 'TSF' and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+        elif schema == 'TSF' \
+                and 'MaldiApplicationType' in data.meta_data.keys() \
+                and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -106,7 +127,9 @@ def run_timsconvert(args):
                                 run_args['barebones_metadata'])
 
         # TSF MALDI-qTOF MSI Dataset
-        elif schema == 'TSF' and data.meta_data['MaldiApplicationType'] == 'Imaging':
+        elif schema == 'TSF' \
+                and 'MaldiApplicationType' in data.meta_data.keys() \
+                and data.meta_data['MaldiApplicationType'] == 'Imaging':
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
@@ -154,7 +177,9 @@ def run_timsconvert(args):
             tdf2mzml_write_mzml(run_args)
 
         # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
-        elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+        elif schema == 'TDF' \
+                and 'MaldiApplicationType' in data.meta_data.keys() \
+                and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -174,7 +199,9 @@ def run_timsconvert(args):
                                 run_args['barebones_metadata'])
 
         # TDF MALDI-TIMS-qTOF MSI Dataset
-        elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'Imaging':
+        elif schema == 'TDF' \
+                and 'MaldiApplicationType' in data.meta_data.keys() \
+                and data.meta_data['MaldiApplicationType'] == 'Imaging':
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'

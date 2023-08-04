@@ -139,15 +139,20 @@ class tsf_data(object):
 
         self.meta_data = None
         self.frames = None
+        self.ms1_frames = None
         self.maldiframeinfo = None
         self.framemsmsinfo = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
-
         self.get_frames_table()
-        self.get_maldiframeinfo_table()
-        self.get_framemsmsinfo_table()
+
+        if 'MaldiApplicationType' in self.meta_data.keys():
+            self.get_maldiframeinfo_table()
+            self.get_framemsmsinfo_table()
+        else:
+            self.get_framemsmsinfo_table()
+            self.subset_ms1_frames()
 
         self.close_sql_connection()
 
@@ -247,6 +252,10 @@ class tsf_data(object):
     def get_framemsmsinfo_table(self):
         framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
         self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
+
+    # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
+    def subset_ms1_frames(self):
+        self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
 
     def close_sql_connection(self):
         self.conn.close()

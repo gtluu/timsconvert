@@ -28,7 +28,6 @@ from timsconvert.metadata_formatting import *
 from timsconvert.parse import *
 from timsconvert.timestamp import *
 from timsconvert.write import *
-from timsconvert.write_mzml import *
 
 from tdf2mzml.timsdata import *
 from tdf2mzml.tdf2mzml import *

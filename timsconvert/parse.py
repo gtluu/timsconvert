@@ -149,7 +149,7 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
     return scan_dict
 
 
-def populate_scan_dict_w_maldi_tsf_metadata(scan_dict, data, frames_dict, maldiframeinfo_dict, frame, mode):
+def populate_scan_dict_w_maldi_metadata(scan_dict, data, frames_dict, maldiframeinfo_dict, frame, mode):
     scan_dict['coord'] = get_maldi_coords(data, maldiframeinfo_dict)
     scan_dict['polarity'] = frames_dict['Polarity']
     scan_dict['centroided'] = get_centroid_status(mode)[0]
@@ -423,12 +423,12 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_b
 
         mz_array, intensity_array = extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding)
         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
-            scan_dict = populate_scan_dict_w_maldi_tsf_metadata(scan_dict,
-                                                                tsf_data,
-                                                                frames_dict,
-                                                                maldiframeinfo_dict,
-                                                                frame,
-                                                                mode)
+            scan_dict = populate_scan_dict_w_maldi_metadata(scan_dict,
+                                                            tsf_data,
+                                                            frames_dict,
+                                                            maldiframeinfo_dict,
+                                                            frame,
+                                                            mode)
             scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
             if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1'] and not ms2_only:
                 scan_dict = populate_scan_dict_w_ms1(scan_dict, frame)
@@ -451,12 +451,12 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
         maldiframeinfo_dict = tdf_data.maldiframeinfo[tdf_data.maldiframeinfo['Frame'] ==
                                                       frame].to_dict(orient='records')[0]
 
-        scan_dict = populate_scan_dict_w_maldi_tsf_metadata(scan_dict,
-                                                            tdf_data,
-                                                            frames_dict,
-                                                            maldiframeinfo_dict,
-                                                            frame,
-                                                            mode)
+        scan_dict = populate_scan_dict_w_maldi_metadata(scan_dict,
+                                                        tdf_data,
+                                                        frames_dict,
+                                                        maldiframeinfo_dict,
+                                                        frame,
+                                                        mode)
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1'] and not ms2_only:
             scan_dict['scan_type'] = 'MS1 spectrum'

@@ -358,7 +358,7 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
                 framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
                                                             frame].to_dict(orient='records')[0]
-                populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
+                scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
                 list_of_product_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 

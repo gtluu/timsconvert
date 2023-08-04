@@ -1,5 +1,4 @@
 from timsconvert.parse import *
-from timsconvert.metadata_formatting import get_encoding_dtype
 import os
 import logging
 from lxml.etree import parse, XMLParser

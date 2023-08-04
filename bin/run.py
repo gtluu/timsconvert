@@ -66,8 +66,27 @@ def run_timsconvert(args):
         for key, value in run_args.items():
             logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
 
+        # BAF ESI-MS Dataset
+        if schema == 'BAF':
+            logging.info(get_timestamp() + ':' + '.baf file detected...')
+            if run_args['outfile'] == '':
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            logging.info(get_timestamp() + ':' + 'Processing LC-MS data...')
+            write_lcms_mzml(data,
+                            run_args['infile'],
+                            run_args['outdir'],
+                            run_args['outfile'],
+                            run_args['mode'],
+                            run_args['ms2_only'],
+                            run_args['exclude_mobility'],
+                            run_args['profile_bins'],
+                            run_args['encoding'],
+                            run_args['compression'],
+                            run_args['barebones_metadata'],
+                            run_args['chunk_size'])
+
         # TSF MALDI-qTOF Dried Droplet Dataset
-        if schema == 'TSF' and data.meta_data['MaldiApplciationType'] == 'SingleSpectra':
+        elif schema == 'TSF' and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -92,43 +111,6 @@ def run_timsconvert(args):
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
             logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
-            write_maldi_ims_imzml(data,
-                                  run_args['outdir'],
-                                  run_args['outfile'],
-                                  run_args['mode'],
-                                  run_args['exclude_mobility'],
-                                  run_args['profile_bins'],
-                                  run_args['imzml_mode'],
-                                  run_args['encoding'],
-                                  run_args['compression'],
-                                  run_args['chunk_size'])
-
-        # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
-        elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
-            logging.info(get_timestamp() + ':' + '.tdf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
-            write_maldi_dd_mzml(data,
-                                run_args['infile'],
-                                run_args['outdir'],
-                                run_args['outfile'],
-                                run_args['mode'],
-                                run_args['ms2_only'],
-                                run_args['exclude_mobility'],
-                                run_args['profile_bins'],
-                                run_args['encoding'],
-                                run_args['compression'],
-                                run_args['maldi_output_file'],
-                                run_args['maldi_plate_map'],
-                                run_args['barebones_metadata'])
-
-        # TDF MALDI-TIMS-qTOF MSI Dataset
-        elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'Imaging':
-            logging.info(get_timestamp() + ':' + '.tdf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
-            logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
             write_maldi_ims_imzml(data,
                                   run_args['outdir'],
                                   run_args['outfile'],
@@ -171,24 +153,42 @@ def run_timsconvert(args):
             logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             tdf2mzml_write_mzml(run_args)
 
-        # BAF ESI-MS Dataset
-        elif schema == 'BAF':
-            logging.info(get_timestamp() + ':' + '.baf file detected...')
+        # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
+        elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+            logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing LC-MS data...')
-            write_lcms_mzml(data,
-                            run_args['infile'],
-                            run_args['outdir'],
-                            run_args['outfile'],
-                            run_args['mode'],
-                            run_args['ms2_only'],
-                            run_args['exclude_mobility'],
-                            run_args['profile_bins'],
-                            run_args['encoding'],
-                            run_args['compression'],
-                            run_args['barebones_metadata'],
-                            run_args['chunk_size'])
+            logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
+            write_maldi_dd_mzml(data,
+                                run_args['infile'],
+                                run_args['outdir'],
+                                run_args['outfile'],
+                                run_args['mode'],
+                                run_args['ms2_only'],
+                                run_args['exclude_mobility'],
+                                run_args['profile_bins'],
+                                run_args['encoding'],
+                                run_args['compression'],
+                                run_args['maldi_output_file'],
+                                run_args['maldi_plate_map'],
+                                run_args['barebones_metadata'])
+
+        # TDF MALDI-TIMS-qTOF MSI Dataset
+        elif schema == 'TDF' and data.meta_data['MaldiApplicationType'] == 'Imaging':
+            logging.info(get_timestamp() + ':' + '.tdf file detected...')
+            if run_args['outfile'] == '':
+                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
+            logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
+            write_maldi_ims_imzml(data,
+                                  run_args['outdir'],
+                                  run_args['outfile'],
+                                  run_args['mode'],
+                                  run_args['exclude_mobility'],
+                                  run_args['profile_bins'],
+                                  run_args['imzml_mode'],
+                                  run_args['encoding'],
+                                  run_args['compression'],
+                                  run_args['chunk_size'])
 
         else:
             logging.warning(get_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +

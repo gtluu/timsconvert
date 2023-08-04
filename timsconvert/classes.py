@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from psims.mzml.components import ParameterContainer, NullMap
 from timsconvert.init_bruker_dll import *
-from timsconvert.metadata_formatting import get_encoding_dtype, get_centroid_status
+from timsconvert.parse import get_encoding_dtype, get_centroid_status
 
 
 MSMS_SPECTRUM_FUNCTOR = CFUNCTYPE(None,

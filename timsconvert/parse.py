@@ -121,7 +121,7 @@ def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
 
 
 def populate_scan_dict_w_lcms_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility):
-    scan_dict['polarity'] = frames_dict['polarity']
+    scan_dict['polarity'] = frames_dict['Polarity']
     scan_dict['centroided'] = get_centroid_status(mode, exclude_mobility)[0]
     # For ddaPASEF, parent frame RT is used because a precursor spectrum is collected over multiple scans.
     scan_dict['retention_time'] = float(frames_dict['Time']) / 60
@@ -129,7 +129,7 @@ def populate_scan_dict_w_lcms_tdf_metadata(scan_dict, frames_dict, mode, exclude
 
 
 def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasefframemsmsinfo_dicts):
-    scan_dict['scan_type'] = 'MSn spectrum',
+    scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     scan_dict['target_mz'] = float(precursor_dict['AverageMz'])
     scan_dict['isolation_lower_offset'] = float(pasefframemsmsinfo_dicts[0]['IsolationWidth']) / 2

@@ -50,7 +50,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
             and 'MaldiApplicationType' not in data.meta_data.keys():
         source = writer.Source(inst_count, [INSTRUMENT_SOURCE_TYPE[data.meta_data['InstrumentSourceType']]])
     # If source isn't found in the GlobalMetadata SQL table, hard code source to ESI
-    elif 'MaldiApplicationType' in data.metadata.keys():
+    elif 'MaldiApplicationType' in data.meta_data.keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
 
     # Analyzer and detector hard coded for timsTOF fleX
@@ -153,7 +153,8 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
                       'activation': [{'collision energy': scan['collision_energy']}],
                       'isolation_window_args': {'target': scan['target_mz'],
                                                 'upper': scan['isolation_upper_offset'],
-                                                'lower': scan['isolation_lower_offset']}}
+                                                'lower': scan['isolation_lower_offset']},
+                      'params': []}
 
     if scan['selected_ion_intensity'] is not None:
         precursor_info['intensity'] = scan['selected_ion_intensity']
@@ -162,9 +163,9 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
     if scan['selected_ion_ccs'] is not None:
         precursor_info['params'].append({'collisional cross sectional area': scan['selected_ion_ccs']})
     if scan['charge_state'] is not None and \
-            scan['charge_state'] is not np.isnan(scan['charge_state']) and \
-            int(scan['charge_state']) != 0:
-        precursor_info['charge'] = scan['charge_state']
+            not np.isnan(scan['charge_state']):
+        if int(scan['charge_state']) != 0:
+            precursor_info['charge'] = scan['charge_state']
 
     if parent_scan is not None:
         precursor_info['spectrum_reference'] = 'scan=' + str(parent_scan['scan_number'])

@@ -291,8 +291,10 @@ class tdf_data(object):
             self.get_maldiframeinfo_table()
             self.get_framemsmsinfo_table()
         else:
-            self.get_pasefframemsmsinfo_table()
-            self.get_precursors_table()
+            # Only parse these tables if data acquired in ddaPASEF mode (MSMS Type == 8).
+            if 8 in list(set(self.frames['MsMsType'].values.tolist())):
+                self.get_pasefframemsmsinfo_table()
+                self.get_precursors_table()
             self.subset_ms1_frames()
 
         self.close_sql_connection()

@@ -95,7 +95,11 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
 def get_spectra_count(data):
     if data.meta_data['SchemaType'] == 'TDF':
         ms1_count = data.frames[data.frames['MsMsType'] == 0]['MsMsType'].values.size
-        ms2_count = len(list(filter(None, data.precursors['MonoisotopicMz'].values)))
+        if data.precursors is not None:
+            ms2_count = len(list(filter(None, data.precursors['MonoisotopicMz'].values)))
+        # Set ms2_count to 0 if precursors table is not found.
+        else:
+            ms2_count = 0
         ms_count = ms1_count + ms2_count
     elif data.meta_data['SchemaType'] == 'TSF':
         ms_count = data.frames.shape[0]

@@ -12,10 +12,11 @@ params.mode = 'centroid'  // mode can be 'centroid' or 'raw'
 params.compression = 'zlib' // zlib or none
 
 // timsconvert params
-params.ms2_only = 'False'  // only convert ms2 spectra
-params.exclude_mobility = 'True'  // exclude mobility arrays from MS1 spectra
-params.encoding = 64
-params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files or a single combined file
+params.ms2_only = 'False'  // only convert ms2 spectra?
+params.exclude_mobility = 'True'  // exclude mobility arrays from MS1 spectra?
+params.encoding = 64  // 64 or 32 bit encoding
+params.barebones_metadata = 'False'  // only use barebones metadata if downstream tools are not compatible with timstof cv params
+params.maldi_output_file = 'combined' // choose whether MALDI spectra are output to individual files, a single combined file with multiple spectra, or grouped by sample via maldi_plate_map
 params.maldi_plate_map = ''
 params.imzml_mode = 'processed'
 
@@ -55,6 +56,7 @@ process convert {
     def ms2_flag = params.ms2_only == 'True' ? "--ms2_only" : ''
     def verbose_flag = params.verbose == 'True' ? "--verbose" : ''
     def exclude_mobility_flag = params.exclude_mobility == 'True' ? "--exclude_mobility" : ''
+    def barebones_metadata_flag = params.barebones_metadata == 'True' ? "--barebones_metadata" : ''
 
     if (params.location == 'local') {
         if (params.maldi_plate_map == '') {
@@ -68,6 +70,7 @@ process convert {
             ${ms2_flag} \
             ${exclude_mobility_flag} \
             --encoding ${params.encoding} \
+            ${barebones_metadata_flag} \
             --maldi_output_file ${params.maldi_output_file} \
             --imzml_mode ${params.imzml_mode} \
             --lcms_backend ${params.lcms_backend} \
@@ -91,6 +94,7 @@ process convert {
             ${ms2_flag} \
             ${exclude_mobility_flag} \
             --encoding ${params.encoding} \
+            ${barebones_metadata_flag} \
             --maldi_output_file ${params.maldi_output_file} \
             --maldi_plate_map = ${params.maldi_plate_map} \
             --imzml_mode ${params.imzml_mode} \

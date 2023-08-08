@@ -62,7 +62,7 @@ that's required is a GNPS account.
 | Acquisition Mode                        | Raw File Format | Converted File Format | Compatible?        |
 |-----------------------------------------|-----------------|-----------------------|--------------------|
 | LC-MS(/MS)                              | .d/BAF          | mzML                  | :x:                |
-| LC-MS(/MS)                              | .d/TSF          | mzML                  | :x:                |
+| LC-MS(/MS)                              | .d/TSF          | mzML                  | :heavy_check_mark: |
 | LC-TIMS-MS(/MS)                         | .d/TDF          | mzML                  | :heavy_check_mark: |
 | MALDI-MS(/MS) Dried Droplet             | .d/TSF          | mzML                  | :heavy_check_mark: |
 | MALDI-MS Imaging Mass Spectrometry      | .d/TSF          | imzML                 | :heavy_check_mark: |
@@ -236,8 +236,3 @@ To test nextflow workflow
 cd test
 make run_nextflow_test
 ```
-
-## Changelog
-v 1.0.0
-- Initial release.
-- Compatibility for ESI and MALDI based experiments.

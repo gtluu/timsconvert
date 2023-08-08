@@ -107,8 +107,8 @@ def get_args(server=False):
 def args_check(args):
     # Check if input directory exists.
     if not os.path.exists(args['input']):
-        logging.info(get_timestamp() + ':' + 'Input path does not exist...')
-        logging.info(get_timestamp() + ':' + 'Exiting...')
+        print(get_timestamp() + ':' + 'Input path does not exist...')
+        print(get_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
@@ -117,21 +117,23 @@ def args_check(args):
     if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
         args['outfile'] = args['outfile'] + '.mzML'
     # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.
-    if args['maldi_output_file'] != '' and args['maldi_output_file'] in ['individual', 'sample']:
-        if args['maldi_plate_map'] == '':
-            logging.info(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
-            logging.info(get_timestamp() + ':' + 'Exiting...')
-            sys.exit(1)
-        else:
-            if not os.path.exists(args['maldi_plate_map']):
-                logging.info(get_timestamp() + ':' + 'Plate map path does not exist...')
-                logging.info(get_timestamp() + ':' + 'Exiting...')
-                sys.exit(1)
+    if args['maldi_output_file'] != '' \
+            and args['maldi_output_file'] in ['individual', 'sample'] \
+            and args['maldi_plate_map'] == '':
+        print(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
+        print(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
+    elif args['maldi_output_file'] != '' \
+            and args['maldi_output_file'] in ['individual', 'sample'] \
+            and not os.path.exists(args['maldi_plate_map']):
+        print(get_timestamp() + ':' + 'Plate map path does not exist...')
+        print(get_timestamp() + ':' + 'Exiting...')
+        sys.exit(1)
     # Check if server URL is valid.
     if 'url' in args.keys():
         response = requests.get(args['url'])
         if response.status_code != 200:
-            logging.info(get_timestamp() + ':' + 'URL is not valid or server is down...')
-            logging.info(get_timestamp() + ':' + 'Exiting...')
+            print(get_timestamp() + ':' + 'URL is not valid or server is down...')
+            print(get_timestamp() + ':' + 'Exiting...')
             response.raise_for_status()
     return args

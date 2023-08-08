@@ -9,14 +9,16 @@
 # # All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree. 
-
-import collections 
+# LICENSE file in the root directory of this source tree.
+import argparse
+import collections
 import hashlib
+import re
+
 from psims.mzml import MzMLWriter
 import time
 import tdf2mzml.timsdata as timsdata
-from timsconvert.write_mzml import *
+from timsconvert.write import *
 
 NAME = 'tdf2mzml'
 MAJOR_VERSION = '0.3'
@@ -1285,7 +1287,7 @@ def main():
     else:
         logging.basicConfig(level=logging.INFO)
 
-    write_mzml(args)
+    tdf2mzml_write_mzml(args)
 
 
 if __name__ == "__main__":

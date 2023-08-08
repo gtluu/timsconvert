@@ -7,7 +7,6 @@ def run_timsconvert(args):
     args_check(args)
     # Check arguments.
     args['version'] = '1.2.0'
-    args['profile_bins'] = 0  # remove hard coded profile_bins after getting profile mode working
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'

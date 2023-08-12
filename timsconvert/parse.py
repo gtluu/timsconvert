@@ -268,6 +268,9 @@ def extract_3d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile
     frame_mz_arrays = []
     frame_intensity_arrays = []
     frame_mobility_arrays = []
+    if scan_begin != 0:
+        scan_end = scan_end - scan_begin
+        scan_begin = 0
     for scan_num in range(scan_begin, scan_end):
         if list_of_scans[scan_num][0].size != 0 \
                 and list_of_scans[scan_num][1].size != 0 \

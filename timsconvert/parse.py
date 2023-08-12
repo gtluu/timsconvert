@@ -227,17 +227,29 @@ def extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding):
 
 # Get either raw (slightly modified implementation that gets centroid spectrum), quasi-profile, or centroid spectrum.
 # Returns an m/z array and intensity array.
-def extract_2d_tdf_spectrum(tdf_data, mode, multiscan, frame, scan_begin, scan_end, profile_bins, encoding):
+def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile_bins, encoding):
     if mode == 'raw':
-        if not multiscan:
-            scans = tdf_data.read_scans(frame, scan_begin, scan_end)
-            if len(scans) == 1:
-                index_buf, intensity_array = scans[0]
-            elif len(scans) != 1:
-                sys.exit(1)
-            mz_array = tdf_data.index_to_mz(frame, index_buf)
-        elif multiscan:
-            mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(frame, scan_begin, scan_end, encoding)
+        list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
+        frame_mz_arrays = []
+        frame_intensity_arrays = []
+        for scan_num in range(scan_begin, scan_end):
+            if list_of_scans[scan_num][0].size != 0 \
+                    and list_of_scans[scan_num][1].size != 0 \
+                    and list_of_scans[scan_num][0].size == list_of_scans[scan_num][1].size:
+                mz_array = tdf_data.index_to_mz(frame, list_of_scans[scan_num][0])
+                intensity_array = list_of_scans[scan_num][1]
+                frame_mz_arrays.append(mz_array)
+                frame_intensity_arrays.append(intensity_array)
+        if frame_mz_arrays and frame_intensity_arrays:
+            frames_array = np.stack((np.concatenate(frame_mz_arrays, axis=None),
+                                     np.concatenate(frame_intensity_arrays, axis=None)),
+                                    axis=-1)
+            frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
+            mz_array = frames_array[:, 0]
+            intensity_array = frames_array[:, 1]
+            return mz_array, intensity_array
+        else:
+            return None, None
     elif mode == 'profile':
         index_buf, intensity_array = tdf_data.extract_profile_spectrum_for_frame(frame, scan_begin, scan_end)
         intensity_array = np.array(intensity_array, dtype=get_encoding_dtype(encoding))
@@ -252,19 +264,16 @@ def extract_2d_tdf_spectrum(tdf_data, mode, multiscan, frame, scan_begin, scan_e
 
 
 def extract_3d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile_bins, encoding):
+    list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
     frame_mz_arrays = []
     frame_intensity_arrays = []
     frame_mobility_arrays = []
     for scan_num in range(scan_begin, scan_end):
-        mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
-                                                            mode,
-                                                            True,
-                                                            frame,
-                                                            scan_num,
-                                                            scan_num + 1,
-                                                            profile_bins,
-                                                            encoding)
-        if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+        if list_of_scans[scan_num][0].size != 0 \
+                and list_of_scans[scan_num][1].size != 0 \
+                and list_of_scans[scan_num][0].size == list_of_scans[scan_num][1].size:
+            mz_array = tdf_data.index_to_mz(frame, list_of_scans[scan_num][0])
+            intensity_array = list_of_scans[scan_num][1]
             mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
             mobility_array = np.repeat(mobility, mz_array.size)
             frame_mz_arrays.append(mz_array)
@@ -292,7 +301,6 @@ def extract_ddapasef_precursor_spectrum(tdf_data, pasefframemsmsinfo_dicts, mode
         scan_end = int(pasef_dict['ScanNumEnd'])
         mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                             mode,
-                                                            True,
                                                             int(pasef_dict['Frame']),
                                                             scan_begin,
                                                             scan_end,
@@ -400,7 +408,6 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
             elif exclude_mobility:
                 mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                     mode,
-                                                                    True,
                                                                     frame,
                                                                     0,
                                                                     int(frames_dict['NumScans']),
@@ -466,7 +473,6 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                     elif exclude_mobility:
                         mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                             mode,
-                                                                            True,
                                                                             frame,
                                                                             int(diaframemsmswindows_dict['ScanNumBegin']),
                                                                             int(diaframemsmswindows_dict['ScanNumEnd']),
@@ -555,7 +561,6 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
             elif exclude_mobility:
                 mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                     mode,
-                                                                    True,
                                                                     frame,
                                                                     0,
                                                                     int(frames_dict['NumScans']),
@@ -576,7 +581,6 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                         maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
             mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                 mode,
-                                                                True,
                                                                 frame,
                                                                 0,
                                                                 int(frames_dict['NumScans']),

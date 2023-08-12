@@ -32,19 +32,11 @@ def arg_descriptions():
                                        'header/index.',
                     'imzml_mode': 'Whether .imzML files should be written in "processed" or "continuous" mode. '
                                   'Defaults to "processed".',
-                    'lcms_backend': 'Choose whether to use "timsconvert" or "tdf2mzml" backend for LC-TIMS-MS/MS data '
-                                    'conversion.',
                     'chunk_size': 'Relative size of chunks of spectral data that are parsed and subsequently written '
                                   'at once. Increasing parses and write more spectra at once but increases RAM usage. '
                                   'Default = 10.',
                     'verbose': 'Boolean flag to determine whether to print logging output.',
-                    'url': 'URL for server to run TIMSCONVERT (if submitting job through API). Default = GNPS server',
-                    'start_frame': 'Start frame.',
-                    'end_frame': 'End frame.',
-                    'precision': 'Precision.',
-                    'ms1_threshold': 'Intensity threshold for MS1 data.',
-                    'ms2_threshold': 'Intensity threshold for MS2 data.',
-                    'ms2_nlargest': 'N Largest MS2.'}
+                    'url': 'URL for server to run TIMSCONVERT (if submitting job through API). Default = GNPS server'}
     return descriptions
 
 
@@ -81,22 +73,11 @@ def get_args(server=False):
 
     # TIMSCONVERT System Arguments
     system = parser.add_argument_group('TIMSCONVERT System Parameters')
-    system.add_argument('--lcms_backend', help=desc['lcms_backend'], default='timsconvert', type=str,
-                        choices=['timsconvert', 'tdf2mzml'])
     system.add_argument('--chunk_size', help=desc['chunk_size'], default=10, type=int)
     system.add_argument('--verbose', help=desc['verbose'], action='store_true')
     if server:
         # change to GNPS URL later
         system.add_argument('--url', help=desc['url'], default='http://localhost:5000', type=str)
-
-    # tdf2mzml Arguments
-    tdf2mzml_args = parser.add_argument_group('tdf2mzml Optional Parameters')
-    tdf2mzml_args.add_argument('--start_frame', help=desc['start_frame'], default=-1, type=int)
-    tdf2mzml_args.add_argument('--end_frame', help=desc['end_frame'], default=-1, type=int)
-    tdf2mzml_args.add_argument('--precision', help=desc['precision'], default=10.0, type=float)
-    tdf2mzml_args.add_argument('--ms1_threshold', help=desc['ms1_threshold'], default=100, type=float)
-    tdf2mzml_args.add_argument('--ms2_threshold', help=desc['ms2_threshold'], default=10, type=float)
-    tdf2mzml_args.add_argument('--ms2_nlargest', help=desc['ms2_nlargest'], default=-1, type=int)
 
     # Return parser
     arguments = parser.parse_args()

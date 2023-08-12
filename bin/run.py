@@ -1,5 +1,4 @@
 from timsconvert import *
-from tdf2mzml import *
 
 
 def run_timsconvert(args):
@@ -144,7 +143,7 @@ def run_timsconvert(args):
                                   run_args['compression'],
                                   run_args['chunk_size'])
 
-        # TDF ESI-TIMS-MS Dataset (TIMSCONVERT Backend)
+        # TDF ESI-TIMS-MS Dataset
         elif schema == 'TDF' \
                 and 'MaldiApplicationType' not in data.meta_data.keys() \
                 and run_args['lcms_backend'] == 'timsconvert':
@@ -164,16 +163,6 @@ def run_timsconvert(args):
                             run_args['compression'],
                             run_args['barebones_metadata'],
                             run_args['chunk_size'])
-
-        # TDF ESI-TIMS-MS Dataset (tdf2mzml Backend)
-        elif schema == 'TDF' \
-                and 'MaldiApplicationType' not in data.meta_data.keys() \
-                and run_args['lcms_backend'] == 'tdf2mzml':
-            logging.info(get_timestamp() + ':' + '.tdf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
-            tdf2mzml_write_mzml(run_args)
 
         # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
         elif schema == 'TDF' \

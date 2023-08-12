@@ -74,15 +74,7 @@
         </parameter> -->
 
         <!-- Advanced Parameters -->
-        <!-- <parameter name="LCMSBACKEND" label="LCMS Backend">
-            <options>
-                <option value="timsconvert" label="timsconvert"/>
-                <option value="tdf2mzml" label="tdf2mzml"/>
-            </options>
-            <validator type="set"/>
-            <default value="timsconvert"/>
-        </parameter>
-        <parameter name="COMPRESSION" label="Compression">
+        <!-- <parameter name="COMPRESSION" label="Compression">
             <options>
                 <option value="zlib" label="zlib"/>
                 <option value="none" label="none"/>
@@ -97,32 +89,6 @@
             </options>
             <validator type="set"/>
             <default value="64"/>
-        </parameter> -->
-
-        <!-- tdf2mzml Parameters -->
-        <!-- <parameter name="STARTFRAME" label="Start Frame">
-            <validator type="integer"/>
-            <default value="-1"/>
-        </parameter>
-        <parameter name="ENDFRAME" label="End Frame">
-            <validator type="integer"/>
-            <default value="-1"/>
-        </parameter>
-        <parameter name="PRECISION" label="Precision">
-            <validator type="float"/>
-            <default value="10.0"/>
-        </parameter>
-        <parameter name="MS1THRESHOLD" label="MS1 Threshold">
-            <validator type="float"/>
-            <default value="100"/>
-        </parameter>
-        <parameter name="MS2THRESHOLD" label="MS2 Threshold">
-            <validator type="float"/>
-            <default value="10"/>
-        </parameter>
-        <parameter name="MS2NLARGEST" label="N Largest MS2">
-            <validator type="integer"/>
-            <default value="-1"/>
         </parameter> -->
     </parameters>
 
@@ -253,69 +219,6 @@
             </cell>
             <cell>
                 <input type="select" parameter="ENCODING"></input>
-            </cell>
-        </row>
-    </block> -->
-
-    <!-- <block label="tdf2mzml Parameters">
-        <row>
-            <cell>
-                <label>
-                    <content parameter="STARTFRAME"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="text" parameter="STARTFRAME"></input>
-            </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="ENDFRAME"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="text" parameter="ENDFRAME"></input>
-            </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="PRECISION"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="text" parameter="PRECISION"></input>
-            </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="MS1THRESHOLD"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="text" parameter="MS1THRESHOLD"></input>
-            </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="MS2THRESHOLD"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="text" parameter="MS2THRESHOLD"></input>
-            </cell>
-        </row>
-        <row>
-            <cell>
-                <label>
-                    <content parameter="MS2NLARGEST"/>
-                </label>
-            </cell>
-            <cell>
-                <input type="text" parameter="MS2NLARGEST"></input>
             </cell>
         </row>
     </block> -->

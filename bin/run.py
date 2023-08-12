@@ -145,8 +145,7 @@ def run_timsconvert(args):
 
         # TDF ESI-TIMS-MS Dataset
         elif schema == 'TDF' \
-                and 'MaldiApplicationType' not in data.meta_data.keys() \
-                and run_args['lcms_backend'] == 'timsconvert':
+                and 'MaldiApplicationType' not in data.meta_data.keys():
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'

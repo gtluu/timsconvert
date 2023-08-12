@@ -260,7 +260,7 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      encoding)
 
     # Write MS1 parent scans.
-    if not ms2_only:
+    if not ms2_only and product_scans != []:
         for parent in parent_scans:
             products = [i for i in product_scans if i['parent_frame'] == parent['frame']]
             # Set params for scan.

@@ -117,7 +117,7 @@ class baf_data(object):
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = list(self.frames[self.frames['AcquisitionKey'] == 1]['Id'].values)
+        self.ms1_frames = self.frames[self.frames['AcquisitionKey'] == 1]['Id'].values.tolist()
 
     def close_sql_connection(self):
         self.conn.close()
@@ -205,7 +205,7 @@ class tsf_data(object):
             else:
                 break
 
-        return (index_buf[0:required_len], intensity_buf[0:required_len])
+        return index_buf[0:required_len], intensity_buf[0:required_len]
 
     # modified from Bruker tsfdata.py
     def read_profile_spectrum(self, frame_id):
@@ -227,7 +227,7 @@ class tsf_data(object):
 
         index_buf = np.arange(0, intensity_buf.size, dtype=np.float64)
 
-        return (index_buf[0:required_len], intensity_buf[0:required_len])
+        return index_buf[0:required_len], intensity_buf[0:required_len]
 
     # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
@@ -255,7 +255,7 @@ class tsf_data(object):
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
+        self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
 
     def close_sql_connection(self):
         self.conn.close()
@@ -282,6 +282,9 @@ class tdf_data(object):
         self.pasefframemsmsinfo = None
         self.framemsmsinfo = None
         self.precursors = None
+        self.diaframemsmsinfo = None
+        self.diaframemsmswindowgroups = None
+        self.diaframemsmswindows = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
@@ -295,6 +298,10 @@ class tdf_data(object):
             if 8 in list(set(self.frames['MsMsType'].values.tolist())):
                 self.get_pasefframemsmsinfo_table()
                 self.get_precursors_table()
+            # Only parse these tables if data acquired in diaPASEF mode (MSMS Type == 9).
+            if 9 in list(set(self.frames['MsMsType'].values.tolist())):
+                self.get_diaframemsmsinfo_table()
+                self.get_diaframemsmswindows_table()
             self.subset_ms1_frames()
 
         self.close_sql_connection()
@@ -553,9 +560,19 @@ class tdf_data(object):
         precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]
         self.precursors['Mobility'] = precursor_mobility_values
 
+    # Get DiaFrameMsMsInfo table from analysis.tdf SQL database.
+    def get_diaframemsmsinfo_table(self):
+        diaframemsmsinfo_query = 'SELECT * FROM DiaFrameMsMsInfo'
+        self.diaframemsmsinfo = pd.read_sql_query(diaframemsmsinfo_query, self.conn)
+
+    # Get DiaFrameMsMsWindows table from analysis.tdf SQL database.
+    def get_diaframemsmswindows_table(self):
+        diaframemsmswindows_query = 'SELECT * FROM DiaFrameMsMsWindows'
+        self.diaframemsmswindows = pd.read_sql_query(diaframemsmswindows_query, self.conn)
+
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
+        self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
 
     def close_sql_connection(self):
         self.conn.close()

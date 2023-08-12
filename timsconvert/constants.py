@@ -42,6 +42,7 @@ SCAN_MODE = {'0': 'MS',
              '4': 'MS/MS (Auto)',
              '5': 'MS-MS/MS (bbCID)',
              '6': 'MS/MS (Pasef)',
+             '8': 'dda-PASEF',
              '9': 'dia-PASEF',
              '10': 'prm-PASEF'}
 

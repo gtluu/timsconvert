@@ -17,6 +17,19 @@ MSMS_PROFILE_SPECTRUM_FUNCTOR = CFUNCTYPE(None,
                                           c_uint32,
                                           POINTER(c_int32))
 
+MSMS_SPECTRUM_FUNCTION = CFUNCTYPE(None,
+                                   c_int64,
+                                   c_uint32,
+                                   POINTER(c_double),
+                                   POINTER(c_float),
+                                   POINTER(c_void_p))
+
+MSMS_PROFILE_SPECTRUM_FUNCTION = CFUNCTYPE(None,
+                                           c_int64,
+                                           c_uint32,
+                                           POINTER(c_int32),
+                                           POINTER(c_void_p))
+
 
 # modified from baf2sql.py
 class baf_data(object):
@@ -192,11 +205,11 @@ class tsf_data(object):
             index_buf = np.empty(shape=cnt, dtype=np.float64)
             intensity_buf = np.empty(shape=cnt, dtype=np.float32)
 
-            required_len = self.dll.tsf_read_line_spectrum(self.handle,
-                                                           frame_id,
-                                                           index_buf.ctypes.data_as(POINTER(c_double)),
-                                                           intensity_buf.ctypes.data_as(POINTER(c_float)),
-                                                           self.profile_buffer_size)
+            required_len = self.dll.tsf_read_line_spectrum_v2(self.handle,
+                                                              frame_id,
+                                                              index_buf.ctypes.data_as(POINTER(c_double)),
+                                                              intensity_buf.ctypes.data_as(POINTER(c_float)),
+                                                              self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
                 if required_len > 16777216:
@@ -213,10 +226,10 @@ class tsf_data(object):
             cnt = int(self.profile_buffer_size)
             intensity_buf = np.empty(shape=cnt, dtype=np.uint32)
 
-            required_len = self.dll.tsf_read_profile_spectrum(self.handle,
-                                                              frame_id,
-                                                              intensity_buf.ctypes.data_as(POINTER(c_uint32)),
-                                                              self.profile_buffer_size)
+            required_len = self.dll.tsf_read_profile_spectrum_v2(self.handle,
+                                                                 frame_id,
+                                                                 intensity_buf.ctypes.data_as(POINTER(c_uint32)),
+                                                                 self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
                 if required_len > 16777216:
@@ -378,6 +391,7 @@ class tdf_data(object):
         def callback_for_dll(precursor_id, num_peaks, mz_values, area_values):
             result[precursor_id] = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
+        # TODO: update this function to v2
         rc = self.dll.tims_read_pasef_msms(self.handle,
                                            precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
                                            len(precursor_list),
@@ -385,23 +399,22 @@ class tdf_data(object):
 
         return result
 
-    # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
-    if TDF_SDK_VERSION == 'sdk2871' or TDF_SDK_VERSION == 'sdk270':
-        def read_pasef_profile_msms(self, precursor_list):
-            precursors_for_dll = np.array(precursor_list, dtype=np.int64)
+    def read_pasef_profile_msms(self, precursor_list):
+        precursors_for_dll = np.array(precursor_list, dtype=np.int64)
 
-            result = {}
+        result = {}
 
-            @MSMS_PROFILE_SPECTRUM_FUNCTOR
-            def callback_for_dll(precursor_id, num_points, intensity_values):
-                result[precursor_id] = intensity_values[0:num_points]
+        @MSMS_PROFILE_SPECTRUM_FUNCTOR
+        def callback_for_dll(precursor_id, num_points, intensity_values):
+            result[precursor_id] = intensity_values[0:num_points]
 
-            rc = self.dll.tims_read_pasef_profile_msms(self.handle,
-                                                       precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
-                                                       len(precursor_list),
-                                                       callback_for_dll)
+        # TODO: update this function to v2
+        rc = self.dll.tims_read_pasef_profile_msms(self.handle,
+                                                   precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
+                                                   len(precursor_list),
+                                                   callback_for_dll)
 
-            return result
+        return result
 
     def read_pasef_centroid_msms_for_frame(self, frame_id):
         result = {}
@@ -410,25 +423,25 @@ class tdf_data(object):
         def callback_for_dll(precursor_id, num_peaks, mz_values, area_values):
             result[precursor_id] = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
+        # TODO: update this function to v2
         rc = self.dll.tims_read_pasef_msms_for_frame(self.handle, frame_id, callback_for_dll)
 
         return result
 
-    # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
-    if TDF_SDK_VERSION == 'sdk2871' or TDF_SDK_VERSION == 'sdk270':
-        def read_pasef_profile_msms_for_frame(self, frame_id):
-            result = {}
+    def read_pasef_profile_msms_for_frame(self, frame_id):
+        result = {}
 
-            @MSMS_PROFILE_SPECTRUM_FUNCTOR
-            def callback_for_dll(precursor_id, num_points, intensity_values):
-                result[precursor_id] = intensity_values[0:num_points]
+        @MSMS_PROFILE_SPECTRUM_FUNCTOR
+        def callback_for_dll(precursor_id, num_points, intensity_values):
+            result[precursor_id] = intensity_values[0:num_points]
 
-            rc = self.dll.tims_read_pasef_profile_msms_for_frame(self.handle, frame_id, callback_for_dll)
+        # TODO: update this function to v2
+        rc = self.dll.tims_read_pasef_profile_msms_for_frame(self.handle, frame_id, callback_for_dll)
 
-            return result
+        return result
 
     # Only define extract_centroided_spectrum_for_frame and extract_profile_spectrum_for_frame if using SDK 2.8.7.1.
-    if TDF_SDK_VERSION == 'sdk2871':
+    if TDF_SDK_VERSION == 'sdk22104':
         def extract_centroided_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
             result = None
 
@@ -437,12 +450,12 @@ class tdf_data(object):
                 nonlocal result
                 result = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
-            rc = self.dll.tims_extract_centroided_spectrum_for_frame(self.handle,
-                                                                     frame_id,
-                                                                     scan_begin,
-                                                                     scan_end,
-                                                                     callback_for_dll,
-                                                                     None)
+            rc = self.dll.tims_extract_centroided_spectrum_for_frame_v2(self.handle,
+                                                                        frame_id,
+                                                                        scan_begin,
+                                                                        scan_end,
+                                                                        callback_for_dll,
+                                                                        None)
 
             return result
 

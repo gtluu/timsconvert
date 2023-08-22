@@ -277,14 +277,17 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
             scan_count += 1
             product['scan_number'] = scan_count
             write_ms2_spectrum(writer, data, product, encoding, compression)
-    elif product_scans == []:
+    elif not product_scans:
         for scan_dict in parent_scans:
             scan_count += 1
             scan_dict['scan_number'] = scan_count
             if scan_dict['ms_level'] == 1:
                 write_ms1_spectrum(writer, data, scan_dict, encoding, compression)
             elif scan_dict['ms_level'] == 2:
-                write_ms2_spectrum(writer, data, scan_dict, encoding, compression)
+                if scan_dict['ms2_no_precursor']:
+                    write_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+                else:
+                    write_ms2_spectrum(writer, data, scan_dict, encoding, compression)
     return scan_count
 
 

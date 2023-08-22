@@ -69,7 +69,8 @@ def init_scan_dict():
             'collision_energy': None,
             'frame': None,
             'parent_frame': None,
-            'parent_scan': None}
+            'parent_scan': None,
+            'ms2_no_precursor': False}
 
 
 def populate_scan_dict_w_baf_metadata(scan_dict, frames_dict, acquisitionkey_dict, mode):
@@ -95,6 +96,14 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
     scan_dict['scan_type'] = 'MS1 spectrum'
     scan_dict['ms_level'] = 1
     scan_dict['frame'] = frame
+    return scan_dict
+
+
+def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame):
+    scan_dict['scan_type'] = 'MSn spectrum'
+    scan_dict['ms_level'] = 2
+    scan_dict['frame'] = frame
+    scan_dict['ms2_no_precursor'] = True
     return scan_dict
 
 
@@ -351,13 +360,18 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
         mz_array, intensity_array = extract_baf_spectrum(baf_data, frames_dict, mode, profile_bins, encoding)
         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
             scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
-            # AcquisitionKey: 1 == MS1, 2 == MS/MS; MsLevel == 0 -> 1, MsLevel == 1 -> 2
-            if int(acquisitionkey_dict['MsLevel']) == 0 and not ms2_only:
+            if int(acquisitionkey_dict['ScanMode']) == 0 and not ms2_only:
                 scan_dict = populate_scan_dict_w_ms1(scan_dict, frame)
                 list_of_parent_scans.append(scan_dict)
-            elif int(acquisitionkey_dict['MsLevel']) == 1:
+            elif int(acquisitionkey_dict['ScanMode']) == 2:
                 scan_dict = populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame)
                 list_of_product_scans.append(scan_dict)
+            elif int(acquisitionkey_dict['ScanMode']) == 4:
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame)
+                list_of_parent_scans.append(scan_dict)
+            elif int(acquisitionkey_dict['ScanMode']) == 5:
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame)
+                list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
 

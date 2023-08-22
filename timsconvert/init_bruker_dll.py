@@ -137,13 +137,14 @@ def init_tdf_sdk_dll(bruker_dll_file_name: str = TDF_SDK_DLL_FILE_NAME):
     tdf_sdk_dll.tims_read_pasef_profile_msms_for_frame.restype = c_uint32
 
     # Extract spectra from frames
-    tdf_sdk_dll.tims_extract_centroided_spectrum_for_frame.argtypes = [c_uint64,
-                                                                       c_int64,
-                                                                       c_uint32,
-                                                                       c_uint32,
-                                                                       MSMS_SPECTRUM_FUNCTOR,
-                                                                       c_void_p]
-    tdf_sdk_dll.tims_extract_centroided_spectrum_for_frame.restype = c_uint32
+    if TDF_SDK_VERSION != 'sdk22104':
+        tdf_sdk_dll.tims_extract_centroided_spectrum_for_frame.argtypes = [c_uint64,
+                                                                           c_int64,
+                                                                           c_uint32,
+                                                                           c_uint32,
+                                                                           MSMS_SPECTRUM_FUNCTOR,
+                                                                           c_void_p]
+        tdf_sdk_dll.tims_extract_centroided_spectrum_for_frame.restype = c_uint32
     tdf_sdk_dll.tims_extract_profile_for_frame.argtypes = [c_uint64,
                                                            c_int64,
                                                            c_uint32,

@@ -317,9 +317,11 @@ class tdf_data(object):
             if 9 in list(set(self.frames['MsMsType'].values.tolist())):
                 self.get_diaframemsmsinfo_table()
                 self.get_diaframemsmswindows_table()
-            # Only parse these tables if data acquired in MRM mode (ScanMode == 2).
-            if 2 in list(set(self.frames['ScanMode'].values.tolist())):
+            # Only parse these tables if data acquired in bbCID mode (ScanMode == 4) or MRM mode (ScanMode == 2).
+            if 4 in list(set(self.frames['ScanMode'].values.tolist())) \
+                    or 2 in list(set(self.frames['ScanMode'].values.tolist())):
                 self.get_framemsmsinfo_table()
+            # Only parse these tables if data acquired in prm-PASEF mode (ScanMode == 10).
             if 10 in list(set(self.frames['ScanMode'].values.tolist())):
                 self.get_prmframemsmsinfo_table()
                 self.get_prmtargets_table()

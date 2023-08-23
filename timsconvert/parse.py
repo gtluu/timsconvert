@@ -99,9 +99,10 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
     return scan_dict
 
 
-def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame):
+def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, framemsmsinfo_dict):
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
+    scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
     scan_dict['frame'] = frame
     scan_dict['ms2_no_precursor'] = True
     return scan_dict
@@ -415,8 +416,12 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
                 framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
                                                             frame].to_dict(orient='records')[0]
-                scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
-                list_of_product_scans.append(scan_dict)
+                if int(frames_dict['ScanMode']) == 1:
+                    scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
+                    list_of_product_scans.append(scan_dict)
+                elif int(frames_dict['ScanMode']) == 4:
+                    scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, framemsmsinfo_dict)
+                    list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
 
@@ -530,7 +535,9 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
         elif int(frames_dict['ScanMode']) == 4 and int(frames_dict['MsMsType']) == 2:
             scan_dict = init_scan_dict()
             scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
-            scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame)
+            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
+                                                        frame].to_dict(orient='records')[0]
+            scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, framemsmsinfo_dict)
             if not exclude_mobility:
                 mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
                                                                                     mode,

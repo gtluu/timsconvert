@@ -132,6 +132,8 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
     if 'MaldiApplicationType' in data.meta_data.keys():
         params.append({'maldi spot identifier': scan['coord']})
         params.append({'spectrum title': title})
+    if scan['ms2_no_precursor']:
+        params.append({'collision energy': scan['collision_energy']})
 
     if scan['mobility_array'] is not None:
         # This version only works with newer versions of psims.

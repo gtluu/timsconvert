@@ -99,10 +99,15 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
     return scan_dict
 
 
-def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, framemsmsinfo_dict):
+def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=None, framemsmsinfo_dict=None):
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
-    scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
+    if schema == 'BAF':
+        scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
+    elif schema == 'TSF' or schema == 'TDF':
+        scan_dict['collision_energy'] = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
+                                                                 (baf_data.variables['Variable'] ==
+                                                                  5)].to_dict(orient='records')[0]['Value'])
     scan_dict['frame'] = frame
     scan_dict['ms2_no_precursor'] = True
     return scan_dict
@@ -388,11 +393,11 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                 list_of_product_scans.append(scan_dict)
             # isCID MS/MS
             elif int(acquisitionkey_dict['ScanMode']) == 4:
-                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame)
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', baf_data=baf_data)
                 list_of_parent_scans.append(scan_dict)
             # bbCID MS/MS
             elif int(acquisitionkey_dict['ScanMode']) == 5:
-                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame)
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', baf_data=baf_data)
                 list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
@@ -420,7 +425,13 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                     scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
                     list_of_product_scans.append(scan_dict)
                 elif int(frames_dict['ScanMode']) == 4:
-                    scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, framemsmsinfo_dict)
+                    scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
+                                                                     frame,
+                                                                     'TSF',
+                                                                     framemsmsinfo_dict=framemsmsinfo_dict)
+                    list_of_parent_scans.append(scan_dict)
+                elif int(frames_dict['ScanMode']) == 2:
+                    scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict)
                     list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
@@ -537,7 +548,10 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
             scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
             framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
                                                         frame].to_dict(orient='records')[0]
-            scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, framemsmsinfo_dict)
+            scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
+                                                             frame,
+                                                             'TDF',
+                                                             framemsmsinfo_dict=framemsmsinfo_dict)
             if not exclude_mobility:
                 mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
                                                                                     mode,

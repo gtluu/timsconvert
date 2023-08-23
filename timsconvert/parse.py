@@ -165,7 +165,24 @@ def populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict):
     scan_dict['isolation_lower_offset'] = float(diaframemsmswindows_dict['IsolationWidth']) / 2
     scan_dict['isolation_upper_offset'] = float(diaframemsmswindows_dict['IsolationWidth']) / 2
     scan_dict['selected_ion_mz'] = float(diaframemsmswindows_dict['IsolationMz'])
-    scan_dict['collision_energy'] = float(diaframemsmswindows_dict['CollisionEnergy'])
+    scan_dict['collision_energy'] = diaframemsmswindows_dict['CollisionEnergy']
+    return scan_dict
+
+
+def populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict):
+    scan_dict['scan_type'] = 'MSn spectrum'
+    scan_dict['ms_level'] = 2
+    scan_dict['target_mz'] = float(prmframemsmsinfo_dict['IsolationMz'])
+    scan_dict['isolation_lower_offset'] = float(prmframemsmsinfo_dict['IsolationWidth']) / 2
+    scan_dict['isolation_upper_offset'] = float(prmframemsmsinfo_dict['IsolationWidth']) / 2
+    scan_dict['selected_ion_mz'] = float(prmframemsmsinfo_dict['IsolationMz'])
+    scan_dict['selected_ion_mobility'] = float(prmtargets_dict['OneOverK0'])
+    scan_dict['charge_state'] = prmtargets_dict['Charge']
+    scan_dict['collision_energy'] = prmframemsmsinfo_dict['CollisionEnergy']
+    if not np.isnan(prmtargets_dict['Charge']):
+        scan_dict['selected_ion_ccs'] = one_over_k0_to_ccs(scan_dict['selected_ion_mobility'],
+                                                           int(prmtargets_dict['Charge']),
+                                                           float(prmframemsmsinfo_dict['IsolationMz']))
     return scan_dict
 
 
@@ -545,22 +562,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
             scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
             framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
                                                         frame].to_dict(orient='records')[0]
-            if not exclude_mobility:
-                mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
-                                                                                    mode,
-                                                                                    frame,
-                                                                                    0,
-                                                                                    int(frames_dict['NumScans']),
-                                                                                    profile_bins,
-                                                                                    encoding)
-            elif exclude_mobility:
-                mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
-                                                                    mode,
-                                                                    frame,
-                                                                    0,
-                                                                    int(frames_dict['NumScans']),
-                                                                    profile_bins,
-                                                                    encoding)
+            mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                mode,
+                                                                frame,
+                                                                0,
+                                                                int(frames_dict['NumScans']),
+                                                                profile_bins,
+                                                                encoding)
             if mz_array.size != 0 \
                     and intensity_array.size != 0 \
                     and mz_array.size == intensity_array.size \
@@ -569,8 +577,29 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                 # lcms set as False since MRM MS/MS spectra do not have a parent frame.
                 scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=False)
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
-                if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
-                    scan_dict['mobility_array'] = mobility_array
+                list_of_parent_scans.append(scan_dict)
+        # Parse frames with prm-PASEF spectra.
+        elif int(frames_dict['ScanMode']) == 10 and int(frames_dict['MsMsType']) == 10:
+            scan_dict = init_scan_dict()
+            scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
+            prmframemsmsinfo_dict = tdf_data.prmframemsmsinfo[tdf_data.prmframemsmsinfo['Frame'] ==
+                                                              frame].to_dict(orient='records')[0]
+            prmtargets_dict = tdf_data.prmtargets[tdf_data.prmtargets['Id'] ==
+                                                  int(prmframemsmsinfo_dict['Target'])].to_dict(orient='records')[0]
+            mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                mode,
+                                                                frame,
+                                                                int(prmframemsmsinfo_dict['ScanNumBegin']),
+                                                                int(prmframemsmsinfo_dict['ScanNumEnd']),
+                                                                profile_bins,
+                                                                encoding)
+            if mz_array.size != 0 \
+                    and intensity_array.size != 0 \
+                    and mz_array.size == intensity_array.size \
+                    and mz_array is not None \
+                    and intensity_array is not None:
+                scan_dict = populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict)
+                scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 

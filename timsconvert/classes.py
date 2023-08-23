@@ -298,6 +298,8 @@ class tdf_data(object):
         self.diaframemsmsinfo = None
         self.diaframemsmswindowgroups = None
         self.diaframemsmswindows = None
+        self.prmframemsmsinfo = None
+        self.prmtargets = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
@@ -318,6 +320,9 @@ class tdf_data(object):
             # Only parse these tables if data acquired in MRM mode (ScanMode == 2).
             if 2 in list(set(self.frames['ScanMode'].values.tolist())):
                 self.get_framemsmsinfo_table()
+            if 10 in list(set(self.frames['ScanMode'].values.tolist())):
+                self.get_prmframemsmsinfo_table()
+                self.get_prmtargets_table()
             self.subset_ms1_frames()
 
         self.close_sql_connection()
@@ -586,9 +591,21 @@ class tdf_data(object):
         diaframemsmswindows_query = 'SELECT * FROM DiaFrameMsMsWindows'
         self.diaframemsmswindows = pd.read_sql_query(diaframemsmswindows_query, self.conn)
 
+    # Get PrmFrameMsMsInfo table from analysis.tdf SQL database.
+    def get_prmframemsmsinfo_table(self):
+        prmframemsmsinfo_query = 'SELECT * FROM PrmFrameMsMsInfo'
+        self.prmframemsmsinfo = pd.read_sql_query(prmframemsmsinfo_query, self.conn)
+
+    # Get PrmTargets table from analysis.tdf SQL database.
+    def get_prmtargets_table(self):
+        prmtargets_query = 'SELECT * FROM PrmTargets'
+        self.prmtargets = pd.read_sql_query(prmtargets_query, self.conn)
+
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
         self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
+        if self.ms1_frames[0] != 1:
+            self.ms1_frames.insert(0, 1)
 
     def close_sql_connection(self):
         self.conn.close()

@@ -307,14 +307,17 @@ class tdf_data(object):
             self.get_maldiframeinfo_table()
             self.get_framemsmsinfo_table()
         else:
-            # Only parse these tables if data acquired in ddaPASEF mode (MSMS Type == 8).
+            # Only parse these tables if data acquired in ddaPASEF mode (MsMsType == 8).
             if 8 in list(set(self.frames['MsMsType'].values.tolist())):
                 self.get_pasefframemsmsinfo_table()
                 self.get_precursors_table()
-            # Only parse these tables if data acquired in diaPASEF mode (MSMS Type == 9).
+            # Only parse these tables if data acquired in diaPASEF mode (MsMsType == 9).
             if 9 in list(set(self.frames['MsMsType'].values.tolist())):
                 self.get_diaframemsmsinfo_table()
                 self.get_diaframemsmswindows_table()
+            # Only parse these tables if data acquired in MRM mode (ScanMode == 2).
+            if 2 in list(set(self.frames['ScanMode'].values.tolist())):
+                self.get_framemsmsinfo_table()
             self.subset_ms1_frames()
 
         self.close_sql_connection()

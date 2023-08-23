@@ -5,7 +5,7 @@ def run_timsconvert(args):
     # Args check.
     args_check(args)
     # Check arguments.
-    args['version'] = '1.2.0'
+    args['version'] = '1.3.0'
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'

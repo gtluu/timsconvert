@@ -445,10 +445,9 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                 list_of_parent_scans.append(scan_dict)
 
             # This block only runs if frame_stop - frame_start > 1, meaning MS/MS scans are detected.
-            if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1'] and frame_stop - frame_start > 1:
+            if frame_stop - frame_start > 1:
                 # Parse frames with ddaPASEF spectra for precursors.
-                if int(frames_dict['ScanMode']) == 8 and int(frames_dict['MsMsType']) == 8:
-                    print(frame)
+                if int(frames_dict['ScanMode']) == 8 and int(frames_dict['MsMsType']) == 0:
                     precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] == frame].to_dict(orient='records')
                     for precursor_dict in precursor_dicts:
                         scan_dict = init_scan_dict()

@@ -111,6 +111,8 @@ def get_spectra_count(data):
 
 
 def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
+    if os.path.exists(os.path.join(outdir, outfile)):
+        os.remove(os.path.join(outdir, outfile))
     with open(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', 'r') as in_stream, \
             open(os.path.join(outdir, outfile), 'w') as out_stream:
         for line in in_stream:
@@ -363,6 +365,8 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
     else:
         logging.info(get_timestamp() + ':' + 'Renaming mzML file...')
+        if os.path.exists(os.path.join(outdir, outfile)):
+            os.remove(os.path.join(outdir, outfile))
         os.rename(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', os.path.join(outdir, outfile))
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                  os.path.join(outdir, outfile) + '...')

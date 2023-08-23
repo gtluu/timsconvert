@@ -102,9 +102,9 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
 def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=None, framemsmsinfo_dict=None):
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
-    if schema == 'BAF':
+    if schema == 'TSF' or schema == 'TDF':
         scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
-    elif schema == 'TSF' or schema == 'TDF':
+    elif schema == 'BAF':
         scan_dict['collision_energy'] = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
                                                                  (baf_data.variables['Variable'] ==
                                                                   5)].to_dict(orient='records')[0]['Value'])

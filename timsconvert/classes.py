@@ -606,7 +606,7 @@ class tdf_data(object):
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
         self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
-        if self.ms1_frames[0] != 1:
+        if len(self.ms1_frames) > 0 and self.ms1_frames[0] != 1:
             self.ms1_frames.insert(0, 1)
 
     def close_sql_connection(self):

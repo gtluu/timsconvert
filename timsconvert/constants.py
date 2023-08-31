@@ -42,6 +42,7 @@ SCAN_MODE = {'0': 'MS',
              '4': 'MS/MS (Auto)',
              '5': 'MS-MS/MS (bbCID)',
              '6': 'MS/MS (Pasef)',
+             '8': 'dda-PASEF',
              '9': 'dia-PASEF',
              '10': 'prm-PASEF'}
 
@@ -58,7 +59,7 @@ MSMS_TYPE_CATEGORY = {'ms1': [0],
 
 if platform.system() == 'Windows':
     if platform.architecture()[0] == '64bit':
-        TDF_SDK_VERSION = 'sdk2871'
+        TDF_SDK_VERSION = 'sdk22104'
         TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                              os.path.join('lib', 'tdfsdk', TDF_SDK_VERSION, 'win64', 'timsdata.dll'))
         BAF2SQL_VERSION = 'sdk290'
@@ -72,7 +73,7 @@ if platform.system() == 'Windows':
         BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                              os.path.join('lib', 'baf2sql', BAF2SQL_VERSION, 'win32', 'baf2sql.dll'))
 elif platform.system() == 'Linux':
-    TDF_SDK_VERSION = 'sdk2871'
+    TDF_SDK_VERSION = 'sdk22104'
     TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                          os.path.join('lib', 'tdfsdk', TDF_SDK_VERSION, 'linux64', 'timsdata.so'))
     BAF2SQL_VERSION = 'sdk290'

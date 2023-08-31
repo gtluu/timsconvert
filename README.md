@@ -201,18 +201,9 @@ TIMSCONVERT Optional Parameters
                           "processed".
 
 TIMSCONVERT System Parameters
---lcms_backend            Choose whether to use "timsconvert" or "tdf2mzml" backend for LC-TIMS-MS/MS data conversion.
 --chunk_size              Relative size of chunks of spectral data that are parsed and subsequently written at once. 
                           Increasing parses and write more spectra at once but increases RAM usage. Default = 10.
 --verbose                 Boolean flag to determine whether to print logging output.
-
-tdf2mzml Optional Parameters
---start_frame             Start frame.
---end_frame               End frame.
---precision               Precision.
---ms1_threshold           Intensity threshold for MS1 data.
---ms2_threshold           Intensity threshold for MS2 data.
---ms2_nlargest            N Largest MS2.
 ```
 
 ## Testing

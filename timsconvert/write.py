@@ -111,6 +111,8 @@ def get_spectra_count(data):
 
 
 def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
+    if os.path.exists(os.path.join(outdir, outfile)):
+        os.remove(os.path.join(outdir, outfile))
     with open(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', 'r') as in_stream, \
             open(os.path.join(outdir, outfile), 'w') as out_stream:
         for line in in_stream:
@@ -132,6 +134,8 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
     if 'MaldiApplicationType' in data.meta_data.keys():
         params.append({'maldi spot identifier': scan['coord']})
         params.append({'spectrum title': title})
+    if scan['ms2_no_precursor']:
+        params.append({'collision energy': scan['collision_energy']})
 
     if scan['mobility_array'] is not None:
         # This version only works with newer versions of psims.
@@ -176,6 +180,22 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
         params.append({'highest observed m/z': scan['high_mz']})
         params.append({'lowest observed m/z': scan['low_mz']})
 
+    if scan['mobility_array'] is not None:
+        # This version only works with newer versions of psims.
+        # Currently unusable due to boost::interprocess error on Linux.
+        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
+        #                  'unit_name': 'volt-second per square centimeter'},
+        #                 parent_scan['mobility_array'])]
+        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
+        other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
+    else:
+        other_arrays = None
+
+    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
+                     'intensity array': get_encoding_dtype(encoding)}
+    if other_arrays is not None:
+        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
+
     # Build precursor information dict.
     precursor_info = {'mz': scan['selected_ion_mz'],
                       'activation': [{'collision energy': scan['collision_energy']}],
@@ -205,10 +225,10 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
                           polarity=scan['polarity'],
                           centroided=scan['centroided'],
                           scan_start_time=scan['retention_time'],
+                          other_arrays=other_arrays,
                           params=params,
                           precursor_information=precursor_info,
-                          encoding={'m/z array': get_encoding_dtype(encoding),
-                                    'intensity array': get_encoding_dtype(encoding)},
+                          encoding=encoding_dict,
                           compression=compression)
 
 
@@ -244,7 +264,7 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      encoding)
 
     # Write MS1 parent scans.
-    if not ms2_only:
+    if not ms2_only and product_scans != []:
         for parent in parent_scans:
             products = [i for i in product_scans if i['parent_frame'] == parent['frame']]
             # Set params for scan.
@@ -261,6 +281,17 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
             scan_count += 1
             product['scan_number'] = scan_count
             write_ms2_spectrum(writer, data, product, encoding, compression)
+    elif not product_scans:
+        for scan_dict in parent_scans:
+            scan_count += 1
+            scan_dict['scan_number'] = scan_count
+            if scan_dict['ms_level'] == 1:
+                write_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+            elif scan_dict['ms_level'] == 2:
+                if scan_dict['ms2_no_precursor']:
+                    write_ms1_spectrum(writer, data, scan_dict, encoding, compression)
+                else:
+                    write_ms2_spectrum(writer, data, scan_dict, encoding, compression)
     return scan_count
 
 
@@ -334,6 +365,8 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
     else:
         logging.info(get_timestamp() + ':' + 'Renaming mzML file...')
+        if os.path.exists(os.path.join(outdir, outfile)):
+            os.remove(os.path.join(outdir, outfile))
         os.rename(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', os.path.join(outdir, outfile))
     logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
                  os.path.join(outdir, outfile) + '...')

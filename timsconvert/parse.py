@@ -69,7 +69,8 @@ def init_scan_dict():
             'collision_energy': None,
             'frame': None,
             'parent_frame': None,
-            'parent_scan': None}
+            'parent_scan': None,
+            'ms2_no_precursor': False}
 
 
 def populate_scan_dict_w_baf_metadata(scan_dict, frames_dict, acquisitionkey_dict, mode):
@@ -95,6 +96,20 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
     scan_dict['scan_type'] = 'MS1 spectrum'
     scan_dict['ms_level'] = 1
     scan_dict['frame'] = frame
+    return scan_dict
+
+
+def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=None, framemsmsinfo_dict=None):
+    scan_dict['scan_type'] = 'MSn spectrum'
+    scan_dict['ms_level'] = 2
+    if schema == 'TSF' or schema == 'TDF':
+        scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
+    elif schema == 'BAF':
+        scan_dict['collision_energy'] = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
+                                                                 (baf_data.variables['Variable'] ==
+                                                                  5)].to_dict(orient='records')[0]['Value'])
+    scan_dict['frame'] = frame
+    scan_dict['ms2_no_precursor'] = True
     return scan_dict
 
 
@@ -146,6 +161,34 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
         scan_dict['selected_ion_ccs'] = one_over_k0_to_ccs(scan_dict['selected_ion_mobility'],
                                                            int(precursor_dict['Charge']),
                                                            float(precursor_dict['LargestPeakMz']))
+    return scan_dict
+
+
+def populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict):
+    scan_dict['scan_type'] = 'MSn spectrum'
+    scan_dict['ms_level'] = 2
+    scan_dict['target_mz'] = float(diaframemsmswindows_dict['IsolationMz'])
+    scan_dict['isolation_lower_offset'] = float(diaframemsmswindows_dict['IsolationWidth']) / 2
+    scan_dict['isolation_upper_offset'] = float(diaframemsmswindows_dict['IsolationWidth']) / 2
+    scan_dict['selected_ion_mz'] = float(diaframemsmswindows_dict['IsolationMz'])
+    scan_dict['collision_energy'] = diaframemsmswindows_dict['CollisionEnergy']
+    return scan_dict
+
+
+def populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict):
+    scan_dict['scan_type'] = 'MSn spectrum'
+    scan_dict['ms_level'] = 2
+    scan_dict['target_mz'] = float(prmframemsmsinfo_dict['IsolationMz'])
+    scan_dict['isolation_lower_offset'] = float(prmframemsmsinfo_dict['IsolationWidth']) / 2
+    scan_dict['isolation_upper_offset'] = float(prmframemsmsinfo_dict['IsolationWidth']) / 2
+    scan_dict['selected_ion_mz'] = float(prmframemsmsinfo_dict['IsolationMz'])
+    scan_dict['selected_ion_mobility'] = float(prmtargets_dict['OneOverK0'])
+    scan_dict['charge_state'] = prmtargets_dict['Charge']
+    scan_dict['collision_energy'] = prmframemsmsinfo_dict['CollisionEnergy']
+    if not np.isnan(prmtargets_dict['Charge']):
+        scan_dict['selected_ion_ccs'] = one_over_k0_to_ccs(scan_dict['selected_ion_mobility'],
+                                                           int(prmtargets_dict['Charge']),
+                                                           float(prmframemsmsinfo_dict['IsolationMz']))
     return scan_dict
 
 
@@ -216,17 +259,29 @@ def extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding):
 
 # Get either raw (slightly modified implementation that gets centroid spectrum), quasi-profile, or centroid spectrum.
 # Returns an m/z array and intensity array.
-def extract_2d_tdf_spectrum(tdf_data, mode, multiscan, frame, scan_begin, scan_end, profile_bins, encoding):
+def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile_bins, encoding):
     if mode == 'raw':
-        if not multiscan:
-            scans = tdf_data.read_scans(frame, scan_begin, scan_end)
-            if len(scans) == 1:
-                index_buf, intensity_array = scans[0]
-            elif len(scans) != 1:
-                sys.exit(1)
-            mz_array = tdf_data.index_to_mz(frame, index_buf)
-        elif multiscan:
-            mz_array, intensity_array = tdf_data.extract_spectrum_for_frame_v2(frame, scan_begin, scan_end, encoding)
+        list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
+        frame_mz_arrays = []
+        frame_intensity_arrays = []
+        for scan_num in range(scan_begin, scan_end):
+            if list_of_scans[scan_num][0].size != 0 \
+                    and list_of_scans[scan_num][1].size != 0 \
+                    and list_of_scans[scan_num][0].size == list_of_scans[scan_num][1].size:
+                mz_array = tdf_data.index_to_mz(frame, list_of_scans[scan_num][0])
+                intensity_array = list_of_scans[scan_num][1]
+                frame_mz_arrays.append(mz_array)
+                frame_intensity_arrays.append(intensity_array)
+        if frame_mz_arrays and frame_intensity_arrays:
+            frames_array = np.stack((np.concatenate(frame_mz_arrays, axis=None),
+                                     np.concatenate(frame_intensity_arrays, axis=None)),
+                                    axis=-1)
+            frames_array = np.unique(frames_array[np.argsort(frames_array[:, 0])], axis=0)
+            mz_array = frames_array[:, 0]
+            intensity_array = frames_array[:, 1]
+            return mz_array, intensity_array
+        else:
+            return None, None
     elif mode == 'profile':
         index_buf, intensity_array = tdf_data.extract_profile_spectrum_for_frame(frame, scan_begin, scan_end)
         intensity_array = np.array(intensity_array, dtype=get_encoding_dtype(encoding))
@@ -240,20 +295,20 @@ def extract_2d_tdf_spectrum(tdf_data, mode, multiscan, frame, scan_begin, scan_e
     return mz_array, intensity_array
 
 
-def extract_3d_tdf_spectrum(tdf_data, mode, frame, num_scans, profile_bins, encoding):
+def extract_3d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile_bins, encoding):
+    list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
     frame_mz_arrays = []
     frame_intensity_arrays = []
     frame_mobility_arrays = []
-    for scan_num in range(0, num_scans):
-        mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
-                                                            mode,
-                                                            True,
-                                                            frame,
-                                                            scan_num,
-                                                            scan_num + 1,
-                                                            profile_bins,
-                                                            encoding)
-        if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+    if scan_begin != 0:
+        scan_end = scan_end - scan_begin
+        scan_begin = 0
+    for scan_num in range(scan_begin, scan_end):
+        if list_of_scans[scan_num][0].size != 0 \
+                and list_of_scans[scan_num][1].size != 0 \
+                and list_of_scans[scan_num][0].size == list_of_scans[scan_num][1].size:
+            mz_array = tdf_data.index_to_mz(frame, list_of_scans[scan_num][0])
+            intensity_array = list_of_scans[scan_num][1]
             mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
             mobility_array = np.repeat(mobility, mz_array.size)
             frame_mz_arrays.append(mz_array)
@@ -281,7 +336,6 @@ def extract_ddapasef_precursor_spectrum(tdf_data, pasefframemsmsinfo_dicts, mode
         scan_end = int(pasef_dict['ScanNumEnd'])
         mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                             mode,
-                                                            True,
                                                             int(pasef_dict['Frame']),
                                                             scan_begin,
                                                             scan_end,
@@ -329,13 +383,22 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
         mz_array, intensity_array = extract_baf_spectrum(baf_data, frames_dict, mode, profile_bins, encoding)
         if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
             scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
-            # AcquisitionKey: 1 == MS1, 2 == MS/MS; MsLevel == 0 -> 1, MsLevel == 1 -> 2
-            if int(acquisitionkey_dict['MsLevel']) == 0 and not ms2_only:
+            # MS1
+            if int(acquisitionkey_dict['ScanMode']) == 0 and not ms2_only:
                 scan_dict = populate_scan_dict_w_ms1(scan_dict, frame)
                 list_of_parent_scans.append(scan_dict)
-            elif int(acquisitionkey_dict['MsLevel']) == 1:
+            # Auto MS/MS and MRM MS/MS
+            elif int(acquisitionkey_dict['ScanMode']) == 2:
                 scan_dict = populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame)
                 list_of_product_scans.append(scan_dict)
+            # isCID MS/MS
+            elif int(acquisitionkey_dict['ScanMode']) == 4:
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', baf_data=baf_data)
+                list_of_parent_scans.append(scan_dict)
+            # bbCID MS/MS
+            elif int(acquisitionkey_dict['ScanMode']) == 5:
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', baf_data=baf_data)
+                list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
 
@@ -358,8 +421,18 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
                 framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
                                                             frame].to_dict(orient='records')[0]
-                scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
-                list_of_product_scans.append(scan_dict)
+                if int(frames_dict['ScanMode']) == 1:
+                    scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
+                    list_of_product_scans.append(scan_dict)
+                elif int(frames_dict['ScanMode']) == 4:
+                    scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
+                                                                     frame,
+                                                                     'TSF',
+                                                                     framemsmsinfo_dict=framemsmsinfo_dict)
+                    list_of_parent_scans.append(scan_dict)
+                elif int(frames_dict['ScanMode']) == 2:
+                    scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict)
+                    list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
 
@@ -382,13 +455,13 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                 mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
                                                                                     mode,
                                                                                     frame,
+                                                                                    0,
                                                                                     int(frames_dict['NumScans']),
                                                                                     profile_bins,
                                                                                     encoding)
             elif exclude_mobility:
                 mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                     mode,
-                                                                    True,
                                                                     frame,
                                                                     0,
                                                                     int(frames_dict['NumScans']),
@@ -404,27 +477,151 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                     scan_dict['mobility_array'] = mobility_array
                 list_of_parent_scans.append(scan_dict)
 
-        # Parse frames with ddaPASEF spectra for precursors.
-        # This block only runs if frame_stop - frame_start > 1, meaning ddaPASEF scans are detected.
-        if frame_stop - frame_start > 1:
-            precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] == frame].to_dict(orient='records')
-            for precursor_dict in precursor_dicts:
+            # This block only runs if frame_stop - frame_start > 1, meaning MS/MS scans are detected.
+            if frame_stop - frame_start > 1:
+                # Parse frames with ddaPASEF spectra for precursors.
+                if int(frames_dict['ScanMode']) == 8 and int(frames_dict['MsMsType']) == 0:
+                    precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] == frame].to_dict(orient='records')
+                    for precursor_dict in precursor_dicts:
+                        scan_dict = init_scan_dict()
+                        scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict,
+                                                                               frames_dict,
+                                                                               mode,
+                                                                               exclude_mobility)
+                        pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
+                                                                            precursor_dict['Id']].to_dict(orient='records')
+                        mz_array, intensity_array = extract_ddapasef_precursor_spectrum(tdf_data,
+                                                                                        pasefframemsmsinfo_dicts,
+                                                                                        mode,
+                                                                                        profile_bins,
+                                                                                        encoding)
+                        if mz_array is not None and intensity_array is not None:
+                            scan_dict = populate_scan_dict_w_ddapasef_ms2(scan_dict,
+                                                                          tdf_data,
+                                                                          precursor_dict,
+                                                                          pasefframemsmsinfo_dicts)
+                            scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
+                            list_of_product_scans.append(scan_dict)
+        # Parse frames with diaPASEF spectra.
+        elif int(frames_dict['ScanMode']) == 9 and int(frames_dict['MsMsType']) == 9:
+            diaframemsmsinfo_dict = tdf_data.diaframemsmsinfo[tdf_data.diaframemsmsinfo['Frame'] ==
+                                                              frame].to_dict(orient='records')[0]
+            diaframemsmswindows_dicts = tdf_data.diaframemsmswindows[tdf_data.diaframemsmswindows['WindowGroup'] ==
+                                        diaframemsmsinfo_dict['WindowGroup']].to_dict(orient='records')
+
+            for diaframemsmswindows_dict in diaframemsmswindows_dicts:
                 scan_dict = init_scan_dict()
-                scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
-                pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
-                                                                       precursor_dict['Id']].to_dict(orient='records')
-                mz_array, intensity_array = extract_ddapasef_precursor_spectrum(tdf_data,
-                                                                                pasefframemsmsinfo_dicts,
-                                                                                mode,
-                                                                                profile_bins,
-                                                                                encoding)
-                if mz_array is not None and intensity_array is not None:
-                    scan_dict = populate_scan_dict_w_ddapasef_ms2(scan_dict,
-                                                                  tdf_data,
-                                                                  precursor_dict,
-                                                                  pasefframemsmsinfo_dicts)
+                scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict,
+                                                                       frames_dict,
+                                                                       mode,
+                                                                       exclude_mobility)
+
+                if not exclude_mobility:
+                    mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
+                                                                                        mode,
+                                                                                        frame,
+                                                                                        int(diaframemsmswindows_dict['ScanNumBegin']),
+                                                                                        int(diaframemsmswindows_dict['ScanNumEnd']),
+                                                                                        profile_bins,
+                                                                                        encoding)
+                elif exclude_mobility:
+                    mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                        mode,
+                                                                        frame,
+                                                                        int(diaframemsmswindows_dict['ScanNumBegin']),
+                                                                        int(diaframemsmswindows_dict['ScanNumEnd']),
+                                                                        profile_bins,
+                                                                        encoding)
+                if mz_array.size != 0 \
+                        and intensity_array.size != 0 \
+                        and mz_array.size == intensity_array.size \
+                        and mz_array is not None \
+                        and intensity_array is not None:
+                    scan_dict = populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict)
                     scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
-                    list_of_product_scans.append(scan_dict)
+                    if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
+                        scan_dict['mobility_array'] = mobility_array
+                    list_of_parent_scans.append(scan_dict)
+        # Parse frames with bbCID spectra.
+        elif int(frames_dict['ScanMode']) == 4 and int(frames_dict['MsMsType']) == 2:
+            scan_dict = init_scan_dict()
+            scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
+            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
+                                                        frame].to_dict(orient='records')[0]
+            scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
+                                                             frame,
+                                                             'TDF',
+                                                             framemsmsinfo_dict=framemsmsinfo_dict)
+            if not exclude_mobility:
+                mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
+                                                                                    mode,
+                                                                                    frame,
+                                                                                    0,
+                                                                                    int(frames_dict['NumScans']),
+                                                                                    profile_bins,
+                                                                                    encoding)
+            elif exclude_mobility:
+                mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                    mode,
+                                                                    frame,
+                                                                    0,
+                                                                    int(frames_dict['NumScans']),
+                                                                    profile_bins,
+                                                                    encoding)
+            if mz_array.size != 0 \
+                    and intensity_array.size != 0 \
+                    and mz_array.size == intensity_array.size \
+                    and mz_array is not None \
+                    and intensity_array is not None:
+                scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
+                if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
+                    scan_dict['mobility_array'] = mobility_array
+                list_of_parent_scans.append(scan_dict)
+        # Parse frames with MRM spectra.
+        elif int(frames_dict['ScanMode']) == 2 and int(frames_dict['MsMsType']) == 2:
+            scan_dict = init_scan_dict()
+            scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
+            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
+                                                        frame].to_dict(orient='records')[0]
+            mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                mode,
+                                                                frame,
+                                                                0,
+                                                                int(frames_dict['NumScans']),
+                                                                profile_bins,
+                                                                encoding)
+            if mz_array.size != 0 \
+                    and intensity_array.size != 0 \
+                    and mz_array.size == intensity_array.size \
+                    and mz_array is not None \
+                    and intensity_array is not None:
+                # lcms set as False since MRM MS/MS spectra do not have a parent frame.
+                scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=False)
+                scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
+                list_of_parent_scans.append(scan_dict)
+        # Parse frames with prm-PASEF spectra.
+        elif int(frames_dict['ScanMode']) == 10 and int(frames_dict['MsMsType']) == 10:
+            scan_dict = init_scan_dict()
+            scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
+            prmframemsmsinfo_dict = tdf_data.prmframemsmsinfo[tdf_data.prmframemsmsinfo['Frame'] ==
+                                                              frame].to_dict(orient='records')[0]
+            prmtargets_dict = tdf_data.prmtargets[tdf_data.prmtargets['Id'] ==
+                                                  int(prmframemsmsinfo_dict['Target'])].to_dict(orient='records')[0]
+            mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                mode,
+                                                                frame,
+                                                                int(prmframemsmsinfo_dict['ScanNumBegin']),
+                                                                int(prmframemsmsinfo_dict['ScanNumEnd']),
+                                                                profile_bins,
+                                                                encoding)
+            if mz_array.size != 0 \
+                    and intensity_array.size != 0 \
+                    and mz_array.size == intensity_array.size \
+                    and mz_array is not None \
+                    and intensity_array is not None:
+                scan_dict = populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict)
+                scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
+                list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
 
@@ -491,13 +688,13 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                 mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
                                                                                     mode,
                                                                                     frame,
+                                                                                    0,
                                                                                     int(frames_dict['NumScans']),
                                                                                     profile_bins,
                                                                                     encoding)
             elif exclude_mobility:
                 mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                     mode,
-                                                                    True,
                                                                     frame,
                                                                     0,
                                                                     int(frames_dict['NumScans']),
@@ -516,17 +713,31 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
         elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
             framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
                                                         maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
-            mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
-                                                                mode,
-                                                                True,
-                                                                frame,
-                                                                0,
-                                                                int(frames_dict['NumScans']),
-                                                                profile_bins,
-                                                                encoding)
+            if not exclude_mobility:
+                mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
+                                                                                    mode,
+                                                                                    frame,
+                                                                                    0,
+                                                                                    int(frames_dict['NumScans']),
+                                                                                    profile_bins,
+                                                                                    encoding)
+            elif exclude_mobility:
+                mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
+                                                                    mode,
+                                                                    frame,
+                                                                    0,
+                                                                    int(frames_dict['NumScans']),
+                                                                    profile_bins,
+                                                                    encoding)
 
-            if mz_array.size != 0 and intensity_array.size != 0 and mz_array.size == intensity_array.size:
+            if mz_array.size != 0 \
+                    and intensity_array.size != 0 \
+                    and mz_array.size == intensity_array.size \
+                    and mz_array is not None \
+                    and intensity_array is not None:
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
+                if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
+                    scan_dict['mobility_array'] = mobility_array
                 scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict)
                 list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts

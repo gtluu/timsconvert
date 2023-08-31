@@ -17,6 +17,19 @@ MSMS_PROFILE_SPECTRUM_FUNCTOR = CFUNCTYPE(None,
                                           c_uint32,
                                           POINTER(c_int32))
 
+MSMS_SPECTRUM_FUNCTION = CFUNCTYPE(None,
+                                   c_int64,
+                                   c_uint32,
+                                   POINTER(c_double),
+                                   POINTER(c_float),
+                                   POINTER(c_void_p))
+
+MSMS_PROFILE_SPECTRUM_FUNCTION = CFUNCTYPE(None,
+                                           c_int64,
+                                           c_uint32,
+                                           POINTER(c_int32),
+                                           POINTER(c_void_p))
+
 
 # modified from baf2sql.py
 class baf_data(object):
@@ -117,7 +130,7 @@ class baf_data(object):
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = list(self.frames[self.frames['AcquisitionKey'] == 1]['Id'].values)
+        self.ms1_frames = self.frames[self.frames['AcquisitionKey'] == 1]['Id'].values.tolist()
 
     def close_sql_connection(self):
         self.conn.close()
@@ -192,11 +205,11 @@ class tsf_data(object):
             index_buf = np.empty(shape=cnt, dtype=np.float64)
             intensity_buf = np.empty(shape=cnt, dtype=np.float32)
 
-            required_len = self.dll.tsf_read_line_spectrum(self.handle,
-                                                           frame_id,
-                                                           index_buf.ctypes.data_as(POINTER(c_double)),
-                                                           intensity_buf.ctypes.data_as(POINTER(c_float)),
-                                                           self.profile_buffer_size)
+            required_len = self.dll.tsf_read_line_spectrum_v2(self.handle,
+                                                              frame_id,
+                                                              index_buf.ctypes.data_as(POINTER(c_double)),
+                                                              intensity_buf.ctypes.data_as(POINTER(c_float)),
+                                                              self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
                 if required_len > 16777216:
@@ -205,7 +218,7 @@ class tsf_data(object):
             else:
                 break
 
-        return (index_buf[0:required_len], intensity_buf[0:required_len])
+        return index_buf[0:required_len], intensity_buf[0:required_len]
 
     # modified from Bruker tsfdata.py
     def read_profile_spectrum(self, frame_id):
@@ -213,10 +226,10 @@ class tsf_data(object):
             cnt = int(self.profile_buffer_size)
             intensity_buf = np.empty(shape=cnt, dtype=np.uint32)
 
-            required_len = self.dll.tsf_read_profile_spectrum(self.handle,
-                                                              frame_id,
-                                                              intensity_buf.ctypes.data_as(POINTER(c_uint32)),
-                                                              self.profile_buffer_size)
+            required_len = self.dll.tsf_read_profile_spectrum_v2(self.handle,
+                                                                 frame_id,
+                                                                 intensity_buf.ctypes.data_as(POINTER(c_uint32)),
+                                                                 self.profile_buffer_size)
 
             if required_len > self.profile_buffer_size:
                 if required_len > 16777216:
@@ -227,7 +240,7 @@ class tsf_data(object):
 
         index_buf = np.arange(0, intensity_buf.size, dtype=np.float64)
 
-        return (index_buf[0:required_len], intensity_buf[0:required_len])
+        return index_buf[0:required_len], intensity_buf[0:required_len]
 
     # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
@@ -255,7 +268,7 @@ class tsf_data(object):
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
+        self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
 
     def close_sql_connection(self):
         self.conn.close()
@@ -282,6 +295,11 @@ class tdf_data(object):
         self.pasefframemsmsinfo = None
         self.framemsmsinfo = None
         self.precursors = None
+        self.diaframemsmsinfo = None
+        self.diaframemsmswindowgroups = None
+        self.diaframemsmswindows = None
+        self.prmframemsmsinfo = None
+        self.prmtargets = None
         self.source_file = bruker_d_folder_name
 
         self.get_global_metadata()
@@ -291,10 +309,22 @@ class tdf_data(object):
             self.get_maldiframeinfo_table()
             self.get_framemsmsinfo_table()
         else:
-            # Only parse these tables if data acquired in ddaPASEF mode (MSMS Type == 8).
+            # Only parse these tables if data acquired in ddaPASEF mode (MsMsType == 8).
             if 8 in list(set(self.frames['MsMsType'].values.tolist())):
                 self.get_pasefframemsmsinfo_table()
                 self.get_precursors_table()
+            # Only parse these tables if data acquired in diaPASEF mode (MsMsType == 9).
+            if 9 in list(set(self.frames['MsMsType'].values.tolist())):
+                self.get_diaframemsmsinfo_table()
+                self.get_diaframemsmswindows_table()
+            # Only parse these tables if data acquired in bbCID mode (ScanMode == 4) or MRM mode (ScanMode == 2).
+            if 4 in list(set(self.frames['ScanMode'].values.tolist())) \
+                    or 2 in list(set(self.frames['ScanMode'].values.tolist())):
+                self.get_framemsmsinfo_table()
+            # Only parse these tables if data acquired in prm-PASEF mode (ScanMode == 10).
+            if 10 in list(set(self.frames['ScanMode'].values.tolist())):
+                self.get_prmframemsmsinfo_table()
+                self.get_prmtargets_table()
             self.subset_ms1_frames()
 
         self.close_sql_connection()
@@ -371,6 +401,7 @@ class tdf_data(object):
         def callback_for_dll(precursor_id, num_peaks, mz_values, area_values):
             result[precursor_id] = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
+        # TODO: update this function to v2
         rc = self.dll.tims_read_pasef_msms(self.handle,
                                            precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
                                            len(precursor_list),
@@ -378,23 +409,22 @@ class tdf_data(object):
 
         return result
 
-    # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
-    if TDF_SDK_VERSION == 'sdk2871' or TDF_SDK_VERSION == 'sdk270':
-        def read_pasef_profile_msms(self, precursor_list):
-            precursors_for_dll = np.array(precursor_list, dtype=np.int64)
+    def read_pasef_profile_msms(self, precursor_list):
+        precursors_for_dll = np.array(precursor_list, dtype=np.int64)
 
-            result = {}
+        result = {}
 
-            @MSMS_PROFILE_SPECTRUM_FUNCTOR
-            def callback_for_dll(precursor_id, num_points, intensity_values):
-                result[precursor_id] = intensity_values[0:num_points]
+        @MSMS_PROFILE_SPECTRUM_FUNCTOR
+        def callback_for_dll(precursor_id, num_points, intensity_values):
+            result[precursor_id] = intensity_values[0:num_points]
 
-            rc = self.dll.tims_read_pasef_profile_msms(self.handle,
-                                                       precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
-                                                       len(precursor_list),
-                                                       callback_for_dll)
+        # TODO: update this function to v2
+        rc = self.dll.tims_read_pasef_profile_msms(self.handle,
+                                                   precursors_for_dll.ctypes.data_as(POINTER(c_int64)),
+                                                   len(precursor_list),
+                                                   callback_for_dll)
 
-            return result
+        return result
 
     def read_pasef_centroid_msms_for_frame(self, frame_id):
         result = {}
@@ -403,25 +433,25 @@ class tdf_data(object):
         def callback_for_dll(precursor_id, num_peaks, mz_values, area_values):
             result[precursor_id] = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
+        # TODO: update this function to v2
         rc = self.dll.tims_read_pasef_msms_for_frame(self.handle, frame_id, callback_for_dll)
 
         return result
 
-    # Only define if using SDK 2.8.7.1 or SDK 2.7.0.
-    if TDF_SDK_VERSION == 'sdk2871' or TDF_SDK_VERSION == 'sdk270':
-        def read_pasef_profile_msms_for_frame(self, frame_id):
-            result = {}
+    def read_pasef_profile_msms_for_frame(self, frame_id):
+        result = {}
 
-            @MSMS_PROFILE_SPECTRUM_FUNCTOR
-            def callback_for_dll(precursor_id, num_points, intensity_values):
-                result[precursor_id] = intensity_values[0:num_points]
+        @MSMS_PROFILE_SPECTRUM_FUNCTOR
+        def callback_for_dll(precursor_id, num_points, intensity_values):
+            result[precursor_id] = intensity_values[0:num_points]
 
-            rc = self.dll.tims_read_pasef_profile_msms_for_frame(self.handle, frame_id, callback_for_dll)
+        # TODO: update this function to v2
+        rc = self.dll.tims_read_pasef_profile_msms_for_frame(self.handle, frame_id, callback_for_dll)
 
-            return result
+        return result
 
     # Only define extract_centroided_spectrum_for_frame and extract_profile_spectrum_for_frame if using SDK 2.8.7.1.
-    if TDF_SDK_VERSION == 'sdk2871':
+    if TDF_SDK_VERSION == 'sdk22104':
         def extract_centroided_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
             result = None
 
@@ -430,12 +460,12 @@ class tdf_data(object):
                 nonlocal result
                 result = (mz_values[0:num_peaks], area_values[0:num_peaks])
 
-            rc = self.dll.tims_extract_centroided_spectrum_for_frame(self.handle,
-                                                                     frame_id,
-                                                                     scan_begin,
-                                                                     scan_end,
-                                                                     callback_for_dll,
-                                                                     None)
+            rc = self.dll.tims_extract_centroided_spectrum_for_frame_v2(self.handle,
+                                                                        frame_id,
+                                                                        scan_begin,
+                                                                        scan_end,
+                                                                        callback_for_dll,
+                                                                        None)
 
             return result
 
@@ -553,9 +583,31 @@ class tdf_data(object):
         precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]
         self.precursors['Mobility'] = precursor_mobility_values
 
+    # Get DiaFrameMsMsInfo table from analysis.tdf SQL database.
+    def get_diaframemsmsinfo_table(self):
+        diaframemsmsinfo_query = 'SELECT * FROM DiaFrameMsMsInfo'
+        self.diaframemsmsinfo = pd.read_sql_query(diaframemsmsinfo_query, self.conn)
+
+    # Get DiaFrameMsMsWindows table from analysis.tdf SQL database.
+    def get_diaframemsmswindows_table(self):
+        diaframemsmswindows_query = 'SELECT * FROM DiaFrameMsMsWindows'
+        self.diaframemsmswindows = pd.read_sql_query(diaframemsmswindows_query, self.conn)
+
+    # Get PrmFrameMsMsInfo table from analysis.tdf SQL database.
+    def get_prmframemsmsinfo_table(self):
+        prmframemsmsinfo_query = 'SELECT * FROM PrmFrameMsMsInfo'
+        self.prmframemsmsinfo = pd.read_sql_query(prmframemsmsinfo_query, self.conn)
+
+    # Get PrmTargets table from analysis.tdf SQL database.
+    def get_prmtargets_table(self):
+        prmtargets_query = 'SELECT * FROM PrmTargets'
+        self.prmtargets = pd.read_sql_query(prmtargets_query, self.conn)
+
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
-        self.ms1_frames = list(self.frames[self.frames['MsMsType'] == 0]['Id'].values)
+        self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
+        if len(self.ms1_frames) > 0 and self.ms1_frames[0] != 1:
+            self.ms1_frames.insert(0, 1)
 
     def close_sql_connection(self):
         self.conn.close()

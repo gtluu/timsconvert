@@ -21,17 +21,8 @@ params.maldi_plate_map = ''
 params.imzml_mode = 'processed'
 
 // timsconvert system params
-params.lcms_backend = 'timsconvert'
 params.chunk_size = 10
 params.verbose = 'True'
-
-// tdf2mzml params
-params.start_frame = -1
-params.end_frame = -1
-params.precision = 10.0
-params.ms1_threshold = 100
-params.ms2_threshold = 10
-params.ms2_nlargest = -1
 
 // local or GNPS server
 // choose whether to run locally or via GNPS servers ('local' or 'server')
@@ -73,15 +64,8 @@ process convert {
             ${barebones_metadata_flag} \
             --maldi_output_file ${params.maldi_output_file} \
             --imzml_mode ${params.imzml_mode} \
-            --lcms_backend ${params.lcms_backend} \
             --chunk_size ${params.chunk_size} \
-            ${verbose_flag} \
-            --start_frame ${params.start_frame} \
-            --end_frame ${params.end_frame} \
-            --precision ${params.precision} \
-            --ms1_threshold ${params.ms1_threshold} \
-            --ms2_threshold ${params.ms2_threshold} \
-            --ms2_nlargest ${params.ms2_nlargest}
+            ${verbose_flag}
             """
         } else if (params.maldi_plate_map != '') {
             """
@@ -98,15 +82,8 @@ process convert {
             --maldi_output_file ${params.maldi_output_file} \
             --maldi_plate_map = ${params.maldi_plate_map} \
             --imzml_mode ${params.imzml_mode} \
-            --lcms_backend ${params.lcms_backend} \
             --chunk_size ${params.chunk_size} \
-            ${verbose_flag} \
-            --start_frame ${params.start_frame} \
-            --end_frame ${params.end_frame} \
-            --precision ${params.precision} \
-            --ms1_threshold ${params.ms1_threshold} \
-            --ms2_threshold ${params.ms2_threshold} \
-            --ms2_nlargest ${params.ms2_nlargest}
+            ${verbose_flag}
             """
         }
     } else if (params.location == 'server') {

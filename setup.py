@@ -8,5 +8,5 @@ setup(
     license='Apache License',
     author='Gordon T. Luu',
     author_email='gtluu912@gmail.com',
-    description='TIMSCONVERT: A simple workflow for conversion of trapped ion mobility data to open-source formats'
+    description='TIMSCONVERT: A workflow to convert trapped ion mobility data to open formats'
 )

@@ -7,6 +7,6 @@ setup(
     url='https://github.com/gtluu/timsconvert',
     license='Apache License',
     author='Gordon T. Luu',
-    author_email='goluu@ucsc.edu',
+    author_email='gtluu912@gmail.com',
     description='TIMSCONVERT: A simple workflow for conversion of trapped ion mobility data to open-source formats'
 )

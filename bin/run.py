@@ -1,11 +1,13 @@
 from timsconvert import *
 
 
-def run_timsconvert(args):
+def main():
+    # Parse arguments.
+    args = get_args()
     # Args check.
     args_check(args)
     # Check arguments.
-    args['version'] = '1.3.1'
+    args['version'] = '1.4.0'
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
@@ -215,8 +217,5 @@ def run_timsconvert(args):
 
 
 if __name__ == '__main__':
-    # Parse arguments.
-    args = get_args()
-
     # Run.
-    run_timsconvert(args)
+    main()

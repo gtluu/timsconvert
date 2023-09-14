@@ -7,6 +7,13 @@ from timsconvert.timestamp import *
 
 
 def arg_descriptions():
+    """
+    Return a dict of command line parameters and their descriptions where the keys are arguments and values are
+    parameter descriptions.
+
+    :return: The parameter description dict.
+    :rtype: dict
+    """
     descriptions = {'input': 'Filepath for Bruker .d file containing TSF or TDF file or directory containing multiple '
                              'Bruker .d files.',
                     'outdir': 'Path to folder in which to write output file(s). Default = none',
@@ -42,6 +49,14 @@ def arg_descriptions():
 
 # Parse arguments for CLI usage
 def get_args(server=False):
+    """
+    Parse command line parameters, including required, optional, and system parameters.
+
+    :param server: If enabled, allows the user to specify a custom url using the "--url" parameter, defaults to False
+    :type server: bool
+    :return: Arguments with default or user specified values.
+    :rtype: dict
+    """
     desc = arg_descriptions()
 
     # Initialize parser.
@@ -49,35 +64,79 @@ def get_args(server=False):
 
     # Require Arguments
     required = parser.add_argument_group('Required Parameters')
-    required.add_argument('--input', help=desc['input'], required=True, type=str)
+    required.add_argument('--input',
+                          help=desc['input'],
+                          required=True,
+                          type=str)
 
     # Optional Arguments
     optional = parser.add_argument_group('Optional Parameters')
-    optional.add_argument('--outdir', help=desc['outdir'], default='', type=str)
-    optional.add_argument('--outfile', help=desc['outfile'], default='', type=str)
-    optional.add_argument('--mode', help=desc['mode'], default='centroid', type=str, choices=['raw', 'centroid', 'profile'])
-    optional.add_argument('--compression', help=desc['compression'], default='zlib', type=str, choices=['zlib', 'none'])
+    optional.add_argument('--outdir',
+                          help=desc['outdir'],
+                          default='',
+                          type=str)
+    optional.add_argument('--outfile',
+                          help=desc['outfile'],
+                          default='',
+                          type=str)
+    optional.add_argument('--mode',
+                          help=desc['mode'],
+                          default='centroid',
+                          type=str,
+                          choices=['raw', 'centroid', 'profile'])
+    optional.add_argument('--compression',
+                          help=desc['compression'],
+                          default='zlib',
+                          type=str,
+                          choices=['zlib', 'none'])
+    optional.add_argument('--ms2_only',
+                          help=desc['ms2_only'],
+                          action='store_true')
+    optional.add_argument('--exclude_mobility',
+                          help=desc['exclude_mobility'],
+                          action='store_true')
+    optional.add_argument('--encoding',
+                          help=desc['encoding'],
+                          default=64,
+                          type=int,
+                          choices=[32, 64])
+    optional.add_argument('--barebones_metadata',
+                          help=desc['barebones_metadata'],
+                          action='store_true')
+    optional.add_argument('--profile_bins',
+                          help=desc['profile_bins'],
+                          default=0,
+                          type=int)
+    optional.add_argument('--maldi_output_file',
+                          help=desc['maldi_output_file'],
+                          default='combined',
+                          type=str,
+                          choices=['combined', 'individual', 'sample'])
+    optional.add_argument('--maldi_plate_map',
+                          help=desc['maldi_plate_map'],
+                          default='',
+                          type=str)
+    optional.add_argument('--imzml_mode',
+                          help=desc['imzml_mode'],
+                          default='processed',
+                          type=str,
+                          choices=['processed', 'continuous'])
 
-    # TIMSCONVERT Arguments
-    timsconvert_args = parser.add_argument_group('TIMSCONVERT Optional Parameters')
-    timsconvert_args.add_argument('--ms2_only', help=desc['ms2_only'], action='store_true')
-    timsconvert_args.add_argument('--exclude_mobility', help=desc['exclude_mobility'], action='store_true')
-    timsconvert_args.add_argument('--encoding', help=desc['encoding'], default=64, type=int, choices=[32, 64])
-    timsconvert_args.add_argument('--barebones_metadata', help=desc['barebones_metadata'], action='store_true')
-    timsconvert_args.add_argument('--profile_bins', help=desc['profile_bins'], default=0, type=int)
-    timsconvert_args.add_argument('--maldi_output_file', help=desc['maldi_output_file'], default='combined', type=str,
-                                  choices=['combined', 'individual', 'sample'])
-    timsconvert_args.add_argument('--maldi_plate_map', help=desc['maldi_plate_map'], default='', type=str)
-    timsconvert_args.add_argument('--imzml_mode', help=desc['imzml_mode'], default='processed', type=str,
-                                  choices=['processed', 'continuous'])
-
-    # TIMSCONVERT System Arguments
-    system = parser.add_argument_group('TIMSCONVERT System Parameters')
-    system.add_argument('--chunk_size', help=desc['chunk_size'], default=10, type=int)
-    system.add_argument('--verbose', help=desc['verbose'], action='store_true')
+    # System Arguments
+    system = parser.add_argument_group('System Parameters')
+    system.add_argument('--chunk_size',
+                        help=desc['chunk_size'],
+                        default=10,
+                        type=int)
+    system.add_argument('--verbose',
+                        help=desc['verbose'],
+                        action='store_true')
     if server:
         # change to GNPS URL later
-        system.add_argument('--url', help=desc['url'], default='http://localhost:5000', type=str)
+        system.add_argument('--url',
+                            help=desc['url'],
+                            default='http://localhost:5000',
+                            type=str)
 
     # Return parser
     arguments = parser.parse_args()
@@ -86,6 +145,14 @@ def get_args(server=False):
 
 # Checks to ensure arguments are valid.
 def args_check(args):
+    """
+    Check relevant arguments to ensure user input values are valid.
+
+    :param args: Arguments obtained from timsconvert.arguments.get_args().
+    :type: dict
+    :return: None
+    :rtype: None
+    """
     # Check if input directory exists.
     if not os.path.exists(args['input']):
         print(get_timestamp() + ':' + 'Input path does not exist...')
@@ -117,4 +184,3 @@ def args_check(args):
             print(get_timestamp() + ':' + 'URL is not valid or server is down...')
             print(get_timestamp() + ':' + 'Exiting...')
             response.raise_for_status()
-    return args

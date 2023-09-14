@@ -149,7 +149,7 @@ def args_check(args):
     Check relevant arguments to ensure user input values are valid.
 
     :param args: Arguments obtained from timsconvert.arguments.get_args().
-    :type: dict
+    :type args: dict
     :return: None
     :rtype: None
     """

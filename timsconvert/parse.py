@@ -63,7 +63,7 @@ def get_maldi_coords(data, maldiframeinfo_dict):
     Get tuple of MALDI coordinates from analysis.tsf/analysis.tdf metadata.
 
     :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
-    :type data: timsconvert.classes.tsf_data or timsconvert.classes.tdf_data
+    :type data: timsconvert.classes.tsf_data | timsconvert.classes.tdf_data
     :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tsf/analysis.tdf database.
     :type maldiframeinfo_dict: dict
     :return: x-y (or x-y-z if available) coordinates for the current spectrum.
@@ -361,7 +361,7 @@ def populate_scan_dict_w_maldi_metadata(scan_dict, data, frames_dict, maldiframe
     :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
     :type scan_dict: dict
     :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
-    :type data: timsconvert.classes.tsf_data or timsconvert.classes.tdf_data
+    :type data: timsconvert.classes.tsf_data | timsconvert.classes.tdf_data
     :param frames_dict: A row from the Frames table in analysis.tdf/analysis.tsf database.
     :type frames_dict: dict
     :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tdf/analysis.tsf database.

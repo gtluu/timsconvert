@@ -7,6 +7,14 @@ import logging
 
 
 def get_encoding_dtype(encoding):
+    """
+    Use "encoding" command line parameter to determine numpy dtype.
+
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :return: Numpy dtype, either float64 or float32
+    :rtype: numpy.dtype
+    """
     if encoding == 32:
         return np.float32
     elif encoding == 64:
@@ -14,6 +22,17 @@ def get_encoding_dtype(encoding):
 
 
 def get_centroid_status(mode, exclude_mobility=None):
+    """
+    Use "mode" command line parameter to determine whether output data is centroided in psims compatible format.
+
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :return: Dictionary containing standard spectrum data.
+    :return: (centroided status (bool), exclude_mobility status (bool))
+    :rtype: tuple
+    """
     if mode == 'profile':
         centroided = False
         exclude_mobility = True
@@ -23,6 +42,14 @@ def get_centroid_status(mode, exclude_mobility=None):
 
 
 def get_baf_spectrum_polarity(acquisitionkey_dict):
+    """
+    Use BAF metadata to transcribe polarity into psims compatible format.
+
+    :param acquisitionkey_dict: A row from the AcquisitionKey table in analysis.sqlite database for BAF files.
+    :type acquisitionkey_dict: dict
+    :return: "+" for positive mode or "-" for negative mode.
+    :rtype: str
+    """
     # Polarity == 0 -> 'positive'; Polarity == 1 -> 'negative"?
     if int(acquisitionkey_dict['Polarity']) == 0:
         polarity = '+'
@@ -32,6 +59,16 @@ def get_baf_spectrum_polarity(acquisitionkey_dict):
 
 
 def get_maldi_coords(data, maldiframeinfo_dict):
+    """
+    Get tuple of MALDI coordinates from analysis.tsf/analysis.tdf metadata.
+
+    :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
+    :type data: timsconvert.classes.tsf_data or timsconvert.classes.tdf_data
+    :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tsf/analysis.tdf database.
+    :type maldiframeinfo_dict: dict
+    :return: x-y (or x-y-z if available) coordinates for the current spectrum.
+    :rtype: tuple
+    """
     if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
         coords = maldiframeinfo_dict['SpotName']
     elif data.meta_data['MaldiApplicationType'] == 'Imaging':
@@ -43,6 +80,12 @@ def get_maldi_coords(data, maldiframeinfo_dict):
 
 
 def init_scan_dict():
+    """
+    Initialize dictionary to store spectrum data. All values are initialized as None.
+
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     return {'scan_number': None,
             'scan_type': None,
             'ms_level': None,
@@ -74,6 +117,20 @@ def init_scan_dict():
 
 
 def populate_scan_dict_w_baf_metadata(scan_dict, frames_dict, acquisitionkey_dict, mode):
+    """
+    Populate spectrum data dictionary with global metadata for BAF files.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param frames_dict: A row from the Spectra table in analysis.sqlite database for BAF files.
+    :type frames_dict: dict
+    :param acquisitionkey_dict: A row from the AcquisitionKey table in analysis.sqlite database for BAF files.
+    :type acquisitionkey_dict: dict
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['polarity'] = get_baf_spectrum_polarity(acquisitionkey_dict)
     scan_dict['centroided'] = get_centroid_status(mode)[0]
     scan_dict['retention_time'] = float(frames_dict['Rt']) / 60
@@ -81,6 +138,18 @@ def populate_scan_dict_w_baf_metadata(scan_dict, frames_dict, acquisitionkey_dic
 
 
 def populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array):
+    """
+    Populate spectrum data dictionary with binary data arrays and related metadata.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param mz_array: Array containing m/z values.
+    :type mz_array: numpy.array
+    :param intensity_array: Array containing intensity values.
+    type intensity_array: numpy.array
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['mz_array'] = mz_array
     scan_dict['intensity_array'] = intensity_array
     scan_dict['total_ion_current'] = sum(intensity_array)
@@ -93,6 +162,17 @@ def populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array):
 
 
 def populate_scan_dict_w_ms1(scan_dict, frame):
+    """
+    Populate spectrum data dictionary with MS1 level metadata.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite
+    database.
+    :type frame: int
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MS1 spectrum'
     scan_dict['ms_level'] = 1
     scan_dict['frame'] = frame
@@ -100,6 +180,24 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
 
 
 def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=None, framemsmsinfo_dict=None):
+    """
+    Populate spectrum data dictionary with MS2 level metadata when using bbCID or isCID mode.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite
+    database.
+    :type frame: int
+    :param schema: Schema as determined by timsconvert.data_input.schema detection, either TDF, TSF, or BAF.
+    :type schema: str
+    :param baf_data: baf_data object containing metadata from analysis.sqlite database, defaults to None.
+    :type baf_data: timsconvert.classes.baf_data
+    :param framemsmsinfo_dict: A row from the FrameMsmsInfo table in analysis.tsf/analysis.tdf database, defaults to
+    None.
+    :type framemsmsinfo_dict: dict
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     if schema == 'TSF' or schema == 'TDF':
@@ -114,6 +212,20 @@ def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=Non
 
 
 def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
+    """
+    Populate spectrum data dictionary with MS2 level metadata from BAF files.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param baf_data: baf_data object containing metadata from analysis.sqlite database.
+    :type baf_data: timsconvert.classes.baf_data
+    :param frames_dict: A row from the Spectra table in analysis.sqlite database.
+    :type frames_dict: dict
+    :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite.
+    :type frame: int
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     scan_dict['target_mz'] = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
@@ -136,6 +248,20 @@ def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
 
 
 def populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility=None):
+    """
+    Populate spectrum data dictionary with global metadata for TDF and TSF files.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param frames_dict: A row from the Frames table in analysis.tdf/analysis.tsf database.
+    :type frames_dict: dict
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['polarity'] = frames_dict['Polarity']
     scan_dict['centroided'] = get_centroid_status(mode, exclude_mobility)[0]
     # For ddaPASEF, parent frame RT is used because a precursor spectrum is collected over multiple scans.
@@ -144,6 +270,20 @@ def populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exc
 
 
 def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasefframemsmsinfo_dicts):
+    """
+    Populate spectrum data dictionary with MS2 level metadata when using ddaPASEF mode.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
+    :type tdf_data: timsconvert.classes.tdf_data
+    :param precursor_dict: A row from the Precursor table in analysis.tdf/analysis.tsf database.
+    :type precursor_dict: dict
+    :param pasefframemsmsinfo_dicts: A row from the PasefFrameMsmsInfo table in analysis.tdf/analysis.tsf database.
+    :type pasefframemsmsinfo_dicts: dict
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     scan_dict['target_mz'] = float(precursor_dict['AverageMz'])
@@ -165,6 +305,16 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
 
 
 def populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict):
+    """
+    Populate spectrum data dictionary with MS2 level metadata when using diaPASEF mode.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param diaframemsmswindows_dict: A row from the DiaFrameMsmsWindows table in analysis.tdf/analysis.tsf database.
+    :type diaframemsmswindows_dict: dict
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     scan_dict['target_mz'] = float(diaframemsmswindows_dict['IsolationMz'])
@@ -176,6 +326,18 @@ def populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict):
 
 
 def populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict):
+    """
+    Populate spectrum data dictionary with MS2 level metadata when using diaPASEF mode.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param prmframemsmsinfo_dict: A row from the PrmFrameMsmsInfo table in analysis.tdf/analysis.tsf database.
+    :type prmframemsmsinfo_dict: dict
+    :param prmtargets_dict: A row from the PrmTargets table in analysis.tdf/analysis.tsf database.
+    :type prmtargets_dict: dict
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     scan_dict['target_mz'] = float(prmframemsmsinfo_dict['IsolationMz'])
@@ -193,6 +355,22 @@ def populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtarge
 
 
 def populate_scan_dict_w_maldi_metadata(scan_dict, data, frames_dict, maldiframeinfo_dict, frame, mode):
+    """
+    Populate spectrum data dictionary with global metadata from MALDI TDF/TSF files.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
+    :type data: timsconvert.classes.tsf_data or timsconvert.classes.tdf_data
+    :param frames_dict: A row from the Frames table in analysis.tdf/analysis.tsf database.
+    :type frames_dict: dict
+    :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tdf/analysis.tsf database.
+    :type maldiframeinfo_dict: dict
+    :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
+    :type frame: int
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    """
     scan_dict['coord'] = get_maldi_coords(data, maldiframeinfo_dict)
     scan_dict['polarity'] = frames_dict['Polarity']
     scan_dict['centroided'] = get_centroid_status(mode)[0]
@@ -202,6 +380,18 @@ def populate_scan_dict_w_maldi_metadata(scan_dict, data, frames_dict, maldiframe
 
 
 def populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=False):
+    """
+    Populate spectrum data dictionary with MS2 level metadata from TSF files.
+
+    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :type scan_dict: dict
+    :param framemsmsinfo_dict: A row from the FrameMsmsInfo table in analysis.tdf/analysis.tsf database.
+    :type framemsmsinfo_dict: dict
+    :param lcms: Whether the data is from an lcms dataset, defaults to False
+    :type lcms: bool
+    :return: Dictionary containing standard spectrum data.
+    :rtype: dict
+    """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
     scan_dict['target_mz'] = float(framemsmsinfo_dict['TriggerMass'])

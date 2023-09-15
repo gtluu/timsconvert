@@ -182,8 +182,6 @@ Optional Parameters
                           filename and overwrite each other. Default is none.
 --mode                    Choose whether export to spectra in "raw" or "centroid" formats. Defaults to "centroid".
 --compression             Choose between ZLIB compression ("zlib") or no compression ("none"). Defaults to "zlib".
-
-TIMSCONVERT Optional Parameters
 --ms2_only                Boolean flag that specifies only MS2 spectra should be converted.
 --exclude_mobility        Boolean flag used to exclude trapped ion mobility spectrometry data from exported data. 
                           Precursor ion mobility information is still exported.
@@ -200,7 +198,7 @@ TIMSCONVERT Optional Parameters
 --imzml_mode              Whether .imzML files should be written in "processed" or "continuous" mode. Defaults to 
                           "processed".
 
-TIMSCONVERT System Parameters
+System Parameters
 --chunk_size              Relative size of chunks of spectral data that are parsed and subsequently written at once. 
                           Increasing parses and write more spectra at once but increases RAM usage. Default = 10.
 --verbose                 Boolean flag to determine whether to print logging output.

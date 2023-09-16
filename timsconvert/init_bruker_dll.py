@@ -55,7 +55,7 @@ def init_tdf_sdk_dll(bruker_dll_file_name: str = TDF_SDK_DLL_FILE_NAME):
     Initialize select functions from Bruker's TDF-SDK library using ctypes.
 
     :param bruker_dll_file_name: Path to TDF-SDK library, defaults to path automatically detected in
-    timsconvert.constants.
+        timsconvert.constants.
     :type bruker_dll_file_name: str
     :return: Handle for TDF-SDK library.
     :rtype: CDLL object

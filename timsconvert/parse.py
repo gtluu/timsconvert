@@ -63,7 +63,7 @@ def get_maldi_coords(data, maldiframeinfo_dict):
     Get tuple of MALDI coordinates from analysis.tsf/analysis.tdf metadata.
 
     :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
-    :type data: timsconvert.classes.tsf_data | timsconvert.classes.tdf_data
+    :type data: timsconvert.classes.TsfData | timsconvert.classes.TdfData
     :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tsf/analysis.tdf database.
     :type maldiframeinfo_dict: dict
     :return: x-y (or x-y-z if available) coordinates for the current spectrum.
@@ -186,12 +186,12 @@ def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=Non
     :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
     :type scan_dict: dict
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite
-    database.
+        database.
     :type frame: int
     :param schema: Schema as determined by timsconvert.data_input.schema detection, either TDF, TSF, or BAF.
     :type schema: str
     :param baf_data: baf_data object containing metadata from analysis.sqlite database, defaults to None.
-    :type baf_data: timsconvert.classes.baf_data | None
+    :type baf_data: timsconvert.classes.BafData | None
     :param framemsmsinfo_dict: A row from the FrameMsmsInfo table in analysis.tsf/analysis.tdf database, defaults to
     None.
     :type framemsmsinfo_dict: dict | None
@@ -218,7 +218,7 @@ def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
     :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
     :type scan_dict: dict
     :param baf_data: baf_data object containing metadata from analysis.sqlite database.
-    :type baf_data: timsconvert.classes.baf_data
+    :type baf_data: timsconvert.classes.BafData
     :param frames_dict: A row from the Spectra table in analysis.sqlite database.
     :type frames_dict: dict
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite.
@@ -276,7 +276,7 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
     :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
     :type scan_dict: dict
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.tdf_data
+    :type tdf_data: timsconvert.classes.TdfData
     :param precursor_dict: A row from the Precursor table in analysis.tdf/analysis.tsf database.
     :type precursor_dict: dict
     :param pasefframemsmsinfo_dicts: A row from the PasefFrameMsmsInfo table in analysis.tdf/analysis.tsf database.
@@ -361,7 +361,7 @@ def populate_scan_dict_w_maldi_metadata(scan_dict, data, frames_dict, maldiframe
     :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
     :type scan_dict: dict
     :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
-    :type data: timsconvert.classes.tsf_data | timsconvert.classes.tdf_data
+    :type data: timsconvert.classes.TsfData | timsconvert.classes.TdfData
     :param frames_dict: A row from the Frames table in analysis.tdf/analysis.tsf database.
     :type frames_dict: dict
     :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tdf/analysis.tsf database.
@@ -437,7 +437,7 @@ def extract_baf_spectrum(baf_data, frames_dict, mode, profile_bins, encoding):
     "raw" mode is chosen, centroid mode will automatically be used.
 
     :param baf_data: baf_data object containing metadata from analysis.sqlite database.
-    :type baf_data: timsconvert.classes.baf_data
+    :type baf_data: timsconvert.classes.BafData
     :param frames_dict: A row from the Spectra table in analysis.sqlite database.
     :type frames_dict: dict
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
@@ -470,7 +470,7 @@ def extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding):
     tsf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tsf_data: tsf_data object containing metadata from analysis.tsf database.
-    :type tsf_data: timsconvert.classes.tsf_data
+    :type tsf_data: timsconvert.classes.TsfData
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
@@ -502,7 +502,7 @@ def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile
     tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.tdf_data
+    :type tdf_data: timsconvert.classes.TdfData
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
@@ -561,7 +561,7 @@ def extract_3d_tdf_spectrum(tdf_data, frame, scan_begin, scan_end):
     tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.tdf_data
+    :type tdf_data: timsconvert.classes.TdfData
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
     :type frame: int
     :param scan_begin: Beginning scan number (corresponding to 1/K0 value) within frame.
@@ -569,7 +569,7 @@ def extract_3d_tdf_spectrum(tdf_data, frame, scan_begin, scan_end):
     :param scan_end: Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).
     :type scan_end: int
     :return: Tuple of mz_array (np.array), intensity_array (np.array), and mobility_array (np.array) or
-    (None, None, None) if spectra are empty.
+        (None, None, None) if spectra are empty.
     :rtype: tuple[numpy.array | None]
     """
     list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
@@ -612,7 +612,7 @@ def extract_ddapasef_precursor_spectrum(tdf_data, pasefframemsmsinfo_dicts, mode
     tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.tdf_data
+    :type tdf_data: timsconvert.classes.TdfData
     :param pasefframemsmsinfo_dicts: A row from the PasefFrameMsmsInfo table in analysis.tdf database.
     :type pasefframemsmsinfo_dicts: dict
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
@@ -669,7 +669,7 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     MS/MS, or bbCID MS/MS mode in otofControl.
 
     :param baf_data: baf_data object containing metadata from analysis.sqlite database.
-    :type baf_data: timsconvert.classes.baf_data
+    :type baf_data: timsconvert.classes.BafData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -724,7 +724,7 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     MRM MS/MS, or bbCID MS/MS modein timsControl.
 
     :param tsf_data: tsf_data object containing metadata from analysis.tsf database.
-    :type tsf_data: timsconvert.classes.tsf_data
+    :type tsf_data: timsconvert.classes.TsfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -738,7 +738,7 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     :param encoding: Encoding command line parameter, either "64" or "32".
     :type encoding: int
     :return: Tuple of (list of dictionaries containing MS1 spectrum data, list of dictionaries containing MS/MS
-    spectrum data).
+        spectrum data).
     :rtype: tuple[list[dict]]
     """
     list_of_parent_scans = []
@@ -779,7 +779,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
     MS/MS, bbCID MS/MS, MRM MS/MS, or prmPASEF MS/MS mode in timsControl.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.tdf_data
+    :type tdf_data: timsconvert.classes.TdfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -795,7 +795,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
     :param encoding: Encoding command line parameter, either "64" or "32".
     :type encoding: int
     :return: Tuple of (list of dictionaries containing MS1 spectrum data, list of dictionaries containing MS/MS
-    spectrum data).
+        spectrum data).
     :rtype: tuple[list[dict]]
     """
     list_of_parent_scans = []
@@ -999,7 +999,7 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_b
     mode in timsControl.
 
     :param tsf_data: tsf_data object containing metadata from analysis.tsf database.
-    :type tsf_data: timsconvert.classes.tsf_data
+    :type tsf_data: timsconvert.classes.TsfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -1049,7 +1049,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
     mode in timsControl.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.tdf_data
+    :type tdf_data: timsconvert.classes.TdfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).

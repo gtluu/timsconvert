@@ -6,26 +6,16 @@
 TIMSCONVERT: A workflow to convert trapped ion mobility data to open formats
 ============================================================================
 
+Contents
+--------
 .. toctree::
+   About <about>
+   Installation <installation>
+   Local Usage <local>
+   GNPS Usage <gnps>
+   TIMSCONVERT Source Code <timsconvert>
    :maxdepth: 2
    :caption: Contents:
-
-About
------
-*Under Construction*
-
-Installation
-------------
-*Under Construction*
-
-Local Usage
------------
-*Under Construction*
-
-GNPS
-----
-*Under Construction*
-
 
 Indices and Tables
 ------------------

@@ -150,8 +150,6 @@ def args_check(args):
 
     :param args: Arguments obtained from timsconvert.arguments.get_args().
     :type args: dict
-    :return: None
-    :rtype: None
     """
     # Check if input directory exists.
     if not os.path.exists(args['input']):

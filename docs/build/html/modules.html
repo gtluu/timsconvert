@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>timsconvert &#8212; TIMSCONVERT 1.4.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="timsconvert">
+<h1>timsconvert<a class="headerlink" href="#timsconvert" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="timsconvert.html">timsconvert package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.arguments">timsconvert.arguments module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.arguments.arg_descriptions"><code class="docutils literal notranslate"><span class="pre">arg_descriptions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.arguments.args_check"><code class="docutils literal notranslate"><span class="pre">args_check()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.arguments.get_args"><code class="docutils literal notranslate"><span class="pre">get_args()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.classes">timsconvert.classes module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data"><code class="docutils literal notranslate"><span class="pre">baf_data</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.close_sql_connection"><code class="docutils literal notranslate"><span class="pre">baf_data.close_sql_connection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_acquisitionkeys_table"><code class="docutils literal notranslate"><span class="pre">baf_data.get_acquisitionkeys_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_array_num_elements"><code class="docutils literal notranslate"><span class="pre">baf_data.get_array_num_elements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_properties"><code class="docutils literal notranslate"><span class="pre">baf_data.get_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_spectra_table"><code class="docutils literal notranslate"><span class="pre">baf_data.get_spectra_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_sqlite_cache_filename"><code class="docutils literal notranslate"><span class="pre">baf_data.get_sqlite_cache_filename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_steps_table"><code class="docutils literal notranslate"><span class="pre">baf_data.get_steps_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.get_variables_table"><code class="docutils literal notranslate"><span class="pre">baf_data.get_variables_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.read_array_double"><code class="docutils literal notranslate"><span class="pre">baf_data.read_array_double()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.baf_data.subset_ms1_frames"><code class="docutils literal notranslate"><span class="pre">baf_data.subset_ms1_frames()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data"><code class="docutils literal notranslate"><span class="pre">tdf_data</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.close_sql_connection"><code class="docutils literal notranslate"><span class="pre">tdf_data.close_sql_connection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.extract_centroided_spectrum_for_frame"><code class="docutils literal notranslate"><span class="pre">tdf_data.extract_centroided_spectrum_for_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.extract_profile_spectrum_for_frame"><code class="docutils literal notranslate"><span class="pre">tdf_data.extract_profile_spectrum_for_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.extract_spectrum_for_frame_v2"><code class="docutils literal notranslate"><span class="pre">tdf_data.extract_spectrum_for_frame_v2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_diaframemsmsinfo_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_diaframemsmsinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_diaframemsmswindows_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_diaframemsmswindows_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_framemsmsinfo_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_framemsmsinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_frames_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_frames_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_global_metadata"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_global_metadata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_maldiframeinfo_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_maldiframeinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_pasefframemsmsinfo_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_pasefframemsmsinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_precursors_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_precursors_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_prmframemsmsinfo_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_prmframemsmsinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.get_prmtargets_table"><code class="docutils literal notranslate"><span class="pre">tdf_data.get_prmtargets_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.index_to_mz"><code class="docutils literal notranslate"><span class="pre">tdf_data.index_to_mz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.read_pasef_centroid_msms"><code class="docutils literal notranslate"><span class="pre">tdf_data.read_pasef_centroid_msms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.read_pasef_centroid_msms_for_frame"><code class="docutils literal notranslate"><span class="pre">tdf_data.read_pasef_centroid_msms_for_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.read_pasef_profile_msms"><code class="docutils literal notranslate"><span class="pre">tdf_data.read_pasef_profile_msms()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.read_pasef_profile_msms_for_frame"><code class="docutils literal notranslate"><span class="pre">tdf_data.read_pasef_profile_msms_for_frame()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.read_scans"><code class="docutils literal notranslate"><span class="pre">tdf_data.read_scans()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.scan_num_to_oneoverk0"><code class="docutils literal notranslate"><span class="pre">tdf_data.scan_num_to_oneoverk0()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tdf_data.subset_ms1_frames"><code class="docutils literal notranslate"><span class="pre">tdf_data.subset_ms1_frames()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data"><code class="docutils literal notranslate"><span class="pre">tsf_data</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.close_sql_connection"><code class="docutils literal notranslate"><span class="pre">tsf_data.close_sql_connection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.get_framemsmsinfo_table"><code class="docutils literal notranslate"><span class="pre">tsf_data.get_framemsmsinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.get_frames_table"><code class="docutils literal notranslate"><span class="pre">tsf_data.get_frames_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.get_global_metadata"><code class="docutils literal notranslate"><span class="pre">tsf_data.get_global_metadata()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.get_maldiframeinfo_table"><code class="docutils literal notranslate"><span class="pre">tsf_data.get_maldiframeinfo_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.index_to_mz"><code class="docutils literal notranslate"><span class="pre">tsf_data.index_to_mz()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.read_line_spectrum"><code class="docutils literal notranslate"><span class="pre">tsf_data.read_line_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.read_profile_spectrum"><code class="docutils literal notranslate"><span class="pre">tsf_data.read_profile_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.classes.tsf_data.subset_ms1_frames"><code class="docutils literal notranslate"><span class="pre">tsf_data.subset_ms1_frames()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.constants">timsconvert.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.data_input">timsconvert.data_input module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.data_input.dot_d_detection"><code class="docutils literal notranslate"><span class="pre">dot_d_detection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.data_input.schema_detection"><code class="docutils literal notranslate"><span class="pre">schema_detection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.init_bruker_dll">timsconvert.init_bruker_dll module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.init_bruker_dll.decode_array_of_strings"><code class="docutils literal notranslate"><span class="pre">decode_array_of_strings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.init_bruker_dll.init_baf2sql_dll"><code class="docutils literal notranslate"><span class="pre">init_baf2sql_dll()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.init_bruker_dll.init_tdf_sdk_dll"><code class="docutils literal notranslate"><span class="pre">init_tdf_sdk_dll()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.init_bruker_dll.one_over_k0_to_ccs"><code class="docutils literal notranslate"><span class="pre">one_over_k0_to_ccs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.init_bruker_dll.throw_last_baf2sql_error"><code class="docutils literal notranslate"><span class="pre">throw_last_baf2sql_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.init_bruker_dll.throw_last_tsf_error"><code class="docutils literal notranslate"><span class="pre">throw_last_tsf_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.parse">timsconvert.parse module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.bin_profile_spectrum"><code class="docutils literal notranslate"><span class="pre">bin_profile_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.extract_2d_tdf_spectrum"><code class="docutils literal notranslate"><span class="pre">extract_2d_tdf_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.extract_3d_tdf_spectrum"><code class="docutils literal notranslate"><span class="pre">extract_3d_tdf_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.extract_baf_spectrum"><code class="docutils literal notranslate"><span class="pre">extract_baf_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.extract_ddapasef_precursor_spectrum"><code class="docutils literal notranslate"><span class="pre">extract_ddapasef_precursor_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.extract_tsf_spectrum"><code class="docutils literal notranslate"><span class="pre">extract_tsf_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.get_baf_spectrum_polarity"><code class="docutils literal notranslate"><span class="pre">get_baf_spectrum_polarity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.get_centroid_status"><code class="docutils literal notranslate"><span class="pre">get_centroid_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.get_encoding_dtype"><code class="docutils literal notranslate"><span class="pre">get_encoding_dtype()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.get_maldi_coords"><code class="docutils literal notranslate"><span class="pre">get_maldi_coords()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.init_scan_dict"><code class="docutils literal notranslate"><span class="pre">init_scan_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_lcms_baf"><code class="docutils literal notranslate"><span class="pre">parse_lcms_baf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_lcms_tdf"><code class="docutils literal notranslate"><span class="pre">parse_lcms_tdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_lcms_tsf"><code class="docutils literal notranslate"><span class="pre">parse_lcms_tsf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_plate_map"><code class="docutils literal notranslate"><span class="pre">parse_maldi_plate_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_tdf"><code class="docutils literal notranslate"><span class="pre">parse_maldi_tdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_tsf"><code class="docutils literal notranslate"><span class="pre">parse_maldi_tsf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_baf_metadata"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_baf_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_baf_ms2"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_baf_ms2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_bbcid_iscid_ms2"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_bbcid_iscid_ms2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_ddapasef_ms2"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_ddapasef_ms2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_diapasef_ms2"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_diapasef_ms2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_lcms_tsf_tdf_metadata"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_lcms_tsf_tdf_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_maldi_metadata"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_maldi_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_ms1"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_ms1()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_prmpasef_ms2"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_prmpasef_ms2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_spectrum_data"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_spectrum_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.populate_scan_dict_w_tsf_ms2"><code class="docutils literal notranslate"><span class="pre">populate_scan_dict_w_tsf_ms2()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.timestamp">timsconvert.timestamp module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.timestamp.get_timestamp"><code class="docutils literal notranslate"><span class="pre">get_timestamp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.write">timsconvert.write module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.get_spectra_count"><code class="docutils literal notranslate"><span class="pre">get_spectra_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.update_spectra_count"><code class="docutils literal notranslate"><span class="pre">update_spectra_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_lcms_chunk_to_mzml"><code class="docutils literal notranslate"><span class="pre">write_lcms_chunk_to_mzml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_lcms_mzml"><code class="docutils literal notranslate"><span class="pre">write_lcms_mzml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_dd_mzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_dd_mzml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_ims_chunk_to_imzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_ims_chunk_to_imzml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_ims_imzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_ims_imzml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_ms1_spectrum"><code class="docutils literal notranslate"><span class="pre">write_ms1_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_ms2_spectrum"><code class="docutils literal notranslate"><span class="pre">write_ms2_spectrum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_mzml_metadata"><code class="docutils literal notranslate"><span class="pre">write_mzml_metadata()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">TIMSCONVERT</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local.html">Local Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Gordon T. Luu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

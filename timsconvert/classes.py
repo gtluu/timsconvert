@@ -1,7 +1,6 @@
 import sqlite3
 import numpy as np
 import pandas as pd
-from psims.mzml.components import ParameterContainer, NullMap
 from timsconvert.init_bruker_dll import *
 from timsconvert.parse import get_encoding_dtype, get_centroid_status
 
@@ -32,7 +31,7 @@ MSMS_PROFILE_SPECTRUM_FUNCTION = CFUNCTYPE(None,
 
 
 # modified from baf2sql.py
-class baf_data(object):
+class BafData(object):
     def __init__(self, bruker_d_folder_name: str, baf2sql_dll, raw_calibration=False, all_variables=False):
         self.dll = baf2sql_dll
         self.handle = self.dll.baf2sql_array_open_storage(1 if raw_calibration else 0,
@@ -137,7 +136,7 @@ class baf_data(object):
 
 
 # modified from tsfdata.py
-class tsf_data(object):
+class TsfData(object):
     def __init__(self, bruker_d_folder_name: str, tdf_sdk_dll, use_recalibrated_state=True):
         self.dll = tdf_sdk_dll
         self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'), 1 if use_recalibrated_state else 0)
@@ -274,7 +273,7 @@ class tsf_data(object):
         self.conn.close()
 
 
-class tdf_data(object):
+class TdfData(object):
     def __init__(self, bruker_d_folder_name: str, tdf_sdk_dll, use_recalibrated_state=True):
         self.dll = tdf_sdk_dll
         self.handle = self.dll.tims_open(bruker_d_folder_name.encode('utf-8'),

@@ -10,7 +10,7 @@ def init_baf2sql_dll(baf2sql_file_name: str = BAF2SQL_DLL_FILE_NAME):
     :param baf2sql_file_name: Path to Baf2sql library, defaults to path automatically detected in timsconvert.constants.
     :type baf2sql_file_name: str
     :return: Handle for Baf2sql library.
-    :rtype: CDLL object
+    :rtype: ctypes.CDLL
     """
     baf2sql_dll = cdll.LoadLibrary(baf2sql_file_name)
 
@@ -58,7 +58,7 @@ def init_tdf_sdk_dll(bruker_dll_file_name: str = TDF_SDK_DLL_FILE_NAME):
         timsconvert.constants.
     :type bruker_dll_file_name: str
     :return: Handle for TDF-SDK library.
-    :rtype: CDLL object
+    :rtype: ctypes.CDLL
     """
     tdf_sdk_dll = cdll.LoadLibrary(os.path.realpath(bruker_dll_file_name))
 
@@ -252,7 +252,7 @@ def throw_last_tsf_error(bruker_dll):
     Error handling for Bruker raw data originating from TSF files. Modified from tsfdata.py example API.
 
     :param bruker_dll: Handle for TDF-SDK library.
-    :type bruker_dll: CDLL object
+    :type bruker_dll: ctypes.CDLL
     """
     err_len = bruker_dll.tsf_get_last_error_string(None, 0)
     buf = create_string_buffer(err_len)
@@ -267,7 +267,7 @@ def throw_last_baf2sql_error(baf2sql_dll):
     Error handling for Bruker raw data originating from BAF files. Modified from baf2sql.py example API.
 
     :param baf2sql_dll: Handle for Baf2sql library.
-    :type baf2sql_dll: CDLL object
+    :type baf2sql_dll: ctypes.CDLL
     """
     err_len = baf2sql_dll.baf2sql_get_last_error_string(None, 0)
     buf = create_string_buffer(err_len)

@@ -1,8 +1,8 @@
 About
 =====
 
-TIMSCONVERT
------------
+About TIMSCONVERT
+-----------------
 TIMSCONVERT is a workflow designed for mass spectrometrists that allows for the conversion of raw data from Bruker
 timsTOF series mass spectrometers (i.e. Pro, fleX, SCP, HT, etc.) to open data formats (i.e. mzML and imzML) that:
 

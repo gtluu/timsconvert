@@ -21,8 +21,18 @@ In some cases, certain systems/terminals will require the use of the ``python3``
 
     python3 [path to timsconvert]/bin/run.py --input [path to data]
 
-Depending ont he size of your data and the number of files being converted, TIMSCONVERT may take some time to finish
+Depending on the size of your data and the number of files being converted, TIMSCONVERT may take some time to finish
 conversion.
+
+For a full list of parameters, use the ``--help`` flag.
+
+.. code-block::
+
+    python [path to timsconvert]/bin/run.py --help
+
+See below for a full list of descriptions for each parameter.
 
 Parameters
 ----------
+.. csv-table::
+    :file: parameter_descriptions.csv

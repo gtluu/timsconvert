@@ -17,7 +17,7 @@ doi: `10.1093/bioinformatics/btac419 <https://doi.org/10.1093/bioinformatics/bta
 Contents
 --------
 .. toctree::
-   About <about>
+   Introduction <introduction>
    Installation <installation>
    Local Usage <local>
    GNPS Usage <gnps>

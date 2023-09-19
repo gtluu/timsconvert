@@ -14,5 +14,5 @@
     "imzml_mode": "Whether .imzML files should be written in \"processed\" or \"continuous\" mode. Defaults to \"processed\".",
     "chunk_size": "Relative size of chunks of spectral data that are parsed and subsequently written at once. Increasing parses and write more spectra at once but increases RAM usage. Default = 10.",
     "verbose": "Boolean flag to determine whether to print logging output.",
-    "url": "URL for server to run TIMSCONVERT (if submitting job through API). Default = GNPS server"
+    "url": "URL for server to run TIMSCONVERT (if submitting job through API). Default = localhost:5000"
 }

@@ -36,3 +36,29 @@ Parameters
 ----------
 .. csv-table::
     :file: parameter_descriptions.csv
+
+Testing
+-------
+To test TIMSCONVERT locally:
+
+* Download test data.
+
+  .. code-block::
+
+        cd [path to timsconvert]/test
+        make download_test
+
+* Test Python CLI workflow
+
+  .. code-block::
+
+        cd [path to timsconvert]/test
+        make run_test
+        make run_test_mobility
+
+* Test Nextflow workflow
+
+  .. code-block::
+
+        cd [path to timsconvert]/test
+        make run_nextflow_mobility

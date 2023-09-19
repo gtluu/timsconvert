@@ -20,5 +20,6 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 github:
+	python source/local_parameters.py
 	@make html
 	cp -a build/html/. ../docs

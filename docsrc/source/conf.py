@@ -21,7 +21,8 @@ release = '1.4.0'
 extensions = ['sphinx.ext.duration',
               'sphinx.ext.doctest',
               'sphinx.ext.autodoc',
-              'sphinx.ext.napoleon']
+              'sphinx.ext.napoleon',
+              'sphinx.ext.autosectionlabel']
 
 templates_path = ['_templates']
 exclude_patterns = []

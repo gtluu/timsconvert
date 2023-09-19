@@ -38,6 +38,28 @@
             
   <section id="local-usage">
 <h1>Local Usage<a class="headerlink" href="#local-usage" title="Permalink to this heading">¶</a></h1>
+<p>The command line interface version of TIMSCONVERT supports conversion of all experimental types specified above. Please
+note that certain versions of Linux may not be compatible with the Baf2Sql API used to convert BAF files. See
+<a class="reference external" href="https://github.com/gtluu/timsconvert/issues/13">this issue</a> for more details.</p>
+<section id="basic-example">
+<h2>Basic Example<a class="headerlink" href="#basic-example" title="Permalink to this heading">¶</a></h2>
+<p>Only the <code class="docutils literal notranslate"><span class="pre">input</span></code> parameter is required to run TIMSCONVERT. By default, the output file(s) can be found in the same
+directory as the input data using the same filenames as the original .d file(s). Please note that any previously
+converted mzML/imzML files in the output directory with the same filename will be overwritten. If no other parameters
+are specified, their default values will be used.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span> <span class="n">timsconvert</span><span class="p">]</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">run</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">input</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span> <span class="n">data</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>In some cases, certain systems/terminals will require the use of the <code class="docutils literal notranslate"><span class="pre">python3</span></code> command instead of <code class="docutils literal notranslate"><span class="pre">python</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span> <span class="n">timsconvert</span><span class="p">]</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">run</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">input</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span> <span class="n">data</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Depending ont he size of your data and the number of files being converted, TIMSCONVERT may take some time to finish
+conversion.</p>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
+</section>
 </section>
 
 
@@ -61,9 +83,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Local Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Local Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-example">Basic Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source.html">TIMSCONVERT Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
 </ul>
 
 <div class="relations">

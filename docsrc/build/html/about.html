@@ -38,6 +38,62 @@
             
   <section id="about">
 <h1>About<a class="headerlink" href="#about" title="Permalink to this heading">¶</a></h1>
+<section id="timsconvert">
+<h2>TIMSCONVERT<a class="headerlink" href="#timsconvert" title="Permalink to this heading">¶</a></h2>
+<p>TIMSCONVERT is a workflow designed for mass spectrometrists that allows for the conversion of raw data from Bruker
+timsTOF series mass spectrometers (i.e. Pro, fleX, SCP, HT, etc.) to open data formats (i.e. mzML and imzML) that:</p>
+<ol class="arabic simple">
+<li><p>are compatible with downstream open source data analysis platforms.</p></li>
+<li><p>incorporate trapped ion mobility spectrometry (TIMS) data into these open formats.</p></li>
+<li><p>does not require any programming experience.</p></li>
+</ol>
+</section>
+<section id="timstof-file-formats">
+<h2>timsTOF File Formats<a class="headerlink" href="#timstof-file-formats" title="Permalink to this heading">¶</a></h2>
+<p>All Bruker data is housed in a directory with the .d extension. Within the directory, the acquisition software and type
+of experiment conducted (i.e. acquisition mode) determines the data format. LC-MS(/MS) experiments acquired using
+Bruker otofControl use the BAF file format, which is widely supported by both proprietary (i.e. Bruker DataAnalysis,
+CompassXport) and open-source (i.e. Proteowizard MSConvert) data conversion/analysis software. The raw binary data is
+housed in the <code class="docutils literal notranslate"><span class="pre">analysis.baf</span></code> file, while the metadata and recalibration information are stored in SQLite databases
+titled <code class="docutils literal notranslate"><span class="pre">analysis.sqlite</span></code> and <code class="docutils literal notranslate"><span class="pre">calibration.sqlite</span></code>, respectively.</p>
+<p>LC-MS(/MS) and MALDI-MS(/MS) dried droplet and mass spectrometry imaging experiments acquired using Bruker timsControl
+use the TSF file format. Compared to BAF files, TSF files have the advantage of store data in a much more efficient
+manner, but have more limited support from both proprietary and open-source software. Experiments designed to acquire
+TIMS data (LC-TIMS-MS(/MS), MALDI-TIMS-MS(/MS) dried droplet and mass spectrometry imaging) use the TDF file formats,
+which are similar to TSF files but also contain TIMS data. Run metadata are stored in the <code class="docutils literal notranslate"><span class="pre">analysis.tsf</span></code>/
+<code class="docutils literal notranslate"><span class="pre">analysis.tdf</span></code> SQLite databases, raw binary data are stored in the <code class="docutils literal notranslate"><span class="pre">analysis.tsf_bin</span></code>/<code class="docutils literal notranslate"><span class="pre">analysis.tdf_bin</span></code> files,
+and recalibration data are stored in the <code class="docutils literal notranslate"><span class="pre">calibration.sqlite</span></code> SQLite database.</p>
+</section>
+<section id="dimensionality-of-timstof-data">
+<h2>Dimensionality of timsTOF Data<a class="headerlink" href="#dimensionality-of-timstof-data" title="Permalink to this heading">¶</a></h2>
+<p>Example of dimensionality of LC-TIMS-MS/MS data and a simplified corresponding mzML schema. Elements in the simplified
+mzML schema are color coded by the corresponding data in the chromatograms/mobilograms/spectra. At a given retention
+time in the chromatogram (indicated in pink), an MS1 spectrum may be visualized in the form of a three dimensional plot
+generated from <em>m/z</em>, intensity, and ion mobility arrays (indicated in orange). Precursor ions of interest found in MS1
+spectra (indicated in purple) can be further analyzed by plotting <em>m/z</em> and intensity arrays for MS/MS spectra (indicated
+in teal). These spectral identifiers (i.e. retention time, precursor <em>m/z</em>, precursor 1/K0) may be used to locate the
+corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualization software of choice.</p>
+<img alt="Figure showing how different dimensions of timsTOF data are represented in converted open data formats." src="_images/dimensions.png" />
+</section>
+<section id="example-acquisition-modes-for-file-conversion">
+<h2>Example Acquisition Modes for File Conversion<a class="headerlink" href="#example-acquisition-modes-for-file-conversion" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>LC-MS(/MS) (BAF or TSF) -&gt; mzML</p></li>
+<li><p>LC-TIMS-MS(/MS) (TDF) -&gt; mzML</p></li>
+<li><p>MALDI-MS(/MS) Dried Droplet (TSF) -&gt; mzML</p></li>
+<li><p>MALDI-MS Imaging Mass Spectrometry (TSF) -&gt; imzML</p></li>
+<li><p>MALDI-TIMS-MS(/MS) Dried Droplet (TDF) -&gt; mzML</p></li>
+<li><p>MALDI-TIMS-MS Imaging Mass Spectrometry (TDF) -&gt; imzML</p></li>
+</ul>
+</section>
+<section id="downstream-data-analysis">
+<h2>Downstream Data Analysis<a class="headerlink" href="#downstream-data-analysis" title="Permalink to this heading">¶</a></h2>
+<p>Examples of downstream data analysis platforms include and are not limited to:
+* <a class="reference external" href="https://gnps.ucsd.edu/">Global Natural Products Social (GNPS)</a>
+* <a class="reference external" href="https://cardinalmsi.org/">Cardinal MSI</a>
+* <a class="reference external" href="https://chasemc.github.io/IDBac/">IDBac</a>
+* <a class="reference external" href="http://mzmine.github.io/">MZmine</a></p>
+</section>
 </section>
 
 
@@ -59,11 +115,18 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">About</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#timsconvert">TIMSCONVERT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#timstof-file-formats">timsTOF File Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dimensionality-of-timstof-data">Dimensionality of timsTOF Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-acquisition-modes-for-file-conversion">Example Acquisition Modes for File Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#downstream-data-analysis">Downstream Data Analysis</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="local.html">Local Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source.html">TIMSCONVERT Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
 </ul>
 
 <div class="relations">

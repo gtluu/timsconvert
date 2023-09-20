@@ -66,7 +66,7 @@ if platform.system() == 'Windows':
         BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                              os.path.join('lib', 'baf2sql.dll'))
     elif platform.architecture()[0] == '32bit':
-        print('32 bit platforms are no longer supported.')
+        logging.info(get_timestamp() + ':' + '32 bit platforms are no longer supported...')
         sys.exit(1)
 elif platform.system() == 'Linux':
     TDF_SDK_VERSION = 'sdk22104'

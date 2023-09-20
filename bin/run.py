@@ -1,11 +1,13 @@
 from timsconvert import *
 
 
-def run_timsconvert(args):
+def main():
+    # Parse arguments.
+    args = get_args()
     # Args check.
     args_check(args)
     # Check arguments.
-    args['version'] = '1.3.1'
+    args['version'] = '1.4.0'
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
@@ -54,11 +56,11 @@ def run_timsconvert(args):
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
         if schema == 'TSF':
-            data = tsf_data(infile, tdf_sdk_dll)
+            data = TsfData(infile, tdf_sdk_dll)
         elif schema == 'TDF':
-            data = tdf_data(infile, tdf_sdk_dll)
+            data = TdfData(infile, tdf_sdk_dll)
         elif schema == 'BAF':
-            data = baf_data(infile, baf2sql_dll)
+            data = BafData(infile, baf2sql_dll)
 
         # Log arguments.
         for key, value in run_args.items():
@@ -215,8 +217,5 @@ def run_timsconvert(args):
 
 
 if __name__ == '__main__':
-    # Parse arguments.
-    args = get_args()
-
     # Run.
-    run_timsconvert(args)
+    main()

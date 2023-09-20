@@ -4,6 +4,14 @@ from timsconvert.constants import *
 
 
 def init_baf2sql_dll(baf2sql_file_name: str = BAF2SQL_DLL_FILE_NAME):
+    """
+    Initialize select functions from Bruker's Baf2sql library using ctypes.
+
+    :param baf2sql_file_name: Path to Baf2sql library, defaults to path automatically detected in timsconvert.constants.
+    :type baf2sql_file_name: str
+    :return: Handle for Baf2sql library.
+    :rtype: ctypes.CDLL
+    """
     baf2sql_dll = cdll.LoadLibrary(baf2sql_file_name)
 
     # Functions for .baf files
@@ -43,6 +51,15 @@ def init_baf2sql_dll(baf2sql_file_name: str = BAF2SQL_DLL_FILE_NAME):
 
 # modified from alphatims
 def init_tdf_sdk_dll(bruker_dll_file_name: str = TDF_SDK_DLL_FILE_NAME):
+    """
+    Initialize select functions from Bruker's TDF-SDK library using ctypes.
+
+    :param bruker_dll_file_name: Path to TDF-SDK library, defaults to path automatically detected in
+        timsconvert.constants.
+    :type bruker_dll_file_name: str
+    :return: Handle for TDF-SDK library.
+    :rtype: ctypes.CDLL
+    """
     tdf_sdk_dll = cdll.LoadLibrary(os.path.realpath(bruker_dll_file_name))
 
     # Functions for .tsf files
@@ -231,6 +248,12 @@ def init_tdf_sdk_dll(bruker_dll_file_name: str = TDF_SDK_DLL_FILE_NAME):
 
 # from tsfdata.py
 def throw_last_tsf_error(bruker_dll):
+    """
+    Error handling for Bruker raw data originating from TSF files. Modified from tsfdata.py example API.
+
+    :param bruker_dll: Handle for TDF-SDK library.
+    :type bruker_dll: ctypes.CDLL
+    """
     err_len = bruker_dll.tsf_get_last_error_string(None, 0)
     buf = create_string_buffer(err_len)
     bruker_dll.tsf_get_last_error_string(buf, err_len)
@@ -240,6 +263,12 @@ def throw_last_tsf_error(bruker_dll):
 # from baf2sql.py
 # Throw last baf2sql error string as exception.
 def throw_last_baf2sql_error(baf2sql_dll):
+    """
+    Error handling for Bruker raw data originating from BAF files. Modified from baf2sql.py example API.
+
+    :param baf2sql_dll: Handle for Baf2sql library.
+    :type baf2sql_dll: ctypes.CDLL
+    """
     err_len = baf2sql_dll.baf2sql_get_last_error_string(None, 0)
     buf = create_string_buffer(err_len)
     baf2sql_dll.baf2sql_get_last_error_string(buf, err_len)
@@ -248,6 +277,14 @@ def throw_last_baf2sql_error(baf2sql_dll):
 
 # from tsfdata.py
 def decode_array_of_strings(blob):
+    """
+    Decode method provided by tsfdata.py example API to properly encode strings for TDF-SDK.
+
+    :param blob: String to decode.
+    :type blob: str
+    :return: Decoded string in utf-8 format.
+    :rtype: str
+    """
     if blob is None:
         return None
     if len(blob) == 0:
@@ -261,5 +298,17 @@ def decode_array_of_strings(blob):
 # from timsdata.py
 # Convert 1/k0 to CCS for a given charge and mz
 def one_over_k0_to_ccs(ook0, charge, mz):
+    """
+    Convert 1/K0 values to CCS values based on a feature's m/z value and charge.
+
+    :param ook0: 1/K0 value of the feature.
+    :type ook0: float
+    :param charge: Charge of the feature.
+    :type charge: int
+    :param mz: m/z value of the feature.
+    :type mz: float
+    :return: CCS value calculated from the provided feature.
+    :rtype: float
+    """
     bruker_dll = init_tdf_sdk_dll()
     return bruker_dll.tims_oneoverk0_to_ccs_for_mz(ook0, charge, mz)

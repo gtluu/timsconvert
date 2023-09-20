@@ -1,7 +1,6 @@
 import sqlite3
 import numpy as np
 import pandas as pd
-from psims.mzml.components import ParameterContainer, NullMap
 from timsconvert.init_bruker_dll import *
 from timsconvert.parse import get_encoding_dtype, get_centroid_status
 
@@ -32,8 +31,23 @@ MSMS_PROFILE_SPECTRUM_FUNCTION = CFUNCTYPE(None,
 
 
 # modified from baf2sql.py
-class baf_data(object):
+class BafData(object):
+    """
+    Class containing metadata from BAF files and methods from Baf2sql library to work with BAF format data.
+
+    :param bruker_d_folder_name: Path to a Bruker .d file containing analysis.baf.
+    :type bruker_d_folder_name: str
+    :param baf2sql_dll: Library initialized by timsconvert.init_bruker_dll.init_baf2sql_dll().
+    :type baf2sql_dll: ctypes.CDLL
+    :param raw_calibration: Whether to use recalibrated data (False) or not (True), defaults to False.
+    :type raw_calibration: bool
+    :param all_variables: Whether to load all variables from analysis.sqlite database, defaults to False.
+    :type all_variables: bool
+    """
     def __init__(self, bruker_d_folder_name: str, baf2sql_dll, raw_calibration=False, all_variables=False):
+        """
+        Constructor Method
+        """
         self.dll = baf2sql_dll
         self.handle = self.dll.baf2sql_array_open_storage(1 if raw_calibration else 0,
                                                           os.path.join(bruker_d_folder_name,
@@ -67,12 +81,20 @@ class baf_data(object):
 
     # from Bruker baf2sql.py
     def __del__(self):
+        """
+        Close connection to raw data handle.
+        """
         self.dll.baf2sql_array_close_storage(self.handle)
 
     # modified from baf2sql.py
-    # Find out the file name of the SQLite cache corresponding to the specified BAF file.
-    # Will be created if it doesn't exist yet.
     def get_sqlite_cache_filename(self):
+        """
+        Find out the filename of the SQLite cache corresponding to the specified BAF file. The SQLite cache will be
+        created with the filename "analysis.sqlite" if it does not exist yet.
+
+        :return: SQLite filename.
+        :rtype: str
+        """
         u8path = os.path.join(self.source_file, 'analysis.baf').encode('utf-8')
 
         baf_len = self.dll.baf2sql_get_sqlite_cache_filename_v2(None, 0, u8path, self.all_variables)
@@ -83,15 +105,29 @@ class baf_data(object):
         self.dll.baf2sql_get_sqlite_cache_filename_v2(buf, baf_len, u8path, self.all_variables)
         return buf.value
 
-    # Returns number of elements in array with specified ID.
     def get_array_num_elements(self, identity):
+        """
+        Returns the number of elements in the array with the specified ID.
+
+        :param identity: ID of the desired array.
+        :type identity: str | int
+        :return: Number of elements in the array of the specified ID.
+        :rtype: int
+        """
         n = c_uint64(0)
         if not self.dll.baf2sql_array_get_num_elements(self.handle, identity, n):
             throw_last_baf2sql_error(self.dll)
         return n.value
 
-    # Returns the requested array as a double np.array.
     def read_array_double(self, identity):
+        """
+        Returns the requested array as a numpy.array of doubles.
+
+        :param identity: ID of the desired array.
+        :type identity: str | int
+        :return: Array from the specified ID.
+        :rtype: numpy.array
+        """
         buf = np.empty(shape=self.get_array_num_elements(identity), dtype=np.float64)
         if not self.dll.baf2sql_array_read_double(self.handle,
                                                   identity,
@@ -99,8 +135,10 @@ class baf_data(object):
             throw_last_baf2sql_error(self.dll)
         return buf
 
-    # Gets properties table as a dictionary.
     def get_properties(self):
+        """
+        Get the Properties table from analysis.sqlite as a dictionary stored in timsconvert.classes.BafData.meta_data.
+        """
         properties_query = 'SELECT * FROM Properties'
         properties_df = pd.read_sql_query(properties_query, self.conn)
         properties_dict = {}
@@ -108,37 +146,71 @@ class baf_data(object):
             properties_dict[row['Key']] = row['Value']
         self.meta_data = properties_dict
 
-    # Gets AcquisitionKeys table from analysis.sqlite SQL database.
     def get_acquisitionkeys_table(self):
+        """
+        Get the AcquisitionKeys table from analysis.sqlite as a pandas.DataFrame stored in
+        timsconvert.classes.BafData.acquisitionkeys.
+        """
         acquisitionkeys_query = 'SELECT * FROM AcquisitionKeys'
         self.acquisitionkeys = pd.read_sql_query(acquisitionkeys_query, self.conn)
 
-    # Get Spectra table from analysis.sqlite SQL database.
     def get_spectra_table(self):
+        """
+        Get the Spectra table from analysis.sqlite as a pandas.DataFrame stored in
+        timsconvert.classes.BafData.frames.
+        """
         spectra_query = 'SELECT * FROM Spectra'
         self.frames = pd.read_sql_query(spectra_query, self.conn)
 
-    # Get Steps table from analysis.sqlite SQL database; contains MS/MS metadata.
-    # May be redundant with variables table.
     def get_steps_table(self):
+        """
+        Get the Steps table from analysis.sqlite as a pandas.DataFrame stored in
+        timsconvert.classes.BafData.steps. Data may be redundant with that found in the Variables table of
+        analysis.sqlite.
+        """
         steps_query = 'SELECT * FROM Steps'
         self.steps = pd.read_sql_query(steps_query, self.conn)
 
     def get_variables_table(self):
+        """
+        Get the Variables table from analysis.sqlite as a pandas.DataFrame stored in
+        timsconvert.classes.BafData.variables. Data may be redundant with that found in the Steps table of
+        analysis.sqlite.
+        """
         variables_query = 'SELECT * FROM Variables'
         self.variables = pd.read_sql_query(variables_query, self.conn)
 
-    # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
+        """
+        Subset timsconvert.classes.BafData.frames table (Spectra table from analysis.sqlite) to only include MS1 rows.
+        Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
+        pandas.DataFrame is stored in timsconvert.classes.BafData.ms1_frames.
+        """
         self.ms1_frames = self.frames[self.frames['AcquisitionKey'] == 1]['Id'].values.tolist()
 
     def close_sql_connection(self):
+        """
+        Close the connection to analysis.sqlite.
+        """
         self.conn.close()
 
 
 # modified from tsfdata.py
-class tsf_data(object):
+class TsfData(object):
+    """
+    Class containing metadata from TSF files and methods from TDF-SDK library to work with TSF format data.
+
+    :param bruker_d_folder_name: Path to a Bruker .d file containing analysis.tsf.
+    :type bruker_d_folder_name: str
+    :param tdf_sdk_dll: Library initialized by timsconvert.init_bruker_dll.init_tdf_sdk_dll().
+    :type tdf_sdk_dll: ctypes.CDLL
+    :param use_recalibrated_state: Whether to use recalibrated data (True) or not (False), defaults to True.
+    :type use_recalibrated_state: bool
+    """
     def __init__(self, bruker_d_folder_name: str, tdf_sdk_dll, use_recalibrated_state=True):
+        """
+        Constructor Method
+        """
         self.dll = tdf_sdk_dll
         self.handle = self.dll.tsf_open(bruker_d_folder_name.encode('utf-8'), 1 if use_recalibrated_state else 0)
         if self.handle == 0:
@@ -171,11 +243,26 @@ class tsf_data(object):
 
     # from Bruker tsfdata.py
     def __del__(self):
+        """
+        Close connection to raw data handle.
+        """
         if hasattr(self, 'handle'):
             self.dll.tsf_close(self.handle)
 
     # from Bruker tsfdata.py
     def __call_conversion_func(self, frame_id, input_data, func):
+        """
+        Convenience method to call conversion functions from TDF-SDK library.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :param input_data: Array of values to be converted.
+        :type input_data: numpy.array
+        :param func: Function from TDF-SDK to be applied to the input_data.
+        :type func: ctypes._FuncPtr
+        :return: Output array containing converted values.
+        :rtype: numpy.array
+        """
         if type(input_data) is np.ndarray and input_data.dtype == np.float64:
             in_array = input_data
         else:
@@ -196,10 +283,28 @@ class tsf_data(object):
 
     # from Bruker tsfdata.py
     def index_to_mz(self, frame_id, indices):
+        """
+        Convert array of indices for a given frame to m/z values.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :param indices: Array of indices to be converted.
+        :type indices: numpy.array
+        :return: Array of m/z values.
+        :rtype: numpy.array
+        """
         return self.__call_conversion_func(frame_id, indices, self.dll.tsf_index_to_mz)
 
     # modified from Bruker tsfdata.py
     def read_line_spectrum(self, frame_id):
+        """
+        Read in centroid spectrum for a given frame.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :return: Tuple containing an array of indices for the mass dimension and array of detector acounts.
+        :rtype: tuple[numpy.array]
+        """
         while True:
             cnt = int(self.profile_buffer_size)
             index_buf = np.empty(shape=cnt, dtype=np.float64)
@@ -222,6 +327,15 @@ class tsf_data(object):
 
     # modified from Bruker tsfdata.py
     def read_profile_spectrum(self, frame_id):
+        """
+        Read in profile spectrum for a given frame.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :return: Tuple containing an array of indices for the mass dimension that is inferred from the length of the
+            intensity array and array of detector acounts.
+        :rtype: tuple[numpy.array]
+        """
         while True:
             cnt = int(self.profile_buffer_size)
             intensity_buf = np.empty(shape=cnt, dtype=np.uint32)
@@ -242,8 +356,11 @@ class tsf_data(object):
 
         return index_buf[0:required_len], intensity_buf[0:required_len]
 
-    # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
+        """
+        Get the GlobalMetadata table from analysis.tsf as a dictionary stored in
+        timsconvert.classes.TsfData.meta_data.
+        """
         metadata_query = 'SELECT * FROM GlobalMetadata'
         metadata_df = pd.read_sql_query(metadata_query, self.conn)
         metadata_dict = {}
@@ -251,31 +368,62 @@ class tsf_data(object):
             metadata_dict[row['Key']] = row['Value']
         self.meta_data = metadata_dict
 
-    # Get Frames table from analysis.tsf SQL database.
     def get_frames_table(self):
+        """
+        Get the Frames table from analysis.tsf as a pandas.DataFrame stored in
+        timsconvert.classes.TsfData.frames.
+        """
         frames_query = 'SELECT * FROM Frames'
         self.frames = pd.read_sql_query(frames_query, self.conn)
 
-    # Get MaldiFramesInfo table from analysis.tsf SQL database.
     def get_maldiframeinfo_table(self):
+        """
+        Get the MaldiFrameInfo table from analysis.tsf as a pandas.DataFrame stored in
+        timsconvert.classes.TsfData.maldiframeinfo.
+        """
         maldiframeinfo_query = 'SELECT * FROM MaldiFrameInfo'
         self.maldiframeinfo = pd.read_sql_query(maldiframeinfo_query, self.conn)
 
     # Get FrameMsMsInfo table from analysis.tsf SQL database.
     def get_framemsmsinfo_table(self):
+        """
+        Get the FrameMsMsInfo table from analysis.tsf as a pandas.DataFrame stored in
+        timsconvert.classes.TsfData.framemsmsinfo.
+        """
         framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
         self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
+        """
+        Subset timsconvert.classes.TsfData.frames table (Frames table from analysis.tsf) to only include MS1 rows.
+        Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
+        pandas.DataFrame is stored in timsconvert.classes.TsfData.ms1_frames.
+        """
         self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
 
     def close_sql_connection(self):
+        """
+        Close the connection to analysis.tsf.
+        """
         self.conn.close()
 
 
-class tdf_data(object):
+class TdfData(object):
+    """
+    Class containing metadata from TDF files and methods from TDF-SDK library to work with TDF format data.
+
+    :param bruker_d_folder_name: Path to a Bruker .d file containing analysis.tdf.
+    :type bruker_d_folder_name: str
+    :param tdf_sdk_dll: Library initialized by timsconvert.init_bruker_dll.init_tdf_sdk_dll().
+    :type tdf_sdk_dll: ctypes.CDLL
+    :param use_recalibrated_state: Whether to use recalibrated data (True) or not (False), defaults to True.
+    :type use_recalibrated_state: bool
+    """
     def __init__(self, bruker_d_folder_name: str, tdf_sdk_dll, use_recalibrated_state=True):
+        """
+        Constructor Method
+        """
         self.dll = tdf_sdk_dll
         self.handle = self.dll.tims_open(bruker_d_folder_name.encode('utf-8'),
                                          1 if use_recalibrated_state else 0)
@@ -330,10 +478,25 @@ class tdf_data(object):
         self.close_sql_connection()
 
     def __del__(self):
+        """
+        Close connection to raw data handle.
+        """
         if hasattr(self, 'handle'):
             self.dll.tims_close(self.handle)
 
     def __call_conversion_func(self, frame_id, input_data, func):
+        """
+        Convenience method to call conversion functions from TDF-SDK library.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :param input_data: Array of values to be converted.
+        :type input_data: numpy.array
+        :param func: Function from TDF-SDK to be applied to the input_data.
+        :type func: ctypes._FuncPtr
+        :return: Output array containing converted values.
+        :rtype: numpy.array
+        """
         if type(input_data) is np.ndarray and input_data.dtype == np.float64:
             in_array = input_data
         else:
@@ -354,13 +517,47 @@ class tdf_data(object):
 
     # following conversion functions from Bruker timsdata.py
     def index_to_mz(self, frame_id, indices):
+        """
+        Convert array of indices for a given frame to m/z values.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :param indices: Array of indices to be converted.
+        :type indices: numpy.array
+        :return: Array of m/z values.
+        :rtype: numpy.array
+        """
         return self.__call_conversion_func(frame_id, indices, self.dll.tims_index_to_mz)
 
     def scan_num_to_oneoverk0(self, frame_id, scan_nums):
+        """
+        Convert array of scan numbers for a given frame to 1/K0 values.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :param scan_nums: Array of scan numbers to be converted.
+        :type scan_nums: numpy.array.
+        :return: Array of 1/K0 values.
+        :rtype: numpy.array
+        """
         return self.__call_conversion_func(frame_id, scan_nums, self.dll.tims_scannum_to_oneoverk0)
 
     # modified from Bruker timsdata.py
     def read_scans(self, frame_id, scan_begin, scan_end):
+        """
+        Read centroid spectra for a given frame (i.e. retention time) and scan (i.e. ion mobility) or range of scans.
+        Results slightly differ from methods made for specifically reading centroid spectra. Therefore, the "mode" for
+        this method is "raw", which can be interchangeable with "centroid".
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :param scan_begin: Beginning scan number (corresponding to 1/K0 value) within frame.
+        :type scan_begin: int
+        :param scan_end: Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).
+        :type scan_end: int
+        :return: List of tuples where each tuple contains an array of mass indices and array of detector counts.
+        :rtype: list[tuple[numpy.array]]
+        """
         while True:
             cnt = int(self.initial_frame_buffer_size)
             buf = np.empty(shape=cnt, dtype=np.uint32)
@@ -393,6 +590,15 @@ class tdf_data(object):
         return result
 
     def read_pasef_centroid_msms(self, precursor_list):
+        """
+        Read in centroid MS/MS spectra from PASEF MS/MS data for precursor(s).
+
+        :param precursor_list: Array or list of precursor IDs to obtain spectra for.
+        :type precursor_list: numpy.array | list
+        :return: Dictionary in which keys correspond to the precursor ID and values correspond to a tuple containing
+            an array of m/z values and an array of detector counts.
+        :rtype: dict
+        """
         precursors_for_dll = np.array(precursor_list, dtype=np.int64)
 
         result = {}
@@ -410,6 +616,15 @@ class tdf_data(object):
         return result
 
     def read_pasef_profile_msms(self, precursor_list):
+        """
+        Read in quasi-profile MS/MS spectra from PASEF MS/MS data for precursor(s).
+
+        :param precursor_list: Array or list of precursor IDs to obtain spectra for.
+        :type precursor_list: numpy.array | list
+        :return: Dictionary in which keys correspond to the precursor ID and values correspond to an array of detector
+            counts.
+        :rtype: dict
+        """
         precursors_for_dll = np.array(precursor_list, dtype=np.int64)
 
         result = {}
@@ -427,6 +642,15 @@ class tdf_data(object):
         return result
 
     def read_pasef_centroid_msms_for_frame(self, frame_id):
+        """
+        Read in centroid MS/MS spectra from PASEF MS/MS data for a given frame.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :return: Dictionary in which keys correspond to the precursor ID and values correspond to a tuple containing
+            an array of m/z values and an array of detector counts.
+        :rtype: dict
+        """
         result = {}
 
         @MSMS_SPECTRUM_FUNCTOR
@@ -439,6 +663,15 @@ class tdf_data(object):
         return result
 
     def read_pasef_profile_msms_for_frame(self, frame_id):
+        """
+        Read in quasi-profile MS/MS spectra from PASEF MS/MS data for a given frame.
+
+        :param frame_id: ID of the frame containing the raw data of interest.
+        :type frame_id: int
+        :return: Dictionary in which keys correspond to the precursor ID and values correspond to a tuple containing
+            an array of m/z values and an array of detector counts.
+        :rtype: dict
+        """
         result = {}
 
         @MSMS_PROFILE_SPECTRUM_FUNCTOR
@@ -450,9 +683,22 @@ class tdf_data(object):
 
         return result
 
-    # Only define extract_centroided_spectrum_for_frame and extract_profile_spectrum_for_frame if using SDK 2.8.7.1.
+    # Only define extract_centroided_spectrum_for_frame and extract_profile_spectrum_for_frame if using SDK 2.8.7.1 or
+    # newer.
     if TDF_SDK_VERSION == 'sdk22104':
         def extract_centroided_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
+            """
+            Read in centroid spectrum for a given frame.
+
+            :param frame_id: ID of the frame containing the raw data of interest.
+            :type frame_id: int
+            :param scan_begin: Beginning scan number (corresponding to 1/K0 value) within frame.
+            :type scan_begin: int
+            :param scan_end: Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).
+            :type scan_end: int
+            :return: Tuple containing an array of m/z values and an array of detector counts.
+            :rtype: tuple[numpy.array]
+            """
             result = None
 
             @MSMS_SPECTRUM_FUNCTOR
@@ -470,6 +716,19 @@ class tdf_data(object):
             return result
 
         def extract_profile_spectrum_for_frame(self, frame_id, scan_begin, scan_end):
+            """
+            Read in quasi-profile spectrum for a given frame.
+
+            :param frame_id: ID of the frame containing the raw data of interest.
+            :type frame_id: int
+            :param scan_begin: Beginning scan number (corresponding to 1/K0 value) within frame.
+            :type scan_begin: int
+            :param scan_end: Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).
+            :type scan_end: int
+            :return: Tuple containing an array of m/z values that is inferred from the length of the intensity array
+                and array of detector acounts.
+            :rtype: tuple[numpy.array]
+            """
             result = None
 
             @MSMS_PROFILE_SPECTRUM_FUNCTOR
@@ -490,6 +749,9 @@ class tdf_data(object):
 
     # In house code for getting spectrum for a frame.
     def extract_spectrum_for_frame_v2(self, frame_id, begin_scan, end_scan, encoding, tol=0.01):
+        """
+        Depracated, use timsconvert.classes.TdfData.extract_centroided_spectrum_for_frame().
+        """
         list_of_scan_tuples = [i for i in self.read_scans(frame_id, begin_scan, end_scan)
                                if i[0].size != 0 and i[1].size != 0]
         if len(list_of_scan_tuples) == 0:
@@ -536,8 +798,11 @@ class tdf_data(object):
         return (np.array(new_mz_array, dtype=get_encoding_dtype(encoding)),
                 np.array(new_intensity_array, dtype=get_encoding_dtype(encoding)))
 
-    # Gets global metadata table as a dictionary.
     def get_global_metadata(self):
+        """
+        Get the GlobalMetadata table from analysis.tdf as a dictionary stored in
+        timsconvert.classes.TdfData.meta_data.
+        """
         metadata_query = 'SELECT * FROM GlobalMetadata'
         metadata_df = pd.read_sql_query(metadata_query, self.conn)
         metadata_dict = {}
@@ -545,28 +810,43 @@ class tdf_data(object):
             metadata_dict[row['Key']] = row['Value']
         self.meta_data = metadata_dict
 
-    # Get Frames table from analysis.tdf SQL database.
     def get_frames_table(self):
+        """
+        Get the Frames table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.frames.
+        """
         frames_query = 'SELECT * FROM Frames'
         self.frames = pd.read_sql_query(frames_query, self.conn)
 
-    # Get PasefFrameMsMsInfo table from analysis.tdf SQL database.
     def get_pasefframemsmsinfo_table(self):
+        """
+        Get the PasefFrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.pasefframemsmsinfo.
+        """
         pasefframemsmsinfo_query = 'SELECT * FROM PasefFrameMsMsInfo'
         self.pasefframemsmsinfo = pd.read_sql_query(pasefframemsmsinfo_query, self.conn)
 
-    # Get MaldiFramesInfo table from analysis.tdf SQL database.
     def get_maldiframeinfo_table(self):
+        """
+        Get the MaldiFramesInfo table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.maldiframeinfo.
+        """
         maldiframeinfo_query = 'SELECT * FROM MaldiFrameInfo'
         self.maldiframeinfo = pd.read_sql_query(maldiframeinfo_query, self.conn)
 
-    # Get FrameMsMsInfo table from analysis.tdf SQL database.
     def get_framemsmsinfo_table(self):
+        """
+        Get the FrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.framemsmsinfo.
+        """
         framemsmsinfo_query = 'SELECT * FROM FrameMsMsInfo'
         self.framemsmsinfo = pd.read_sql_query(framemsmsinfo_query, self.conn)
 
-    # Get Precursors table from analysis.tdf SQL database.
     def get_precursors_table(self):
+        """
+        Get the Precursors table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.precursors.
+        """
         precursors_query = 'SELECT * FROM Precursors'
         self.precursors = pd.read_sql_query(precursors_query, self.conn)
         # Add mobility values to precursor table
@@ -583,31 +863,51 @@ class tdf_data(object):
         precursor_mobility_values = mobility_values[self.precursors['ScanNumber'].astype(np.int64)]
         self.precursors['Mobility'] = precursor_mobility_values
 
-    # Get DiaFrameMsMsInfo table from analysis.tdf SQL database.
     def get_diaframemsmsinfo_table(self):
+        """
+        Get the DiaFrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.diaframemsmsinfo.
+        """
         diaframemsmsinfo_query = 'SELECT * FROM DiaFrameMsMsInfo'
         self.diaframemsmsinfo = pd.read_sql_query(diaframemsmsinfo_query, self.conn)
 
-    # Get DiaFrameMsMsWindows table from analysis.tdf SQL database.
     def get_diaframemsmswindows_table(self):
+        """
+        Get the DiaFrameMsMsWindows table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.diaframemsmswindows.
+        """
         diaframemsmswindows_query = 'SELECT * FROM DiaFrameMsMsWindows'
         self.diaframemsmswindows = pd.read_sql_query(diaframemsmswindows_query, self.conn)
 
-    # Get PrmFrameMsMsInfo table from analysis.tdf SQL database.
     def get_prmframemsmsinfo_table(self):
+        """
+        Get the PrmFrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.prmframemsmsinfo.
+        """
         prmframemsmsinfo_query = 'SELECT * FROM PrmFrameMsMsInfo'
         self.prmframemsmsinfo = pd.read_sql_query(prmframemsmsinfo_query, self.conn)
 
-    # Get PrmTargets table from analysis.tdf SQL database.
     def get_prmtargets_table(self):
+        """
+        Get the PrmTargets table from analysis.tdf as a pandas.DataFrame stored in
+        timsconvert.classes.TdfData.prmtargets.
+        """
         prmtargets_query = 'SELECT * FROM PrmTargets'
         self.prmtargets = pd.read_sql_query(prmtargets_query, self.conn)
 
     # Subset Frames table to only include MS1 rows. Used for chunking during data parsing/writing.
     def subset_ms1_frames(self):
+        """
+        Subset timsconvert.classes.TdfData.frames table (Frames table from analysis.tdf) to only include MS1 rows.
+        Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
+        pandas.DataFrame is stored in timsconvert.classes.TdfData.ms1_frames.
+        """
         self.ms1_frames = self.frames[self.frames['MsMsType'] == 0]['Id'].values.tolist()
         if len(self.ms1_frames) > 0 and self.ms1_frames[0] != 1:
             self.ms1_frames.insert(0, 1)
 
     def close_sql_connection(self):
+        """
+        Close the connection to analysis.tdf.
+        """
         self.conn.close()

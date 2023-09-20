@@ -1,0 +1,5 @@
+Source Code
+===========
+.. autofunction:: timsconvert.arg_descriptions
+.. autofunction:: timsconvert.get_args
+.. autofunction:: timsconvert.args_check

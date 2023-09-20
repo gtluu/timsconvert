@@ -10,17 +10,37 @@ from pyimzml.compression import NoCompression, ZlibCompression
 
 
 def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata):
+    """
+    Write metadata to mzML file using psims. Includes spectral metadat, source files, software list, instrument
+    configuration, and data processing. Note that TIMSCONVERT is not included as a data processing step due to a lack
+    CV param and compatibility with downstream data analysis software.
+
+    :param data: Object containing raw data information from TDF, TSF, or BAF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData | timsconvert.classes.BafData
+    :param writer: Instance of psims.mzml.MzMLWriter for output file.
+    :type writer: psims.mzml.MzMLWriter
+    :param infile: Input file path to be used for source file metadata.
+    :type infile: str
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param ms2_only: Whether to include MS1 data in the output files.
+    :type ms2_only: bool
+    :param barebones_metadata: If True, omit software and data processing metadata in the resulting mzML files. Used
+        for compatibility with downstream analysis software that does not have support for newer CV params or
+        UserParams.
+    :type barebones_metadata: bool
+    """
     # Basic file descriptions.
     file_description = []
     # Add spectra level and centroid/profile status.
-    if isinstance(data, baf_data):
+    if isinstance(data, BafData):
         ms_levels = list(set(data.acquisitionkeys['MsLevel'].values.tolist()))
         ms_levels = [int(i) for i in ms_levels]
         if 0 in ms_levels:
             file_description.append('MS1 spectrum')
         if 1 in ms_levels:
             file_description.append('MSn spectrum')
-    elif isinstance(data, tsf_data) or isinstance(data, tdf_data):
+    elif isinstance(data, TsfData) or isinstance(data, TdfData):
         ms_levels = list(set(data.frames['MsMsType'].values.tolist()))
         ms_levels = [int(i) for i in ms_levels]
         ms_levels_tmp = []
@@ -90,9 +110,13 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
         writer.data_processing_list([processing])
 
 
-# Calculate the number of spectra to be written.
-# Basically an abridged version of parse_lcms_tdf to account for empty spectra that don't end up getting written.
 def get_spectra_count(data):
+    """
+    Calculate the predicted number of spectra to be written.
+
+    :param data: Object containing raw data information from TDF, TSF, or BAF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData | timsconvert.classes.BafData
+    """
     if data.meta_data['SchemaType'] == 'TDF':
         ms1_count = data.frames[data.frames['MsMsType'] == 0]['MsMsType'].values.size
         if data.precursors is not None:
@@ -111,6 +135,23 @@ def get_spectra_count(data):
 
 
 def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
+    """
+    Calculate the actual number of spectra that were written to the output mzML file. Update is needed to prevent
+    counting emtpy spectra that were omitted from the output. Performs this by iterating over tmp mzML file that was
+    written and replacing the tmp file with a final mzML file with a true spectra count.
+
+    :param outdir: Output directory path that was specified from the command line parameters or the original input
+        file path if no output directory was specified.
+    :type outdir: str
+    :param outfile: Output filename that was specified from the command line parameters or the original input filename
+        if no output filename was specified.
+    :type outfile: str
+    :param num_of_spectra: Number of spectra that was calculated for the current file being converted using
+        timsconvert.write.get_spectra_count().
+    :type num_of_spectra: int
+    :param scan_count: Final true count for the number of spectra from the current file being converted.
+    :type scan_count: int
+    """
     if os.path.exists(os.path.join(outdir, outfile)):
         os.remove(os.path.join(outdir, outfile))
     with open(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', 'r') as in_stream, \
@@ -121,8 +162,23 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')
 
 
-# Write out MS1 spectrum in psims.
 def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
+    """
+    Write an MS1 spectrum to an mzML file using psims.
+
+    :param writer: Instance of psims.mzml.MzMLWriter for output file.
+    :type writer: psims.mzml.MzMLWriter
+    :param data: Object containing raw data information from TDF, TSF, or BAF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData | timsconvert.classes.BafData
+    :param scan: Dictionary containing standard spectrum data.
+    :type scan: dict
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :param title: Spectrum title to be used for MALDI data, defaults to None.
+    :type title: str | None
+    """
     # Build params list for spectrum.
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
@@ -165,8 +221,26 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
                           compression=compression)
 
 
-# Write out MS/MS spectrum in psims.
 def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=None, title=None):
+    """
+    Write an MS/MS spectrum to an mzML file using psims.
+
+    :param writer: Instance of psims.mzml.MzMLWriter for output file.
+    :type writer: psims.mzml.MzMLWriter
+    :param data: Object containing raw data information from TDF, TSF, or BAF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData | timsconvert.classes.BafData
+    :param scan: Dictionary containing standard spectrum data.
+    :type scan: dict
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :param parent_scan: Dictionary containing standard spectrum data for parent scan used to link MS/MS spectrum with
+        an MS1 spectrum.
+    :type parent_scan: dict | None
+    :param title: Spectrum title to be used for MALDI data, defaults to None.
+    :type title: str | None
+    """
     # Build params list for spectrum.
     params = [scan['scan_type'],
               {'ms level': scan['ms_level']},
@@ -234,6 +308,34 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
 
 def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, mode, ms2_only, exclude_mobility,
                              profile_bins, encoding, compression):
+    """
+    Parse and write out a group of spectra to an mzML file from an LC-MS(/MS) dataset using psims.
+
+    :param data: Object containing raw data information from TDF, TSF, or BAF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData | timsconvert.classes.BafData
+    :param writer: Instance of psims.mzml.MzMLWriter for output file.
+    :type writer: psims.mzml.MzMLWriter
+    :param frame_start: Beginning frame number.
+    :type frame_start: int
+    :param frame_stop: Ending frame number (non-inclusive).
+    :type frame_stop: int
+    :param scan_count: Current count for the number of spectra from the current file that have been converted.
+    :type scan_count: int
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param ms2_only: Whether to include MS1 data in the output files.
+    :type ms2_only: bool
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :param profile_bins: Number of bins to bin spectrum to.
+    :type profile_bins: int
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :return: Updated count for the number of spectra from the current file that have been converted.
+    :rtype: int
+    """
     # Parse TDF data
     if data.meta_data['SchemaType'] == 'TDF':
         parent_scans, product_scans = parse_lcms_tdf(data,
@@ -295,9 +397,42 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
     return scan_count
 
 
-# Parse out LC-MS(/MS) data and write out mzML file using psims.
 def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
                     compression, barebones_metadata, chunk_size):
+    """
+    Parse and write out spectra to an mzML file from an LC-MS(/MS) dataset using psims.
+
+    :param data: Object containing raw data information from TDF, TSF, or BAF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData | timsconvert.classes.BafData
+    :param infile: Input file path to be used for source file metadata.
+    :type infile: str
+    :param outdir: Output directory path that was specified from the command line parameters or the original input
+        file path if no output directory was specified.
+    :type outdir: str
+    :param outfile: Output filename that was specified from the command line parameters or the original input filename
+        if no output filename was specified.
+    :type outfile: str
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param ms2_only: Whether to include MS1 data in the output files.
+    :type ms2_only: bool
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :param profile_bins: Number of bins to bin spectrum to.
+    :type profile_bins: int
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :param barebones_metadata: If True, omit software and data processing metadata in the resulting mzML files. Used
+        for compatibility with downstream analysis software that does not have support for newer CV params or
+        UserParams.
+    :type barebones_metadata: bool
+    :param chunk_size: Number of MS1 spectra that to be used when subsetting dataset into smaller groups to pass onto
+        timsconvert.write.write_lcms_chunk_to_mzml() for memory efficiency; larger chunk_size requires more memory
+        during conversion.
+    :type chunk_size: int
+    """
     # Initialize mzML writer using psims.
     logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
     writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
@@ -372,10 +507,44 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                  os.path.join(outdir, outfile) + '...')
 
 
-# Parse out MALDI DD data and write out mzML file using psims.
 def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
                         compression, maldi_output_file, plate_map, barebones_metadata):
+    """
+    Parse and write out spectra to an mzML file from a MALDI-MS(/MS) dried droplet dataset using psims.
 
+    :param data: Object containing raw data information from TDF or TSF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData
+    :param infile: Input file path to be used for source file metadata.
+    :type infile: str
+    :param outdir: Output directory path that was specified from the command line parameters or the original input
+        file path if no output directory was specified.
+    :type outdir: str
+    :param outfile: Output filename that was specified from the command line parameters or the original input filename
+        if no output filename was specified.
+    :type outfile: str
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param ms2_only: Whether to include MS1 data in the output files.
+    :type ms2_only: bool
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :param profile_bins: Number of bins to bin spectrum to.
+    :type profile_bins: int
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :param maldi_output_file: Determines whether all spectra from a given .d dataset are written to a single mzML file
+        ("combined"), written to individual mzML files ("individual", i.e. one spectrum per file), or grouped to have
+        one mzML file per annotation/label/condition ("sample", requires CSV plate_map to be specified).
+    :type maldi_output_file: str
+    :param plate_map: Path to the MALDI plate map in CSV format.
+    :type plate_map: str
+    :param barebones_metadata: If True, omit software and data processing metadata in the resulting mzML files. Used
+        for compatibility with downstream analysis software that does not have support for newer CV params or
+        UserParams.
+    :type barebones_metadata: bool
+    """
     # All spectra from a given TSF or TDF file are combined into a single mzML file.
     if maldi_output_file == 'combined':
         # Initialize mzML writer using psims.
@@ -607,6 +776,26 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
 def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, profile_bins,
                                    encoding):
+    """
+    Parse and write out a group of spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
+
+    :param data: Object containing raw data information from TDF or TSF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData
+    :param imzml_file: Instance of pyimzml.ImzMLWriter.ImzMLWriter for output file.
+    :type imzml_file: pyimzml.ImzMLWriter.ImzMLWriter
+    :param frame_start: Beginning frame number.
+    :type frame_start: int
+    :param frame_stop: Ending frame number (non-inclusive).
+    :type frame_stop: int
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :param profile_bins: Number of bins to bin spectrum to.
+    :type profile_bins: int
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    """
     # Parse and write TSF data.
     if data.meta_data['SchemaType'] == 'TSF':
         list_of_scan_dicts = parse_maldi_tsf(data,
@@ -646,6 +835,35 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
 
 def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
                           compression, chunk_size):
+    """
+    Parse and write out spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
+
+    :param data: Object containing raw data information from TDF or TSF file.
+    :type data: timsconvert.classes.TdfData | timsconvert.classes.TsfData
+    :param outdir: Output directory path that was specified from the command line parameters or the original input
+        file path if no output directory was specified.
+    :type outdir: str
+    :param outfile: Output filename that was specified from the command line parameters or the original input filename
+        if no output filename was specified.
+    :type outfile: str
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :param profile_bins: Number of bins to bin spectrum to.
+    :type profile_bins: int
+    :param imzml_mode: Whether to export spectra in "processed" (individual m/z and intensity arrays per pixel) or
+        "continuous" mode (single m/z array for the entire dataset, individual intensity arrays per pixel).
+    :type imzml_mode: str
+    :param encoding: Encoding command line parameter, either "64" or "32".
+    :type encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :param chunk_size: Number of MS1 spectra that to be used when subsetting dataset into smaller groups to pass onto
+        timsconvert.write.write_lcms_chunk_to_mzml() for memory efficiency; larger chunk_size requires more memory
+        during conversion.
+    :type chunk_size: int
+    """
     # Set polarity for run in imzML.
     polarity = list(set(data.frames['Polarity'].values.tolist()))
     if len(polarity) == 1 and polarity[0] == '+':

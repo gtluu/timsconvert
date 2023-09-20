@@ -8,7 +8,8 @@ if os.path.isfile('requirements.txt'):
         install_requires = requirements_file.read().splitlines()
 for package in install_requires:
     if package.startswith('git'):
-        install_requires[install_requires.index(package)] = 'pyimzML @ ' + package
+        pname = package.split('/')[-1].split('.')[0]
+        install_requires[install_requires.index(package)] = pname + ' @ ' + package
 
 setup(
     name='timsconvert',

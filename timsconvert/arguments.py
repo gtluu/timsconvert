@@ -17,7 +17,8 @@ def get_args(server=False):
     :return: Arguments with default or user specified values.
     :rtype: dict
     """
-    with open(os.path.join(os.path.realpath(__file__), 'parameter_descriptions.json'), 'r') as json_file:
+    with open(os.path.join(os.path.realpath(os.path.dirname(__file__)),
+                           'parameter_descriptions.json'), 'r') as json_file:
         arg_descriptions = json.loads(json_file.read())
 
     # Initialize parser.

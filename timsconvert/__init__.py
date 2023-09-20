@@ -28,3 +28,5 @@ from timsconvert.init_bruker_dll import *
 from timsconvert.parse import *
 from timsconvert.timestamp import *
 from timsconvert.write import *
+
+timsconvert_version = '1.4.1'

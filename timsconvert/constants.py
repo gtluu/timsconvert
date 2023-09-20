@@ -60,55 +60,21 @@ MSMS_TYPE_CATEGORY = {'ms1': [0],
 if platform.system() == 'Windows':
     if platform.architecture()[0] == '64bit':
         TDF_SDK_VERSION = 'sdk22104'
-        TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                             os.path.join('bin',
-                                                          'lib',
-                                                          'tdfsdk',
-                                                          TDF_SDK_VERSION,
-                                                          'win64',
-                                                          'timsdata.dll'))
+        TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                             os.path.join('lib', 'timsdata.dll'))
         BAF2SQL_VERSION = 'sdk290'
-        BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                             os.path.join('bin',
-                                                          'lib',
-                                                          'baf2sql',
-                                                          BAF2SQL_VERSION,
-                                                          'win64',
-                                                          'baf2sql.dll'))
+        BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                             os.path.join('lib', 'baf2sql.dll'))
     elif platform.architecture()[0] == '32bit':
-        TDF_SDK_VERSION = 'sdk2871'
-        TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                             os.path.join('bin',
-                                                          'lib',
-                                                          'tdfsdk',
-                                                          TDF_SDK_VERSION,
-                                                          'win32',
-                                                          'timsdata.dll'))
-        BAF2SQL_VERSION = 'sdk290'
-        BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                             os.path.join('bin',
-                                                          'lib',
-                                                          'baf2sql',
-                                                          BAF2SQL_VERSION,
-                                                          'win32',
-                                                          'baf2sql.dll'))
+        print('32 bit platforms are no longer supported.')
+        sys.exit(1)
 elif platform.system() == 'Linux':
     TDF_SDK_VERSION = 'sdk22104'
-    TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                         os.path.join('bin',
-                                                      'lib',
-                                                      'tdfsdk',
-                                                      TDF_SDK_VERSION,
-                                                      'linux64',
-                                                      'timsdata.so'))
+    TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                         os.path.join('lib', 'timsdata.so'))
     BAF2SQL_VERSION = 'sdk290'
-    BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                         os.path.join('bin',
-                                                      'lib',
-                                                      'baf2sql',
-                                                      BAF2SQL_VERSION,
-                                                      'linux64',
-                                                      'baf2sql.so'))
+    BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                         os.path.join('lib', 'baf2sql.so'))
 else:
     logging.info(get_timestamp() + ':' + 'Bruker API not found...')
     logging.info(get_timestamp() + ':' + 'Exiting...')

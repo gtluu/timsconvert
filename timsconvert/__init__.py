@@ -24,7 +24,6 @@ from timsconvert.arguments import *
 from timsconvert.classes import *
 from timsconvert.constants import *
 from timsconvert.data_input import *
-from timsconvert.init_bruker_dll import *
 from timsconvert.parse import *
 from timsconvert.timestamp import *
 from timsconvert.write import *

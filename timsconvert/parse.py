@@ -1,5 +1,4 @@
 from timsconvert.constants import *
-from timsconvert.init_bruker_dll import *
 import numpy as np
 import pandas as pd
 import sys

@@ -1,7 +1,6 @@
 import sqlite3
 import numpy as np
 import pandas as pd
-from timsconvert.init_bruker_dll import *
 from timsconvert.parse import get_encoding_dtype, get_centroid_status
 
 

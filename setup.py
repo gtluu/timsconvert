@@ -18,7 +18,8 @@ setup(
     author_email='gtluu912@gmail.com',
     packages=['timsconvert', 'bin', 'lib', 'client', 'docs', 'docsrc', 'server', 'test'],
     include_package_data=True,
-    package_data={'': ['*.dll', '*.so']},
+    package_data={'': ['*.dll', '*.so'],
+                  'timsconvert': ['*.json']},
     description='TIMSCONVERT: A simple workflow for conversion of trapped ion mobility data to open-source formats',
     entry_points={'console_scripts': ['timsconvert=bin.run:main']},
     install_requires=install_requires

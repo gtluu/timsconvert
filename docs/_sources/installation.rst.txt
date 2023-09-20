@@ -21,33 +21,13 @@ Installing on Windows
 
         conda activate timsconvert
 
-5. Download TIMSCONVERT by cloning the Github repo.
-
-   * You will need to have `Git <https://git-scm.com/downloads>`_ installed and ensure that the option to enable symbolic links was checked during installation.
+5. Install TIMSCONVERT.
 
    .. code-block::
 
-        git clone https://www.github.com/gtluu/timsconvert
+        pip install git+https://github.com/gtluu/timsconvert
 
-   * It may be necessary to explicitly allow for the use of symbolic links by adding the -c core.symlinks=True
-
-   .. code-block::
-
-        git clone -c core.symlinks=true https://www.github.com/gtluu/timsconvert
-
-6. Install TIMSCONVERT's dependencies via ``pip``.
-
-   .. code-block::
-
-        pip install -r [path to timsconvert directory]/requirements.txt
-
-7. You will also need to install our forked version of ``pyimzML``, which has added support for ion mobility arrays in imzML data from imaging mass spectrometry experiments.
-
-   .. code-block::
-
-        pip install git+https://github.com/gtluu/pyimzML
-
-8. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
+6. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
 
 Installing on Linux
 -------------------
@@ -68,7 +48,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 
         bash [path to]/Anaconda3-2021.11-Linux-x86_64.sh
 
-3. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
+3. In the terminal, create a conda virtual environment. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
 
    .. code-block::
 
@@ -80,30 +60,10 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 
         conda activate timsconvert
 
-5. Download TIMSCONVERT by cloning the Github repo.
-
-   * You will need to have `Git <https://git-scm.com/downloads>`_ installed and ensure that the option to enable symbolic links was checked during installation.
+5. Install TIMSCONVERT.
 
    .. code-block::
 
-        git clone https://www.github.com/gtluu/timsconvert
+        pip install git+https://github.com/gtluu/timsconvert
 
-   * It may be necessary to explicitly allow for the use of symbolic links by adding the -c core.symlinks=True
-
-   .. code-block::
-
-        git clone -c core.symlinks=true https://www.github.com/gtluu/timsconvert
-
-6. Install TIMSCONVERT's dependencies via ``pip``.
-
-   .. code-block::
-
-        pip install -r [path to timsconvert directory]/requirements.txt
-
-7. You will also need to install our forked version of ``pyimzML``, which has added support for ion mobility arrays in imzML data from imaging mass spectrometry experiments.
-
-   .. code-block::
-
-        pip install git+https://github.com/gtluu/pyimzML
-
-8. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
+6. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.

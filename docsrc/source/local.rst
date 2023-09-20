@@ -13,13 +13,7 @@ are specified, their default values will be used.
 
 .. code-block::
 
-    python [path to timsconvert]/bin/run.py --input [path to data]
-
-In some cases, certain systems/terminals will require the use of the ``python3`` command instead of ``python``.
-
-.. code-block::
-
-    python3 [path to timsconvert]/bin/run.py --input [path to data]
+    timsconvert --input [path to data]
 
 Depending on the size of your data and the number of files being converted, TIMSCONVERT may take some time to finish
 conversion.

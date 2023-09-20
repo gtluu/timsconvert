@@ -15,11 +15,10 @@
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
-    <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Local Usage" href="local.html" />
-    <link rel="prev" title="About" href="about.html" />
+    <link rel="prev" title="About" href="introduction.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -55,27 +54,8 @@ so. Please note that TIMSCONVERT should be run under Windows or Linux. macOS is 
 </pre></div>
 </div>
 </li>
-<li><p>Download TIMSCONVERT by cloning the Github repo.</p>
-<ul class="simple">
-<li><p>You will need to have <a class="reference external" href="https://git-scm.com/downloads">Git</a> installed and ensure that the option to enable symbolic links was checked during installation.</p></li>
-</ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">timsconvert</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>It may be necessary to explicitly allow for the use of symbolic links by adding the -c core.symlinks=True</p></li>
-</ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">c</span> <span class="n">core</span><span class="o">.</span><span class="n">symlinks</span><span class="o">=</span><span class="n">true</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">timsconvert</span>
-</pre></div>
-</div>
-</li>
-<li><p>Install TIMSCONVERT’s dependencies via <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span> <span class="n">timsconvert</span> <span class="n">directory</span><span class="p">]</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-</div>
-</li>
-<li><p>You will also need to install our forked version of <code class="docutils literal notranslate"><span class="pre">pyimzML</span></code>, which has added support for ion mobility arrays in imzML data from imaging mass spectrometry experiments.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">pyimzML</span>
+<li><p>Install TIMSCONVERT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">timsconvert</span>
 </pre></div>
 </div>
 </li>
@@ -100,7 +80,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 </pre></div>
 </div>
 </li>
-<li><p>Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker’s API in Linux.</p>
+<li><p>In the terminal, create a conda virtual environment. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker’s API in Linux.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">timsconvert</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.7</span>
 </pre></div>
 </div>
@@ -110,27 +90,8 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 </pre></div>
 </div>
 </li>
-<li><p>Download TIMSCONVERT by cloning the Github repo.</p>
-<ul class="simple">
-<li><p>You will need to have <a class="reference external" href="https://git-scm.com/downloads">Git</a> installed and ensure that the option to enable symbolic links was checked during installation.</p></li>
-</ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">timsconvert</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>It may be necessary to explicitly allow for the use of symbolic links by adding the -c core.symlinks=True</p></li>
-</ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">-</span><span class="n">c</span> <span class="n">core</span><span class="o">.</span><span class="n">symlinks</span><span class="o">=</span><span class="n">true</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">timsconvert</span>
-</pre></div>
-</div>
-</li>
-<li><p>Install TIMSCONVERT’s dependencies via <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span> <span class="n">timsconvert</span> <span class="n">directory</span><span class="p">]</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-</div>
-</li>
-<li><p>You will also need to install our forked version of <code class="docutils literal notranslate"><span class="pre">pyimzML</span></code>, which has added support for ion mobility arrays in imzML data from imaging mass spectrometry experiments.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">pyimzML</span>
+<li><p>Install TIMSCONVERT.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gtluu</span><span class="o">/</span><span class="n">timsconvert</span>
 </pre></div>
 </div>
 </li>
@@ -158,7 +119,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-on-windows">Installing on Windows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-on-linux">Installing on Linux</a></li>
@@ -174,7 +135,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="about.html" title="previous chapter">About</a></li>
+      <li>Previous: <a href="introduction.html" title="previous chapter">About</a></li>
       <li>Next: <a href="local.html" title="next chapter">Local Usage</a></li>
   </ul></li>
 </ul>

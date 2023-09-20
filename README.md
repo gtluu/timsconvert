@@ -36,16 +36,15 @@ account. Usage instructions can be found [here](https://gtluu.github.io/timsconv
 
 ### Using TIMSCONVERT Locally
 
-The CLI version of TIMSCONVERT supports conversion of all experimental data types specified above.
+The CLI version of TIMSCONVERT supports conversion of all experimental data types specified above. The 
+```timsconvert``` command can be used to run TIMSCONVERT. Unless specified, all other default values for all other 
+parameters will be used.
 
-1. Use ```bin/run.py``` to run TIMSCONVERT. The input directory and experiment type. Unless specified, all other 
-default parameters for all other values will be used. See below for an explanation of all parameters.
 ```
-python /path/to/timsconvert/bin/run.py --input /path/to/data
-or
-python3 /path/to/timsconvert/bin/run.py --input /path/to/data
+timsconvert --input [path to data]
 ```
-2. Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
+
+Depending on the size of your data/number of files, TIMSCONVERT may take some time to finish conversion.
 
 See the documentation for more details on [running TIMSCONVERT locally](https://gtluu.github.io/timsconvert/local.html),
 a description of the CLI [parameters](https://gtluu.github.io/timsconvert/local.html#parameters), 

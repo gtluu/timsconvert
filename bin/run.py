@@ -56,11 +56,11 @@ def main():
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
         if schema == 'TSF':
-            data = TsfData(infile, tdf_sdk_dll)
+            data = TimsconvertTsfData(infile, tdf_sdk_dll)
         elif schema == 'TDF':
-            data = TdfData(infile, tdf_sdk_dll)
+            data = TimsconvertTdfData(infile, tdf_sdk_dll)
         elif schema == 'BAF':
-            data = BafData(infile, baf2sql_dll)
+            data = TimsconvertBafData(infile, baf2sql_dll)
 
         # Log arguments.
         for key, value in run_args.items():

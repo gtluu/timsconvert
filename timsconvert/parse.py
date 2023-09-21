@@ -3,6 +3,11 @@ import numpy as np
 import pandas as pd
 import sys
 import logging
+from pyTDFSDK.tims import (tims_scannum_to_oneoverk0, tims_oneoverk0_to_ccs_for_mz, tims_read_scans_v2,
+                           tims_index_to_mz, tims_extract_profile_for_frame,
+                           tims_extract_centroided_spectrum_for_frame_v2)
+from pyTDFSDK.tsf import tsf_read_line_spectrum_v2, tsf_read_profile_spectrum_v2, tsf_index_to_mz
+from pyBaf2Sql.baf import read_double
 
 
 def get_encoding_dtype(encoding):
@@ -61,18 +66,18 @@ def get_maldi_coords(data, maldiframeinfo_dict):
     """
     Get tuple of MALDI coordinates from analysis.tsf/analysis.tdf metadata.
 
-    :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
-    :type data: timsconvert.classes.TsfData | timsconvert.classes.TdfData
+    :param data: Object containing metadata from analysis.tsf/analysis.tdf database.
+    :type data: timsconvert.classes.TimsconvertTsfData | timsconvert.classes.TimsconvertTdfData
     :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tsf/analysis.tdf database.
     :type maldiframeinfo_dict: dict
     :return: x-y (or x-y-z if available) coordinates for the current spectrum.
     :rtype: tuple[int]
     """
-    if data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+    if data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
         coords = maldiframeinfo_dict['SpotName']
-    elif data.meta_data['MaldiApplicationType'] == 'Imaging':
+    elif data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
         coords = [int(maldiframeinfo_dict['XIndexPos']), int(maldiframeinfo_dict['YIndexPos'])]
-        if 'ZIndexPos' in data.maldiframeinfo.columns:
+        if 'ZIndexPos' in data.analysis['MaldiFrameInfo'].columns:
             coords.append(int(maldiframeinfo_dict['ZIndexPos']))
         coords = tuple(coords)
     return coords
@@ -119,7 +124,7 @@ def populate_scan_dict_w_baf_metadata(scan_dict, frames_dict, acquisitionkey_dic
     """
     Populate spectrum data dictionary with global metadata for BAF files.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param frames_dict: A row from the Spectra table in analysis.sqlite database for BAF files.
     :type frames_dict: dict
@@ -140,7 +145,7 @@ def populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array):
     """
     Populate spectrum data dictionary with binary data arrays and related metadata.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param mz_array: Array containing m/z values.
     :type mz_array: numpy.array
@@ -164,7 +169,7 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
     """
     Populate spectrum data dictionary with MS1 level metadata.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite
     database.
@@ -182,17 +187,17 @@ def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=Non
     """
     Populate spectrum data dictionary with MS2 level metadata when using bbCID or isCID mode.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite
         database.
     :type frame: int
-    :param schema: Schema as determined by timsconvert.data_input.schema detection, either TDF, TSF, or BAF.
+    :param schema: Schema as determined by timsconvert.data_input.schema_detection, either TDF, TSF, or BAF.
     :type schema: str
     :param baf_data: baf_data object containing metadata from analysis.sqlite database, defaults to None.
-    :type baf_data: timsconvert.classes.BafData | None
+    :type baf_data: timsconvert.classes.TimsconvertBafData | None
     :param framemsmsinfo_dict: A row from the FrameMsmsInfo table in analysis.tsf/analysis.tdf database, defaults to
-    None.
+        None.
     :type framemsmsinfo_dict: dict | None
     :return: Dictionary containing standard spectrum data.
     :rtype: dict
@@ -202,9 +207,10 @@ def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=Non
     if schema == 'TSF' or schema == 'TDF':
         scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
     elif schema == 'BAF':
-        scan_dict['collision_energy'] = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
-                                                                 (baf_data.variables['Variable'] ==
-                                                                  5)].to_dict(orient='records')[0]['Value'])
+        collision_energy = float(baf_data.analysis['Variables'][(baf_data.analysis['Variables']['Spectrum'] == frame) &
+                                                                (baf_data.analysis['Variables']['Variable'] ==
+                                                                 5)].to_dict(orient='records')[0]['Value'])
+        scan_dict['collision_energy'] = collision_energy
     scan_dict['frame'] = frame
     scan_dict['ms2_no_precursor'] = True
     return scan_dict
@@ -214,10 +220,10 @@ def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
     """
     Populate spectrum data dictionary with MS2 level metadata from BAF files.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param baf_data: baf_data object containing metadata from analysis.sqlite database.
-    :type baf_data: timsconvert.classes.BafData
+    :type baf_data: timsconvert.classes.TimsconvertBafData
     :param frames_dict: A row from the Spectra table in analysis.sqlite database.
     :type frames_dict: dict
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite.
@@ -227,21 +233,25 @@ def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
     """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
-    scan_dict['target_mz'] = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
-                                   (baf_data.variables['Variable'] == 7)].to_dict(orient='records')[0]['Value'])
-    isolation_width = float(baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
-                                               (baf_data.variables['Variable'] == 8)].to_dict(orient='records')[0][
-                                'Value'])
+    target_mz = float(baf_data.analysis['Variables'][(baf_data.analysis['Variables']['Spectrum'] == frame) &
+                                                     (baf_data.analysis['Variables']['Variable'] ==
+                                                      7)].to_dict(orient='records')[0]['Value'])
+    scan_dict['target_mz'] = target_mz
+    isolation_width = float(baf_data.analysis['Variables'][(baf_data.analysis['Variables']['Spectrum'] == frame) &
+                                                           (baf_data.analysis['Variables']['Variable'] ==
+                                                            8)].to_dict(orient='records')[0]['Value'])
     scan_dict['isolation_lower_offset'] = isolation_width / 2
     scan_dict['isolation_upper_offset'] = isolation_width / 2
-    steps_dict = baf_data.steps[baf_data.steps['TargetSpectrum'] == frame].to_dict(orient='records')[0]
+    steps_dict = baf_data.analysis['Steps'][baf_data.analysis['Steps']['TargetSpectrum'] ==
+                                            frame].to_dict(orient='records')[0]
     scan_dict['selected_ion_mz'] = float(steps_dict['Mass'])
-    scan_dict['charge_state'] = baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
-                                                   (baf_data.variables['Variable'] ==
-                                                    6)].to_dict(orient='records')[0]['Value']
-    scan_dict['collision_energy'] = baf_data.variables[(baf_data.variables['Spectrum'] == frame) &
-                                                       (baf_data.variables['Variable'] ==
-                                                        5)].to_dict(orient='records')[0]['Value']
+    scan_dict['charge_state'] = baf_data.analysis['Variables'][(baf_data.analysis['Variables']['Spectrum'] == frame) &
+                                                               (baf_data.analysis['Variables']['Variable'] ==
+                                                                6)].to_dict(orient='records')[0]['Value']
+    collision_energy = baf_data.analysis['Variables'][(baf_data.analysis['Variables']['Spectrum'] == frame) &
+                                                      (baf_data.analysis['Variables']['Variable'] ==
+                                                       5)].to_dict(orient='records')[0]['Value']
+    scan_dict['collision_energy'] = collision_energy
     scan_dict['parent_frame'] = int(frames_dict['Parent'])
     return scan_dict
 
@@ -250,7 +260,7 @@ def populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exc
     """
     Populate spectrum data dictionary with global metadata for TDF and TSF files.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param frames_dict: A row from the Frames table in analysis.tdf/analysis.tsf database.
     :type frames_dict: dict
@@ -272,10 +282,10 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
     """
     Populate spectrum data dictionary with MS2 level metadata when using ddaPASEF mode.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.TdfData
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
     :param precursor_dict: A row from the Precursor table in analysis.tdf/analysis.tsf database.
     :type precursor_dict: dict
     :param pasefframemsmsinfo_dicts: A row from the PasefFrameMsmsInfo table in analysis.tdf/analysis.tsf database.
@@ -290,16 +300,18 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
     scan_dict['isolation_upper_offset'] = float(pasefframemsmsinfo_dicts[0]['IsolationWidth']) / 2
     scan_dict['selected_ion_mz'] = float(precursor_dict['LargestPeakMz'])
     scan_dict['selected_ion_intensity'] = float(precursor_dict['Intensity'])
-    scan_dict['selected_ion_mobility'] = tdf_data.scan_num_to_oneoverk0(int(precursor_dict['Parent']),
-                                         np.array([int(precursor_dict['ScanNumber'])]))[0]
+    scan_dict['selected_ion_mobility'] = tims_scannum_to_oneoverk0(tdf_data.api, tdf_data.handle,
+                                                                   int(precursor_dict['Parent']),
+                                                                   np.array([int(precursor_dict['ScanNumber'])]))[0]
     scan_dict['charge_state'] = precursor_dict['Charge']
     scan_dict['collision_energy'] = pasefframemsmsinfo_dicts[0]['CollisionEnergy']
     scan_dict['parent_frame'] = int(precursor_dict['Parent'])
     scan_dict['parent_scan'] = int(precursor_dict['ScanNumber'])
     if not np.isnan(precursor_dict['Charge']):
-        scan_dict['selected_ion_ccs'] = one_over_k0_to_ccs(scan_dict['selected_ion_mobility'],
-                                                           int(precursor_dict['Charge']),
-                                                           float(precursor_dict['LargestPeakMz']))
+        scan_dict['selected_ion_ccs'] = tims_oneoverk0_to_ccs_for_mz(tdf_data.api,
+                                                                     scan_dict['selected_ion_mobility'],
+                                                                     int(precursor_dict['Charge']),
+                                                                     float(precursor_dict['LargestPeakMz']))
     return scan_dict
 
 
@@ -307,7 +319,7 @@ def populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict):
     """
     Populate spectrum data dictionary with MS2 level metadata when using diaPASEF mode.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param diaframemsmswindows_dict: A row from the DiaFrameMsmsWindows table in analysis.tdf/analysis.tsf database.
     :type diaframemsmswindows_dict: dict
@@ -324,11 +336,13 @@ def populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict):
     return scan_dict
 
 
-def populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict):
+def populate_scan_dict_w_prmpasef_ms2(tdf_data, scan_dict, prmframemsmsinfo_dict, prmtargets_dict):
     """
     Populate spectrum data dictionary with MS2 level metadata when using diaPASEF mode.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param prmframemsmsinfo_dict: A row from the PrmFrameMsmsInfo table in analysis.tdf/analysis.tsf database.
     :type prmframemsmsinfo_dict: dict
@@ -347,9 +361,10 @@ def populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtarge
     scan_dict['charge_state'] = prmtargets_dict['Charge']
     scan_dict['collision_energy'] = prmframemsmsinfo_dict['CollisionEnergy']
     if not np.isnan(prmtargets_dict['Charge']):
-        scan_dict['selected_ion_ccs'] = one_over_k0_to_ccs(scan_dict['selected_ion_mobility'],
-                                                           int(prmtargets_dict['Charge']),
-                                                           float(prmframemsmsinfo_dict['IsolationMz']))
+        scan_dict['selected_ion_ccs'] = tims_oneoverk0_to_ccs_for_mz(tdf_data.api,
+                                                                     scan_dict['selected_ion_mobility'],
+                                                                     int(prmtargets_dict['Charge']),
+                                                                     float(prmframemsmsinfo_dict['IsolationMz']))
     return scan_dict
 
 
@@ -357,10 +372,10 @@ def populate_scan_dict_w_maldi_metadata(scan_dict, data, frames_dict, maldiframe
     """
     Populate spectrum data dictionary with global metadata from MALDI TDF/TSF files.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param data: tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.
-    :type data: timsconvert.classes.TsfData | timsconvert.classes.TdfData
+    :type data: timsconvert.classes.TimsconvertTsfData | timsconvert.classes.TimsconvertTdfData
     :param frames_dict: A row from the Frames table in analysis.tdf/analysis.tsf database.
     :type frames_dict: dict
     :param maldiframeinfo_dict: A row from the MaldiFrameInfo table in analysis.tdf/analysis.tsf database.
@@ -382,7 +397,7 @@ def populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=False):
     """
     Populate spectrum data dictionary with MS2 level metadata from TSF files.
 
-    :param scan_dict: Spectrum data dictionary generated from init_scan_dict().
+    :param scan_dict: Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().
     :type scan_dict: dict
     :param framemsmsinfo_dict: A row from the FrameMsmsInfo table in analysis.tdf/analysis.tsf database.
     :type framemsmsinfo_dict: dict
@@ -436,7 +451,7 @@ def extract_baf_spectrum(baf_data, frames_dict, mode, profile_bins, encoding):
     "raw" mode is chosen, centroid mode will automatically be used.
 
     :param baf_data: baf_data object containing metadata from analysis.sqlite database.
-    :type baf_data: timsconvert.classes.BafData
+    :type baf_data: timsconvert.classes.TimsconvertBafData
     :param frames_dict: A row from the Spectra table in analysis.sqlite database.
     :type frames_dict: dict
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
@@ -449,12 +464,14 @@ def extract_baf_spectrum(baf_data, frames_dict, mode, profile_bins, encoding):
     :rtype: tuple[numpy.array]
     """
     if mode == 'raw' or mode == 'centroid':
-        mz_array = np.array(baf_data.read_array_double(frames_dict['LineMzId']), dtype=get_encoding_dtype(encoding))
-        intensity_array = np.array(baf_data.read_array_double(frames_dict['LineIntensityId']),
+        mz_array = np.array(read_double(baf_data.api, baf_data.handle, int(frames_dict['LineMzId'])),
+                            dtype=get_encoding_dtype(encoding))
+        intensity_array = np.array(read_double(baf_data.api, baf_data.handle, int(frames_dict['LineIntensityId'])),
                                    dtype=get_encoding_dtype(encoding))
     elif mode == 'profile':
-        mz_array = np.array(baf_data.read_array_double(frames_dict['ProfileMzId']), dtype=get_encoding_dtype(encoding))
-        intensity_array = np.array(baf_data.read_array_double(frames_dict['ProfileIntensityId']),
+        mz_array = np.array(read_double(baf_data.api, baf_data.handle, int(frames_dict['ProfileMzId'])),
+                            dtype=get_encoding_dtype(encoding))
+        intensity_array = np.array(read_double(baf_data.api, baf_data.handle, int(frames_dict['ProfileIntensityId'])),
                                    dtype=get_encoding_dtype(encoding))
         if profile_bins != 0:
             mz_array, intensity_array = bin_profile_spectrum(mz_array, intensity_array, profile_bins, encoding)
@@ -465,11 +482,11 @@ def extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding):
     """
     Extract spectrum from TSF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
     mode. If "raw" mode is chosen, centroid mode will automatically be used. "Centroid" mode uses
-    tsf_data.extract_centroided_spectrum_for_frame() method. "Profile" mode uses
-    tsf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
+    pyTDFSDK.tsf.tsf_read_line_spectrum_v2() method. "Profile" mode uses pyTDFSDK.tsf.tsf_read_profile_spectrum_v2() to
+    extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tsf_data: tsf_data object containing metadata from analysis.tsf database.
-    :type tsf_data: timsconvert.classes.TsfData
+    :type tsf_data: timsconvert.classes.TimsconvertTsfData
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
@@ -482,12 +499,12 @@ def extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding):
     :rtype: tuple[numpy.array]
     """
     if mode == 'raw' or mode == 'centroid':
-        index_buf, intensity_array = tsf_data.read_line_spectrum(frame)
-        mz_array = tsf_data.index_to_mz(frame, index_buf)
+        index_buf, intensity_array = tsf_read_line_spectrum_v2(tsf_data.api, tsf_data.handle, frame)
+        mz_array = tsf_index_to_mz(tsf_data.api, tsf_data.handle, frame, index_buf)
     elif mode == 'profile':
-        index_buf, intensity_array = tsf_data.read_profile_spectrum(frame)
+        index_buf, intensity_array = tsf_read_profile_spectrum_v2(tsf_data.api, tsf_data.handle, frame)
         intensity_array = np.array(intensity_array, dtype=get_encoding_dtype(encoding))
-        mz_array = tsf_data.index_to_mz(frame, index_buf)
+        mz_array = tsf_index_to_mz(tsf_data.api, tsf_data.handle, frame, index_buf)
         if profile_bins != 0:
             mz_array, intensity_array = bin_profile_spectrum(mz_array, intensity_array, profile_bins, encoding)
     return mz_array, intensity_array
@@ -496,12 +513,12 @@ def extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding):
 def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile_bins, encoding):
     """
     Extract spectrum from TDF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
-    mode. "Raw" mode uses tdf_data.read_scans() method, while "centroid" mode uses
-    tdf_data.extract_centroided_spectrum_for_frame() method. "Profile" mode uses
-    tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
+    mode. "Raw" mode uses pyTDFSDK.tims.tims_read_scans_v2() method, while "centroid" mode uses
+    pyTDFSDK.tims.tims_extract_centroided_spectrum_for_frame_v2() method. "Profile" mode uses
+    pyTDFSDK.tims.tims_extract_profile_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.TdfData
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
@@ -518,14 +535,14 @@ def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile
     :rtype: tuple[numpy.array | None]
     """
     if mode == 'raw':
-        list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
+        list_of_scans = tims_read_scans_v2(tdf_data.api, tdf_data.handle, frame, scan_begin, scan_end)
         frame_mz_arrays = []
         frame_intensity_arrays = []
         for scan_num in range(scan_begin, scan_end):
             if list_of_scans[scan_num][0].size != 0 \
                     and list_of_scans[scan_num][1].size != 0 \
                     and list_of_scans[scan_num][0].size == list_of_scans[scan_num][1].size:
-                mz_array = tdf_data.index_to_mz(frame, list_of_scans[scan_num][0])
+                mz_array = tims_index_to_mz(tdf_data.api, tdf_data.handle, frame, list_of_scans[scan_num][0])
                 intensity_array = list_of_scans[scan_num][1]
                 frame_mz_arrays.append(mz_array)
                 frame_intensity_arrays.append(intensity_array)
@@ -540,13 +557,21 @@ def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile
         else:
             return None, None
     elif mode == 'profile':
-        index_buf, intensity_array = tdf_data.extract_profile_spectrum_for_frame(frame, scan_begin, scan_end)
+        index_buf, intensity_array = tims_extract_profile_for_frame(tdf_data.api,
+                                                                    tdf_data.handle,
+                                                                    frame,
+                                                                    scan_begin,
+                                                                    scan_end)
         intensity_array = np.array(intensity_array, dtype=get_encoding_dtype(encoding))
-        mz_array = tdf_data.index_to_mz(frame, index_buf)
+        mz_array = tims_index_to_mz(tdf_data.api, tdf_data.handle, frame, index_buf)
         if profile_bins != 0:
             mz_array, intensity_array = bin_profile_spectrum(mz_array, intensity_array, profile_bins, encoding)
     elif mode == 'centroid':
-        mz_array, intensity_array = tdf_data.extract_centroided_spectrum_for_frame(frame, scan_begin, scan_end)
+        mz_array, intensity_array = tims_extract_centroided_spectrum_for_frame_v2(tdf_data.api,
+                                                                                  tdf_data.handle,
+                                                                                  frame,
+                                                                                  scan_begin,
+                                                                                  scan_end)
         mz_array = np.array(mz_array, dtype=get_encoding_dtype(encoding))
         intensity_array = np.array(intensity_array, dtype=get_encoding_dtype(encoding))
     return mz_array, intensity_array
@@ -555,12 +580,11 @@ def extract_2d_tdf_spectrum(tdf_data, mode, frame, scan_begin, scan_end, profile
 def extract_3d_tdf_spectrum(tdf_data, frame, scan_begin, scan_end):
     """
     Extract spectrum from TDF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
-    mode. "Raw" mode uses tdf_data.read_scans() method, while "centroid" mode uses
-    tdf_data.extract_centroided_spectrum_for_frame() method. "Profile" mode uses
-    tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
+    mode. "Raw" and "centroid" modes uses pyTDFSDK.tims.tims_read_scans_v2(). "Profile" mode data is not available due
+    to the resulting data size.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.TdfData
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
     :param frame: Frame ID from the Frames table in analysis.tdf/analysis.tsf database.
     :type frame: int
     :param scan_begin: Beginning scan number (corresponding to 1/K0 value) within frame.
@@ -571,7 +595,7 @@ def extract_3d_tdf_spectrum(tdf_data, frame, scan_begin, scan_end):
         (None, None, None) if spectra are empty.
     :rtype: tuple[numpy.array | None]
     """
-    list_of_scans = tdf_data.read_scans(frame, scan_begin, scan_end)  # tuple (index_array, intensity_array)
+    list_of_scans = tims_read_scans_v2(tdf_data.api, tdf_data.handle, frame, scan_begin, scan_end)
     frame_mz_arrays = []
     frame_intensity_arrays = []
     frame_mobility_arrays = []
@@ -582,9 +606,9 @@ def extract_3d_tdf_spectrum(tdf_data, frame, scan_begin, scan_end):
         if list_of_scans[scan_num][0].size != 0 \
                 and list_of_scans[scan_num][1].size != 0 \
                 and list_of_scans[scan_num][0].size == list_of_scans[scan_num][1].size:
-            mz_array = tdf_data.index_to_mz(frame, list_of_scans[scan_num][0])
+            mz_array = tims_index_to_mz(tdf_data.api, tdf_data.handle, frame, list_of_scans[scan_num][0])
             intensity_array = list_of_scans[scan_num][1]
-            mobility = tdf_data.scan_num_to_oneoverk0(frame, np.array([scan_num]))[0]
+            mobility = tims_scannum_to_oneoverk0(tdf_data.api, tdf_data.handle, frame, np.array([scan_num]))[0]
             mobility_array = np.repeat(mobility, mz_array.size)
             frame_mz_arrays.append(mz_array)
             frame_intensity_arrays.append(intensity_array)
@@ -606,12 +630,12 @@ def extract_3d_tdf_spectrum(tdf_data, frame, scan_begin, scan_end):
 def extract_ddapasef_precursor_spectrum(tdf_data, pasefframemsmsinfo_dicts, mode, profile_bins, encoding):
     """
     Extract spectrum from TDF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
-    mode. "Raw" mode uses tdf_data.read_scans() method, while "centroid" mode uses
-    tdf_data.extract_centroided_spectrum_for_frame() method. "Profile" mode uses
-    tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
+    mode. "Raw" mode uses pyTDFSDK.tims.tims_read_scans_v2() method, while "centroid" mode uses
+    pyTDFSDK.tims.tims_extract_centroided_spectrum_for_frame_v2() method. "Profile" mode uses
+    pyTDFSDK.tims.tims_extract_profile_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.TdfData
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
     :param pasefframemsmsinfo_dicts: A row from the PasefFrameMsmsInfo table in analysis.tdf database.
     :type pasefframemsmsinfo_dicts: dict
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
@@ -644,8 +668,8 @@ def extract_ddapasef_precursor_spectrum(tdf_data, pasefframemsmsinfo_dicts, mode
                                axis=-1)
         pasef_array = np.unique(pasef_array[np.argsort(pasef_array[:, 0])], axis=0)
 
-        mz_acq_range_lower = float(tdf_data.meta_data['MzAcqRangeLower'])
-        mz_acq_range_upper = float(tdf_data.meta_data['MzAcqRangeUpper'])
+        mz_acq_range_lower = float(tdf_data.analysis['GlobalMetadata']['MzAcqRangeLower'])
+        mz_acq_range_upper = float(tdf_data.analysis['GlobalMetadata']['MzAcqRangeUpper'])
         bin_size = 0.005
         bins = np.arange(mz_acq_range_lower, mz_acq_range_upper, bin_size,
                          dtype=get_encoding_dtype(encoding))
@@ -668,7 +692,7 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     MS/MS, or bbCID MS/MS mode in otofControl.
 
     :param baf_data: baf_data object containing metadata from analysis.sqlite database.
-    :type baf_data: timsconvert.classes.BafData
+    :type baf_data: timsconvert.classes.TimsconvertBafData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -690,9 +714,10 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
 
     for frame in range(frame_start, frame_stop):
         scan_dict = init_scan_dict()
-        frames_dict = baf_data.frames[baf_data.frames['Id'] == frame].to_dict(orient='records')[0]
-        acquisitionkey_dict = baf_data.acquisitionkeys[baf_data.acquisitionkeys['Id'] ==
-                                                       frames_dict['AcquisitionKey']].to_dict(orient='records')[0]
+        frames_dict = baf_data.analysis['Spectra'][baf_data.analysis['Spectra']['Id'] ==
+                                                   frame].to_dict(orient='records')[0]
+        acquisitionkey_dict = baf_data.analysis['AcquisitionKeys'][baf_data.analysis['AcquisitionKeys']['Id'] ==
+                                                                   frames_dict['AcquisitionKey']].to_dict(orient='records')[0]
         scan_dict = populate_scan_dict_w_baf_metadata(scan_dict, frames_dict, acquisitionkey_dict, mode)
 
         mz_array, intensity_array = extract_baf_spectrum(baf_data, frames_dict, mode, profile_bins, encoding)
@@ -720,10 +745,10 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
 def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bins, encoding):
     """
     Parse group of frames from LC-MS(/MS) data from Bruker TSF files acquired in Auto MS/MS mode MS1 only, Auto MS/MS,
-    MRM MS/MS, or bbCID MS/MS modein timsControl.
+    MRM MS/MS, or bbCID MS/MS mode in timsControl.
 
     :param tsf_data: tsf_data object containing metadata from analysis.tsf database.
-    :type tsf_data: timsconvert.classes.TsfData
+    :type tsf_data: timsconvert.classes.TimsconvertTsfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -745,7 +770,8 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
 
     for frame in range(frame_start, frame_stop):
         scan_dict = init_scan_dict()
-        frames_dict = tsf_data.frames[tsf_data.frames['Id'] == frame].to_dict(orient='records')[0]
+        frames_dict = tsf_data.analysis['Frames'][tsf_data.analysis['Frames']['Id'] ==
+                                                  frame].to_dict(orient='records')[0]
         scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility=None)
 
         mz_array, intensity_array = extract_tsf_spectrum(tsf_data, mode, frame, profile_bins, encoding)
@@ -755,8 +781,8 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                 scan_dict = populate_scan_dict_w_ms1(scan_dict, frame)
                 list_of_parent_scans.append(scan_dict)
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-                framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
-                                                            frame].to_dict(orient='records')[0]
+                framemsmsinfo_dict = tsf_data.analysis['FrameMsMsInfo'][tsf_data.analysis['FrameMsMsInfo']['Frame'] ==
+                                                                        frame].to_dict(orient='records')[0]
                 if int(frames_dict['ScanMode']) == 1:
                     scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
                     list_of_product_scans.append(scan_dict)
@@ -778,7 +804,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
     MS/MS, bbCID MS/MS, MRM MS/MS, or prmPASEF MS/MS mode in timsControl.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.TdfData
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -804,7 +830,8 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
     # Frame start and frame stop will only be MS1 frames; MS2 frames cannot be used as frame_start and frame_stop.
     for frame in range(frame_start, frame_stop):
         # Parse MS1 frame(s).
-        frames_dict = tdf_data.frames[tdf_data.frames['Id'] == frame].to_dict(orient='records')[0]
+        frames_dict = tdf_data.analysis['Frames'][tdf_data.analysis['Frames']['Id'] ==
+                                                  frame].to_dict(orient='records')[0]
 
         if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1'] and not ms2_only:
             scan_dict = init_scan_dict()
@@ -837,15 +864,16 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
             if frame_stop - frame_start > 1:
                 # Parse frames with ddaPASEF spectra for precursors.
                 if int(frames_dict['ScanMode']) == 8 and int(frames_dict['MsMsType']) == 0:
-                    precursor_dicts = tdf_data.precursors[tdf_data.precursors['Parent'] == frame].to_dict(orient='records')
+                    precursor_dicts = tdf_data.analysis['Precursors'][tdf_data.analysis['Precursors']['Parent'] ==
+                                                                      frame].to_dict(orient='records')
                     for precursor_dict in precursor_dicts:
                         scan_dict = init_scan_dict()
                         scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict,
                                                                                frames_dict,
                                                                                mode,
                                                                                exclude_mobility)
-                        pasefframemsmsinfo_dicts = tdf_data.pasefframemsmsinfo[tdf_data.pasefframemsmsinfo['Precursor'] ==
-                                                                            precursor_dict['Id']].to_dict(orient='records')
+                        pasefframemsmsinfo_dicts = tdf_data.analysis['PasefFrameMsMsInfo'][tdf_data.analysis['PasefFrameMsMsInfo']['Precursor'] ==
+                                                                                           precursor_dict['Id']].to_dict(orient='records')
                         mz_array, intensity_array = extract_ddapasef_precursor_spectrum(tdf_data,
                                                                                         pasefframemsmsinfo_dicts,
                                                                                         mode,
@@ -860,10 +888,10 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                             list_of_product_scans.append(scan_dict)
         # Parse frames with diaPASEF spectra.
         elif int(frames_dict['ScanMode']) == 9 and int(frames_dict['MsMsType']) == 9:
-            diaframemsmsinfo_dict = tdf_data.diaframemsmsinfo[tdf_data.diaframemsmsinfo['Frame'] ==
-                                                              frame].to_dict(orient='records')[0]
-            diaframemsmswindows_dicts = tdf_data.diaframemsmswindows[tdf_data.diaframemsmswindows['WindowGroup'] ==
-                                        diaframemsmsinfo_dict['WindowGroup']].to_dict(orient='records')
+            diaframemsmsinfo_dict = tdf_data.analysis['DiaFrameMsMsInfo'][tdf_data.analysis['DiaFrameMsMsInfo']['Frame'] ==
+                                                                          frame].to_dict(orient='records')[0]
+            diaframemsmswindows_dicts = tdf_data.analysis['DiaFrameMsMsWindows'][tdf_data.analysis['DiaFrameMsMsWindows']['WindowGroup'] ==
+                                                                                 diaframemsmsinfo_dict['WindowGroup']].to_dict(orient='records')
 
             for diaframemsmswindows_dict in diaframemsmswindows_dicts:
                 scan_dict = init_scan_dict()
@@ -899,8 +927,8 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
         elif int(frames_dict['ScanMode']) == 4 and int(frames_dict['MsMsType']) == 2:
             scan_dict = init_scan_dict()
             scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
-            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
-                                                        frame].to_dict(orient='records')[0]
+            framemsmsinfo_dict = tdf_data.analysis['FrameMsMsInfo'][tdf_data.analysis['FrameMsMsInfo']['Frame'] ==
+                                                                    frame].to_dict(orient='records')[0]
             scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
                                                              frame,
                                                              'TDF',
@@ -931,8 +959,8 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
         elif int(frames_dict['ScanMode']) == 2 and int(frames_dict['MsMsType']) == 2:
             scan_dict = init_scan_dict()
             scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
-            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
-                                                        frame].to_dict(orient='records')[0]
+            framemsmsinfo_dict = tdf_data.analysis['FrameMsMsInfo'][tdf_data.analysis['FrameMsMsInfo']['Frame'] ==
+                                                                    frame].to_dict(orient='records')[0]
             mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                 mode,
                                                                 frame,
@@ -953,10 +981,10 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
         elif int(frames_dict['ScanMode']) == 10 and int(frames_dict['MsMsType']) == 10:
             scan_dict = init_scan_dict()
             scan_dict = populate_scan_dict_w_lcms_tsf_tdf_metadata(scan_dict, frames_dict, mode, exclude_mobility)
-            prmframemsmsinfo_dict = tdf_data.prmframemsmsinfo[tdf_data.prmframemsmsinfo['Frame'] ==
-                                                              frame].to_dict(orient='records')[0]
-            prmtargets_dict = tdf_data.prmtargets[tdf_data.prmtargets['Id'] ==
-                                                  int(prmframemsmsinfo_dict['Target'])].to_dict(orient='records')[0]
+            prmframemsmsinfo_dict = tdf_data.analysis['PrmFrameMsMsInfo'][tdf_data.analysis['PrmFrameMsMsInfo']['Frame'] ==
+                                                                          frame].to_dict(orient='records')[0]
+            prmtargets_dict = tdf_data.analysis['PrmTargets'][tdf_data.analysis['PrmTargets']['Id'] ==
+                                                              int(prmframemsmsinfo_dict['Target'])].to_dict(orient='records')[0]
             mz_array, intensity_array = extract_2d_tdf_spectrum(tdf_data,
                                                                 mode,
                                                                 frame,
@@ -969,7 +997,10 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                     and mz_array.size == intensity_array.size \
                     and mz_array is not None \
                     and intensity_array is not None:
-                scan_dict = populate_scan_dict_w_prmpasef_ms2(scan_dict, prmframemsmsinfo_dict, prmtargets_dict)
+                scan_dict = populate_scan_dict_w_prmpasef_ms2(tdf_data,
+                                                              scan_dict,
+                                                              prmframemsmsinfo_dict,
+                                                              prmtargets_dict)
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
@@ -998,7 +1029,7 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_b
     mode in timsControl.
 
     :param tsf_data: tsf_data object containing metadata from analysis.tsf database.
-    :type tsf_data: timsconvert.classes.TsfData
+    :type tsf_data: timsconvert.classes.TimsconvertTsfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -1018,9 +1049,10 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_b
 
     for frame in range(frame_start, frame_stop):
         scan_dict = init_scan_dict()
-        frames_dict = tsf_data.frames[tsf_data.frames['Id'] == frame].to_dict(orient='records')[0]
-        maldiframeinfo_dict = tsf_data.maldiframeinfo[tsf_data.maldiframeinfo['Frame'] ==
-                                                      frame].to_dict(orient='records')[0]
+        frames_dict = tsf_data.analysis['Frames'][tsf_data.analysis['Frames']['Id'] ==
+                                                  frame].to_dict(orient='records')[0]
+        maldiframeinfo_dict = tsf_data.analysis['MaldiFrameInfo'][tsf_data.analysis['MaldiFrameInfo']['Frame'] ==
+                                                                  frame].to_dict(orient='records')[0]
         scan_dict = populate_scan_dict_w_maldi_metadata(scan_dict,
                                                         tsf_data,
                                                         frames_dict,
@@ -1035,8 +1067,8 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_b
                 scan_dict = populate_scan_dict_w_ms1(scan_dict, frame)
                 list_of_scan_dicts.append(scan_dict)
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-                framemsmsinfo_dict = tsf_data.framemsmsinfo[tsf_data.framemsmsinfo['Frame'] ==
-                                                            maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
+                framemsmsinfo_dict = tsf_data.analysis['FrameMsMsInfo'][tsf_data.analysis['FrameMsMsInfo']['Frame'] ==
+                                                                        maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
                 scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict)
                 list_of_scan_dicts.append(scan_dict)
     return list_of_scan_dicts
@@ -1048,7 +1080,7 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
     mode in timsControl.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
-    :type tdf_data: timsconvert.classes.TdfData
+    :type tdf_data: timsconvert.classes.TimsconvertTdfData
     :param frame_start: Beginning frame number.
     :type frame_start: int
     :param frame_stop: Ending frame number (non-inclusive).
@@ -1071,9 +1103,10 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
 
     for frame in range(frame_start, frame_stop):
         scan_dict = init_scan_dict()
-        frames_dict = tdf_data.frames[tdf_data.frames['Id'] == frame].to_dict(orient='records')[0]
-        maldiframeinfo_dict = tdf_data.maldiframeinfo[tdf_data.maldiframeinfo['Frame'] ==
-                                                      frame].to_dict(orient='records')[0]
+        frames_dict = tdf_data.analysis['Frames'][tdf_data.analysis['Frames']['Id'] ==
+                                                  frame].to_dict(orient='records')[0]
+        maldiframeinfo_dict = tdf_data.analysis['MaldiFrameInfo'][tdf_data.analysis['MaldiFrameInfo']['Frame'] ==
+                                                                  frame].to_dict(orient='records')[0]
 
         scan_dict = populate_scan_dict_w_maldi_metadata(scan_dict,
                                                         tdf_data,
@@ -1109,8 +1142,8 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                     scan_dict['mobility_array'] = mobility_array
                 list_of_scan_dicts.append(scan_dict)
         elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
-            framemsmsinfo_dict = tdf_data.framemsmsinfo[tdf_data.framemsmsinfo['Frame'] ==
-                                                        maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
+            framemsmsinfo_dict = tdf_data.analysis['FrameMsMsInfo'][tdf_data.analysis['FrameMsMsInfo']['Frame'] ==
+                                                                    maldiframeinfo_dict['Frame']].to_dict(orient='records')[0]
             if not exclude_mobility:
                 mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,
                                                                                     frame,

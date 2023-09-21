@@ -1,6 +1,3 @@
-import sys
-import platform
-import os
 import logging
 from timsconvert.timestamp import *
 
@@ -56,4 +53,3 @@ MSMS_TYPE = {'0': 'MS',
 
 MSMS_TYPE_CATEGORY = {'ms1': [0],
                       'ms2': [2, 8, 9]}
-

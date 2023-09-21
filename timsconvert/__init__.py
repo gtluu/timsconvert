@@ -19,6 +19,8 @@ from ctypes import (cdll, POINTER, CFUNCTYPE, create_string_buffer,
 
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter
+from pyBaf2Sql import *
+from pyTDFSDK import *
 
 from timsconvert.arguments import *
 from timsconvert.classes import *

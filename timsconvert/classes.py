@@ -1,10 +1,6 @@
-import sqlite3
-import numpy as np
-import pandas as pd
 from pyBaf2Sql.classes import BafData
 from pyTDFSDK.classes import TsfData, TdfData
 from pyTDFSDK.ctypes_data_structures import PressureCompensationStrategy
-from timsconvert.parse import get_encoding_dtype, get_centroid_status
 
 
 class TimsconvertBafData(BafData):
@@ -30,8 +26,8 @@ class TimsconvertBafData(BafData):
     def subset_ms1_frames(self):
         """
         Subset timsconvert.classes.BafData.frames table (Spectra table from analysis.sqlite) to only include MS1 rows.
-        Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
-        pandas.DataFrame is stored in timsconvert.classes.BafData.ms1_frames.
+        Used during the subsetting process during data parsing/writing for memory efficiency. The subset
+        pandas.DataFrame is stored in timsconvert.classes.TimsconvertBafData.ms1_frames.
         """
         self.ms1_frames = self.analysis['Spectra'][self.analysis['Spectra']['AcquisitionKey'] == 1]['Id'].values.tolist()
 
@@ -57,8 +53,8 @@ class TimsconvertTsfData(TsfData):
     def subset_ms1_frames(self):
         """
         Subset timsconvert.classes.TsfData.frames table (Frames table from analysis.tsf) to only include MS1 rows.
-        Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
-        pandas.DataFrame is stored in timsconvert.classes.TsfData.ms1_frames.
+        Used during the subsetting process during data parsing/writing for memory efficiency. The subset
+        pandas.DataFrame is stored in timsconvert.classes.TimsconvertTsfData.ms1_frames.
         """
         self.ms1_frames = self.analysis['Frames'][self.analysis['Frames']['MsMsType'] == 0]['Id'].values.tolist()
 
@@ -92,8 +88,8 @@ class TimsconvertTdfData(TdfData):
     def subset_ms1_frames(self):
         """
         Subset timsconvert.classes.TdfData.frames table (Frames table from analysis.tdf) to only include MS1 rows.
-        Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
-        pandas.DataFrame is stored in timsconvert.classes.TdfData.ms1_frames.
+        Used during the subsetting process during data parsing/writing for memory efficiency. The subset
+        pandas.DataFrame is stored in timsconvert.classes.TimsconvertTdfData.ms1_frames.
         """
         self.ms1_frames = self.analysis['Frames'][self.analysis['Frames']['MsMsType'] == 0]['Id'].values.tolist()
         if len(self.ms1_frames) > 0 and self.ms1_frames[0] != 1:

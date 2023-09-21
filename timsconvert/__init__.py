@@ -14,13 +14,16 @@ import logging
 import numpy as np
 import pandas as pd
 
-from ctypes import (cdll, POINTER, CFUNCTYPE, create_string_buffer,
-                    c_char_p, c_void_p, c_double, c_float, c_int, c_int64, c_int32, c_uint64, c_uint32)
-
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter
-from pyBaf2Sql import *
-from pyTDFSDK import *
+from pyBaf2Sql.classes import BafData
+from pyTDFSDK.classes import TsfData, TdfData
+from pyTDFSDK.ctypes_data_structures import PressureCompensationStrategy
+from pyTDFSDK.tims import (tims_scannum_to_oneoverk0, tims_oneoverk0_to_ccs_for_mz, tims_read_scans_v2,
+                           tims_index_to_mz, tims_extract_profile_for_frame,
+                           tims_extract_centroided_spectrum_for_frame_v2)
+from pyTDFSDK.tsf import tsf_read_line_spectrum_v2, tsf_read_profile_spectrum_v2, tsf_index_to_mz
+from pyBaf2Sql.baf import read_double
 
 from timsconvert.arguments import *
 from timsconvert.classes import *
@@ -30,4 +33,4 @@ from timsconvert.parse import *
 from timsconvert.timestamp import *
 from timsconvert.write import *
 
-timsconvert_version = '1.4.1'
+timsconvert_version = '1.4.2'

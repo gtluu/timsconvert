@@ -14,10 +14,10 @@ class TimsconvertBafData(BafData):
     :type baf2sql: ctypes.CDLL
     :param raw_calibration: Whether to use recalibrated data (False) or not (True), defaults to False.
     :type raw_calibration: bool
-    :param all_variables: Whether to load all variables from analysis.sqlite database, defaults to False.
+    :param all_variables: Whether to load all variables from analysis.sqlite database, defaults to True.
     :type all_variables: bool
     """
-    def __init__(self, bruker_d_folder_name: str, baf2sql, raw_calibration=False, all_variables=False):
+    def __init__(self, bruker_d_folder_name: str, baf2sql, raw_calibration=False, all_variables=True):
         # Initialize attributes and methods of the parent class.
         super().__init__(bruker_d_folder_name, baf2sql, raw_calibration, all_variables)
         self.ms1_frames = None

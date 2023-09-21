@@ -1,8 +1,6 @@
 from timsconvert.constants import *
 import numpy as np
 import pandas as pd
-import sys
-import logging
 from pyTDFSDK.tims import (tims_scannum_to_oneoverk0, tims_oneoverk0_to_ccs_for_mz, tims_read_scans_v2,
                            tims_index_to_mz, tims_extract_profile_for_frame,
                            tims_extract_centroided_spectrum_for_frame_v2)

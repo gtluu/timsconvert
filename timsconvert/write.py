@@ -2,7 +2,6 @@ from timsconvert.parse import *
 from timsconvert.classes import *
 import os
 import logging
-from lxml.etree import parse, XMLParser
 import numpy as np
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter
@@ -128,7 +127,7 @@ def get_spectra_count(data):
     """
     if isinstance(data, TimsconvertTdfData):
         ms1_count = data.analysis['Frames'][data.analysis['Frames']['MsMsType'] == 0]['MsMsType'].values.size
-        if data.analysis['Precursors'] is not None:
+        if 'Precursors' in data.analysis.keys():
             ms2_count = len(list(filter(None, data.analysis['Precursors']['MonoisotopicMz'].values)))
         # Set ms2_count to 0 if precursors table is not found.
         else:

@@ -36,14 +36,6 @@ timsconvert.data\_input module
    :undoc-members:
    :show-inheritance:
 
-timsconvert.init\_bruker\_dll module
-------------------------------------
-
-.. automodule:: timsconvert.init_bruker_dll
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 timsconvert.parse module
 ------------------------
 

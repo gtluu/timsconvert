@@ -22,7 +22,7 @@ For a full list of parameters, use the ``--help`` flag.
 
 .. code-block::
 
-    python [path to timsconvert]/bin/run.py --help
+    timsconvert --help
 
 See below for a full list of descriptions for each parameter.
 

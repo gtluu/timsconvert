@@ -8,7 +8,8 @@ if os.path.isfile('requirements.txt'):
         install_requires = requirements_file.read().splitlines()
 for package in install_requires:
     if package.startswith('git'):
-        install_requires[install_requires.index(package)] = 'pyimzML @ ' + package
+        pname = package.split('/')[-1].split('.')[0]
+        install_requires[install_requires.index(package)] = pname + ' @ ' + package
 
 setup(
     name='timsconvert',
@@ -17,11 +18,12 @@ setup(
     license='Apache License',
     author='Gordon T. Luu',
     author_email='gtluu912@gmail.com',
-    packages=['timsconvert', 'bin', 'lib', 'client', 'docs', 'docsrc', 'server', 'test'],
+    packages=['timsconvert', 'bin', 'client', 'docs', 'docsrc', 'server', 'test'],
     include_package_data=True,
     package_data={'': ['*.dll', '*.so'],
                   'timsconvert': ['*.json']},
     description='TIMSCONVERT: A simple workflow for conversion of trapped ion mobility data to open-source formats',
     entry_points={'console_scripts': ['timsconvert=bin.run:main']},
-    install_requires=install_requires
+    install_requires=install_requires,
+    setup_requires=install_requires
 )

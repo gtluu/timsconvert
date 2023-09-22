@@ -1,5 +1,4 @@
 import os
-import logging
 
 
 # Scan directory for Bruker .d files.

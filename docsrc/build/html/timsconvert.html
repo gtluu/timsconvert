@@ -73,514 +73,83 @@
 <section id="module-timsconvert.classes">
 <span id="timsconvert-classes-module"></span><h2>timsconvert.classes module<a class="headerlink" href="#module-timsconvert.classes" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">timsconvert.classes.</span></span><span class="sig-name descname"><span class="pre">BafData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_d_folder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baf2sql_dll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class containing metadata from BAF files and methods from Baf2sql library to work with BAF format data.</p>
+<dt class="sig sig-object py" id="timsconvert.classes.TimsconvertBafData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">timsconvert.classes.</span></span><span class="sig-name descname"><span class="pre">TimsconvertBafData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_d_folder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baf2sql</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TimsconvertBafData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BafData</span></code></p>
+<p>Child class of pyBaf2Sql.classes.BafData containing metadata from BAF files and methods from Baf2sql library to
+work with BAF format data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bruker_d_folder_name</strong> (<em>str</em>) – Path to a Bruker .d file containing analysis.baf.</p></li>
-<li><p><strong>baf2sql_dll</strong> (<em>ctypes.CDLL</em>) – Library initialized by timsconvert.init_bruker_dll.init_baf2sql_dll().</p></li>
+<li><p><strong>bruker_d_folder_name</strong> (<em>str</em>) – Path to Bruker .d directory containing analysis.baf and analysis.sqlite.</p></li>
+<li><p><strong>baf2sql</strong> (<em>ctypes.CDLL</em>) – Library initialized by pyBaf2Sql.init_baf2sql.init_baf2sql_api().</p></li>
 <li><p><strong>raw_calibration</strong> (<em>bool</em>) – Whether to use recalibrated data (False) or not (True), defaults to False.</p></li>
-<li><p><strong>all_variables</strong> (<em>bool</em>) – Whether to load all variables from analysis.sqlite database, defaults to False.</p></li>
+<li><p><strong>all_variables</strong> (<em>bool</em>) – Whether to load all variables from analysis.sqlite database, defaults to True.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.close_sql_connection">
-<span class="sig-name descname"><span class="pre">close_sql_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.close_sql_connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the connection to analysis.sqlite.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_acquisitionkeys_table">
-<span class="sig-name descname"><span class="pre">get_acquisitionkeys_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_acquisitionkeys_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the AcquisitionKeys table from analysis.sqlite as a pandas.DataFrame stored in
-timsconvert.classes.BafData.acquisitionkeys.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_array_num_elements">
-<span class="sig-name descname"><span class="pre">get_array_num_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_array_num_elements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of elements in the array with the specified ID.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>identity</strong> (<em>str</em><em> | </em><em>int</em>) – ID of the desired array.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Number of elements in the array of the specified ID.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_properties">
-<span class="sig-name descname"><span class="pre">get_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_properties" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Properties table from analysis.sqlite as a dictionary stored in timsconvert.classes.BafData.meta_data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_spectra_table">
-<span class="sig-name descname"><span class="pre">get_spectra_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_spectra_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Spectra table from analysis.sqlite as a pandas.DataFrame stored in
-timsconvert.classes.BafData.frames.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_sqlite_cache_filename">
-<span class="sig-name descname"><span class="pre">get_sqlite_cache_filename</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_sqlite_cache_filename" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find out the filename of the SQLite cache corresponding to the specified BAF file. The SQLite cache will be
-created with the filename “analysis.sqlite” if it does not exist yet.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>SQLite filename.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_steps_table">
-<span class="sig-name descname"><span class="pre">get_steps_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_steps_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Steps table from analysis.sqlite as a pandas.DataFrame stored in
-timsconvert.classes.BafData.steps. Data may be redundant with that found in the Variables table of
-analysis.sqlite.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.get_variables_table">
-<span class="sig-name descname"><span class="pre">get_variables_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.get_variables_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Variables table from analysis.sqlite as a pandas.DataFrame stored in
-timsconvert.classes.BafData.variables. Data may be redundant with that found in the Steps table of
-analysis.sqlite.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.read_array_double">
-<span class="sig-name descname"><span class="pre">read_array_double</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.read_array_double" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the requested array as a numpy.array of doubles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>identity</strong> (<em>str</em><em> | </em><em>int</em>) – ID of the desired array.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array from the specified ID.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.BafData.subset_ms1_frames">
-<span class="sig-name descname"><span class="pre">subset_ms1_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.BafData.subset_ms1_frames" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="timsconvert.classes.TimsconvertBafData.subset_ms1_frames">
+<span class="sig-name descname"><span class="pre">subset_ms1_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TimsconvertBafData.subset_ms1_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subset timsconvert.classes.BafData.frames table (Spectra table from analysis.sqlite) to only include MS1 rows.
-Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
-pandas.DataFrame is stored in timsconvert.classes.BafData.ms1_frames.</p>
+Used during the subsetting process during data parsing/writing for memory efficiency. The subset
+pandas.DataFrame is stored in timsconvert.classes.TimsconvertBafData.ms1_frames.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">timsconvert.classes.</span></span><span class="sig-name descname"><span class="pre">TdfData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_d_folder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdf_sdk_dll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_recalibrated_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class containing metadata from TDF files and methods from TDF-SDK library to work with TDF format data.</p>
+<dt class="sig sig-object py" id="timsconvert.classes.TimsconvertTdfData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">timsconvert.classes.</span></span><span class="sig-name descname"><span class="pre">TimsconvertTdfData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_d_folder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdf_sdk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_recalibrated_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_compensation_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PressureCompensationStrategy.NoPressureCompensation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TimsconvertTdfData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TdfData</span></code></p>
+<p>Child class of pyTDFSDK.classes.TdfData containing metadata from TDF files and methods from TDF-SDK library to work
+with TDF format data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bruker_d_folder_name</strong> (<em>str</em>) – Path to a Bruker .d file containing analysis.tdf.</p></li>
-<li><p><strong>tdf_sdk_dll</strong> (<em>ctypes.CDLL</em>) – Library initialized by timsconvert.init_bruker_dll.init_tdf_sdk_dll().</p></li>
+<li><p><strong>bruker_d_folder_name</strong> (<em>str</em>) – Path to a Bruker .d directory containing analysis.tdf.</p></li>
+<li><p><strong>tdf_sdk</strong> (<em>ctypes.CDLL</em>) – Library initialized by pyTDFSDK.init_tdf_sdk.init_tdf_sdk_api().</p></li>
 <li><p><strong>use_recalibrated_state</strong> (<em>bool</em>) – Whether to use recalibrated data (True) or not (False), defaults to True.</p></li>
+<li><p><strong>pressure_compensation_strategy</strong> (<em>enum.Enum</em>) – Pressure compensation when opening TDF data
+(pyTDFSDK.ctypes_data_structures.PressureCompensationStrategy.NoPressureCompensation = None,
+pyTDFSDK.ctypes_data_structures.PressureCompensationStrategy.AnalyisGlobalPressureCompensation = analysis
+global pressure compensation,
+pyTDFSDK.ctypes_data_structures.PressureCompensationStrategy.PerFramePressureCompensation = per frame pressure
+compensation), defaults to No Pressure Compensation.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.close_sql_connection">
-<span class="sig-name descname"><span class="pre">close_sql_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.close_sql_connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the connection to analysis.tdf.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.extract_centroided_spectrum_for_frame">
-<span class="sig-name descname"><span class="pre">extract_centroided_spectrum_for_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_begin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.extract_centroided_spectrum_for_frame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in centroid spectrum for a given frame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p></li>
-<li><p><strong>scan_begin</strong> (<em>int</em>) – Beginning scan number (corresponding to 1/K0 value) within frame.</p></li>
-<li><p><strong>scan_end</strong> (<em>int</em>) – Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple containing an array of m/z values and an array of detector counts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[numpy.array]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.extract_profile_spectrum_for_frame">
-<span class="sig-name descname"><span class="pre">extract_profile_spectrum_for_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_begin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.extract_profile_spectrum_for_frame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in quasi-profile spectrum for a given frame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p></li>
-<li><p><strong>scan_begin</strong> (<em>int</em>) – Beginning scan number (corresponding to 1/K0 value) within frame.</p></li>
-<li><p><strong>scan_end</strong> (<em>int</em>) – Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple containing an array of m/z values that is inferred from the length of the intensity array
-and array of detector acounts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[numpy.array]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.extract_spectrum_for_frame_v2">
-<span class="sig-name descname"><span class="pre">extract_spectrum_for_frame_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">begin_scan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_scan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.extract_spectrum_for_frame_v2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Depracated, use timsconvert.classes.TdfData.extract_centroided_spectrum_for_frame().</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_diaframemsmsinfo_table">
-<span class="sig-name descname"><span class="pre">get_diaframemsmsinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_diaframemsmsinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the DiaFrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.diaframemsmsinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_diaframemsmswindows_table">
-<span class="sig-name descname"><span class="pre">get_diaframemsmswindows_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_diaframemsmswindows_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the DiaFrameMsMsWindows table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.diaframemsmswindows.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_framemsmsinfo_table">
-<span class="sig-name descname"><span class="pre">get_framemsmsinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_framemsmsinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the FrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.framemsmsinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_frames_table">
-<span class="sig-name descname"><span class="pre">get_frames_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_frames_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Frames table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.frames.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_global_metadata">
-<span class="sig-name descname"><span class="pre">get_global_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_global_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the GlobalMetadata table from analysis.tdf as a dictionary stored in
-timsconvert.classes.TdfData.meta_data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_maldiframeinfo_table">
-<span class="sig-name descname"><span class="pre">get_maldiframeinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_maldiframeinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the MaldiFramesInfo table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.maldiframeinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_pasefframemsmsinfo_table">
-<span class="sig-name descname"><span class="pre">get_pasefframemsmsinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_pasefframemsmsinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the PasefFrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.pasefframemsmsinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_precursors_table">
-<span class="sig-name descname"><span class="pre">get_precursors_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_precursors_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Precursors table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.precursors.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_prmframemsmsinfo_table">
-<span class="sig-name descname"><span class="pre">get_prmframemsmsinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_prmframemsmsinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the PrmFrameMsMsInfo table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.prmframemsmsinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.get_prmtargets_table">
-<span class="sig-name descname"><span class="pre">get_prmtargets_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.get_prmtargets_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the PrmTargets table from analysis.tdf as a pandas.DataFrame stored in
-timsconvert.classes.TdfData.prmtargets.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.index_to_mz">
-<span class="sig-name descname"><span class="pre">index_to_mz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.index_to_mz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert array of indices for a given frame to m/z values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p></li>
-<li><p><strong>indices</strong> (<em>numpy.array</em>) – Array of indices to be converted.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of m/z values.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.read_pasef_centroid_msms">
-<span class="sig-name descname"><span class="pre">read_pasef_centroid_msms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precursor_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.read_pasef_centroid_msms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in centroid MS/MS spectra from PASEF MS/MS data for precursor(s).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>precursor_list</strong> (<em>numpy.array</em><em> | </em><em>list</em>) – Array or list of precursor IDs to obtain spectra for.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary in which keys correspond to the precursor ID and values correspond to a tuple containing
-an array of m/z values and an array of detector counts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.read_pasef_centroid_msms_for_frame">
-<span class="sig-name descname"><span class="pre">read_pasef_centroid_msms_for_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.read_pasef_centroid_msms_for_frame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in centroid MS/MS spectra from PASEF MS/MS data for a given frame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary in which keys correspond to the precursor ID and values correspond to a tuple containing
-an array of m/z values and an array of detector counts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.read_pasef_profile_msms">
-<span class="sig-name descname"><span class="pre">read_pasef_profile_msms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precursor_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.read_pasef_profile_msms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in quasi-profile MS/MS spectra from PASEF MS/MS data for precursor(s).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>precursor_list</strong> (<em>numpy.array</em><em> | </em><em>list</em>) – Array or list of precursor IDs to obtain spectra for.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary in which keys correspond to the precursor ID and values correspond to an array of detector
-counts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.read_pasef_profile_msms_for_frame">
-<span class="sig-name descname"><span class="pre">read_pasef_profile_msms_for_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.read_pasef_profile_msms_for_frame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in quasi-profile MS/MS spectra from PASEF MS/MS data for a given frame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary in which keys correspond to the precursor ID and values correspond to a tuple containing
-an array of m/z values and an array of detector counts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.read_scans">
-<span class="sig-name descname"><span class="pre">read_scans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_begin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.read_scans" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read centroid spectra for a given frame (i.e. retention time) and scan (i.e. ion mobility) or range of scans.
-Results slightly differ from methods made for specifically reading centroid spectra. Therefore, the “mode” for
-this method is “raw”, which can be interchangeable with “centroid”.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p></li>
-<li><p><strong>scan_begin</strong> (<em>int</em>) – Beginning scan number (corresponding to 1/K0 value) within frame.</p></li>
-<li><p><strong>scan_end</strong> (<em>int</em>) – Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of tuples where each tuple contains an array of mass indices and array of detector counts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[tuple[numpy.array]]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.scan_num_to_oneoverk0">
-<span class="sig-name descname"><span class="pre">scan_num_to_oneoverk0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_nums</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.scan_num_to_oneoverk0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert array of scan numbers for a given frame to 1/K0 values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p></li>
-<li><p><strong>scan_nums</strong> (<em>numpy.array.</em>) – Array of scan numbers to be converted.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of 1/K0 values.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TdfData.subset_ms1_frames">
-<span class="sig-name descname"><span class="pre">subset_ms1_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TdfData.subset_ms1_frames" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="timsconvert.classes.TimsconvertTdfData.subset_ms1_frames">
+<span class="sig-name descname"><span class="pre">subset_ms1_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TimsconvertTdfData.subset_ms1_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subset timsconvert.classes.TdfData.frames table (Frames table from analysis.tdf) to only include MS1 rows.
-Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
-pandas.DataFrame is stored in timsconvert.classes.TdfData.ms1_frames.</p>
+Used during the subsetting process during data parsing/writing for memory efficiency. The subset
+pandas.DataFrame is stored in timsconvert.classes.TimsconvertTdfData.ms1_frames.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">timsconvert.classes.</span></span><span class="sig-name descname"><span class="pre">TsfData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_d_folder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdf_sdk_dll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_recalibrated_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class containing metadata from TSF files and methods from TDF-SDK library to work with TSF format data.</p>
+<dt class="sig sig-object py" id="timsconvert.classes.TimsconvertTsfData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">timsconvert.classes.</span></span><span class="sig-name descname"><span class="pre">TimsconvertTsfData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_d_folder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tdf_sdk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_recalibrated_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TimsconvertTsfData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TsfData</span></code></p>
+<p>Child class of pyTDFSDK.classes.TsfData containing metadata from TSF files and methods from TDF-SDK library to work
+with TSF format data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bruker_d_folder_name</strong> (<em>str</em>) – Path to a Bruker .d file containing analysis.tsf.</p></li>
-<li><p><strong>tdf_sdk_dll</strong> (<em>ctypes.CDLL</em>) – Library initialized by timsconvert.init_bruker_dll.init_tdf_sdk_dll().</p></li>
+<li><p><strong>bruker_d_folder_name</strong> (<em>str</em>) – Path to a Bruker .d directory containing analysis.tsf.</p></li>
+<li><p><strong>tdf_sdk</strong> (<em>ctypes.CDLL</em>) – Library initialized by pyTDFSDK.init_tdf_sdk.init_tdf_sdk_api().</p></li>
 <li><p><strong>use_recalibrated_state</strong> (<em>bool</em>) – Whether to use recalibrated data (True) or not (False), defaults to True.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.close_sql_connection">
-<span class="sig-name descname"><span class="pre">close_sql_connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.close_sql_connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the connection to analysis.tsf.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.get_framemsmsinfo_table">
-<span class="sig-name descname"><span class="pre">get_framemsmsinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.get_framemsmsinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the FrameMsMsInfo table from analysis.tsf as a pandas.DataFrame stored in
-timsconvert.classes.TsfData.framemsmsinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.get_frames_table">
-<span class="sig-name descname"><span class="pre">get_frames_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.get_frames_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Frames table from analysis.tsf as a pandas.DataFrame stored in
-timsconvert.classes.TsfData.frames.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.get_global_metadata">
-<span class="sig-name descname"><span class="pre">get_global_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.get_global_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the GlobalMetadata table from analysis.tsf as a dictionary stored in
-timsconvert.classes.TsfData.meta_data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.get_maldiframeinfo_table">
-<span class="sig-name descname"><span class="pre">get_maldiframeinfo_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.get_maldiframeinfo_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the MaldiFrameInfo table from analysis.tsf as a pandas.DataFrame stored in
-timsconvert.classes.TsfData.maldiframeinfo.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.index_to_mz">
-<span class="sig-name descname"><span class="pre">index_to_mz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.index_to_mz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert array of indices for a given frame to m/z values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p></li>
-<li><p><strong>indices</strong> (<em>numpy.array</em>) – Array of indices to be converted.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of m/z values.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.read_line_spectrum">
-<span class="sig-name descname"><span class="pre">read_line_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.read_line_spectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in centroid spectrum for a given frame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple containing an array of indices for the mass dimension and array of detector acounts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[numpy.array]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.read_profile_spectrum">
-<span class="sig-name descname"><span class="pre">read_profile_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.read_profile_spectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read in profile spectrum for a given frame.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>frame_id</strong> (<em>int</em>) – ID of the frame containing the raw data of interest.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple containing an array of indices for the mass dimension that is inferred from the length of the
-intensity array and array of detector acounts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[numpy.array]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="timsconvert.classes.TsfData.subset_ms1_frames">
-<span class="sig-name descname"><span class="pre">subset_ms1_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TsfData.subset_ms1_frames" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="timsconvert.classes.TimsconvertTsfData.subset_ms1_frames">
+<span class="sig-name descname"><span class="pre">subset_ms1_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.classes.TimsconvertTsfData.subset_ms1_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subset timsconvert.classes.TsfData.frames table (Frames table from analysis.tsf) to only include MS1 rows.
-Used during the subsetting process during data parsing/writing for memory efficiency. The subsetted
-pandas.DataFrame is stored in timsconvert.classes.TsfData.ms1_frames.</p>
+Used during the subsetting process during data parsing/writing for memory efficiency. The subset
+pandas.DataFrame is stored in timsconvert.classes.TimsconvertTsfData.ms1_frames.</p>
 </dd></dl>
 
 </dd></dl>
@@ -632,104 +201,6 @@ pandas.DataFrame is stored in timsconvert.classes.TsfData.ms1_frames.</p>
 </dd></dl>
 
 </section>
-<section id="module-timsconvert.init_bruker_dll">
-<span id="timsconvert-init-bruker-dll-module"></span><h2>timsconvert.init_bruker_dll module<a class="headerlink" href="#module-timsconvert.init_bruker_dll" title="Permalink to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="timsconvert.init_bruker_dll.decode_array_of_strings">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.init_bruker_dll.</span></span><span class="sig-name descname"><span class="pre">decode_array_of_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blob</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.init_bruker_dll.decode_array_of_strings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decode method provided by tsfdata.py example API to properly encode strings for TDF-SDK.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>blob</strong> (<em>str</em>) – String to decode.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Decoded string in utf-8 format.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="timsconvert.init_bruker_dll.init_baf2sql_dll">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.init_bruker_dll.</span></span><span class="sig-name descname"><span class="pre">init_baf2sql_dll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baf2sql_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/home/bass/code/timsconvert/lib/baf2sql.so'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.init_bruker_dll.init_baf2sql_dll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize select functions from Bruker’s Baf2sql library using ctypes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>baf2sql_file_name</strong> (<em>str</em>) – Path to Baf2sql library, defaults to path automatically detected in timsconvert.constants.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Handle for Baf2sql library.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ctypes.CDLL</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="timsconvert.init_bruker_dll.init_tdf_sdk_dll">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.init_bruker_dll.</span></span><span class="sig-name descname"><span class="pre">init_tdf_sdk_dll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_dll_file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/home/bass/code/timsconvert/lib/timsdata.so'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.init_bruker_dll.init_tdf_sdk_dll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize select functions from Bruker’s TDF-SDK library using ctypes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bruker_dll_file_name</strong> (<em>str</em>) – Path to TDF-SDK library, defaults to path automatically detected in
-timsconvert.constants.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Handle for TDF-SDK library.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ctypes.CDLL</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="timsconvert.init_bruker_dll.one_over_k0_to_ccs">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.init_bruker_dll.</span></span><span class="sig-name descname"><span class="pre">one_over_k0_to_ccs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ook0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.init_bruker_dll.one_over_k0_to_ccs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert 1/K0 values to CCS values based on a feature’s m/z value and charge.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ook0</strong> (<em>float</em>) – 1/K0 value of the feature.</p></li>
-<li><p><strong>charge</strong> (<em>int</em>) – Charge of the feature.</p></li>
-<li><p><strong>mz</strong> (<em>float</em>) – m/z value of the feature.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>CCS value calculated from the provided feature.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="timsconvert.init_bruker_dll.throw_last_baf2sql_error">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.init_bruker_dll.</span></span><span class="sig-name descname"><span class="pre">throw_last_baf2sql_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baf2sql_dll</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.init_bruker_dll.throw_last_baf2sql_error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Error handling for Bruker raw data originating from BAF files. Modified from baf2sql.py example API.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>baf2sql_dll</strong> (<em>ctypes.CDLL</em>) – Handle for Baf2sql library.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="timsconvert.init_bruker_dll.throw_last_tsf_error">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.init_bruker_dll.</span></span><span class="sig-name descname"><span class="pre">throw_last_tsf_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bruker_dll</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.init_bruker_dll.throw_last_tsf_error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Error handling for Bruker raw data originating from TSF files. Modified from tsfdata.py example API.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bruker_dll</strong> (<em>ctypes.CDLL</em>) – Handle for TDF-SDK library.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 <section id="module-timsconvert.parse">
 <span id="timsconvert-parse-module"></span><h2>timsconvert.parse module<a class="headerlink" href="#module-timsconvert.parse" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
@@ -758,13 +229,13 @@ timsconvert.constants.</p>
 <dt class="sig sig-object py" id="timsconvert.parse.extract_2d_tdf_spectrum">
 <span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">extract_2d_tdf_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tdf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_begin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.extract_2d_tdf_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract spectrum from TDF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
-mode. “Raw” mode uses tdf_data.read_scans() method, while “centroid” mode uses
-tdf_data.extract_centroided_spectrum_for_frame() method. “Profile” mode uses
-tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.</p>
+mode. “Raw” mode uses pyTDFSDK.tims.tims_read_scans_v2() method, while “centroid” mode uses
+pyTDFSDK.tims.tims_extract_centroided_spectrum_for_frame_v2() method. “Profile” mode uses
+pyTDFSDK.tims.tims_extract_profile_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
 <li><p><strong>frame</strong> (<em>int</em>) – Frame ID from the Frames table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>scan_begin</strong> (<em>int</em>) – Beginning scan number (corresponding to 1/K0 value) within frame.</p></li>
@@ -786,13 +257,12 @@ tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spe
 <dt class="sig sig-object py" id="timsconvert.parse.extract_3d_tdf_spectrum">
 <span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">extract_3d_tdf_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tdf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_begin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.extract_3d_tdf_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract spectrum from TDF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
-mode. “Raw” mode uses tdf_data.read_scans() method, while “centroid” mode uses
-tdf_data.extract_centroided_spectrum_for_frame() method. “Profile” mode uses
-tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.</p>
+mode. “Raw” and “centroid” modes uses pyTDFSDK.tims.tims_read_scans_v2(). “Profile” mode data is not available due
+to the resulting data size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
 <li><p><strong>frame</strong> (<em>int</em>) – Frame ID from the Frames table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>scan_begin</strong> (<em>int</em>) – Beginning scan number (corresponding to 1/K0 value) within frame.</p></li>
 <li><p><strong>scan_end</strong> (<em>int</em>) – Ending scan number (corresponding to 1/K0 value) within frame (non-inclusive).</p></li>
@@ -816,7 +286,7 @@ tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spe
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – baf_data object containing metadata from analysis.sqlite database.</p></li>
+<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – baf_data object containing metadata from analysis.sqlite database.</p></li>
 <li><p><strong>frames_dict</strong> (<em>dict</em>) – A row from the Spectra table in analysis.sqlite database.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
 <li><p><strong>profile_bins</strong> (<em>int</em>) – Number of bins to bin spectrum to.</p></li>
@@ -836,13 +306,13 @@ tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spe
 <dt class="sig sig-object py" id="timsconvert.parse.extract_ddapasef_precursor_spectrum">
 <span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">extract_ddapasef_precursor_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tdf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pasefframemsmsinfo_dicts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.extract_ddapasef_precursor_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract spectrum from TDF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
-mode. “Raw” mode uses tdf_data.read_scans() method, while “centroid” mode uses
-tdf_data.extract_centroided_spectrum_for_frame() method. “Profile” mode uses
-tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.</p>
+mode. “Raw” mode uses pyTDFSDK.tims.tims_read_scans_v2() method, while “centroid” mode uses
+pyTDFSDK.tims.tims_extract_centroided_spectrum_for_frame_v2() method. “Profile” mode uses
+pyTDFSDK.tims.tims_extract_profile_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
 <li><p><strong>pasefframemsmsinfo_dicts</strong> (<em>dict</em>) – A row from the PasefFrameMsmsInfo table in analysis.tdf database.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
 <li><p><strong>profile_bins</strong> (<em>int</em>) – Number of bins to bin spectrum to.</p></li>
@@ -863,12 +333,12 @@ tdf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spe
 <span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">extract_tsf_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tsf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.extract_tsf_spectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract spectrum from TSF data with m/z and intensity arrays. Spectrum can either be centroid or quasi-profile
 mode. If “raw” mode is chosen, centroid mode will automatically be used. “Centroid” mode uses
-tsf_data.extract_centroided_spectrum_for_frame() method. “Profile” mode uses
-tsf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spectrum from centroid raw data.</p>
+pyTDFSDK.tsf.tsf_read_line_spectrum_v2() method. “Profile” mode uses pyTDFSDK.tsf.tsf_read_profile_spectrum_v2() to
+extrapolate a quasi-profile spectrum from centroid raw data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tsf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a>) – tsf_data object containing metadata from analysis.tsf database.</p></li>
+<li><p><strong>tsf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a>) – tsf_data object containing metadata from analysis.tsf database.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
 <li><p><strong>frame</strong> (<em>int</em>) – Frame ID from the Frames table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>profile_bins</strong> (<em>int</em>) – Number of bins to bin spectrum to.</p></li>
@@ -948,7 +418,7 @@ tsf_data.extract_profile_spectrum_for_frame() to extrapolate a quasi-profile spe
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – Object containing metadata from analysis.tsf/analysis.tdf database.</p></li>
 <li><p><strong>maldiframeinfo_dict</strong> (<em>dict</em>) – A row from the MaldiFrameInfo table in analysis.tsf/analysis.tdf database.</p></li>
 </ul>
 </dd>
@@ -983,7 +453,7 @@ MS/MS, or bbCID MS/MS mode in otofControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – baf_data object containing metadata from analysis.sqlite database.</p></li>
+<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – baf_data object containing metadata from analysis.sqlite database.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1008,7 +478,7 @@ MS/MS, bbCID MS/MS, MRM MS/MS, or prmPASEF MS/MS mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1032,11 +502,11 @@ spectrum data).</p>
 <dt class="sig sig-object py" id="timsconvert.parse.parse_lcms_tsf">
 <span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">parse_lcms_tsf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tsf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms2_only</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.parse_lcms_tsf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse group of frames from LC-MS(/MS) data from Bruker TSF files acquired in Auto MS/MS mode MS1 only, Auto MS/MS,
-MRM MS/MS, or bbCID MS/MS modein timsControl.</p>
+MRM MS/MS, or bbCID MS/MS mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tsf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a>) – tsf_data object containing metadata from analysis.tsf database.</p></li>
+<li><p><strong>tsf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a>) – tsf_data object containing metadata from analysis.tsf database.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1080,7 +550,7 @@ mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1107,7 +577,7 @@ mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tsf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a>) – tsf_data object containing metadata from analysis.tsf database.</p></li>
+<li><p><strong>tsf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a>) – tsf_data object containing metadata from analysis.tsf database.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1132,7 +602,7 @@ mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>frames_dict</strong> (<em>dict</em>) – A row from the Spectra table in analysis.sqlite database for BAF files.</p></li>
 <li><p><strong>acquisitionkey_dict</strong> (<em>dict</em>) – A row from the AcquisitionKey table in analysis.sqlite database for BAF files.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1154,8 +624,8 @@ mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
-<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – baf_data object containing metadata from analysis.sqlite database.</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
+<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – baf_data object containing metadata from analysis.sqlite database.</p></li>
 <li><p><strong>frames_dict</strong> (<em>dict</em>) – A row from the Spectra table in analysis.sqlite database.</p></li>
 <li><p><strong>frame</strong> (<em>int</em>) – Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite.</p></li>
 </ul>
@@ -1176,19 +646,22 @@ mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>frame</strong> (<em>int</em>) – Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite
 database.</p></li>
-<li><p><strong>schema</strong> (<em>str</em>) – Schema as determined by timsconvert.data_input.schema detection, either TDF, TSF, or BAF.</p></li>
-<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a><em> | </em><em>None</em>) – baf_data object containing metadata from analysis.sqlite database, defaults to None.</p></li>
-<li><p><strong>framemsmsinfo_dict</strong> – A row from the FrameMsmsInfo table in analysis.tsf/analysis.tdf database, defaults to</p></li>
+<li><p><strong>schema</strong> (<em>str</em>) – Schema as determined by timsconvert.data_input.schema_detection, either TDF, TSF, or BAF.</p></li>
+<li><p><strong>baf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a><em> | </em><em>None</em>) – baf_data object containing metadata from analysis.sqlite database, defaults to None.</p></li>
+<li><p><strong>framemsmsinfo_dict</strong> (<em>dict</em><em> | </em><em>None</em>) – A row from the FrameMsmsInfo table in analysis.tsf/analysis.tdf database, defaults to
+None.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary containing standard spectrum data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
 </dl>
-<p>None.
-:type framemsmsinfo_dict: dict | None
-:return: Dictionary containing standard spectrum data.
-:rtype: dict</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1198,8 +671,8 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
-<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
 <li><p><strong>precursor_dict</strong> (<em>dict</em>) – A row from the Precursor table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>pasefframemsmsinfo_dicts</strong> (<em>dict</em>) – A row from the PasefFrameMsmsInfo table in analysis.tdf/analysis.tsf database.</p></li>
 </ul>
@@ -1220,7 +693,7 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>diaframemsmswindows_dict</strong> (<em>dict</em>) – A row from the DiaFrameMsmsWindows table in analysis.tdf/analysis.tsf database.</p></li>
 </ul>
 </dd>
@@ -1240,7 +713,7 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>frames_dict</strong> (<em>dict</em>) – A row from the Frames table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
 <li><p><strong>exclude_mobility</strong> (<em>bool</em><em> | </em><em>None</em>) – Whether to include mobility data in the output files, defaults to None.</p></li>
@@ -1262,8 +735,8 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a>) – tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tsf_data or tdf_data object containing metadata from analysis.tsf/analysis.tdf database.</p></li>
 <li><p><strong>frames_dict</strong> (<em>dict</em>) – A row from the Frames table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>maldiframeinfo_dict</strong> (<em>dict</em>) – A row from the MaldiFrameInfo table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>frame</strong> (<em>int</em>) – Frame ID from the Frames table in analysis.tdf/analysis.tsf database.</p></li>
@@ -1280,7 +753,7 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>frame</strong> – Frame ID from the Frames table in analysis.tdf/analysis.tsf or Spectra table in analysis.sqlite</p></li>
 </ul>
 </dd>
@@ -1293,12 +766,13 @@ database.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="timsconvert.parse.populate_scan_dict_w_prmpasef_ms2">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">populate_scan_dict_w_prmpasef_ms2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scan_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prmframemsmsinfo_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prmtargets_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.populate_scan_dict_w_prmpasef_ms2" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">populate_scan_dict_w_prmpasef_ms2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tdf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prmframemsmsinfo_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prmtargets_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.populate_scan_dict_w_prmpasef_ms2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Populate spectrum data dictionary with MS2 level metadata when using diaPASEF mode.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>tdf_data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a>) – tdf_data object containing metadata from analysis.tdf database.</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>prmframemsmsinfo_dict</strong> (<em>dict</em>) – A row from the PrmFrameMsmsInfo table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>prmtargets_dict</strong> (<em>dict</em>) – A row from the PrmTargets table in analysis.tdf/analysis.tsf database.</p></li>
 </ul>
@@ -1319,7 +793,7 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>mz_array</strong> (<em>numpy.array</em>) – Array containing m/z values.</p></li>
 <li><p><strong>intensity_array</strong> (<em>numpy.array</em>) – Array containing intensity values.</p></li>
 </ul>
@@ -1340,7 +814,7 @@ database.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from init_scan_dict().</p></li>
+<li><p><strong>scan_dict</strong> (<em>dict</em>) – Spectrum data dictionary generated from timsconvert.parse.init_scan_dict().</p></li>
 <li><p><strong>framemsmsinfo_dict</strong> (<em>dict</em>) – A row from the FrameMsmsInfo table in analysis.tdf/analysis.tsf database.</p></li>
 <li><p><strong>lcms</strong> (<em>bool</em>) – Whether the data is from an lcms dataset, defaults to False</p></li>
 </ul>
@@ -1380,7 +854,14 @@ database.</p></li>
 <dd><p>Calculate the predicted number of spectra to be written.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> |
+</em><a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of expected spectra.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1413,7 +894,8 @@ timsconvert.write.get_spectra_count().</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> |
+</em><a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
 <li><p><strong>writer</strong> (<em>psims.mzml.MzMLWriter</em>) – Instance of psims.mzml.MzMLWriter for output file.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
@@ -1442,7 +924,8 @@ timsconvert.write.get_spectra_count().</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> |
+</em><a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
 <li><p><strong>infile</strong> (<em>str</em>) – Input file path to be used for source file metadata.</p></li>
 <li><p><strong>outdir</strong> (<em>str</em>) – Output directory path that was specified from the command line parameters or the original input
 file path if no output directory was specified.</p></li>
@@ -1472,7 +955,7 @@ during conversion.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a>) – Object containing raw data information from TDF or TSF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a>) – Object containing raw data information from TDF or TSF file.</p></li>
 <li><p><strong>infile</strong> (<em>str</em>) – Input file path to be used for source file metadata.</p></li>
 <li><p><strong>outdir</strong> (<em>str</em>) – Output directory path that was specified from the command line parameters or the original input
 file path if no output directory was specified.</p></li>
@@ -1503,7 +986,7 @@ UserParams.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a>) – Object containing raw data information from TDF or TSF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a>) – Object containing raw data information from TDF or TSF file.</p></li>
 <li><p><strong>imzml_file</strong> (<em>pyimzml.ImzMLWriter.ImzMLWriter</em>) – Instance of pyimzml.ImzMLWriter.ImzMLWriter for output file.</p></li>
 <li><p><strong>frame_start</strong> (<em>int</em>) – Beginning frame number.</p></li>
 <li><p><strong>frame_stop</strong> (<em>int</em>) – Ending frame number (non-inclusive).</p></li>
@@ -1523,7 +1006,7 @@ UserParams.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a>) – Object containing raw data information from TDF or TSF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a>) – Object containing raw data information from TDF or TSF file.</p></li>
 <li><p><strong>outdir</strong> (<em>str</em>) – Output directory path that was specified from the command line parameters or the original input
 file path if no output directory was specified.</p></li>
 <li><p><strong>outfile</strong> (<em>str</em>) – Output filename that was specified from the command line parameters or the original input filename
@@ -1551,7 +1034,8 @@ during conversion.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>writer</strong> (<em>psims.mzml.MzMLWriter</em>) – Instance of psims.mzml.MzMLWriter for output file.</p></li>
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> |
+</em><a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
 <li><p><strong>scan</strong> (<em>dict</em>) – Dictionary containing standard spectrum data.</p></li>
 <li><p><strong>encoding</strong> (<em>int</em>) – Encoding command line parameter, either “64” or “32”.</p></li>
 <li><p><strong>compression</strong> (<em>str</em>) – Compression command line parameter, either “zlib” or “none”.</p></li>
@@ -1569,7 +1053,8 @@ during conversion.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>writer</strong> (<em>psims.mzml.MzMLWriter</em>) – Instance of psims.mzml.MzMLWriter for output file.</p></li>
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> |
+</em><a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
 <li><p><strong>scan</strong> (<em>dict</em>) – Dictionary containing standard spectrum data.</p></li>
 <li><p><strong>encoding</strong> (<em>int</em>) – Encoding command line parameter, either “64” or “32”.</p></li>
 <li><p><strong>compression</strong> (<em>str</em>) – Compression command line parameter, either “zlib” or “none”.</p></li>
@@ -1584,13 +1069,14 @@ an MS1 spectrum.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="timsconvert.write.write_mzml_metadata">
 <span class="sig-prename descclassname"><span class="pre">timsconvert.write.</span></span><span class="sig-name descname"><span class="pre">write_mzml_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms2_only</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">barebones_metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.write.write_mzml_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write metadata to mzML file using psims. Includes spectral metadat, source files, software list, instrument
+<dd><p>Write metadata to mzML file using psims. Includes spectral metadata, source files, software list, instrument
 configuration, and data processing. Note that TIMSCONVERT is not included as a data processing step due to a lack
 CV param and compatibility with downstream data analysis software.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TdfData" title="timsconvert.classes.TdfData"><em>timsconvert.classes.TdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TsfData" title="timsconvert.classes.TsfData"><em>timsconvert.classes.TsfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.BafData" title="timsconvert.classes.BafData"><em>timsconvert.classes.BafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#timsconvert.classes.TimsconvertTdfData" title="timsconvert.classes.TimsconvertTdfData"><em>timsconvert.classes.TimsconvertTdfData</em></a><em> | </em><a class="reference internal" href="#timsconvert.classes.TimsconvertTsfData" title="timsconvert.classes.TimsconvertTsfData"><em>timsconvert.classes.TimsconvertTsfData</em></a><em> |
+</em><a class="reference internal" href="#timsconvert.classes.TimsconvertBafData" title="timsconvert.classes.TimsconvertBafData"><em>timsconvert.classes.TimsconvertBafData</em></a>) – Object containing raw data information from TDF, TSF, or BAF file.</p></li>
 <li><p><strong>writer</strong> (<em>psims.mzml.MzMLWriter</em>) – Instance of psims.mzml.MzMLWriter for output file.</p></li>
 <li><p><strong>infile</strong> (<em>str</em>) – Input file path to be used for source file metadata.</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode command line parameter, either “profile”, “centroid”, or “raw”.</p></li>
@@ -1639,7 +1125,6 @@ UserParams.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.classes">timsconvert.classes module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.constants">timsconvert.constants module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.data_input">timsconvert.data_input module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.init_bruker_dll">timsconvert.init_bruker_dll module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.parse">timsconvert.parse module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.timestamp">timsconvert.timestamp module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-timsconvert.write">timsconvert.write module</a></li>

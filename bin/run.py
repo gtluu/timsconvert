@@ -1,4 +1,6 @@
 from timsconvert import *
+from pyTDFSDK.init_tdf_sdk import init_tdf_sdk_api
+from pyBaf2Sql.init_baf2sql import init_baf2sql_api
 
 
 def main():
@@ -7,7 +9,7 @@ def main():
     # Args check.
     args_check(args)
     # Check arguments.
-    args['version'] = '1.4.1'
+    args['version'] = timsconvert_version
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'
@@ -31,8 +33,8 @@ def main():
 
     # Initialize Bruker DLL.
     logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
-    tdf_sdk_dll = init_tdf_sdk_dll(TDF_SDK_DLL_FILE_NAME)
-    baf2sql_dll = init_baf2sql_dll(BAF2SQL_DLL_FILE_NAME)
+    tdf_sdk_dll = init_tdf_sdk_api()
+    baf2sql_dll = init_baf2sql_api()
 
     # Load in input data.
     logging.info(get_timestamp() + ':' + 'Loading input data...')
@@ -56,11 +58,11 @@ def main():
         logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
         if schema == 'TSF':
-            data = TsfData(infile, tdf_sdk_dll)
+            data = TimsconvertTsfData(infile, tdf_sdk_dll)
         elif schema == 'TDF':
-            data = TdfData(infile, tdf_sdk_dll)
+            data = TimsconvertTdfData(infile, tdf_sdk_dll)
         elif schema == 'BAF':
-            data = BafData(infile, baf2sql_dll)
+            data = TimsconvertBafData(infile, baf2sql_dll)
 
         # Log arguments.
         for key, value in run_args.items():
@@ -86,7 +88,7 @@ def main():
                             run_args['chunk_size'])
 
         # TSF ESI-MS Dataset
-        elif schema == 'TSF' and 'MaldiApplicationType' not in data.meta_data.keys():
+        elif schema == 'TSF' and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -106,8 +108,8 @@ def main():
 
         # TSF MALDI-qTOF Dried Droplet Dataset
         elif schema == 'TSF' \
-                and 'MaldiApplicationType' in data.meta_data.keys() \
-                and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
+                and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -128,8 +130,8 @@ def main():
 
         # TSF MALDI-qTOF MSI Dataset
         elif schema == 'TSF' \
-                and 'MaldiApplicationType' in data.meta_data.keys() \
-                and data.meta_data['MaldiApplicationType'] == 'Imaging':
+                and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
+                and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
             logging.info(get_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
@@ -147,7 +149,7 @@ def main():
 
         # TDF ESI-TIMS-MS Dataset
         elif schema == 'TDF' \
-                and 'MaldiApplicationType' not in data.meta_data.keys():
+                and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -167,8 +169,8 @@ def main():
 
         # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
         elif schema == 'TDF' \
-                and 'MaldiApplicationType' in data.meta_data.keys() \
-                and data.meta_data['MaldiApplicationType'] == 'SingleSpectra':
+                and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
+                and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
@@ -189,8 +191,8 @@ def main():
 
         # TDF MALDI-TIMS-qTOF MSI Dataset
         elif schema == 'TDF' \
-                and 'MaldiApplicationType' in data.meta_data.keys() \
-                and data.meta_data['MaldiApplicationType'] == 'Imaging':
+                and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
+                and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
             logging.info(get_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'

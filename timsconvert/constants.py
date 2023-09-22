@@ -1,6 +1,3 @@
-import sys
-import platform
-import os
 import logging
 from timsconvert.timestamp import *
 
@@ -56,27 +53,3 @@ MSMS_TYPE = {'0': 'MS',
 
 MSMS_TYPE_CATEGORY = {'ms1': [0],
                       'ms2': [2, 8, 9]}
-
-if platform.system() == 'Windows':
-    if platform.architecture()[0] == '64bit':
-        TDF_SDK_VERSION = 'sdk22104'
-        TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                             os.path.join('lib', 'timsdata.dll'))
-        BAF2SQL_VERSION = 'sdk290'
-        BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                             os.path.join('lib', 'baf2sql.dll'))
-    elif platform.architecture()[0] == '32bit':
-        logging.info(get_timestamp() + ':' + '32 bit platforms are no longer supported...')
-        sys.exit(1)
-elif platform.system() == 'Linux':
-    TDF_SDK_VERSION = 'sdk22104'
-    TDF_SDK_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                         os.path.join('lib', 'timsdata.so'))
-    BAF2SQL_VERSION = 'sdk290'
-    BAF2SQL_DLL_FILE_NAME = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                         os.path.join('lib', 'baf2sql.so'))
-else:
-    logging.info(get_timestamp() + ':' + 'Bruker API not found...')
-    logging.info(get_timestamp() + ':' + 'Exiting...')
-    TDF_SDK_DLL_FILE_NAME = ''
-    sys.exit(1)

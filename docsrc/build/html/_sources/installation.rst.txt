@@ -21,13 +21,19 @@ Installing on Windows
 
         conda activate timsconvert
 
-5. Install TIMSCONVERT.
+5. Install dependencies.
+
+   .. code-block::
+
+        pip install -r https://raw.githubusercontent.com/gtluu/timsconvert/main/requirements.txt
+
+6. Install TIMSCONVERT.
 
    .. code-block::
 
         pip install git+https://github.com/gtluu/timsconvert
 
-6. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
+7. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
 
 Installing on Linux
 -------------------
@@ -60,10 +66,16 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 
         conda activate timsconvert
 
-5. Install TIMSCONVERT.
+5. Install dependencies.
+
+   .. code-block::
+
+        pip install -r https://raw.githubusercontent.com/gtluu/timsconvert/main/requirements.txt
+
+6. Install TIMSCONVERT.
 
    .. code-block::
 
         pip install git+https://github.com/gtluu/timsconvert
 
-6. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
+7. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.

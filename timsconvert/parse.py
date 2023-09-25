@@ -781,15 +781,18 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
                 framemsmsinfo_dict = tsf_data.analysis['FrameMsMsInfo'][tsf_data.analysis['FrameMsMsInfo']['Frame'] ==
                                                                         frame].to_dict(orient='records')[0]
+                # Auto MS/MS
                 if int(frames_dict['ScanMode']) == 1:
                     scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
                     list_of_product_scans.append(scan_dict)
+                # bbCID
                 elif int(frames_dict['ScanMode']) == 4:
                     scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
                                                                      frame,
                                                                      'TSF',
                                                                      framemsmsinfo_dict=framemsmsinfo_dict)
                     list_of_parent_scans.append(scan_dict)
+                # MRM
                 elif int(frames_dict['ScanMode']) == 2:
                     scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict)
                     list_of_parent_scans.append(scan_dict)

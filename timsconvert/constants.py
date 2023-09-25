@@ -5,22 +5,18 @@ from timsconvert.timestamp import *
 logging.info(get_timestamp() + ':' + 'Initialize constants...')
 
 
-INSTRUMENT_FAMILY = {'0': 'trap',
-                     '1': 'otof',
+INSTRUMENT_FAMILY = {'1': 'otof',
                      '2': 'otofq',
-                     '3': 'biotof',
-                     '4': 'biotofq',
-                     '5': 'malditof',
-                     '6': 'ftms',
-                     '7': 'maxis',
+                     '6': 'maxis',
+                     '7': 'impact',
+                     '8': 'compact',
                      '9': 'timstof',
-                     '90': 'impact',
-                     '91': 'compact',
-                     '92': 'solarix',
-                     '255': 'unknown'}
+                     '512': 'ftms',
+                     '513': 'solarix'}
 
-
-INSTRUMENT_SOURCE_TYPE = {'1': 'electrospray ionization',
+# Only type "1" has been tested with the current test dataset.
+INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',
+                          '1': 'electrospray ionization',
                           '2': 'atmospheric pressure chemical ionization',
                           '3': 'nanoelectrospray',
                           '4': 'nanoelectrospray',
@@ -29,27 +25,31 @@ INSTRUMENT_SOURCE_TYPE = {'1': 'electrospray ionization',
                           '9': 'nanoflow electrospray ionization',
                           '10': 'ionBooster',
                           '11': 'CaptiveSpray',
-                          '12': 'GC-APCI'}
+                          '12': 'GC-APCI',
+                          '13': 'VIP-HESI-APCI'}
 
 
-SCAN_MODE = {'0': 'MS',
-             '1': 'MS/MS',
-             '2': 'MS-MS/MS (isCID)',
-             '3': 'MS/MS (MRM)',
-             '4': 'MS/MS (Auto)',
-             '5': 'MS-MS/MS (bbCID)',
-             '6': 'MS/MS (Pasef)',
-             '8': 'dda-PASEF',
-             '9': 'dia-PASEF',
-             '10': 'prm-PASEF'}
+BAF_SCAN_MODE = {'0': 'MS',
+                 '2': 'MS/MS (Auto) | MS/MS (MRM)',
+                 '4': 'MS/MS (isCID)',
+                 '5': 'MS/MS (bbCID)'}
 
-SCAN_MODE_CATEGORY = {'ms1': [0],
-                      'ms2': [1, 2, 3, 4, 5, 6, 9, 10]}
+
+TSF_TDF_SCAN_MODE = {'0': 'MS',
+                     '1': 'MS/MS (Auto)',
+                     '2': 'MS/MS (MRM)',
+                     '4': 'MS/MS (bbCID)',
+                     '8': 'dda-PASEF',
+                     '9': 'dia-PASEF',
+                     '10': 'prm-PASEF',
+                     '20': 'MS/MS (MALDI)'}
+
 
 MSMS_TYPE = {'0': 'MS',
-             '2': 'TSF MS/MS',
+             '2': 'MS/MS',
              '8': 'dda-PASEF',
              '9': 'dia-PASEF'}
+
 
 MSMS_TYPE_CATEGORY = {'ms1': [0],
                       'ms2': [2, 8, 9]}

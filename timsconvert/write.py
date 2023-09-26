@@ -478,7 +478,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
 
         logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Parse chunks of data and write to spectrum elements.
-        with writer.run(id='run', instrument_configuration='instrument'):
+        with writer.run(id='run',
+                        instrument_configuration='instrument',
+                        start_time=data.analysis['GlobalMetadata']['AcquisitionDateTime']):
             scan_count = 0
             # Count number of spectra in run.
             logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
@@ -601,7 +603,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
             logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
             # Parse chunks of data and write to spectrum element.
-            with writer.run(id='run', instrument_configuration='instrument'):
+            with writer.run(id='run',
+                            instrument_configuration='instrument',
+                            start_time=data.analysis['AcquisitionDateTime']):
                 scan_count = 0
                 # Count number of spectra in run.
                 logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
@@ -703,7 +707,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
                     write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
-                    with writer.run(id='run', instrument_configuration='instrument'):
+                    with writer.run(id='run',
+                                    instrument_configuration='instrument',
+                                    start_time=data.analysis['AcquisitionDateTime']):
                         scan_count = 1
                         scan_dict['scan_number'] = scan_count
                         with writer.spectrum_list(count=scan_count):
@@ -783,7 +789,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                     with writer:
                         writer.controlled_vocabularies()
                         write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
-                        with writer.run(id='run', instrument_configuration='instrument'):
+                        with writer.run(id='run',
+                                        instrument_configuration='instrument',
+                                        start_time=data.analysis['AcquisitionDateTime']):
                             scan_count = len(value)
                             with writer.spectrum_list(count=scan_count):
                                 condition_scan_dicts = [i for i in list_of_scan_dicts if i['coord'] in value]

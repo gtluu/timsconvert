@@ -99,7 +99,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
             and 'MaldiApplicationType' not in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count,
                                [INSTRUMENT_SOURCE_TYPE[data.analysis[metadata_key]['InstrumentSourceType']]])
-    # If source isn't found in the GlobalMetadata SQL table, hard code source to ESI
+    # If source isn't found in the GlobalMetadata or Properties SQL table, hard code source to ESI
     elif 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
     # Analyzer and detector hard coded for timsTOF fleX
@@ -113,11 +113,15 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # Data processing element.
     if not barebones_metadata:
         proc_methods = [writer.ProcessingMethod(order=1,
-                                                software_reference='timsconvert',
+                                                software_reference='psims-writer',
                                                 params=['Conversion to mzML']),
                         writer.ProcessingMethod(order=2,
-                                                software_reference='psims-writer',
-                                                params=['Conversion to mzML'])]
+                                                software_reference='TDF-SDK',
+                                                params=['Conversion to mzML']),
+                        writer.ProcessingMethod(order=3,
+                                                software_reference='timsconvert',
+                                                params=['Conversion to mzML'])
+                        ]
         processing = writer.DataProcessing(proc_methods, id='exportation')
         writer.data_processing_list([processing])
 
@@ -462,6 +466,11 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
         during conversion.
     :type chunk_size: int
     """
+    if isinstance(data, TimsconvertBafData):
+        metadata_key = 'Properties'
+    elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
+        metadata_key = 'GlobalMetadata'
+
     # Initialize mzML writer using psims.
     logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
     writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
@@ -479,7 +488,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
         # Parse chunks of data and write to spectrum elements.
         with writer.run(id='run',
                         instrument_configuration='instrument',
-                        start_time=data.analysis['GlobalMetadata']['AcquisitionDateTime']):
+                        start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
             scan_count = 0
             # Count number of spectra in run.
             logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')

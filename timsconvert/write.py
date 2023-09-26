@@ -107,7 +107,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     inst_count += 1
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
     inst_count += 1
-    detector = writer.Detector(inst_count, ['electron multiplier'])
+    detector = writer.Detector(inst_count, ['microchannel plate detector', 'photomultiplier'])
     inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector])
     writer.instrument_configuration_list([inst_config])
 

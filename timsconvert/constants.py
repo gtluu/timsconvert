@@ -4,6 +4,7 @@ from timsconvert.timestamp import *
 
 logging.info(get_timestamp() + ':' + 'Initialize constants...')
 
+VERSION = '1.5.0'
 
 INSTRUMENT_FAMILY = {'1': 'otof',
                      '2': 'otofq',
@@ -28,12 +29,10 @@ INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',
                           '12': 'GC-APCI',
                           '13': 'VIP-HESI-APCI'}
 
-
 BAF_SCAN_MODE = {'0': 'MS',
                  '2': 'MS/MS (Auto) | MS/MS (MRM)',
                  '4': 'MS/MS (isCID)',
                  '5': 'MS/MS (bbCID)'}
-
 
 TSF_TDF_SCAN_MODE = {'0': 'MS',
                      '1': 'MS/MS (Auto)',
@@ -44,12 +43,10 @@ TSF_TDF_SCAN_MODE = {'0': 'MS',
                      '10': 'prm-PASEF',
                      '20': 'MS/MS (MALDI)'}
 
-
 MSMS_TYPE = {'0': 'MS',
              '2': 'MS/MS',
              '8': 'dda-PASEF',
              '9': 'dia-PASEF'}
-
 
 MSMS_TYPE_CATEGORY = {'ms1': [0],
                       'ms2': [2, 8, 9]}

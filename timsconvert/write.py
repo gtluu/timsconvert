@@ -107,10 +107,31 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
     inst_count += 1
     detector = writer.Detector(inst_count, ['microchannel plate detector', 'photomultiplier'])
+    # Get instrument serial number.
     serial_number = data.analysis[metadata_key]['InstrumentSerialNumber']
+    # Get instrument name based on GlobalMetadata or Properties table.
+    if not barebones_metadata:
+        instrument_name = data.analysis[metadata_key]['InstrumentName'].strip().lower()
+        if instrument_name == 'timstof':
+            instrument_name = 'timsTOF'
+        elif instrument_name == 'timstof pro':
+            instrument_name = 'timsTOF Pro'
+        elif instrument_name == 'timstof pro 2':
+            instrument_name = 'timsTOF Pro 2'
+        elif instrument_name == 'timstof flex':
+            instrument_name = 'timsTOF fleX'
+        elif instrument_name == 'timstof scp':
+            instrument_name = 'timsTOF SCP'
+        elif instrument_name == 'timstof ht':
+            instrument_name = 'Bruker Daltonics timsTOF series'  # placeholder since HT doesn't have CV param
+        elif instrument_name == 'timstof ultra':
+            instrument_name = 'timsTOF Ultra'
+        params = [instrument_name, {'instrument serial number': serial_number}]
+    else:
+        params = [{'instrument serial number': serial_number}]
     inst_config = writer.InstrumentConfiguration(id='instrument',
                                                  component_list=[source, analyzer, detector],
-                                                 params=[{'instrument serial number': serial_number}])  # instrument family will also go here
+                                                 params=params)
     writer.instrument_configuration_list([inst_config])
 
     # Data processing element.
@@ -123,8 +144,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
                                                 params=['Conversion to mzML']),
                         writer.ProcessingMethod(order=3,
                                                 software_reference='timsconvert',
-                                                params=['Conversion to mzML'])
-                        ]
+                                                params=['Conversion to mzML'])]
         processing = writer.DataProcessing(proc_methods, id='exportation')
         writer.data_processing_list([processing])
 

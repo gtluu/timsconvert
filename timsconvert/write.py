@@ -107,7 +107,10 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
     inst_count += 1
     detector = writer.Detector(inst_count, ['microchannel plate detector', 'photomultiplier'])
-    inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector])
+    serial_number = data.analysis[metadata_key]['InstrumentSerialNumber']
+    inst_config = writer.InstrumentConfiguration(id='instrument',
+                                                 component_list=[source, analyzer, detector],
+                                                 params=[{'instrument serial number': serial_number}])  # instrument family will also go here
     writer.instrument_configuration_list([inst_config])
 
     # Data processing element.

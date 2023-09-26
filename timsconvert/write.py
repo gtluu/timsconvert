@@ -94,12 +94,13 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
                               timsconvert_software])
 
     # Instrument configuration.
+    # Instrument source, analyzer, and detector are all hard coded to timsTOF hardware and does not allow for non-stock
+    # configurations.
     inst_count = 1
     if data.analysis[metadata_key]['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys() \
             and 'MaldiApplicationType' not in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count,
                                [INSTRUMENT_SOURCE_TYPE[data.analysis[metadata_key]['InstrumentSourceType']]])
-    # If source isn't found in the GlobalMetadata or Properties SQL table, hard code source to ESI
     elif 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
     # Analyzer and detector hard coded for timsTOF fleX
@@ -309,12 +310,12 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
         params.append({'lowest observed m/z': scan['low_mz']})
 
     if scan['mobility_array'] is not None:
-        # This version only works with newer versions of psims.
-        # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
-        #                  'unit_name': 'volt-second per square centimeter'},
-        #                 parent_scan['mobility_array'])]
-        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
+        """This version only works with newer versions of psims.
+        Currently unusable due to boost::interprocess error on Linux.
+        other_arrays = [({'name': 'mean inverse reduced ion mobility array',
+                          'unit_name': 'volt-second per square centimeter'},
+                         parent_scan['mobility_array'])]
+        Need to use older notation with a tuple (name, array) due to using psims 0.1.34."""
         other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
@@ -326,7 +327,8 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
 
     # Build precursor information dict.
     precursor_info = {'mz': scan['selected_ion_mz'],
-                      'activation': [{'collision energy': scan['collision_energy']}],
+                      'activation': ['collision-induced dissociation',  # hard coded to CID
+                                     {'collision energy': scan['collision_energy']}],
                       'isolation_window_args': {'target': scan['target_mz'],
                                                 'upper': scan['isolation_upper_offset'],
                                                 'lower': scan['isolation_lower_offset']},

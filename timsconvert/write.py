@@ -76,23 +76,22 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
 
     # Add list of software.
     if not barebones_metadata:
-        acquisition_software_id = data.analysis[metadata_key]['AcquisitionSoftware']
-        acquisition_software_version = data.analysis[metadata_key]['AcquisitionSoftwareVersion']
-        if acquisition_software_id == 'Bruker otofControl' or acquisition_software_id == 'timsTOF':
-            acquisition_software_params = ['micrOTOFcontrol', ]
-        else:
-            acquisition_software_params = []
-        timsconvert_software = {'id': 'timsconvert',
-                                'version': VERSION,
-                                'params': ['timsconvert', ]}
+        acquisition_software = {'id': 'micrOTOFcontrol',
+                                'version': data.analysis[metadata_key]['AcquisitionSoftwareVersion'],
+                                'params': ['micrOTOFcontrol', ]}
+        tdf_sdk_software = {'id': 'TDF-SDK',
+                            'version': '2.21.0.4',
+                            'params': ['Bruker software']}
         psims_software = {'id': 'psims-writer',
                           'version': '0.1.34',
                           'params': ['python-psims', ]}
-        writer.software_list([{'id': acquisition_software_id,
-                               'version': acquisition_software_version,
-                               'params': acquisition_software_params},
-                              timsconvert_software,
-                              psims_software])
+        timsconvert_software = {'id': 'timsconvert',
+                                'version': VERSION,
+                                'params': ['timsconvert', ]}
+        writer.software_list([acquisition_software,
+                              tdf_sdk_software,
+                              psims_software,
+                              timsconvert_software])
 
     # Instrument configuration.
     inst_count = 1

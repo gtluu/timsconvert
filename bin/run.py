@@ -9,7 +9,7 @@ def main():
     # Args check.
     args_check(args)
     # Check arguments.
-    args['version'] = timsconvert_version
+    args['version'] = VERSION
 
     # Initialize logger if not running on server.
     logname = 'log_' + get_timestamp() + '.log'

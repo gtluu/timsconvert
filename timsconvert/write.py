@@ -36,6 +36,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
         metadata_key = 'Properties'
     elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
         metadata_key = 'GlobalMetadata'
+
     # Add spectra level and centroid/profile status.
     if isinstance(data, TimsconvertBafData):
         ms_levels = list(set(data.analysis['AcquisitionKeys']['MsLevel'].values.tolist()))
@@ -66,6 +67,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
         file_description.append('centroid spectrum')
     elif mode == 'profile':
         file_description.append('profile spectrum')
+
     # Source file
     sf = writer.SourceFile(os.path.split(infile)[0],
                            os.path.split(infile)[1],
@@ -80,12 +82,16 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
             acquisition_software_params = ['micrOTOFcontrol', ]
         else:
             acquisition_software_params = []
+        timsconvert_software = {'id': 'timsconvert',
+                                'version': VERSION,
+                                'params': ['timsconvert', ]}
         psims_software = {'id': 'psims-writer',
-                          'version': '0.1.2',
+                          'version': '0.1.34',
                           'params': ['python-psims', ]}
         writer.software_list([{'id': acquisition_software_id,
                                'version': acquisition_software_version,
                                'params': acquisition_software_params},
+                              timsconvert_software,
                               psims_software])
 
     # Instrument configuration.
@@ -97,7 +103,6 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # If source isn't found in the GlobalMetadata SQL table, hard code source to ESI
     elif 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
-
     # Analyzer and detector hard coded for timsTOF fleX
     inst_count += 1
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
@@ -109,6 +114,9 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # Data processing element.
     if not barebones_metadata:
         proc_methods = [writer.ProcessingMethod(order=1,
+                                                software_reference='timsconvert',
+                                                params=['Conversion to mzML']),
+                        writer.ProcessingMethod(order=2,
                                                 software_reference='psims-writer',
                                                 params=['Conversion to mzML'])]
         processing = writer.DataProcessing(proc_methods, id='exportation')

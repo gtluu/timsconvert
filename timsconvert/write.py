@@ -327,7 +327,7 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
 
     # Build precursor information dict.
     precursor_info = {'mz': scan['selected_ion_mz'],
-                      'activation': ['collision-induced dissociation',  # hard coded to CID
+                      'activation': ['collision-induced dissociation',  # hard coded to either CID or isCID
                                      {'collision energy': scan['collision_energy']}],
                       'isolation_window_args': {'target': scan['target_mz'],
                                                 'upper': scan['isolation_upper_offset'],

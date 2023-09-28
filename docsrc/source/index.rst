@@ -23,6 +23,7 @@ Contents
    GNPS Usage <gnps>
    Advanced Usage <advanced>
    TIMSCONVERT Source Code <timsconvert>
+   Modules <modules>
    :maxdepth: 2
    :caption: Contents:
 

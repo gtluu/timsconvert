@@ -31,6 +31,15 @@ Parameters
 .. csv-table::
     :file: parameter_descriptions.csv
 
+Notes on ``barebones_metadata parameters`` Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If the ``--barebones_metadata`` flag is used when running TIMSCONVERT, the following metadata is not written to the
+resulting mzML file: 1) software list including acquistion and data conversion software, 2) data processing list
+including data conversion software, and 3) instrument name. This is done to allow for compatibility with older software
+predating the timsTOF, TDF-SDK, psims, etc. that cannot recognize those ``CVParams``. Additionally, TIMSCONVERT is
+written out as a ``UserParam``, and although it is technically correct, the presence of that ``UserParam`` is not
+always compatible with these software.
+
 Testing
 -------
 To test TIMSCONVERT locally:

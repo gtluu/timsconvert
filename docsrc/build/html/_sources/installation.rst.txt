@@ -5,54 +5,62 @@ so. Please note that TIMSCONVERT should be run under Windows or Linux. macOS is 
 
 Installing on Windows
 ---------------------
-1. Download and install `Anaconda for Windows <https://repo.anaconda.com/archive/Anaconda3-2021.11-Windows-x86_64.exe>`_. Follow the prompts to complete installation.
+1. Download and install `Anaconda for Windows <https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Windows-x86_64.exe>`_ if not already installed. Follow the prompts to complete installation.
 
-2. Run ``Anaconda Prompt (R-MINI~1)`` as Administrator.
+2. Download and install `Git for Windows <https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe>`_ if not already installed.
 
-3. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
+3. Run ``Anaconda Prompt``.
+
+4. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
 
    .. code-block::
 
         conda create -n timsconvert python=3.7
 
-4. Activate conda environment.
+5. Activate conda environment.
 
    .. code-block::
 
         conda activate timsconvert
 
-5. Install dependencies.
+6. Install dependencies.
 
    .. code-block::
 
         pip install -r https://raw.githubusercontent.com/gtluu/timsconvert/main/requirements.txt
 
-6. Install TIMSCONVERT.
+7. Install TIMSCONVERT.
 
    .. code-block::
 
         pip install git+https://github.com/gtluu/timsconvert
 
-7. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
+8. TIMSCONVERT is now ready to use. See the :doc:`Local Usage <local>` page for basic usage of TIMSCONVERT.
 
 Installing on Linux
 -------------------
 Please note that while these instructions should apply to most Linux distros, TIMSCONVERT is tested on Ubuntu 22.04.3
 LTS. We recommend using this distro if you encounter compatibility issues in others.
 
-1. Download and install `Anaconda for Linux <https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh>`_. Anaconda3-2021.11 for LInux is used as an example here.
+1. If not already installed, download and install `Anaconda for Linux <https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Linux-x86_64.sh>`_. Anaconda3-2021.11 for LInux is used as an example here.
 
    * Alternatively, the script can be downloaded in the ``Terminal`` using the following command.
 
    .. code-block::
 
-        wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
+        wget https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Linux-x86_64.sh
 
-2. Install Anaconda for Linux via the bash script that was downloaded.
+2. If not already installed, install ``git``. On Ubuntu 22.04 LTS, this can be done using the following command.
 
    .. code-block::
 
-        bash [path to]/Anaconda3-2021.11-Linux-x86_64.sh
+        sudo apt-get install git
+
+2. Install Anaconda for Linux via the bash script that was downloaded. After installation, restart the terminal (or open a new terminal window).
+
+   .. code-block::
+
+        bash [path to]/Anaconda3-2023.07-2-Linux-x86_64.sh
 
 3. In the terminal, create a conda virtual environment. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
 

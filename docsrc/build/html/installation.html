@@ -45,8 +45,8 @@ so. Please note that TIMSCONVERT should be run under Windows or Linux. macOS is 
 <li><p>Download and install <a class="reference external" href="https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Windows-x86_64.exe">Anaconda for Windows</a> if not already installed. Follow the prompts to complete installation.</p></li>
 <li><p>Download and install <a class="reference external" href="https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe">Git for Windows</a> if not already installed.</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code>.</p></li>
-<li><p>Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker’s API in Linux.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">timsconvert</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.7</span>
+<li><p>Create a conda instance.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">timsconvert</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.11</span>
 </pre></div>
 </div>
 </li>
@@ -81,7 +81,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 </pre></div>
 </div>
 </li>
-<li><p>If not already installed, install <code class="docutils literal notranslate"><span class="pre">git</span></code>. On Ubuntu 22.04 LTS, this can be done using the following command.</p>
+<li><p>If not already installed, install <code class="docutils literal notranslate"><span class="pre">git</span></code>. On Ubuntu 22.04.3 LTS, this can be done using the following command.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
 </pre></div>
 </div>
@@ -93,8 +93,8 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 </pre></div>
 </div>
 </li>
-<li><p>In the terminal, create a conda virtual environment. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker’s API in Linux.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">timsconvert</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.7</span>
+<li><p>In the terminal, create a conda virtual environment.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">timsconvert</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.11</span>
 </pre></div>
 </div>
 </li>
@@ -147,6 +147,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 <li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 
 <div class="relations">

@@ -83,7 +83,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
                             'version': '2.21.0.4',
                             'params': ['Bruker software']}
         psims_software = {'id': 'psims-writer',
-                          'version': '0.1.34',
+                          'version': '1.2.7',
                           'params': ['python-psims', ]}
         timsconvert_software = {'id': 'timsconvert',
                                 'version': VERSION,

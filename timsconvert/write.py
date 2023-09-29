@@ -36,6 +36,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
         metadata_key = 'Properties'
     elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
         metadata_key = 'GlobalMetadata'
+
     # Add spectra level and centroid/profile status.
     if isinstance(data, TimsconvertBafData):
         ms_levels = list(set(data.analysis['AcquisitionKeys']['MsLevel'].values.tolist()))
@@ -66,6 +67,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
         file_description.append('centroid spectrum')
     elif mode == 'profile':
         file_description.append('profile spectrum')
+
     # Source file
     sf = writer.SourceFile(os.path.split(infile)[0],
                            os.path.split(infile)[1],
@@ -74,42 +76,75 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
 
     # Add list of software.
     if not barebones_metadata:
-        acquisition_software_id = data.analysis[metadata_key]['AcquisitionSoftware']
-        acquisition_software_version = data.analysis[metadata_key]['AcquisitionSoftwareVersion']
-        if acquisition_software_id == 'Bruker otofControl' or acquisition_software_id == 'timsTOF':
-            acquisition_software_params = ['micrOTOFcontrol', ]
-        else:
-            acquisition_software_params = []
+        acquisition_software = {'id': 'micrOTOFcontrol',
+                                'version': data.analysis[metadata_key]['AcquisitionSoftwareVersion'],
+                                'params': ['micrOTOFcontrol', ]}
+        tdf_sdk_software = {'id': 'TDF-SDK',
+                            'version': '2.21.0.4',
+                            'params': ['Bruker software']}
         psims_software = {'id': 'psims-writer',
-                          'version': '0.1.2',
+                          'version': '0.1.34',
                           'params': ['python-psims', ]}
-        writer.software_list([{'id': acquisition_software_id,
-                               'version': acquisition_software_version,
-                               'params': acquisition_software_params},
-                              psims_software])
+        timsconvert_software = {'id': 'timsconvert',
+                                'version': VERSION,
+                                'params': ['timsconvert', ]}
+        writer.software_list([acquisition_software,
+                              tdf_sdk_software,
+                              psims_software,
+                              timsconvert_software])
 
     # Instrument configuration.
+    # Instrument source, analyzer, and detector are all hard coded to timsTOF hardware and does not allow for non-stock
+    # configurations.
     inst_count = 1
     if data.analysis[metadata_key]['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys() \
             and 'MaldiApplicationType' not in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count,
                                [INSTRUMENT_SOURCE_TYPE[data.analysis[metadata_key]['InstrumentSourceType']]])
-    # If source isn't found in the GlobalMetadata SQL table, hard code source to ESI
     elif 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
-
     # Analyzer and detector hard coded for timsTOF fleX
     inst_count += 1
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
     inst_count += 1
-    detector = writer.Detector(inst_count, ['electron multiplier'])
-    inst_config = writer.InstrumentConfiguration(id='instrument', component_list=[source, analyzer, detector])
+    detector = writer.Detector(inst_count, ['microchannel plate detector', 'photomultiplier'])
+    # Get instrument serial number.
+    serial_number = data.analysis[metadata_key]['InstrumentSerialNumber']
+    # Get instrument name based on GlobalMetadata or Properties table.
+    if not barebones_metadata:
+        instrument_name = data.analysis[metadata_key]['InstrumentName'].strip().lower()
+        if instrument_name == 'timstof':
+            instrument_name = 'timsTOF'
+        elif instrument_name == 'timstof pro':
+            instrument_name = 'timsTOF Pro'
+        elif instrument_name == 'timstof pro 2':
+            instrument_name = 'timsTOF Pro 2'
+        elif instrument_name == 'timstof flex':
+            instrument_name = 'timsTOF fleX'
+        elif instrument_name == 'timstof scp':
+            instrument_name = 'timsTOF SCP'
+        elif instrument_name == 'timstof ht':
+            instrument_name = 'Bruker Daltonics timsTOF series'  # placeholder since HT doesn't have CV param
+        elif instrument_name == 'timstof ultra':
+            instrument_name = 'timsTOF Ultra'
+        params = [instrument_name, {'instrument serial number': serial_number}]
+    else:
+        params = [{'instrument serial number': serial_number}]
+    inst_config = writer.InstrumentConfiguration(id='instrument',
+                                                 component_list=[source, analyzer, detector],
+                                                 params=params)
     writer.instrument_configuration_list([inst_config])
 
     # Data processing element.
     if not barebones_metadata:
         proc_methods = [writer.ProcessingMethod(order=1,
                                                 software_reference='psims-writer',
+                                                params=['Conversion to mzML']),
+                        writer.ProcessingMethod(order=2,
+                                                software_reference='TDF-SDK',
+                                                params=['Conversion to mzML']),
+                        writer.ProcessingMethod(order=3,
+                                                software_reference='timsconvert',
                                                 params=['Conversion to mzML'])]
         processing = writer.DataProcessing(proc_methods, id='exportation')
         writer.data_processing_list([processing])
@@ -275,12 +310,12 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
         params.append({'lowest observed m/z': scan['low_mz']})
 
     if scan['mobility_array'] is not None:
-        # This version only works with newer versions of psims.
-        # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
-        #                  'unit_name': 'volt-second per square centimeter'},
-        #                 parent_scan['mobility_array'])]
-        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
+        """This version only works with newer versions of psims.
+        Currently unusable due to boost::interprocess error on Linux.
+        other_arrays = [({'name': 'mean inverse reduced ion mobility array',
+                          'unit_name': 'volt-second per square centimeter'},
+                         parent_scan['mobility_array'])]
+        Need to use older notation with a tuple (name, array) due to using psims 0.1.34."""
         other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
@@ -292,7 +327,8 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
 
     # Build precursor information dict.
     precursor_info = {'mz': scan['selected_ion_mz'],
-                      'activation': [{'collision energy': scan['collision_energy']}],
+                      'activation': ['collision-induced dissociation',  # hard coded to either CID or isCID
+                                     {'collision energy': scan['collision_energy']}],
                       'isolation_window_args': {'target': scan['target_mz'],
                                                 'upper': scan['isolation_upper_offset'],
                                                 'lower': scan['isolation_lower_offset']},
@@ -455,6 +491,11 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
         during conversion.
     :type chunk_size: int
     """
+    if isinstance(data, TimsconvertBafData):
+        metadata_key = 'Properties'
+    elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
+        metadata_key = 'GlobalMetadata'
+
     # Initialize mzML writer using psims.
     logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
     writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
@@ -470,7 +511,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
 
         logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Parse chunks of data and write to spectrum elements.
-        with writer.run(id='run', instrument_configuration='instrument'):
+        with writer.run(id='run',
+                        instrument_configuration='instrument',
+                        start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
             scan_count = 0
             # Count number of spectra in run.
             logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
@@ -593,7 +636,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
             logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
             # Parse chunks of data and write to spectrum element.
-            with writer.run(id='run', instrument_configuration='instrument'):
+            with writer.run(id='run',
+                            instrument_configuration='instrument',
+                            start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
                 scan_count = 0
                 # Count number of spectra in run.
                 logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
@@ -695,7 +740,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
                     write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
-                    with writer.run(id='run', instrument_configuration='instrument'):
+                    with writer.run(id='run',
+                                    instrument_configuration='instrument',
+                                    start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
                         scan_count = 1
                         scan_dict['scan_number'] = scan_count
                         with writer.spectrum_list(count=scan_count):
@@ -775,7 +822,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                     with writer:
                         writer.controlled_vocabularies()
                         write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
-                        with writer.run(id='run', instrument_configuration='instrument'):
+                        with writer.run(id='run',
+                                        instrument_configuration='instrument',
+                                        start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
                             scan_count = len(value)
                             with writer.spectrum_list(count=scan_count):
                                 condition_scan_dicts = [i for i in list_of_scan_dicts if i['coord'] in value]

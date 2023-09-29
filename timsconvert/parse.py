@@ -111,6 +111,7 @@ def init_scan_dict():
             'selected_ion_mobility': None,
             'selected_ion_ccs': None,
             'charge_state': None,
+            'activation': None,
             'collision_energy': None,
             'frame': None,
             'parent_frame': None,
@@ -181,7 +182,7 @@ def populate_scan_dict_w_ms1(scan_dict, frame):
     return scan_dict
 
 
-def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=None, framemsmsinfo_dict=None):
+def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema, msms_mode, baf_data=None, framemsmsinfo_dict=None):
     """
     Populate spectrum data dictionary with MS2 level metadata when using bbCID or isCID mode.
 
@@ -192,6 +193,8 @@ def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=Non
     :type frame: int
     :param schema: Schema as determined by timsconvert.data_input.schema_detection, either TDF, TSF, or BAF.
     :type schema: str
+    :param msms_mode: MS/MS data acquisition mode.
+    :type msms_mode: str
     :param baf_data: baf_data object containing metadata from analysis.sqlite database, defaults to None.
     :type baf_data: timsconvert.classes.TimsconvertBafData | None
     :param framemsmsinfo_dict: A row from the FrameMsmsInfo table in analysis.tsf/analysis.tdf database, defaults to
@@ -202,6 +205,10 @@ def populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, schema,  baf_data=Non
     """
     scan_dict['scan_type'] = 'MSn spectrum'
     scan_dict['ms_level'] = 2
+    if msms_mode == 'bbcid':
+        scan_dict['activation'] = 'collision-induced dissociation'
+    elif msms_mode == 'iscid':
+        scan_dict['activation'] = 'in-source collision-induced dissociation'
     if schema == 'TSF' or schema == 'TDF':
         scan_dict['collision_energy'] = float(framemsmsinfo_dict['CollisionEnergy'])
     elif schema == 'BAF':
@@ -249,6 +256,7 @@ def populate_scan_dict_w_baf_ms2(scan_dict, baf_data, frames_dict, frame):
     collision_energy = baf_data.analysis['Variables'][(baf_data.analysis['Variables']['Spectrum'] == frame) &
                                                       (baf_data.analysis['Variables']['Variable'] ==
                                                        5)].to_dict(orient='records')[0]['Value']
+    scan_dict['activation'] = 'collision-induced dissociation'
     scan_dict['collision_energy'] = collision_energy
     scan_dict['parent_frame'] = int(frames_dict['Parent'])
     return scan_dict
@@ -302,6 +310,7 @@ def populate_scan_dict_w_ddapasef_ms2(scan_dict, tdf_data, precursor_dict, pasef
                                                                    int(precursor_dict['Parent']),
                                                                    np.array([int(precursor_dict['ScanNumber'])]))[0]
     scan_dict['charge_state'] = precursor_dict['Charge']
+    scan_dict['activation'] = 'collision-induced dissociation'
     scan_dict['collision_energy'] = pasefframemsmsinfo_dicts[0]['CollisionEnergy']
     scan_dict['parent_frame'] = int(precursor_dict['Parent'])
     scan_dict['parent_scan'] = int(precursor_dict['ScanNumber'])
@@ -731,11 +740,11 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                 list_of_product_scans.append(scan_dict)
             # isCID MS/MS
             elif int(acquisitionkey_dict['ScanMode']) == 4:
-                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', baf_data=baf_data)
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', 'iscid', baf_data=baf_data)
                 list_of_parent_scans.append(scan_dict)
             # bbCID MS/MS
             elif int(acquisitionkey_dict['ScanMode']) == 5:
-                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', baf_data=baf_data)
+                scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict, frame, 'BAF', 'bbcid', baf_data=baf_data)
                 list_of_parent_scans.append(scan_dict)
     return list_of_parent_scans, list_of_product_scans
 
@@ -781,15 +790,19 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
             elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
                 framemsmsinfo_dict = tsf_data.analysis['FrameMsMsInfo'][tsf_data.analysis['FrameMsMsInfo']['Frame'] ==
                                                                         frame].to_dict(orient='records')[0]
+                # Auto MS/MS
                 if int(frames_dict['ScanMode']) == 1:
                     scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=True)
                     list_of_product_scans.append(scan_dict)
+                # bbCID
                 elif int(frames_dict['ScanMode']) == 4:
                     scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
                                                                      frame,
                                                                      'TSF',
+                                                                     'bbcid',
                                                                      framemsmsinfo_dict=framemsmsinfo_dict)
                     list_of_parent_scans.append(scan_dict)
+                # MRM
                 elif int(frames_dict['ScanMode']) == 2:
                     scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict)
                     list_of_parent_scans.append(scan_dict)
@@ -930,6 +943,7 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
             scan_dict = populate_scan_dict_w_bbcid_iscid_ms2(scan_dict,
                                                              frame,
                                                              'TDF',
+                                                             'bbcid',
                                                              framemsmsinfo_dict=framemsmsinfo_dict)
             if not exclude_mobility:
                 mz_array, intensity_array, mobility_array = extract_3d_tdf_spectrum(tdf_data,

@@ -114,6 +114,15 @@ conversion.</p>
 </tr>
 </tbody>
 </table>
+<section id="notes-on-barebones-metadata-parameters-parameter">
+<h3>Notes on <code class="docutils literal notranslate"><span class="pre">barebones_metadata</span> <span class="pre">parameters</span></code> Parameter<a class="headerlink" href="#notes-on-barebones-metadata-parameters-parameter" title="Permalink to this heading">¶</a></h3>
+<p>If the <code class="docutils literal notranslate"><span class="pre">--barebones_metadata</span></code> flag is used when running TIMSCONVERT, the following metadata is not written to the
+resulting mzML file: 1) software list including acquistion and data conversion software, 2) data processing list
+including data conversion software, and 3) instrument name. This is done to allow for compatibility with older software
+predating the timsTOF, TDF-SDK, psims, etc. that cannot recognize those <code class="docutils literal notranslate"><span class="pre">CVParams</span></code>. Additionally, TIMSCONVERT is
+written out as a <code class="docutils literal notranslate"><span class="pre">UserParam</span></code>, and although it is technically correct, the presence of that <code class="docutils literal notranslate"><span class="pre">UserParam</span></code> is not
+always compatible with these software.</p>
+</section>
 </section>
 <section id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h2>
@@ -172,6 +181,7 @@ conversion.</p>
 <li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 
 <div class="relations">

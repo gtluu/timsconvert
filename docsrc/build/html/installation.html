@@ -42,8 +42,9 @@ so. Please note that TIMSCONVERT should be run under Windows or Linux. macOS is 
 <section id="installing-on-windows">
 <h2>Installing on Windows<a class="headerlink" href="#installing-on-windows" title="Permalink to this heading">¶</a></h2>
 <ol class="arabic">
-<li><p>Download and install <a class="reference external" href="https://repo.anaconda.com/archive/Anaconda3-2021.11-Windows-x86_64.exe">Anaconda for Windows</a>. Follow the prompts to complete installation.</p></li>
-<li><p>Run <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span> <span class="pre">(R-MINI~1)</span></code> as Administrator.</p></li>
+<li><p>Download and install <a class="reference external" href="https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Windows-x86_64.exe">Anaconda for Windows</a> if not already installed. Follow the prompts to complete installation.</p></li>
+<li><p>Download and install <a class="reference external" href="https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.2/Git-2.42.0.2-64-bit.exe">Git for Windows</a> if not already installed.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code>.</p></li>
 <li><p>Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker’s API in Linux.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">timsconvert</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.7</span>
 </pre></div>
@@ -72,16 +73,23 @@ so. Please note that TIMSCONVERT should be run under Windows or Linux. macOS is 
 <p>Please note that while these instructions should apply to most Linux distros, TIMSCONVERT is tested on Ubuntu 22.04.3
 LTS. We recommend using this distro if you encounter compatibility issues in others.</p>
 <ol class="arabic">
-<li><p>Download and install <a class="reference external" href="https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh">Anaconda for Linux</a>. Anaconda3-2021.11 for LInux is used as an example here.</p>
+<li><p>If not already installed, download and install <a class="reference external" href="https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Linux-x86_64.sh">Anaconda for Linux</a>. Anaconda3-2021.11 for LInux is used as an example here.</p>
 <ul class="simple">
 <li><p>Alternatively, the script can be downloaded in the <code class="docutils literal notranslate"><span class="pre">Terminal</span></code> using the following command.</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">repo</span><span class="o">.</span><span class="n">anaconda</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">Anaconda3</span><span class="o">-</span><span class="mf">2021.11</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">repo</span><span class="o">.</span><span class="n">anaconda</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">Anaconda3</span><span class="o">-</span><span class="mf">2023.07</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
 </pre></div>
 </div>
 </li>
-<li><p>Install Anaconda for Linux via the bash script that was downloaded.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span><span class="p">]</span><span class="o">/</span><span class="n">Anaconda3</span><span class="o">-</span><span class="mf">2021.11</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
+<li><p>If not already installed, install <code class="docutils literal notranslate"><span class="pre">git</span></code>. On Ubuntu 22.04 LTS, this can be done using the following command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<ol class="arabic" start="2">
+<li><p>Install Anaconda for Linux via the bash script that was downloaded. After installation, restart the terminal (or open a new terminal window).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="p">[</span><span class="n">path</span> <span class="n">to</span><span class="p">]</span><span class="o">/</span><span class="n">Anaconda3</span><span class="o">-</span><span class="mf">2023.07</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
 </pre></div>
 </div>
 </li>

@@ -1,4 +1,4 @@
-name: timsconvert
+name: timsconvert_test
 channels:
   - defaults
 dependencies:

@@ -944,11 +944,12 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                     int(frames_dict['NumScans']),
                                                                     profile_bins,
                                                                     encoding)
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
                     and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    :
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
                     scan_dict['mobility_array'] = mobility_array

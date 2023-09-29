@@ -33,4 +33,4 @@ from timsconvert.parse import *
 from timsconvert.timestamp import *
 from timsconvert.write import *
 
-timsconvert_version = '1.4.2'
+timsconvert_version = '1.4.3'

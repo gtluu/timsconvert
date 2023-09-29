@@ -861,11 +861,11 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                     int(frames_dict['NumScans']),
                                                                     profile_bins,
                                                                     encoding)
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
-                    and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    and mz_array.size == intensity_array.size:
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
                     scan_dict['mobility_array'] = mobility_array
@@ -924,11 +924,11 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                         int(diaframemsmswindows_dict['ScanNumEnd']),
                                                                         profile_bins,
                                                                         encoding)
-                if mz_array.size != 0 \
+                if mz_array is not None \
+                        and intensity_array is not None \
+                        and mz_array.size != 0 \
                         and intensity_array.size != 0 \
-                        and mz_array.size == intensity_array.size \
-                        and mz_array is not None \
-                        and intensity_array is not None:
+                        and mz_array.size == intensity_array.size:
                     scan_dict = populate_scan_dict_w_diapasef_ms2(scan_dict, diaframemsmswindows_dict)
                     scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                     if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
@@ -958,11 +958,11 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                     int(frames_dict['NumScans']),
                                                                     profile_bins,
                                                                     encoding)
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
-                    and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    and mz_array.size == intensity_array.size:
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
                     scan_dict['mobility_array'] = mobility_array
@@ -980,11 +980,11 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                 int(frames_dict['NumScans']),
                                                                 profile_bins,
                                                                 encoding)
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
-                    and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    and mz_array.size == intensity_array.size:
                 # lcms set as False since MRM MS/MS spectra do not have a parent frame.
                 scan_dict = populate_scan_dict_w_tsf_ms2(scan_dict, framemsmsinfo_dict, lcms=False)
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
@@ -1004,11 +1004,11 @@ def parse_lcms_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mo
                                                                 int(prmframemsmsinfo_dict['ScanNumEnd']),
                                                                 profile_bins,
                                                                 encoding)
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
-                    and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    and mz_array.size == intensity_array.size:
                 scan_dict = populate_scan_dict_w_prmpasef_ms2(tdf_data,
                                                               scan_dict,
                                                               prmframemsmsinfo_dict,
@@ -1144,11 +1144,11 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                     profile_bins,
                                                                     encoding)
 
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
-                    and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    and mz_array.size == intensity_array.size:
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
                     scan_dict['mobility_array'] = mobility_array
@@ -1170,11 +1170,11 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
                                                                     profile_bins,
                                                                     encoding)
 
-            if mz_array.size != 0 \
+            if mz_array is not None \
+                    and intensity_array is not None \
+                    and mz_array.size != 0 \
                     and intensity_array.size != 0 \
-                    and mz_array.size == intensity_array.size \
-                    and mz_array is not None \
-                    and intensity_array is not None:
+                    and mz_array.size == intensity_array.size:
                 scan_dict = populate_scan_dict_w_spectrum_data(scan_dict, mz_array, intensity_array)
                 if not exclude_mobility and mobility_array.size != 0 and mobility_array is not None:
                     scan_dict['mobility_array'] = mobility_array

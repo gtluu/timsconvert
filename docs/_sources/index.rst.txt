@@ -3,8 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-TIMSCONVERT: A workflow to convert trapped ion mobility data to open formats
-============================================================================
+.. image:: ../../imgs/timsconvert_logo.png
+   :alt: TIMSCONVERT Logo
+
+A workflow to convert trapped ion mobility data to open formats
+===============================================================
 
 Citation
 --------

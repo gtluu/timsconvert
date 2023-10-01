@@ -1,4 +1,4 @@
-# TIMSCONVERT
+![TIMSCONVERT Logo](imgs/timsconvert_logo.png)
 
 ## About
 

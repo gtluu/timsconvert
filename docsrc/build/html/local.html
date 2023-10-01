@@ -114,8 +114,25 @@ conversion.</p>
 </tr>
 </tbody>
 </table>
-<section id="notes-on-barebones-metadata-parameters-parameter">
-<h3>Notes on <code class="docutils literal notranslate"><span class="pre">barebones_metadata</span> <span class="pre">parameters</span></code> Parameter<a class="headerlink" href="#notes-on-barebones-metadata-parameters-parameter" title="Permalink to this heading">¶</a></h3>
+<section id="notes-on-mode-parameter">
+<h3>Notes on <code class="docutils literal notranslate"><span class="pre">mode</span></code> Parameter<a class="headerlink" href="#notes-on-mode-parameter" title="Permalink to this heading">¶</a></h3>
+<p>There are 3 options for exporting spectra: <code class="docutils literal notranslate"><span class="pre">raw</span></code>, <code class="docutils literal notranslate"><span class="pre">centroid</span></code>, and <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode. This section describes what
+each mode means for different types of raw data.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">TSF</span></code> and <code class="docutils literal notranslate"><span class="pre">BAF</span></code> files, <code class="docutils literal notranslate"><span class="pre">raw</span></code> and <code class="docutils literal notranslate"><span class="pre">centroid</span></code> modes are equivalent and will export data in centroid mode.
+Note that for <code class="docutils literal notranslate"><span class="pre">raw</span></code> mode, all spectra will be labeled as centroided. For these file types, <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode is also
+as described and will export spectra in profile mode.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">TDF</span></code> files in which the data is exported without writing out the ion mobility binary arrays, <code class="docutils literal notranslate"><span class="pre">raw</span></code> mode
+exports centroided spectra using the <code class="docutils literal notranslate"><span class="pre">tims_read_scans_v2</span></code> function from Bruker’s <code class="docutils literal notranslate"><span class="pre">TDF-SDK</span></code>. Note that as mentioned
+above, all spectra will be labeled as centroided. <code class="docutils literal notranslate"><span class="pre">centroid</span></code> mode exports centroided spectra using a different
+function, <code class="docutils literal notranslate"><span class="pre">tims_extract_centroided_spectrum_for_frame_v2</span></code> function from <code class="docutils literal notranslate"><span class="pre">TDF-SDK</span></code>. This results in minor
+differences in the resulting line spectra, but most major peaks should be equivalent. For <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode <code class="docutils literal notranslate"><span class="pre">TDF</span></code>
+files, the <code class="docutils literal notranslate"><span class="pre">tims_extract_profile_for_frame</span></code> function is used to extract a quasi-profile spectrum from the raw data.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">TDF</span></code> files in which the data is exported with the ion mobiilty arrays (resulting in 3 binary data arrays for
+m/z, intensity, and ion mobility, only <code class="docutils literal notranslate"><span class="pre">raw</span></code> mode is available due to conversion speed and the resulting data size if
+<code class="docutils literal notranslate"><span class="pre">centroid</span></code> or <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode are used. Again, all spectra are labeled as centroided.</p>
+</section>
+<section id="notes-on-barebones-metadata-parameter">
+<h3>Notes on <a href="#id1"><span class="problematic" id="id2">``</span></a>barebones_metadata` Parameter<a class="headerlink" href="#notes-on-barebones-metadata-parameter" title="Permalink to this heading">¶</a></h3>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--barebones_metadata</span></code> flag is used when running TIMSCONVERT, the following metadata is not written to the
 resulting mzML file: 1) software list including acquistion and data conversion software, 2) data processing list
 including data conversion software, and 3) instrument name. This is done to allow for compatibility with older software

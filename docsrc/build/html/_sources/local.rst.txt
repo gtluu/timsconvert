@@ -31,8 +31,28 @@ Parameters
 .. csv-table::
     :file: parameter_descriptions.csv
 
-Notes on ``barebones_metadata parameters`` Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Notes on ``mode`` Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+There are 3 options for exporting spectra: ``raw``, ``centroid``, and ``profile`` mode. This section describes what
+each mode means for different types of raw data.
+
+For ``TSF`` and ``BAF`` files, ``raw`` and ``centroid`` modes are equivalent and will export data in centroid mode.
+Note that for ``raw`` mode, all spectra will be labeled as centroided. For these file types, ``profile`` mode is also
+as described and will export spectra in profile mode.
+
+For ``TDF`` files in which the data is exported without writing out the ion mobility binary arrays, ``raw`` mode
+exports centroided spectra using the ``tims_read_scans_v2`` function from Bruker's ``TDF-SDK``. Note that as mentioned
+above, all spectra will be labeled as centroided. ``centroid`` mode exports centroided spectra using a different
+function, ``tims_extract_centroided_spectrum_for_frame_v2`` function from ``TDF-SDK``. This results in minor
+differences in the resulting line spectra, but most major peaks should be equivalent. For ``profile`` mode ``TDF``
+files, the ``tims_extract_profile_for_frame`` function is used to extract a quasi-profile spectrum from the raw data.
+
+For ``TDF`` files in which the data is exported with the ion mobiilty arrays (resulting in 3 binary data arrays for
+m/z, intensity, and ion mobility, only ``raw`` mode is available due to conversion speed and the resulting data size if
+``centroid`` or ``profile`` mode are used. Again, all spectra are labeled as centroided.
+
+Notes on ``barebones_metadata` Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If the ``--barebones_metadata`` flag is used when running TIMSCONVERT, the following metadata is not written to the
 resulting mzML file: 1) software list including acquistion and data conversion software, 2) data processing list
 including data conversion software, and 3) instrument name. This is done to allow for compatibility with older software

@@ -11,11 +11,11 @@ Installing on Windows
 
 3. Run ``Anaconda Prompt``.
 
-4. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
+4. Create a conda instance.
 
    .. code-block::
 
-        conda create -n timsconvert python=3.7
+        conda create -n timsconvert python=3.11
 
 5. Activate conda environment.
 
@@ -50,7 +50,7 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 
         wget https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Linux-x86_64.sh
 
-2. If not already installed, install ``git``. On Ubuntu 22.04 LTS, this can be done using the following command.
+2. If not already installed, install ``git``. On Ubuntu 22.04.3 LTS, this can be done using the following command.
 
    .. code-block::
 
@@ -62,11 +62,11 @@ LTS. We recommend using this distro if you encounter compatibility issues in oth
 
         bash [path to]/Anaconda3-2023.07-2-Linux-x86_64.sh
 
-3. In the terminal, create a conda virtual environment. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
+3. In the terminal, create a conda virtual environment.
 
    .. code-block::
 
-        conda create -n timsconvert python=3.7
+        conda create -n timsconvert python=3.11
 
 4. Activate conda environment.
 

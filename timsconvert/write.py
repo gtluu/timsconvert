@@ -83,7 +83,7 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
                             'version': '2.21.0.4',
                             'params': ['Bruker software']}
         psims_software = {'id': 'psims-writer',
-                          'version': '0.1.34',
+                          'version': '1.2.7',
                           'params': ['python-psims', ]}
         timsconvert_software = {'id': 'timsconvert',
                                 'version': VERSION,
@@ -202,8 +202,9 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     with open(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', 'r') as in_stream, \
             open(os.path.join(outdir, outfile), 'w') as out_stream:
         for line in in_stream:
-            out_stream.write(line.replace('      <spectrumList count="' + str(num_of_spectra) + '" defaultDataProcessingRef="exportation">',
-                                          '      <spectrumList count="' + str(scan_count) + '" defaultDataProcessingRef="exportation">'))
+            out_stream.write(line.replace(
+                '      <spectrumList count="' + str(num_of_spectra) + '" defaultDataProcessingRef="exportation">',
+                '      <spectrumList count="' + str(scan_count) + '" defaultDataProcessingRef="exportation">'))
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')
 
 
@@ -234,7 +235,10 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
               {'ms level': scan['ms_level']},
               {'total ion current': scan['total_ion_current']},
               {'base peak m/z': scan['base_peak_mz']},
-              {'base peak intensity': scan['base_peak_intensity']},
+              # {'base peak intensity': scan['base_peak_intensity']},
+              ({'name': 'base peak intensity',
+                'unit_name': 'number of detector counts',
+                'value': scan['base_peak_intensity']}),
               {'highest observed m/z': scan['high_mz']},
               {'lowest observed m/z': scan['low_mz']}]
     if 'MaldiApplicationType' in data.analysis[metadata_key].keys():
@@ -244,13 +248,10 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
         params.append({'collision energy': scan['collision_energy']})
 
     if scan['mobility_array'] is not None:
-        # This version only works with newer versions of psims.
-        # Currently unusable due to boost::interprocess error on Linux.
-        # other_arrays = [({'name': 'mean inverse reduced ion mobility array',
-        #                  'unit_name': 'volt-second per square centimeter'},
-        #                 parent_scan['mobility_array'])]
-        # Need to use older notation with a tuple (name, array) due to using psims 0.1.34.
-        other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
+        other_arrays = [({'name': 'mean inverse reduced ion mobility array',
+                          'unit_name': 'volt-second per square centimeter'},
+                         scan['mobility_array'])]
+        # other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
 
@@ -304,19 +305,19 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
         params.append({'spectrum title': title})
     if 'base_peak_mz' in scan.keys() and 'base_peak_intensity' in scan.keys():
         params.append({'base peak m/z': scan['base_peak_mz']})
-        params.append({'base peak intensity': scan['base_peak_intensity']})
+        # params.append({'base peak intensity': scan['base_peak_intensity']})
+        params.append(({'name': 'base peak intensity',
+                        'unit_name': 'number of detector counts',
+                        'value': scan['base_peak_intensity']}))
     if 'high_mz' in scan.keys() and 'low_mz' in scan.keys():
         params.append({'highest observed m/z': scan['high_mz']})
         params.append({'lowest observed m/z': scan['low_mz']})
 
     if scan['mobility_array'] is not None:
-        """This version only works with newer versions of psims.
-        Currently unusable due to boost::interprocess error on Linux.
         other_arrays = [({'name': 'mean inverse reduced ion mobility array',
                           'unit_name': 'volt-second per square centimeter'},
-                         parent_scan['mobility_array'])]
-        Need to use older notation with a tuple (name, array) due to using psims 0.1.34."""
-        other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
+                         scan['mobility_array'])]
+        # other_arrays = [('mean inverse reduced ion mobility array', scan['mobility_array'])]
     else:
         other_arrays = None
 

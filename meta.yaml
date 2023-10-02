@@ -1,0 +1,73 @@
+package:
+  name: timsconvert
+  version: 1.5.0
+
+source:
+  url: https://github.com/gtluu/timsconvert/archive/refs/tags/v1.5.0.tar.gz
+  md5: ce905f101983371f3d5524d7c73f4817
+  sha1: 74f0b607d89a3b00c36ac4a012f69ce9f84e4883
+  sha256: ff883928f6ad403ed4ecb93c37297cb5944649058644547844bce9b5abc68cbb
+
+build:
+  noarch: python
+  number: 0
+  script: bash build.sh
+  entry_points:
+    - timsconvert = bin.run:main
+
+requirements:
+  build:
+    - git
+    - pip
+  run:
+    - python ==3.11.5
+    - certifi ==2023.7.22
+    - charset-normalizer ==3.2.0
+    - contourpy ==1.1.1
+    - cycler ==0.12.0
+    - cython ==3.0.2
+    - fonttools ==4.43.0
+    - greenlet ==2.0.2
+    - h5py ==3.9.0
+    - hdf5plugin ==4.2.0
+    - idna ==3.4
+    - kiwisolver ==1.4.5
+    - lxml ==4.9.3
+    - matplotlib-base ==3.8.0
+    - numpy ==1.26.0
+    - packaging ==23.1
+    - pandas ==2.1.1
+    - pillow ==10.0.1
+    - pkgconfig ==1.5.5
+    - psims ==1.2.7
+    - pyparsing ==3.1.1
+    - python-dateutil ==2.8.2
+    - pytz ==2023.3.post1
+    - requests ==2.31.0
+    - six ==1.16.0
+    - sqlalchemy ==2.0.21
+    - typing-extensions ==4.8.0
+    - tzdata ==2023.3
+    - urllib3 ==2.0.5
+    - wheezy-template ==3.2.1
+    - pyimzML ==1.5.1+gtluu
+    - pyTDFSDK >=0.2.1
+    - pyBaf2Sql >=0.1.2
+
+test:
+  imports:
+    - timsconvert
+  commands:
+    - timsconvert --help
+
+about:
+  home: https://github.com/gtluu/timsconvert
+  summary: TIMSCONVERT - A simple workflow for conversion of trapped ion mobility data to open-source formats
+  license: Apache License
+  license_file: LICENSE.md
+
+extra:
+  maintainers:
+    - gtluu
+  identifiers:
+    - doi:10.1093/bioinformatics/btac419

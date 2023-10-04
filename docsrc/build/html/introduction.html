@@ -1,24 +1,20 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>About &#8212; TIMSCONVERT 1.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script src="_static/documentation_options.js?v=9172181d"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="TIMSCONVERT: A workflow to convert trapped ion mobility data to open formats" href="index.html" />
+    <link rel="prev" title="A workflow to convert trapped ion mobility data to open formats" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -36,9 +32,9 @@
           <div class="body" role="main">
             
   <section id="about">
-<h1>About<a class="headerlink" href="#about" title="Permalink to this heading">¶</a></h1>
+<h1>About<a class="headerlink" href="#about" title="Link to this heading">¶</a></h1>
 <section id="about-timsconvert">
-<h2>About TIMSCONVERT<a class="headerlink" href="#about-timsconvert" title="Permalink to this heading">¶</a></h2>
+<h2>About TIMSCONVERT<a class="headerlink" href="#about-timsconvert" title="Link to this heading">¶</a></h2>
 <p>TIMSCONVERT is a workflow designed for mass spectrometrists that allows for the conversion of raw data from Bruker
 timsTOF series mass spectrometers (i.e. Pro, fleX, SCP, HT, etc.) to open data formats (i.e. mzML and imzML) that:</p>
 <ol class="arabic simple">
@@ -48,7 +44,7 @@ timsTOF series mass spectrometers (i.e. Pro, fleX, SCP, HT, etc.) to open data f
 </ol>
 </section>
 <section id="timstof-file-formats">
-<h2>timsTOF File Formats<a class="headerlink" href="#timstof-file-formats" title="Permalink to this heading">¶</a></h2>
+<h2>timsTOF File Formats<a class="headerlink" href="#timstof-file-formats" title="Link to this heading">¶</a></h2>
 <p>All Bruker data is housed in a directory with the .d extension. Within the directory, the acquisition software and type
 of experiment conducted (i.e. acquisition mode) determines the data format. LC-MS(/MS) experiments acquired using
 Bruker otofControl use the BAF file format, which is widely supported by both proprietary (i.e. Bruker DataAnalysis,
@@ -64,7 +60,7 @@ which are similar to TSF files but also contain TIMS data. Run metadata are stor
 and recalibration data are stored in the <code class="docutils literal notranslate"><span class="pre">calibration.sqlite</span></code> SQLite database.</p>
 </section>
 <section id="dimensionality-of-timstof-data">
-<h2>Dimensionality of timsTOF Data<a class="headerlink" href="#dimensionality-of-timstof-data" title="Permalink to this heading">¶</a></h2>
+<h2>Dimensionality of timsTOF Data<a class="headerlink" href="#dimensionality-of-timstof-data" title="Link to this heading">¶</a></h2>
 <p>Example of dimensionality of LC-TIMS-MS/MS data and a simplified corresponding mzML schema. Elements in the simplified
 mzML schema are color coded by the corresponding data in the chromatograms/mobilograms/spectra. At a given retention
 time in the chromatogram (indicated in pink), an MS1 spectrum may be visualized in the form of a three dimensional plot
@@ -75,7 +71,7 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 <img alt="Figure showing how different dimensions of timsTOF data are represented in converted open data formats." src="_images/dimensions.png" />
 </section>
 <section id="example-acquisition-modes-for-file-conversion">
-<h2>Example Acquisition Modes for File Conversion<a class="headerlink" href="#example-acquisition-modes-for-file-conversion" title="Permalink to this heading">¶</a></h2>
+<h2>Example Acquisition Modes for File Conversion<a class="headerlink" href="#example-acquisition-modes-for-file-conversion" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>LC-MS(/MS) (BAF or TSF) -&gt; mzML</p></li>
 <li><p>LC-TIMS-MS(/MS) (TDF) -&gt; mzML</p></li>
@@ -86,7 +82,7 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 </ul>
 </section>
 <section id="downstream-data-analysis">
-<h2>Downstream Data Analysis<a class="headerlink" href="#downstream-data-analysis" title="Permalink to this heading">¶</a></h2>
+<h2>Downstream Data Analysis<a class="headerlink" href="#downstream-data-analysis" title="Link to this heading">¶</a></h2>
 <p>Examples of downstream data analysis platforms include and are not limited to:
 * <a class="reference external" href="https://gnps.ucsd.edu/">Global Natural Products Social (GNPS)</a>
 * <a class="reference external" href="https://cardinalmsi.org/">Cardinal MSI</a>
@@ -127,13 +123,14 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 <li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">TIMSCONVERT: A workflow to convert trapped ion mobility data to open formats</a></li>
+      <li>Previous: <a href="index.html" title="previous chapter">A workflow to convert trapped ion mobility data to open formats</a></li>
       <li>Next: <a href="installation.html" title="next chapter">Installation</a></li>
   </ul></li>
 </ul>
@@ -164,7 +161,7 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
       &copy;2023, Gordon T. Luu.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |

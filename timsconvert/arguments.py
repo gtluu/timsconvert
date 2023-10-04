@@ -114,8 +114,8 @@ def args_check(args):
     """
     # Check if input directory exists.
     if not os.path.exists(args['input']):
-        print(get_timestamp() + ':' + 'Input path does not exist...')
-        print(get_timestamp() + ':' + 'Exiting...')
+        print(get_iso8601_timestamp() + ':' + 'Input path does not exist...')
+        print(get_iso8601_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
@@ -127,19 +127,19 @@ def args_check(args):
     if args['maldi_output_file'] != '' \
             and args['maldi_output_file'] in ['individual', 'sample'] \
             and args['maldi_plate_map'] == '':
-        print(get_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
-        print(get_timestamp() + ':' + 'Exiting...')
+        print(get_iso8601_timestamp() + ':' + 'Plate map is required for MALDI dried droplet data...')
+        print(get_iso8601_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     elif args['maldi_output_file'] != '' \
             and args['maldi_output_file'] in ['individual', 'sample'] \
             and not os.path.exists(args['maldi_plate_map']):
-        print(get_timestamp() + ':' + 'Plate map path does not exist...')
-        print(get_timestamp() + ':' + 'Exiting...')
+        print(get_iso8601_timestamp() + ':' + 'Plate map path does not exist...')
+        print(get_iso8601_timestamp() + ':' + 'Exiting...')
         sys.exit(1)
     # Check if server URL is valid.
     if 'url' in args.keys():
         response = requests.get(args['url'])
         if response.status_code != 200:
-            print(get_timestamp() + ':' + 'URL is not valid or server is down...')
-            print(get_timestamp() + ':' + 'Exiting...')
+            print(get_iso8601_timestamp() + ':' + 'URL is not valid or server is down...')
+            print(get_iso8601_timestamp() + ':' + 'Exiting...')
             response.raise_for_status()

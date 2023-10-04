@@ -28,16 +28,16 @@ def main():
 
     # Check to make sure using Python 3.7.
     if not sys.version_info.major == 3 and sys.version_info.minor == 7:
-        logging.warning(get_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
+        logging.warning(get_iso8601_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
         sys.exit(1)
 
     # Initialize Bruker DLL.
-    logging.info(get_timestamp() + ':' + 'Initialize Bruker .dll file...')
+    logging.info(get_iso8601_timestamp() + ':' + 'Initialize Bruker .dll file...')
     tdf_sdk_dll = init_tdf_sdk_api()
     baf2sql_dll = init_baf2sql_api()
 
     # Load in input data.
-    logging.info(get_timestamp() + ':' + 'Loading input data...')
+    logging.info(get_iso8601_timestamp() + ':' + 'Loading input data...')
     if not args['input'].endswith('.d'):
         input_files = dot_d_detection(args['input'])
     elif args['input'].endswith('.d'):
@@ -55,7 +55,7 @@ def main():
             run_args['outdir'] = os.path.split(infile)[0]
 
         # Read in input file (infile).
-        logging.info(get_timestamp() + ':' + 'Reading file: ' + infile)
+        logging.info(get_iso8601_timestamp() + ':' + 'Reading file: ' + infile)
         schema = schema_detection(infile)
         if schema == 'TSF':
             data = TimsconvertTsfData(infile, tdf_sdk_dll)
@@ -66,14 +66,14 @@ def main():
 
         # Log arguments.
         for key, value in run_args.items():
-            logging.info(get_timestamp() + ':' + str(key) + ': ' + str(value))
+            logging.info(get_iso8601_timestamp() + ':' + str(key) + ': ' + str(value))
 
         # BAF ESI-MS Dataset
         if schema == 'BAF':
-            logging.info(get_timestamp() + ':' + '.baf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.baf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing LC-MS data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing LC-MS data...')
             write_lcms_mzml(data,
                             run_args['infile'],
                             run_args['outdir'],
@@ -89,10 +89,10 @@ def main():
 
         # TSF ESI-MS Dataset
         elif schema == 'TSF' and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
-            logging.info(get_timestamp() + ':' + '.tsf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing LC-MS data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing LC-MS data...')
             write_lcms_mzml(data,
                             run_args['infile'],
                             run_args['outdir'],
@@ -110,10 +110,10 @@ def main():
         elif schema == 'TSF' \
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
-            logging.info(get_timestamp() + ':' + '.tsf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing MALDI dried droplet data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI dried droplet data...')
             write_maldi_dd_mzml(data,
                                 run_args['infile'],
                                 run_args['outdir'],
@@ -132,10 +132,10 @@ def main():
         elif schema == 'TSF' \
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
-            logging.info(get_timestamp() + ':' + '.tsf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
-            logging.info(get_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
             write_maldi_ims_imzml(data,
                                   run_args['outdir'],
                                   run_args['outfile'],
@@ -150,10 +150,10 @@ def main():
         # TDF ESI-TIMS-MS Dataset
         elif schema == 'TDF' \
                 and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
-            logging.info(get_timestamp() + ':' + '.tdf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             write_lcms_mzml(data,
                             run_args['infile'],
                             run_args['outdir'],
@@ -171,10 +171,10 @@ def main():
         elif schema == 'TDF' \
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
-            logging.info(get_timestamp() + ':' + '.tdf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
-            logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
             write_maldi_dd_mzml(data,
                                 run_args['infile'],
                                 run_args['outdir'],
@@ -193,10 +193,10 @@ def main():
         elif schema == 'TDF' \
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
-            logging.info(get_timestamp() + ':' + '.tdf file detected...')
+            logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
             if run_args['outfile'] == '':
                 run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
-            logging.info(get_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
             write_maldi_ims_imzml(data,
                                   run_args['outdir'],
                                   run_args['outfile'],
@@ -209,9 +209,9 @@ def main():
                                   run_args['chunk_size'])
 
         else:
-            logging.warning(get_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +
+            logging.warning(get_iso8601_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +
                             infile + '...')
-            logging.warning(get_timestamp() + ':' + 'Exiting...')
+            logging.warning(get_iso8601_timestamp() + ':' + 'Exiting...')
 
     for hand in logging.getLogger().handlers:
         logging.getLogger().removeHandler(hand)

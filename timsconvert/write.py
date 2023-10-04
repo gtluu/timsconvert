@@ -498,26 +498,26 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
         metadata_key = 'GlobalMetadata'
 
     # Initialize mzML writer using psims.
-    logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
+    logging.info(get_iso8601_timestamp() + ':' + 'Initializing mzML Writer...')
     writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
 
     with writer:
         # Begin mzML with controlled vocabularies (CV).
-        logging.info(get_timestamp() + ':' + 'Initializing controlled vocabularies...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Initializing controlled vocabularies...')
         writer.controlled_vocabularies()
 
         # Start write acquisition, instrument config, processing, etc. to mzML.
-        logging.info(get_timestamp() + ':' + 'Writing mzML metadata...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Writing mzML metadata...')
         write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
-        logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
         # Parse chunks of data and write to spectrum elements.
         with writer.run(id='run',
                         instrument_configuration='instrument',
                         start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
             scan_count = 0
             # Count number of spectra in run.
-            logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Calculating number of spectra...')
             num_of_spectra = get_spectra_count(data)
             with writer.spectrum_list(count=num_of_spectra):
                 chunk = 0
@@ -527,7 +527,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                     for i, j in zip(data.ms1_frames[chunk: chunk + chunk_size],
                                     data.ms1_frames[chunk + 1: chunk + chunk_size + 1]):
                         chunk_list.append((int(i), int(j)))
-                    logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
+                    logging.info(get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
@@ -550,7 +550,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                         chunk_list.append((j, data.analysis['Spectra'].shape[0] + 1))
                     elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
                         chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
-                    logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
+                    logging.info(get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
@@ -565,14 +565,14 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                                               compression)
 
     if num_of_spectra != scan_count:
-        logging.info(get_timestamp() + ':' + 'Updating scan count...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
     else:
-        logging.info(get_timestamp() + ':' + 'Renaming mzML file...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Renaming mzML file...')
         if os.path.exists(os.path.join(outdir, outfile)):
             os.remove(os.path.join(outdir, outfile))
         os.rename(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', os.path.join(outdir, outfile))
-    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
+    logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' +
                  os.path.join(outdir, outfile) + '...')
 
 
@@ -623,26 +623,26 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
     # All spectra from a given TSF or TDF file are combined into a single mzML file.
     if maldi_output_file == 'combined':
         # Initialize mzML writer using psims.
-        logging.info(get_timestamp() + ':' + 'Initializing mzML Writer...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Initializing mzML Writer...')
         writer = MzMLWriter(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', close=True)
 
         with writer:
             # Begin mzML with controlled vocabularies (CV).
-            logging.info(get_timestamp() + ':' + 'Initializing controlled vocabularies...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Initializing controlled vocabularies...')
             writer.controlled_vocabularies()
 
             # Start write acquisition, instrument config, processing, etc. to mzML.
-            logging.info(get_timestamp() + ':' + 'Writing mzML metadata...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Writing mzML metadata...')
             write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata)
 
-            logging.info(get_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Writing data to .mzML file ' + os.path.join(outdir, outfile) + '...')
             # Parse chunks of data and write to spectrum element.
             with writer.run(id='run',
                             instrument_configuration='instrument',
                             start_time=data.analysis[metadata_key]['AcquisitionDateTime']):
                 scan_count = 0
                 # Count number of spectra in run.
-                logging.info(get_timestamp() + ':' + 'Calculating number of spectra...')
+                logging.info(get_iso8601_timestamp() + ':' + 'Calculating number of spectra...')
                 num_of_spectra = len(data.analysis[frames_key]['Id'].to_list())
                 with writer.spectrum_list(count=num_of_spectra):
                     # Parse all MALDI data.
@@ -650,7 +650,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                     # Parse TSF data.
                     if data.analysis[metadata_key]['SchemaType'] == 'TSF':
                         if mode == 'raw':
-                            logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
+                            logging.info(get_iso8601_timestamp() + ':' + 'TSF file detected. Only export in profile or '
                                                                  'centroid mode are supported. Defaulting to centroid '
                                                                  'mode.')
                         list_of_scan_dicts = parse_maldi_tsf(data,
@@ -692,9 +692,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                    compression,
                                                    title=os.path.splitext(outfile)[0])
 
-        logging.info(get_timestamp() + ':' + 'Updating scan count...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
-        logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' + os.path.join(outdir, outfile) + '...')
 
     # Each spectrum in a given TSF or TDF file is output as its own individual mzML file.
     elif maldi_output_file == 'individual' and plate_map != '':
@@ -705,7 +705,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
             # Parse TSF data.
             if data.analysis[metadata_key]['SchemaType'] == 'TSF':
                 if mode == 'raw':
-                    logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
+                    logging.info(get_iso8601_timestamp() + ':' + 'TSF file detected. Only export in profile or '
                                                          'centroid mode are supported. Defaulting to centroid '
                                                          'mode.')
                 list_of_scan_dicts = parse_maldi_tsf(data,
@@ -764,7 +764,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                        encoding,
                                                        compression,
                                                        title=plate_map_dict[scan_dict['coord']])
-                logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
+                logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
 
     # Group spectra from a given TSF or TDF file by sample name based on user provided plate map.
@@ -776,7 +776,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
             # Parse TSF data.
             if data.analysis[metadata_key]['SchemaType'] == 'TSF':
                 if mode == 'raw':
-                    logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or '
+                    logging.info(get_iso8601_timestamp() + ':' + 'TSF file detected. Only export in profile or '
                                                          'centroid mode are supported. Defaulting to centroid '
                                                          'mode.')
                 list_of_scan_dicts = parse_maldi_tsf(data,
@@ -851,7 +851,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                                compression,
                                                                title=key)
 
-                    logging.info(get_timestamp() + ':' + 'Finished writing to .mzML file ' +
+                    logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' +
                                  os.path.join(outdir, outfile) + '...')
 
 
@@ -955,7 +955,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
         polarity = None
 
     if data.analysis['GlobalMetadata']['SchemaType'] == 'TSF' and mode == 'raw':
-        logging.info(get_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
+        logging.info(get_iso8601_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
                                              'supported. Defaulting to centroid mode.')
 
     # Set centroided status.
@@ -984,8 +984,8 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
         if mode == 'profile':
             exclude_mobility = True
             logging.info(
-                get_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
-            logging.info(get_timestamp() + ':' + 'Exporting without ion mobility data...')
+                get_iso8601_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Exporting without ion mobility data...')
         if not exclude_mobility:
             writer = ImzMLWriter(os.path.join(outdir, outfile),
                                  polarity=polarity,
@@ -1009,7 +1009,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  intensity_compression=compression_object,
                                  include_mobility=False)
 
-    logging.info(get_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
+    logging.info(get_iso8601_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
     with writer as imzml_file:
         chunk = 0
         frames = data.analysis['Frames']['Id'].to_list()
@@ -1017,7 +1017,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             chunk_list = []
             for i, j in zip(frames[chunk:chunk + chunk_size], frames[chunk + 1: chunk + chunk_size + 1]):
                 chunk_list.append((int(i), int(j)))
-            logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for frame_start, frame_stop in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data,
                                                imzml_file,
@@ -1033,7 +1033,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
                 chunk_list.append((int(i), int(j)))
             chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
-            logging.info(get_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
             for frame_start, frame_stop in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data,
                                                imzml_file,
@@ -1043,4 +1043,4 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                                exclude_mobility,
                                                profile_bins,
                                                encoding)
-    logging.info(get_timestamp() + ':' + 'Finished writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
+    logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .imzML file ' + os.path.join(outdir, outfile) + '...')

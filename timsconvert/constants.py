@@ -2,9 +2,9 @@ import logging
 from timsconvert.timestamp import *
 
 
-logging.info(get_timestamp() + ':' + 'Initialize constants...')
+logging.info(get_iso8601_timestamp() + ':' + 'Initialize constants...')
 
-VERSION = '1.5.0'
+VERSION = '1.5.1'
 
 INSTRUMENT_FAMILY = {'1': 'otof',
                      '2': 'otofq',

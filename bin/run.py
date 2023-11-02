@@ -26,11 +26,6 @@ def main():
     if args['verbose']:
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-    # Check to make sure using Python 3.7.
-    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
-        logging.warning(get_iso8601_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
-        sys.exit(1)
-
     # Initialize Bruker DLL.
     logging.info(get_iso8601_timestamp() + ':' + 'Initialize Bruker .dll file...')
     tdf_sdk_dll = init_tdf_sdk_api()

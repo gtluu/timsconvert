@@ -1,5 +1,4 @@
 import os
-import sys
 import logging
 from timsconvert.timestamp import get_iso8601_timestamp
 

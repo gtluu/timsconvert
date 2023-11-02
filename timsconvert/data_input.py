@@ -53,4 +53,11 @@ def check_for_multiple_analysis(bruker_dot_d_file):
         logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
         logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
         return True
+    fname_exts = [os.path.splitext(fname)[1] for dirpath, dirnames, filenames in os.walk(bruker_dot_d_file)
+                  for fname in filenames]
+    fname_exts = [ext for ext in fname_exts if ext in ['.baf', '.tsf', '.tdf', '.tsf_bin', '.tdf_bin']]
+    if len(fname_exts) != len(set(fname_exts)):
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
     return False

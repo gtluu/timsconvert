@@ -1,7 +1,6 @@
 import os
 
 
-# Scan directory for Bruker .d files.
 def dot_d_detection(input_directory):
     """
     Search the input directory and any subdirectories for .d directory paths.
@@ -15,7 +14,6 @@ def dot_d_detection(input_directory):
             for directory in dirnames if directory.endswith('.d')]
 
 
-# Detect whether .d file is .tdf or .tsf.
 def schema_detection(bruker_dot_d_file):
     """
     Detect the schema used by the raw data in the Bruker .d directory.
@@ -33,3 +31,4 @@ def schema_detection(bruker_dot_d_file):
         return 'TSF'
     elif '.baf' in exts and '.tdf' not in exts and '.tsf' not in exts:
         return 'BAF'
+

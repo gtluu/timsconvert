@@ -51,13 +51,16 @@ def main():
 
         # Read in input file (infile).
         logging.info(get_iso8601_timestamp() + ':' + 'Reading file: ' + infile)
-        schema = schema_detection(infile)
-        if schema == 'TSF':
-            data = TimsconvertTsfData(infile, tdf_sdk_dll)
-        elif schema == 'TDF':
-            data = TimsconvertTdfData(infile, tdf_sdk_dll)
-        elif schema == 'BAF':
-            data = TimsconvertBafData(infile, baf2sql_dll)
+        if not check_for_multiple_analysis(infile):
+            schema = schema_detection(infile)
+            if schema == 'TSF':
+                data = TimsconvertTsfData(infile, tdf_sdk_dll)
+            elif schema == 'TDF':
+                data = TimsconvertTdfData(infile, tdf_sdk_dll)
+            elif schema == 'BAF':
+                data = TimsconvertBafData(infile, baf2sql_dll)
+        else:
+            continue
 
         # Log arguments.
         for key, value in run_args.items():

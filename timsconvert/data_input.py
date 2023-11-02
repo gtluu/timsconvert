@@ -1,4 +1,7 @@
 import os
+import sys
+import logging
+from timsconvert.timestamp import get_iso8601_timestamp
 
 
 def dot_d_detection(input_directory):
@@ -32,3 +35,23 @@ def schema_detection(bruker_dot_d_file):
     elif '.baf' in exts and '.tdf' not in exts and '.tsf' not in exts:
         return 'BAF'
 
+
+def check_for_multiple_analysis(bruker_dot_d_file):
+    """
+    Check to ensure that only a single .baf/.tsf/.tdf and associated .tsf_bin/.tdf_bin exists within the .d directory.
+
+    :param bruker_dot_d_file: Path to the .d directory of interest.
+    :type: str
+    """
+    fnames = [fname for dirpath, dirnames, filenames in os.walk(bruker_dot_d_file) for fname in filenames]
+    if len(fnames) != len(set(fnames)):
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
+    fnames = [os.path.splitext(fname)[0] for dirpath, dirnames, filenames in os.walk(bruker_dot_d_file)
+              for fname in filenames]
+    if len(fnames) != len(set(fnames)):
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
+    return False

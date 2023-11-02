@@ -42,7 +42,7 @@ Installing on Linux
 Please note that while these instructions should apply to most Linux distros, TIMSCONVERT is tested on Ubuntu 22.04.3
 LTS. We recommend using this distro if you encounter compatibility issues in others.
 
-1. If not already installed, download and install `Anaconda for Linux <https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Linux-x86_64.sh>`_. Anaconda3-2021.11 for LInux is used as an example here.
+1. If not already installed, download and install `Anaconda for Linux <https://repo.anaconda.com/archive/Anaconda3-2023.07-2-Linux-x86_64.sh>`_. Anaconda3-2023.07-2 for Linux is used as an example here.
 
    * Alternatively, the script can be downloaded in the ``Terminal`` using the following command.
 

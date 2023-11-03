@@ -4,7 +4,7 @@ from timsconvert.timestamp import *
 
 logging.info(get_iso8601_timestamp() + ':' + 'Initialize constants...')
 
-VERSION = '1.5.1'
+VERSION = '1.5.2'
 
 INSTRUMENT_FAMILY = {'1': 'otof',
                      '2': 'otofq',

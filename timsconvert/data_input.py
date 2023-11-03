@@ -42,7 +42,8 @@ def check_for_multiple_analysis(bruker_dot_d_file):
     :param bruker_dot_d_file: Path to the .d directory of interest.
     :type: str
     """
-    fnames = [fname for dirpath, dirnames, filenames in os.walk(bruker_dot_d_file) for fname in filenames]
+    fnames = [fname for dirpath, dirnames, filenames in os.walk(bruker_dot_d_file) for fname in filenames
+              if fname in ['analysis.baf', 'analysis.tsf', 'analysis.tdf', 'analysis.tsf_bin', 'analysis.tdf_bin']]
     if len(fnames) != len(set(fnames)):
         logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
         logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')

@@ -52,7 +52,7 @@ m/z, intensity, and ion mobility, only ``raw`` mode is available due to conversi
 ``centroid`` or ``profile`` mode are used. Again, all spectra are labeled as centroided.
 
 Notes on ``barebones_metadata`` Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If the ``--barebones_metadata`` flag is used when running TIMSCONVERT, the following metadata is not written to the
 resulting mzML file: 1) software list including acquistion and data conversion software, 2) data processing list
 including data conversion software, and 3) instrument name. This is done to allow for compatibility with older software

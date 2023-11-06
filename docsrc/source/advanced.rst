@@ -21,11 +21,11 @@ Nextflow Installation and Usage
 -------------------------------
 A Nextflow workflow has also been provided to run TIMSCONVERT.
 
-1. Create a conda instance. You must be using Python 3.7. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
+1. Create a conda instance. You must be using Python 3.11. Newer versions of Python are not guaranteed to be compatible with Bruker's API in Linux.
 
    .. code-block::
 
-        conda create -n timsconvert python=3.7
+        conda create -n timsconvert python=3.11
 
 2. Activate conda environment.
 

@@ -1,7 +1,8 @@
 import os
+import logging
+from timsconvert.timestamp import get_iso8601_timestamp
 
 
-# Scan directory for Bruker .d files.
 def dot_d_detection(input_directory):
     """
     Search the input directory and any subdirectories for .d directory paths.
@@ -15,7 +16,6 @@ def dot_d_detection(input_directory):
             for directory in dirnames if directory.endswith('.d')]
 
 
-# Detect whether .d file is .tdf or .tsf.
 def schema_detection(bruker_dot_d_file):
     """
     Detect the schema used by the raw data in the Bruker .d directory.
@@ -33,3 +33,31 @@ def schema_detection(bruker_dot_d_file):
         return 'TSF'
     elif '.baf' in exts and '.tdf' not in exts and '.tsf' not in exts:
         return 'BAF'
+
+
+def check_for_multiple_analysis(bruker_dot_d_file):
+    """
+    Check to ensure that only a single .baf/.tsf/.tdf and associated .tsf_bin/.tdf_bin exists within the .d directory.
+
+    :param bruker_dot_d_file: Path to the .d directory of interest.
+    :type: str
+    """
+    fnames = [fname for dirpath, dirnames, filenames in os.walk(bruker_dot_d_file) for fname in filenames
+              if fname in ['analysis.baf', 'analysis.tsf', 'analysis.tdf', 'analysis.tsf_bin', 'analysis.tdf_bin']]
+    if len(fnames) != len(set(fnames)):
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
+    if 'analysis.tdf' in fnames and 'analysis.tsf' in fnames:
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
+    if 'analysis.tdf' in fnames and 'analysis.baf' in fnames:
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
+    if 'analysis.tsf' in fnames and 'analysis.baf' in fnames:
+        logging.warning(get_iso8601_timestamp() + ':' + 'Duplicate analysis file detected within .d directory...')
+        logging.warning(get_iso8601_timestamp() + ':' + 'Skipping conversion of ' + bruker_dot_d_file + '...')
+        return True
+    return False

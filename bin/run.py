@@ -26,11 +26,6 @@ def main():
     if args['verbose']:
         logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-    # Check to make sure using Python 3.7.
-    if not sys.version_info.major == 3 and sys.version_info.minor == 7:
-        logging.warning(get_iso8601_timestamp() + 'Must be using Python 3.7 to run TIMSCONVERT.')
-        sys.exit(1)
-
     # Initialize Bruker DLL.
     logging.info(get_iso8601_timestamp() + ':' + 'Initialize Bruker .dll file...')
     tdf_sdk_dll = init_tdf_sdk_api()
@@ -56,13 +51,16 @@ def main():
 
         # Read in input file (infile).
         logging.info(get_iso8601_timestamp() + ':' + 'Reading file: ' + infile)
-        schema = schema_detection(infile)
-        if schema == 'TSF':
-            data = TimsconvertTsfData(infile, tdf_sdk_dll)
-        elif schema == 'TDF':
-            data = TimsconvertTdfData(infile, tdf_sdk_dll)
-        elif schema == 'BAF':
-            data = TimsconvertBafData(infile, baf2sql_dll)
+        if not check_for_multiple_analysis(infile):
+            schema = schema_detection(infile)
+            if schema == 'TSF':
+                data = TimsconvertTsfData(infile, tdf_sdk_dll)
+            elif schema == 'TDF':
+                data = TimsconvertTdfData(infile, tdf_sdk_dll)
+            elif schema == 'BAF':
+                data = TimsconvertBafData(infile, baf2sql_dll)
+        else:
+            continue
 
         # Log arguments.
         for key, value in run_args.items():

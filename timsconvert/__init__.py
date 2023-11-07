@@ -19,6 +19,8 @@ from pyimzml.ImzMLWriter import ImzMLWriter
 
 from pyBaf2Sql.classes import BafData
 from pyBaf2Sql.classes import BafSpectrum
+from pyBaf2Sql.init_baf2sql import init_baf2sql_api
+from pyTDFSDK.init_tdf_sdk import init_tdf_sdk_api
 from pyTDFSDK.classes import TsfData, TdfData
 from pyTDFSDK.ctypes_data_structures import PressureCompensationStrategy
 from pyTDFSDK.classes import TsfSpectrum, TdfSpectrum

@@ -6,6 +6,7 @@ import numpy as np
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter
 from pyimzml.compression import NoCompression, ZlibCompression
+from pyTDFSDK.util import get_encoding_dtype
 
 
 def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata):

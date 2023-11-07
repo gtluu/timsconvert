@@ -1,5 +1,4 @@
 from timsconvert.constants import *
-import numpy as np
 import pandas as pd
 from pyTDFSDK.classes import TsfSpectrum, TdfSpectrum
 from pyTDFSDK.util import get_centroid_status

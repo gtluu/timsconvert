@@ -304,13 +304,13 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
               {'total ion current': scan.total_ion_current}]
     if 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         params.append({'spectrum title': title})
-    if 'base_peak_mz' in scan.keys() and 'base_peak_intensity' in scan.keys():
+    if hasattr(scan, 'base_peak_mz') and hasattr(scan, 'base_peak_intensity'):
         params.append({'base peak m/z': scan.base_peak_mz})
         # params.append({'base peak intensity': scan.base_peak_intensity})
         params.append(({'name': 'base peak intensity',
                         'unit_name': 'number of detector counts',
                         'value': scan.base_peak_intensity}))
-    if 'high_mz' in scan.keys() and 'low_mz' in scan.keys():
+    if hasattr(scan, 'high_mz') and hasattr(scan, 'low_mz'):
         params.append({'highest observed m/z': scan.high_mz})
         params.append({'lowest observed m/z': scan.low_mz})
 

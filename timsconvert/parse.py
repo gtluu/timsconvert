@@ -79,9 +79,12 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
                 scan.mz_array.size == scan.intensity_array.size:
             if scan.ms_level == 1 and not ms2_only:
                 list_of_parent_scans.append(scan)
-            # Auto MS/MS and MRM MS/MS
-            elif scan.ms_level == 2 and not scan.ms2_no_precursor:
+            # Auto MS/MS
+            elif scan.ms_level == 2 and not scan.ms2_no_precursor and scan.parent_frame is not None:
                 list_of_product_scans.append(scan)
+            # MRM MS/MS
+            elif scan.ms_level == 2 and not scan.ms2_no_precursor and scan.parent_frame is None:
+                list_of_parent_scans.append(scan)
             # bbCID MS/MS
             elif scan.ms_level == 2 and scan.ms2_no_precursor:
                 list_of_parent_scans.append(scan)

@@ -16,14 +16,16 @@ import pandas as pd
 
 from psims.mzml import MzMLWriter
 from pyimzml.ImzMLWriter import ImzMLWriter
+
 from pyBaf2Sql.classes import BafData
+from pyBaf2Sql.classes import BafSpectrum
+from pyBaf2Sql.init_baf2sql import init_baf2sql_api
+from pyTDFSDK.init_tdf_sdk import init_tdf_sdk_api
 from pyTDFSDK.classes import TsfData, TdfData
 from pyTDFSDK.ctypes_data_structures import PressureCompensationStrategy
-from pyTDFSDK.tims import (tims_scannum_to_oneoverk0, tims_oneoverk0_to_ccs_for_mz, tims_read_scans_v2,
-                           tims_index_to_mz, tims_extract_profile_for_frame,
-                           tims_extract_centroided_spectrum_for_frame_v2)
-from pyTDFSDK.tsf import tsf_read_line_spectrum_v2, tsf_read_profile_spectrum_v2, tsf_index_to_mz
-from pyBaf2Sql.baf import read_double
+from pyTDFSDK.classes import TsfSpectrum, TdfSpectrum
+from pyTDFSDK.util import get_centroid_status
+from pyTDFSDK.util import get_encoding_dtype
 
 from timsconvert.arguments import *
 from timsconvert.classes import *

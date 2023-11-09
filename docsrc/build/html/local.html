@@ -1,19 +1,16 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Local Usage &#8212; TIMSCONVERT 1.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script src="_static/documentation_options.js?v=9172181d"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="GNPS Usage" href="gnps.html" />
@@ -35,12 +32,12 @@
           <div class="body" role="main">
             
   <section id="local-usage">
-<h1>Local Usage<a class="headerlink" href="#local-usage" title="Permalink to this heading">¶</a></h1>
+<h1>Local Usage<a class="headerlink" href="#local-usage" title="Link to this heading">¶</a></h1>
 <p>The command line interface version of TIMSCONVERT supports conversion of all experimental types specified above. Please
 note that certain versions of Linux may not be compatible with the Baf2Sql API used to convert BAF files. See
 <a class="reference external" href="https://github.com/gtluu/timsconvert/issues/13">this issue</a> for more details.</p>
 <section id="basic-example">
-<h2>Basic Example<a class="headerlink" href="#basic-example" title="Permalink to this heading">¶</a></h2>
+<h2>Basic Example<a class="headerlink" href="#basic-example" title="Link to this heading">¶</a></h2>
 <p>Only the <code class="docutils literal notranslate"><span class="pre">input</span></code> parameter is required to run TIMSCONVERT. By default, the output file(s) can be found in the same
 directory as the input data using the same filenames as the original .d file(s). Please note that any previously
 converted mzML/imzML files in the output directory with the same filename will be overwritten. If no other parameters
@@ -57,7 +54,7 @@ conversion.</p>
 <p>See below for a full list of descriptions for each parameter.</p>
 </section>
 <section id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h2>
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p>Parameter</p></td>
@@ -114,7 +111,7 @@ conversion.</p>
 </tbody>
 </table>
 <section id="notes-on-mode-parameter">
-<h3>Notes on <code class="docutils literal notranslate"><span class="pre">mode</span></code> Parameter<a class="headerlink" href="#notes-on-mode-parameter" title="Permalink to this heading">¶</a></h3>
+<h3>Notes on <code class="docutils literal notranslate"><span class="pre">mode</span></code> Parameter<a class="headerlink" href="#notes-on-mode-parameter" title="Link to this heading">¶</a></h3>
 <p>There are 3 options for exporting spectra: <code class="docutils literal notranslate"><span class="pre">raw</span></code>, <code class="docutils literal notranslate"><span class="pre">centroid</span></code>, and <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode. This section describes what
 each mode means for different types of raw data.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">TSF</span></code> and <code class="docutils literal notranslate"><span class="pre">BAF</span></code> files, <code class="docutils literal notranslate"><span class="pre">raw</span></code> and <code class="docutils literal notranslate"><span class="pre">centroid</span></code> modes are equivalent and will export data in centroid mode.
@@ -131,7 +128,7 @@ m/z, intensity, and ion mobility, only <code class="docutils literal notranslate
 <code class="docutils literal notranslate"><span class="pre">centroid</span></code> or <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode are used. Again, all spectra are labeled as centroided.</p>
 </section>
 <section id="notes-on-barebones-metadata-parameter">
-<h3>Notes on <code class="docutils literal notranslate"><span class="pre">barebones_metadata</span></code> Parameter<a class="headerlink" href="#notes-on-barebones-metadata-parameter" title="Permalink to this heading">¶</a></h3>
+<h3>Notes on <code class="docutils literal notranslate"><span class="pre">barebones_metadata</span></code> Parameter<a class="headerlink" href="#notes-on-barebones-metadata-parameter" title="Link to this heading">¶</a></h3>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--barebones_metadata</span></code> flag is used when running TIMSCONVERT, the following metadata is not written to the
 resulting mzML file: 1) software list including acquistion and data conversion software, 2) data processing list
 including data conversion software, and 3) instrument name. This is done to allow for compatibility with older software
@@ -141,7 +138,7 @@ always compatible with these software.</p>
 </section>
 </section>
 <section id="testing">
-<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h2>
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h2>
 <p>To test TIMSCONVERT locally:</p>
 <ul>
 <li><p>Download test data.</p>
@@ -235,8 +232,8 @@ always compatible with these software.</p>
       &copy;2023, Gordon T. Luu.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/local.rst.txt"

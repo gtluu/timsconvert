@@ -28,5 +28,5 @@ tzdata==2023.3
 urllib3==2.0.5
 wheezy-template==3.2.1
 git+https://github.com/gtluu/pyimzML.git
-git+https://github.com/gtluu/pyTDFSDK.git@10bdec7dbf042f2bd71d398f970b7a91eb48ab86
-git+https://github.com/gtluu/pyBaf2Sql.git@cc9378764c87d9f7349df0fdddeb5738440583ef
+git+https://github.com/gtluu/pyTDFSDK.git
+git+https://github.com/gtluu/pyBaf2Sql.git

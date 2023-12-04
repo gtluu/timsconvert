@@ -18,7 +18,8 @@ INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',
                           '10': 'ionBooster',
                           '11': 'CaptiveSpray',
                           '12': 'GC-APCI',
-                          '13': 'VIP-HESI-APCI'}
+                          '13': 'VIP-HESI-APCI',
+                          '18': 'VIP-HESI'}
 
 MSMS_TYPE = {'0': 'MS',
              '2': 'MS/MS',

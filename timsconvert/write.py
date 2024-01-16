@@ -963,12 +963,6 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
         logging.info(get_iso8601_timestamp() + ':' + 'TSF file detected. Only export in profile or centroid mode are '
                                                      'supported. Defaulting to centroid mode.')
 
-    # Set centroided status.
-    if mode == 'profile':
-        centroided = False
-    elif mode == 'centroid' or mode == 'raw':
-        centroided = True
-
     # Get compression type object.
     if compression == 'zlib':
         compression_object = ZlibCompression()
@@ -979,7 +973,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
         writer = ImzMLWriter(os.path.join(outdir, outfile),
                              polarity=polarity,
                              mode=imzml_mode,
-                             spec_type=centroided,
+                             spec_type=mode,
                              mz_dtype=get_encoding_dtype(encoding),
                              intensity_dtype=get_encoding_dtype(encoding),
                              mz_compression=compression_object,
@@ -995,7 +989,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             writer = ImzMLWriter(os.path.join(outdir, outfile),
                                  polarity=polarity,
                                  mode=imzml_mode,
-                                 spec_type=centroided,
+                                 spec_type=mode,
                                  mz_dtype=get_encoding_dtype(encoding),
                                  intensity_dtype=get_encoding_dtype(encoding),
                                  mobility_dtype=get_encoding_dtype(encoding),
@@ -1007,7 +1001,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             writer = ImzMLWriter(os.path.join(outdir, outfile),
                                  polarity=polarity,
                                  mode=imzml_mode,
-                                 spec_type=centroided,
+                                 spec_type=mode,
                                  mz_dtype=get_encoding_dtype(encoding),
                                  intensity_dtype=get_encoding_dtype(encoding),
                                  mz_compression=compression_object,

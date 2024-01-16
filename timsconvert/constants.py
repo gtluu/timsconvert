@@ -4,7 +4,7 @@ from timsconvert.timestamp import *
 
 logging.info(get_iso8601_timestamp() + ':' + 'Initialize constants...')
 
-VERSION = '1.6.1'
+VERSION = '1.6.2'
 
 # Only type "1" has been tested with the current test dataset.
 INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',
@@ -18,7 +18,8 @@ INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',
                           '10': 'ionBooster',
                           '11': 'CaptiveSpray',
                           '12': 'GC-APCI',
-                          '13': 'VIP-HESI-APCI'}
+                          '13': 'VIP-HESI-APCI',
+                          '18': 'VIP-HESI'}
 
 MSMS_TYPE = {'0': 'MS',
              '2': 'MS/MS',

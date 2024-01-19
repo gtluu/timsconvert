@@ -11,9 +11,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'TIMSCONVERT'
-copyright = '2023, Gordon T. Luu'
+copyright = '2024, Gordon T. Luu'
 author = 'Gordon T. Luu'
-release = '1.4.0'
+release = '1.6.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

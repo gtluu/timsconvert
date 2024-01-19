@@ -25,7 +25,7 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     :param encoding: Encoding command line parameter, either "64" or "32".
     :type encoding: int
     :return: Tuple of (list of dictionaries containing MS1 spectrum data, list of dictionaries containing MS/MS
-    spectrum data).
+        spectrum data).
     :rtype: tuple[list[pyBaf2Sql.classes.BafSpectrum]]
     """
     list_of_parent_scans = []

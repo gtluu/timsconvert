@@ -54,22 +54,32 @@ def main():
         if not check_for_multiple_analysis(infile):
             schema = schema_detection(infile)
             if schema == 'TSF':
-                data = TimsconvertTsfData(infile, tdf_sdk_dll)
+                if run_args['use_raw_calibration']:
+                    use_recalibrated_state = False
+                elif not run_args['use_raw_calibration']:
+                    use_recalibrated_state = True
+                data = TimsconvertTsfData(infile, tdf_sdk_dll, use_recalibrated_state=use_recalibrated_state)
             elif schema == 'TDF':
+                if run_args['use_raw_calibration']:
+                    use_recalibrated_state = False
+                elif not run_args['use_raw_calibration']:
+                    use_recalibrated_state = True
                 if run_args['pressure_compensation_strategy'] == 'none':
-                    data = TimsconvertTdfData(infile,
-                                              tdf_sdk_dll,
-                                              pressure_compensation_strategy=PressureCompensationStrategy.NoPressureCompensation)
+                    pressure_compensation_strategy = PressureCompensationStrategy.NoPressureCompensation
                 elif run_args['pressure_compensation_strategy'] == 'global':
-                    data = TimsconvertTdfData(infile,
-                                              tdf_sdk_dll,
-                                              pressure_compensation_strategy=PressureCompensationStrategy.AnalyisGlobalPressureCompensation)
+                    pressure_compensation_strategy = PressureCompensationStrategy.AnalyisGlobalPressureCompensation
                 elif run_args['pressure_compensation_strategy'] == 'frame':
-                    data = TimsconvertTdfData(infile,
-                                              tdf_sdk_dll,
-                                              pressure_compensation_strategy=PressureCompensationStrategy.PerFramePressureCompensation)
+                    pressure_compensation_strategy = PressureCompensationStrategy.PerFramePressureCompensation
+                data = TimsconvertTdfData(infile,
+                                          tdf_sdk_dll,
+                                          use_recalibrated_state=use_recalibrated_state,
+                                          pressure_compensation_strategy=pressure_compensation_strategy)
             elif schema == 'BAF':
-                data = TimsconvertBafData(infile, baf2sql_dll)
+                if run_args['use_raw_calibration']:
+                    raw_calibration = True
+                elif not run_args['use_raw_calibration']:
+                    raw_calibration = False
+                data = TimsconvertBafData(infile, baf2sql_dll, raw_calibration=raw_calibration)
         else:
             continue
 

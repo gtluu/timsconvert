@@ -4,6 +4,7 @@
     "mode": "Choose whether export to spectra in \"raw\" or \"centroid\" formats. Defaults to \"centroid\".",
     "compression": "Choose between ZLIB compression (\"zlib\") or no compression (\"none\"). Defaults to \"zlib\".",
     "ms2_only": "Boolean flag that specifies only MS2 spectra should be converted.",
+    "use_raw_calibration": "TIMSCONVERT uses the recalibrated data when available. Use this flag to prevent use of recalibrated data and instead use the raw uncalibrated data.",
     "pressure_compensation_strategy": "Whether to parse data as is (\"none\"), apply global pressure compensation (\"global\"), or apply per frame pressure compensation (\"frame\"). Defaults to \"none\".",
     "exclude_mobility": "Boolean flag used to exclude trapped ion mobility spectrometry data from exported data. Precursor ion mobility information is still exported.",
     "encoding": "Choose encoding for binary arrays: 32-bit (\"32\") or 64-bit (\"64\"). Defaults to 64-bit.",

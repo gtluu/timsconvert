@@ -51,6 +51,14 @@ For ``TDF`` files in which the data is exported with the ion mobiilty arrays (re
 m/z, intensity, and ion mobility, only ``raw`` mode is available due to conversion speed and the resulting data size if
 ``centroid`` or ``profile`` mode are used. Again, all spectra are labeled as centroided.
 
+Notes on ``pressure_compensation_strategy`` Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The pressure compensation strategy parameter is used on data import via Bruker's ``TDF-SDK``. This parameter determines
+whether a calculation is applied to normalize the mobility (1/K0) dimension between datasets in which the pressure of
+the TIMS cell is modified between acquisitions. ``none`` prevents the application of any pressure compensation.
+``global`` applies the pressure compensation across the entire dataset in a given ``*.d`` file. ``frame`` applies the
+pressure compensation on a per frame basis.
+
 Notes on ``barebones_metadata`` Parameter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If the ``--barebones_metadata`` flag is used when running TIMSCONVERT, the following metadata is not written to the

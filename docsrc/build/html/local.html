@@ -125,6 +125,14 @@ files, the <code class="docutils literal notranslate"><span class="pre">tims_ext
 m/z, intensity, and ion mobility, only <code class="docutils literal notranslate"><span class="pre">raw</span></code> mode is available due to conversion speed and the resulting data size if
 <code class="docutils literal notranslate"><span class="pre">centroid</span></code> or <code class="docutils literal notranslate"><span class="pre">profile</span></code> mode are used. Again, all spectra are labeled as centroided.</p>
 </section>
+<section id="notes-on-pressure-compensation-strategy-parameter">
+<h3>Notes on <code class="docutils literal notranslate"><span class="pre">pressure_compensation_strategy</span></code> Parameter<a class="headerlink" href="#notes-on-pressure-compensation-strategy-parameter" title="Link to this heading">¶</a></h3>
+<p>The pressure compensation strategy parameter is used on data import via Bruker’s <code class="docutils literal notranslate"><span class="pre">TDF-SDK</span></code>. This parameter determines
+whether a calculation is applied to normalize the mobility (1/K0) dimension between datasets in which the pressure of
+the TIMS cell is modified between acquisitions. <code class="docutils literal notranslate"><span class="pre">none</span></code> prevents the application of any pressure compensation.
+<code class="docutils literal notranslate"><span class="pre">global</span></code> applies the pressure compensation across the entire dataset in a given <code class="docutils literal notranslate"><span class="pre">*.d</span></code> file. <code class="docutils literal notranslate"><span class="pre">frame</span></code> applies the
+pressure compensation on a per frame basis.</p>
+</section>
 <section id="notes-on-barebones-metadata-parameter">
 <h3>Notes on <code class="docutils literal notranslate"><span class="pre">barebones_metadata</span></code> Parameter<a class="headerlink" href="#notes-on-barebones-metadata-parameter" title="Link to this heading">¶</a></h3>
 <p>If the <code class="docutils literal notranslate"><span class="pre">--barebones_metadata</span></code> flag is used when running TIMSCONVERT, the following metadata is not written to the

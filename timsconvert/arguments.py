@@ -49,6 +49,11 @@ def get_args(server=False):
     optional.add_argument('--ms2_only',
                           help=arg_descriptions['ms2_only'],
                           action='store_true')
+    optional.add_argument('--pressure_compensation_strategy',
+                          help=arg_descriptions['pressure_compensation_strategy'],
+                          default='none',
+                          type=str,
+                          choices=['none', 'global', 'frame'])
     optional.add_argument('--exclude_mobility',
                           help=arg_descriptions['exclude_mobility'],
                           action='store_true')

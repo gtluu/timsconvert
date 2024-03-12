@@ -56,7 +56,18 @@ def main():
             if schema == 'TSF':
                 data = TimsconvertTsfData(infile, tdf_sdk_dll)
             elif schema == 'TDF':
-                data = TimsconvertTdfData(infile, tdf_sdk_dll)
+                if run_args['pressure_compensation_strategy'] == 'none':
+                    data = TimsconvertTdfData(infile,
+                                              tdf_sdk_dll,
+                                              pressure_compensation_strategy=PressureCompensationStrategy.NoPressureCompensation)
+                elif run_args['pressure_compensation_strategy'] == 'global':
+                    data = TimsconvertTdfData(infile,
+                                              tdf_sdk_dll,
+                                              pressure_compensation_strategy=PressureCompensationStrategy.AnalyisGlobalPressureCompensation)
+                elif run_args['pressure_compensation_strategy'] == 'frame':
+                    data = TimsconvertTdfData(infile,
+                                              tdf_sdk_dll,
+                                              pressure_compensation_strategy=PressureCompensationStrategy.PerFramePressureCompensation)
             elif schema == 'BAF':
                 data = TimsconvertBafData(infile, baf2sql_dll)
         else:

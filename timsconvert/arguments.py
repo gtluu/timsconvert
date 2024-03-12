@@ -81,10 +81,6 @@ def get_args(server=False):
 
     # System Arguments
     system = parser.add_argument_group('System Parameters')
-    system.add_argument('--chunk_size',
-                        help=arg_descriptions['chunk_size'],
-                        default=10,
-                        type=int)
     system.add_argument('--verbose',
                         help=arg_descriptions['verbose'],
                         action='store_true')

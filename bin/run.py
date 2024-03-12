@@ -81,8 +81,7 @@ def main():
                             run_args['profile_bins'],
                             run_args['encoding'],
                             run_args['compression'],
-                            run_args['barebones_metadata'],
-                            run_args['chunk_size'])
+                            run_args['barebones_metadata'])
 
         # TSF ESI-MS Dataset
         elif schema == 'TSF' and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
@@ -99,8 +98,7 @@ def main():
                             run_args['profile_bins'],
                             run_args['encoding'],
                             run_args['compression'],
-                            run_args['barebones_metadata'],
-                            run_args['chunk_size'])
+                            run_args['barebones_metadata'])
 
         # TSF MALDI-qTOF Dried Droplet Dataset
         elif schema == 'TSF' \
@@ -138,8 +136,7 @@ def main():
                                   run_args['profile_bins'],
                                   run_args['imzml_mode'],
                                   run_args['encoding'],
-                                  run_args['compression'],
-                                  run_args['chunk_size'])
+                                  run_args['compression'])
 
         # TDF ESI-TIMS-MS Dataset
         elif schema == 'TDF' \
@@ -157,8 +154,7 @@ def main():
                             run_args['profile_bins'],
                             run_args['encoding'],
                             run_args['compression'],
-                            run_args['barebones_metadata'],
-                            run_args['chunk_size'])
+                            run_args['barebones_metadata'])
 
         # TDF MALDI-TIMS-qTOF Dried Droplet Dataset
         elif schema == 'TDF' \
@@ -196,8 +192,7 @@ def main():
                                   run_args['profile_bins'],
                                   run_args['imzml_mode'],
                                   run_args['encoding'],
-                                  run_args['compression'],
-                                  run_args['chunk_size'])
+                                  run_args['compression'])
 
         else:
             logging.warning(get_iso8601_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +

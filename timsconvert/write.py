@@ -455,7 +455,7 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
 
 
 def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                    compression, barebones_metadata, chunk_size):
+                    compression, barebones_metadata, chunk_size=10):
     """
     Parse and write out spectra to an mzML file from an LC-MS(/MS) dataset using psims.
 
@@ -917,7 +917,7 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
 
 
 def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
-                          compression, chunk_size):
+                          compression, chunk_size=10):
     """
     Parse and write out spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
 

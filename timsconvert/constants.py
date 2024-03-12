@@ -4,7 +4,11 @@ from timsconvert.timestamp import *
 
 logging.info(get_iso8601_timestamp() + ':' + 'Initialize constants...')
 
+<<<<<<< HEAD
 VERSION = '2.0.0a3'
+=======
+VERSION = '1.6.5'
+>>>>>>> 3d6859f11b5475b8412da8f077fe0256132042f4
 
 # Only type "1" has been tested with the current test dataset.
 INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',

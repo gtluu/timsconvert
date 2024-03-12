@@ -18,6 +18,8 @@ doi: [10.1093/bioinformatics/btac419](https://doi.org/10.1093/bioinformatics/bta
 For more information about timsTOF data formats and TIMSCONVERT, see the 
 [documentation](https://gtluu.github.io/timsconvert/).
 
+Included software components: Copyright © 2022 by Bruker Daltonics GmbH & Co. KG. All rights reserved
+
 ## Installation
 
 Installation instructions are linked below:

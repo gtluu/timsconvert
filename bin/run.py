@@ -69,13 +69,12 @@ def main():
         # BAF ESI-MS Dataset
         if schema == 'BAF':
             logging.info(get_iso8601_timestamp() + ':' + '.baf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing LC-MS data...')
             write_lcms_mzml(data,
                             run_args['infile'],
                             run_args['outdir'],
-                            run_args['outfile'],
+                            outfile,
                             run_args['mode'],
                             run_args['ms2_only'],
                             run_args['exclude_mobility'],
@@ -88,13 +87,12 @@ def main():
         # TSF ESI-MS Dataset
         elif schema == 'TSF' and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
             logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing LC-MS data...')
             write_lcms_mzml(data,
                             run_args['infile'],
                             run_args['outdir'],
-                            run_args['outfile'],
+                            outfile,
                             run_args['mode'],
                             run_args['ms2_only'],
                             run_args['exclude_mobility'],
@@ -109,13 +107,12 @@ def main():
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI dried droplet data...')
             write_maldi_dd_mzml(data,
                                 run_args['infile'],
                                 run_args['outdir'],
-                                run_args['outfile'],
+                                outfile,
                                 run_args['mode'],
                                 run_args['ms2_only'],
                                 run_args['exclude_mobility'],
@@ -131,12 +128,11 @@ def main():
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
             logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI imaging mass spectrometry data...')
             write_maldi_ims_imzml(data,
                                   run_args['outdir'],
-                                  run_args['outfile'],
+                                  outfile,
                                   run_args['mode'],
                                   run_args['exclude_mobility'],
                                   run_args['profile_bins'],
@@ -149,13 +145,12 @@ def main():
         elif schema == 'TDF' \
                 and 'MaldiApplicationType' not in data.analysis['GlobalMetadata'].keys():
             logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing LC-TIMS-MS data...')
             write_lcms_mzml(data,
                             run_args['infile'],
                             run_args['outdir'],
-                            run_args['outfile'],
+                            outfile,
                             run_args['mode'],
                             run_args['ms2_only'],
                             run_args['exclude_mobility'],
@@ -170,13 +165,12 @@ def main():
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'SingleSpectra':
             logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.mzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS dried droplet data...')
             write_maldi_dd_mzml(data,
                                 run_args['infile'],
                                 run_args['outdir'],
-                                run_args['outfile'],
+                                outfile,
                                 run_args['mode'],
                                 run_args['ms2_only'],
                                 run_args['exclude_mobility'],
@@ -192,12 +186,11 @@ def main():
                 and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
                 and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
             logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
-            if run_args['outfile'] == '':
-                run_args['outfile'] = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
             logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
             write_maldi_ims_imzml(data,
                                   run_args['outdir'],
-                                  run_args['outfile'],
+                                  outfile,
                                   run_args['mode'],
                                   run_args['exclude_mobility'],
                                   run_args['profile_bins'],

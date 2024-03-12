@@ -189,8 +189,7 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     :param outdir: Output directory path that was specified from the command line parameters or the original input
         file path if no output directory was specified.
     :type outdir: str
-    :param outfile: Output filename that was specified from the command line parameters or the original input filename
-        if no output filename was specified.
+    :param outfile: The original input filename if no output filename was specified.
     :type outfile: str
     :param num_of_spectra: Number of spectra that was calculated for the current file being converted using
         timsconvert.write.get_spectra_count().
@@ -468,8 +467,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
     :param outdir: Output directory path that was specified from the command line parameters or the original input
         file path if no output directory was specified.
     :type outdir: str
-    :param outfile: Output filename that was specified from the command line parameters or the original input filename
-        if no output filename was specified.
+    :param outfile: The original input filename if no output filename was specified.
     :type outfile: str
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str
@@ -591,8 +589,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
     :param outdir: Output directory path that was specified from the command line parameters or the original input
         file path if no output directory was specified.
     :type outdir: str
-    :param outfile: Output filename that was specified from the command line parameters or the original input filename
-        if no output filename was specified.
+    :param outfile: The original input filename if no output filename was specified.
     :type outfile: str
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str
@@ -929,8 +926,7 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
     :param outdir: Output directory path that was specified from the command line parameters or the original input
         file path if no output directory was specified.
     :type outdir: str
-    :param outfile: Output filename that was specified from the command line parameters or the original input filename
-        if no output filename was specified.
+    :param outfile: The original input filename if no output filename was specified.
     :type outfile: str
     :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
     :type mode: str

@@ -1,7 +1,6 @@
 Parameter,Description
 input,Filepath for Bruker .d file containing TSF or TDF file or directory containing multiple Bruker .d files.
 outdir,Path to folder in which to write output file(s). Default = none
-outfile,"User defined filename for output if converting a single file, otherwise files will have same filename and overwrite each other. Default is none."
 mode,"Choose whether export to spectra in ""raw"" or ""centroid"" formats. Defaults to ""centroid""."
 compression,"Choose between ZLIB compression (""zlib"") or no compression (""none""). Defaults to ""zlib""."
 ms2_only,Boolean flag that specifies only MS2 spectra should be converted.

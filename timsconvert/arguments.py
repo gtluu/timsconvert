@@ -36,10 +36,6 @@ def get_args(server=False):
                           help=arg_descriptions['outdir'],
                           default='',
                           type=str)
-    optional.add_argument('--outfile',
-                          help=arg_descriptions['outfile'],
-                          default='',
-                          type=str)
     optional.add_argument('--mode',
                           help=arg_descriptions['mode'],
                           default='centroid',
@@ -120,9 +116,6 @@ def args_check(args):
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
         os.makedirs(args['outdir'])
-    # Check to make sure output filename ends in .mzML extension.
-    if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
-        args['outfile'] = args['outfile'] + '.mzML'
     # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.
     if args['maldi_output_file'] != '' \
             and args['maldi_output_file'] in ['individual', 'sample'] \

@@ -16,9 +16,9 @@ class Ui_TimsconvertGuiWindow(object):
         # Main Window
         if not TimsconvertGuiWindow.objectName():
             TimsconvertGuiWindow.setObjectName(u"TimsconvertGuiWindow")
-        TimsconvertGuiWindow.resize(800, 700)
-        TimsconvertGuiWindow.setMinimumSize(QSize(800, 700))
-        TimsconvertGuiWindow.setMaximumSize(QSize(800, 700))
+        TimsconvertGuiWindow.resize(800, 800)
+        TimsconvertGuiWindow.setMinimumSize(QSize(800, 800))
+        TimsconvertGuiWindow.setMaximumSize(QSize(800, 800))
 
         # Main Widget
         self.main = QWidget(TimsconvertGuiWindow)
@@ -28,19 +28,15 @@ class Ui_TimsconvertGuiWindow(object):
         # Button
         self.AddInputDialogueButton = QPushButton(self.main)
         self.AddInputDialogueButton.setObjectName(u"AddInputDialogueButton")
-        self.AddInputDialogueButton.setGeometry(QRect(20, 570, 381, 24))
-        # Label
-        # self.InputLabel = QLabel(self.main)
-        # self.InputLabel.setObjectName(u"InputLabel")
-        # self.InputLabel.setGeometry(QRect(20, 20, 361, 20))
+        self.AddInputDialogueButton.setGeometry(QRect(20, 660, 381, 24))
         # Button
         self.RemoveFromQueueButton = QPushButton(self.main)
         self.RemoveFromQueueButton.setObjectName(u"RemoveFromQueueButton")
-        self.RemoveFromQueueButton.setGeometry(QRect(20, 610, 381, 24))
+        self.RemoveFromQueueButton.setGeometry(QRect(20, 700, 381, 24))
         # List
         self.InputList = QTableWidget(self.main)
         self.InputList.setObjectName(u"InputList")
-        self.InputList.setGeometry(QRect(20, 20, 381, 531))
+        self.InputList.setGeometry(QRect(20, 20, 381, 621))
         self.InputList.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         # Set the resizing mode for the horizontal header to stretch
         self.InputList.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -49,12 +45,11 @@ class Ui_TimsconvertGuiWindow(object):
         self.InputList.horizontalHeader().setVisible(True)
         self.InputList.setColumnCount(1)
         self.InputList.setHorizontalHeaderLabels(['Queue'])
-        #self.InputList.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.InputList.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.InputList.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         # Populate the table with some sample data
         self.InputList.setRowCount(0)
-        self.populate_table(['Test.d', 'x', 'y', 'z'])
+        self.populate_table([])
 
         # Output Directory
         # Label
@@ -115,21 +110,56 @@ class Ui_TimsconvertGuiWindow(object):
         self.EncodingGroup.addButton(self.Encoding32Radio)
         self.Encoding64Radio.setChecked(True)
 
+        # Mobility Compensation
+        # Label
+        self.MobilityCompensationLabel = QLabel(self.main)
+        self.MobilityCompensationLabel.setObjectName(u"MobilityCompensationLabel")
+        self.MobilityCompensationLabel.setGeometry(QRect(430, 290, 351, 21))
+        # None
+        self.MobilityCompensationNoneRadio = QRadioButton(self.main)
+        self.MobilityCompensationNoneRadio.setObjectName(u"MobilityCompensationNoneRadio")
+        self.MobilityCompensationNoneRadio.setGeometry(QRect(430, 319, 89, 21))
+        # Global
+        self.MobilityCompensationGlobalRadio = QRadioButton(self.main)
+        self.MobilityCompensationGlobalRadio.setObjectName(u"MobilityCompensationGlobalRadio")
+        self.MobilityCompensationGlobalRadio.setGeometry(QRect(550, 320, 89, 21))
+        # Frame
+        self.MobilityCompensationFrameRadio = QRadioButton(self.main)
+        self.MobilityCompensationFrameRadio.setObjectName(u"MobilityCompensationFrameRadio")
+        self.MobilityCompensationFrameRadio.setGeometry(QRect(670, 320, 89, 21))
+        # Group
+        self.MobilityCompensationGroup = QButtonGroup()
+        self.MobilityCompensationGroup.addButton(self.MobilityCompensationNoneRadio)
+        self.MobilityCompensationGroup.addButton(self.MobilityCompensationGlobalRadio)
+        self.MobilityCompensationGroup.addButton(self.MobilityCompensationFrameRadio)
+        self.MobilityCompensationNoneRadio.setChecked(True)
+
+        # Use Recalibrated Data
+        self.RecalibratedDataCheckbox = QCheckBox(self.main)
+        self.RecalibratedDataCheckbox.setObjectName(u"RecalibratedDataCheckbox")
+        self.RecalibratedDataCheckbox.setGeometry(QRect(430, 360, 351, 21))
+        self.RecalibratedDataCheckbox.setChecked(True)
+
         # Compression
         self.CompressionCheckbox = QCheckBox(self.main)
         self.CompressionCheckbox.setObjectName(u"CompressionCheckbox")
-        self.CompressionCheckbox.setGeometry(QRect(430, 289, 351, 21))
+        self.CompressionCheckbox.setGeometry(QRect(430, 389, 351, 21))
         self.CompressionCheckbox.setChecked(True)
 
         # Exclude Mobility
         self.ExcludeMobilityCheckbox = QCheckBox(self.main)
         self.ExcludeMobilityCheckbox.setObjectName(u"ExcludeMobilityCheckbox")
-        self.ExcludeMobilityCheckbox.setGeometry(QRect(430, 320, 351, 21))
+        self.ExcludeMobilityCheckbox.setGeometry(QRect(430, 420, 351, 21))
 
         # MS2 Only
         self.Ms2OnlyCheckbox = QCheckBox(self.main)
         self.Ms2OnlyCheckbox.setObjectName(u"Ms2OnlyCheckbox")
-        self.Ms2OnlyCheckbox.setGeometry(QRect(430, 350, 351, 21))
+        self.Ms2OnlyCheckbox.setGeometry(QRect(430, 450, 351, 21))
+
+        # Barebones Metadata
+        self.BarebonesMetadataCheckbox = QCheckBox(self.main)
+        self.BarebonesMetadataCheckbox.setObjectName(u"BarebonesMetadataCheckbox")
+        self.BarebonesMetadataCheckbox.setGeometry(QRect(430, 480, 351, 21))
 
         # Num Bins
         # Label
@@ -155,19 +185,19 @@ class Ui_TimsconvertGuiWindow(object):
         # Label
         self.MaldiOutputFileLabel = QLabel(self.main)
         self.MaldiOutputFileLabel.setObjectName(u"MaldiOutputFileLabel")
-        self.MaldiOutputFileLabel.setGeometry(QRect(430, 420, 351, 21))
+        self.MaldiOutputFileLabel.setGeometry(QRect(430, 520, 351, 21))
         # Combined
         self.MaldiOutputFileCombinedRadio = QRadioButton(self.main)
         self.MaldiOutputFileCombinedRadio.setObjectName(u"MaldiOutputFileCombinedRadio")
-        self.MaldiOutputFileCombinedRadio.setGeometry(QRect(430, 450, 351, 20))
+        self.MaldiOutputFileCombinedRadio.setGeometry(QRect(430, 550, 351, 20))
         # Individual
         self.MaldiOutputFileIndividualRadio = QRadioButton(self.main)
         self.MaldiOutputFileIndividualRadio.setObjectName(u"MaldiOutputFileIndividualRadio")
-        self.MaldiOutputFileIndividualRadio.setGeometry(QRect(430, 480, 351, 20))
+        self.MaldiOutputFileIndividualRadio.setGeometry(QRect(430, 580, 351, 20))
         # Sample
         self.MaldiOutputFileSampleRadio = QRadioButton(self.main)
         self.MaldiOutputFileSampleRadio.setObjectName(u"MaldiOutputFileSampleRadio")
-        self.MaldiOutputFileSampleRadio.setGeometry(QRect(430, 510, 351, 20))
+        self.MaldiOutputFileSampleRadio.setGeometry(QRect(430, 610, 351, 20))
         # Group
         self.MaldiOutputFileGroup = QButtonGroup()
         self.MaldiOutputFileGroup.addButton(self.MaldiOutputFileCombinedRadio)
@@ -179,46 +209,41 @@ class Ui_TimsconvertGuiWindow(object):
         # Line Edit
         self.MaldiPlateMapLine = QLineEdit(self.main)
         self.MaldiPlateMapLine.setObjectName(u"MaldiPlateMapLine")
-        self.MaldiPlateMapLine.setGeometry(QRect(430, 580, 271, 22))
+        self.MaldiPlateMapLine.setGeometry(QRect(430, 680, 271, 22))
         self.MaldiPlateMapLine.setMaxLength(32765)
         self.MaldiPlateMapLine.setReadOnly(True)
         # Button
         self.MaldiPlateMapBrowseButton = QPushButton(self.main)
         self.MaldiPlateMapBrowseButton.setObjectName(u"MaldiPlateMapBrowseButton")
-        self.MaldiPlateMapBrowseButton.setGeometry(QRect(710, 580, 61, 24))
+        self.MaldiPlateMapBrowseButton.setGeometry(QRect(710, 680, 61, 24))
         # Label
         self.MaldiPlateMapLabel = QLabel(self.main)
         self.MaldiPlateMapLabel.setObjectName(u"MaldiPlateMapLabel")
-        self.MaldiPlateMapLabel.setGeometry(QRect(430, 550, 351, 20))
+        self.MaldiPlateMapLabel.setGeometry(QRect(430, 650, 351, 20))
 
         # imzML Mode
         # Label
         self.MaldiImzmlModeLabel = QLabel(self.main)
         self.MaldiImzmlModeLabel.setObjectName(u"MaldiImzmlModeLabel")
-        self.MaldiImzmlModeLabel.setGeometry(QRect(430, 620, 351, 21))
+        self.MaldiImzmlModeLabel.setGeometry(QRect(430, 720, 351, 21))
         # Continuous
         self.MaldiImzmlModeContinuousRadio = QRadioButton(self.main)
         self.MaldiImzmlModeContinuousRadio.setObjectName(u"MaldiImzmlModeContinuousRadio")
-        self.MaldiImzmlModeContinuousRadio.setGeometry(QRect(550, 651, 89, 21))
+        self.MaldiImzmlModeContinuousRadio.setGeometry(QRect(550, 750, 89, 21))
         # Processed
         self.MaldiImzmlModeProcessedRadio = QRadioButton(self.main)
         self.MaldiImzmlModeProcessedRadio.setObjectName(u"MaldiImzmlModeProcessedRadio")
-        self.MaldiImzmlModeProcessedRadio.setGeometry(QRect(430, 650, 89, 21))
+        self.MaldiImzmlModeProcessedRadio.setGeometry(QRect(430, 750, 89, 21))
         # Group
         self.MaldiImzmlModeGroup = QButtonGroup()
         self.MaldiImzmlModeGroup.addButton(self.MaldiImzmlModeProcessedRadio)
         self.MaldiImzmlModeGroup.addButton(self.MaldiImzmlModeContinuousRadio)
         self.MaldiImzmlModeProcessedRadio.setChecked(True)
 
-        # Barebones Metadata
-        self.BarebonesMetadataCheckbox = QCheckBox(self.main)
-        self.BarebonesMetadataCheckbox.setObjectName(u"BarebonesMetadataCheckbox")
-        self.BarebonesMetadataCheckbox.setGeometry(QRect(430, 380, 351, 21))
-
         # Run
         self.RunButton = QPushButton(self.main)
         self.RunButton.setObjectName(u"RunButton")
-        self.RunButton.setGeometry(QRect(20, 650, 381, 24))
+        self.RunButton.setGeometry(QRect(20, 740, 381, 24))
 
         # retranslate
         TimsconvertGuiWindow.setCentralWidget(self.main)
@@ -230,7 +255,6 @@ class Ui_TimsconvertGuiWindow(object):
         TimsconvertGuiWindow.setWindowTitle(QCoreApplication.translate("TimsconvertGuiWindow", u"TIMSCONVERT", None))
         self.AddInputDialogueButton.setText(
             QCoreApplication.translate("TimsconvertGuiWindow", u"Add Bruker timsTOF Data to Queue", None))
-        # self.InputLabel.setText(QCoreApplication.translate("TimsconvertGuiWindow", u"Queue", None))
         self.RemoveFromQueueButton.setText(
             QCoreApplication.translate("TimsconvertGuiWindow", u"Remove from Queue", None))
         self.OutputDirectoryLabel.setText(QCoreApplication.translate("TimsconvertGuiWindow", u"Output Directory", None))
@@ -243,6 +267,15 @@ class Ui_TimsconvertGuiWindow(object):
             QCoreApplication.translate("TimsconvertGuiWindow", u"Binary Encoding Precision", None))
         self.Encoding64Radio.setText(QCoreApplication.translate("TimsconvertGuiWindow", u"64 bit", None))
         self.Encoding32Radio.setText(QCoreApplication.translate("TimsconvertGuiWindow", u"32 bit", None))
+        self.MobilityCompensationLabel.setText(
+            QCoreApplication.translate("TimsconvertGuiWindow", u"Mobility Compensation Strategy", None))
+        self.MobilityCompensationNoneRadio.setText(QCoreApplication.translate("TimsconvertGuiWindow", u"None", None))
+        self.MobilityCompensationGlobalRadio.setText(
+            QCoreApplication.translate("TimsconvertGuiWindow", u"Global", None))
+        self.MobilityCompensationFrameRadio.setText(
+            QCoreApplication.translate("TimsconvertGuiWindow", u"Per Frame", None))
+        self.RecalibratedDataCheckbox.setText(
+            QCoreApplication.translate("TimsconvertGuiWindow", u"Use Recalibrated Data", None))
         self.CompressionCheckbox.setText(
             QCoreApplication.translate("TimsconvertGuiWindow", u"Use zlib Compression", None))
         self.ExcludeMobilityCheckbox.setText(

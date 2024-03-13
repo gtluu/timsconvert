@@ -1,6 +1,7 @@
 from timsconvert.parse import *
 from timsconvert.classes import *
 import os
+import sys
 import logging
 import numpy as np
 from psims.mzml import MzMLWriter
@@ -491,8 +492,10 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
     :type chunk_size: int
     """
     if isinstance(data, TimsconvertBafData):
+        frames_key = 'Spectra'
         metadata_key = 'Properties'
     elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
+        frames_key = 'Frames'
         metadata_key = 'GlobalMetadata'
 
     # Initialize mzML writer using psims.
@@ -534,6 +537,10 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                  os.path.split(data.source_file)[1] +
                                  '...')
                     for frame_start, frame_stop in chunk_list:
+                        #sys.stdout.write(os.path.split(data.source_file)[1] +
+                        #                 ' Progress: ' +
+                        #                 str(round((frame_start / data.analysis[frames_key].shape[0]) * 100)) +
+                        #                 '%\n')
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
                                                               frame_start,
@@ -551,10 +558,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                     chunk_list = []
                     for i, j in zip(data.ms1_frames[chunk:-1], data.ms1_frames[chunk + 1:]):
                         chunk_list.append((int(i), int(j)))
-                    if isinstance(data, TimsconvertBafData):
-                        chunk_list.append((j, data.analysis['Spectra'].shape[0] + 1))
-                    elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
-                        chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
+                    chunk_list.append((j, data.analysis[frames_key].shape[0] + 1))
                     logging.info(get_iso8601_timestamp() +
                                  ':' +
                                  'Parsing and writing Frame ' +
@@ -563,6 +567,10 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                  os.path.split(data.source_file)[1] +
                                  '...')
                     for frame_start, frame_stop in chunk_list:
+                        #sys.stdout.write(os.path.split(data.source_file)[1] +
+                        #                 ' Progress: ' +
+                        #                 str(round((frame_start / data.analysis[frames_key].shape[0]) * 100)) +
+                        #                 '%\n')
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
                                                               frame_start,

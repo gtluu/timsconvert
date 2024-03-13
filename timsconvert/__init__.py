@@ -10,6 +10,7 @@ import glob
 import requests
 import datetime
 import logging
+from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
@@ -30,6 +31,7 @@ from pyTDFSDK.util import get_encoding_dtype
 from timsconvert.arguments import *
 from timsconvert.classes import *
 from timsconvert.constants import *
+from timsconvert.convert import *
 from timsconvert.data_input import *
 from timsconvert.parse import *
 from timsconvert.timestamp import *

@@ -526,8 +526,13 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                     for i, j in zip(data.ms1_frames[chunk: chunk + chunk_size],
                                     data.ms1_frames[chunk + 1: chunk + chunk_size + 1]):
                         chunk_list.append((int(i), int(j)))
-                    logging.info(
-                        get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
+                    logging.info(get_iso8601_timestamp() +
+                                 ':' +
+                                 'Parsing and writing Frame ' +
+                                 str(chunk_list[0][0]) +
+                                 ' from ' +
+                                 data.analysis[metadata_key]['SampleName'] +
+                                 '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
@@ -550,8 +555,13 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                         chunk_list.append((j, data.analysis['Spectra'].shape[0] + 1))
                     elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
                         chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
-                    logging.info(
-                        get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + str(chunk_list[0][0]) + '...')
+                    logging.info(get_iso8601_timestamp() +
+                                 ':' +
+                                 'Parsing and writing Frame ' +
+                                 str(chunk_list[0][0]) +
+                                 ' from ' +
+                                 data.analysis[metadata_key]['SampleName'] +
+                                 '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
@@ -1012,8 +1022,13 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             chunk_list = []
             for i, j in zip(frames[chunk:chunk + chunk_size], frames[chunk + 1: chunk + chunk_size + 1]):
                 chunk_list.append((int(i), int(j)))
-            logging.info(
-                get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
+            logging.info(get_iso8601_timestamp() +
+                         ':' +
+                         'Parsing and writing Frame ' +
+                         str(chunk_list[0][0]) +
+                         ' from ' +
+                         data.analysis['GlobalMetadata']['SampleName'] +
+                         '...')
             for frame_start, frame_stop in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data,
                                                imzml_file,
@@ -1029,8 +1044,13 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
             for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
                 chunk_list.append((int(i), int(j)))
             chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
-            logging.info(
-                get_iso8601_timestamp() + ':' + 'Parsing and writing Frame ' + ':' + str(chunk_list[0][0]) + '...')
+            logging.info(get_iso8601_timestamp() +
+                         ':' +
+                         'Parsing and writing Frame ' +
+                         str(chunk_list[0][0]) +
+                         ' from ' +
+                         data.analysis['GlobalMetadata']['SampleName'] +
+                         '...')
             for frame_start, frame_stop in chunk_list:
                 write_maldi_ims_chunk_to_imzml(data,
                                                imzml_file,

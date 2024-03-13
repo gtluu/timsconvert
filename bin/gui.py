@@ -1,7 +1,7 @@
 import os
 from timsconvert.data_input import dot_d_detection
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale, QMetaObject, QObject, QPoint, QRect, QSize,
-                            QTime, QUrl, Qt, QTimer)
+                            QTime, QUrl, Qt, QTimer, QProcess)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QGradient, QIcon, QImage,
                            QKeySequence, QLinearGradient, QPainter, QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QListView, QMainWindow, QPushButton,
@@ -52,6 +52,13 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         # Remove Input
         self.RemoveFromQueueButton.clicked.connect(self.remove_from_queue)
 
+        # Initialize Process
+        self.process = QProcess()
+        self.process.readyReadStandardOutput.connect(self.handle_stdout)
+        self.process.readyReadStandardError.connect(self.handle_stderr)
+        self.process.stateChanged.connect(self.handle_state)
+        self.process.finished.connect(self.process_finished)
+
         # Run
         self.RunButton.clicked.connect(self.run)
 
@@ -66,15 +73,15 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.NumBinsSpinBox.setVisible(False)
 
     def browse_input(self):
-        input_path = QFileDialog().getExistingDirectory(self, 'Select Directory...', '')
-        if os.path.isdir(input_path):
-            if not input_path.endswith('.d'):
-                self.args['input'] = dot_d_detection(input_path)
-            elif input_path.endswith('.d'):
-                self.args['input'] = [input_path]
+        self.args['input'] = QFileDialog().getExistingDirectory(self, 'Select Directory...', '')
+        if os.path.isdir(self.args['input']):
+            if not self.args['input'].endswith('.d'):
+                input_filenames = dot_d_detection(self.args['input'])
+            elif self.args['input'].endswith('.d'):
+                input_filenames = [self.args['input']]
             if self.args['input'] is not None:
-                self.args['input'] = [i.replace('/', '\\') for i in self.args['input']]
-                input_filenames = [os.path.split(i)[-1] for i in self.args['input']]
+                input_filenames = [i.replace('/', '\\') for i in input_filenames]
+                input_filenames = [os.path.split(i)[-1] for i in input_filenames]
                 self.populate_table(input_filenames)
 
     def select_output_directory(self):
@@ -169,12 +176,21 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         elif not self.MaldiImzmlModeProcessedRadio.isChecked() and self.MaldiImzmlModeContinuousRadio.isChecked():
             self.args['imzml_mode'] = 'continuous'
 
-        for key, value in self.args.items():
-            print(f'{key}: {value}')
-
         # Convert Data
         if self.args['input'] is not None:
-            pass
+            # TODO: running serialized first, parallelize later
+            # TODO: 1. run in a single QProcess taking advantage of stdout text
+            # TODO: 2. parse stdout text to get progress info after adding progress messages to write.py
+            process_args = ['run.py']
+            for key, value in self.args.items():
+                if key not in ['ms2_only', 'use_raw_calibration', 'exclude_mobility', 'barebones_metadata', 'verbose']:
+                    process_args.append(f'--{key}')
+                    process_args.append(str(value))
+                elif self.args[key]:
+                    process_args.append(f'--{key}')
+            #process.setArguments(process_args)
+            print(process_args)
+            self.process.start('python', process_args)
         else:
             # TODO: change this to a popup box that says no files in queue
             print('No input files found.')
@@ -190,6 +206,26 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_progress)
         self.timer.start(1000)  # Update every 1000 milliseconds (1 second)
+
+    def handle_stdout(self):
+        data = self.process.readAllStandardOutput()
+        stdout = bytes(data).decode('utf8')
+        print(stdout)
+
+    def handle_stderr(self):
+        data = self.process.readAllStandardError()
+        stderr = bytes(data).decode('utf8')
+        print(stderr)
+
+    def handle_state(self, state):
+        states = {QProcess.NotRunning: 'Not Running',
+                  QProcess.Starting: 'Starting',
+                  QProcess.Running: 'Running'}
+        state_name = states[state]
+        print(state_name)
+
+    def process_finished(self):
+        print('Finished')
 
 
 if __name__ == '__main__':

@@ -531,7 +531,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                  'Parsing and writing Frame ' +
                                  str(chunk_list[0][0]) +
                                  ' from ' +
-                                 data.analysis[metadata_key]['SampleName'] +
+                                 os.path.split(data.source_file)[1] +
                                  '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data,
@@ -560,7 +560,7 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                  'Parsing and writing Frame ' +
                                  str(chunk_list[0][0]) +
                                  ' from ' +
-                                 data.analysis[metadata_key]['SampleName'] +
+                                 os.path.split(data.source_file)[1] +
                                  '...')
                     for frame_start, frame_stop in chunk_list:
                         scan_count = write_lcms_chunk_to_mzml(data,

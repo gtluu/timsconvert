@@ -19,9 +19,9 @@ def convert_raw_file(tuple_args):
 
     # Initialize logger if not running on server.
     logname = 'tmp_log_' + os.path.splitext(os.path.split(infile)[-1])[0] + '.log'
-    if run_args['outdir'] == '' and os.path.isdir(run_args['input']):
+    if run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[-1] != '.d':
         logfile = os.path.join(run_args['input'], logname)
-    elif run_args['outdir'] == '' and not os.path.isdir(run_args['input']):
+    elif run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[-1] == '.d':
         logfile = os.path.split(run_args['input'])[0]
         logfile = os.path.join(logfile, logname)
     else:
@@ -224,9 +224,9 @@ def clean_up_logfiles(args, list_of_logfiles):
             concat_logfile += logfile_obj.read()
     # Determine final log filename.
     logname = 'log_' + get_timestamp() + '.log'
-    if args['outdir'] == '' and os.path.isdir(args['input']):
+    if args['outdir'] == '' and os.path.isdir(args['input']) and os.path.splitext(args['input'])[-1] != '.d':
         final_logfile = os.path.join(args['input'], logname)
-    elif args['outdir'] == '' and not os.path.isdir(args['input']):
+    elif args['outdir'] == '' and os.path.isdir(args['input']) and os.path.splitext(args['input'])[-1] == '.d':
         final_logfile = os.path.split(args['input'])[0]
         final_logfile = os.path.join(final_logfile, logname)
     else:

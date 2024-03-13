@@ -10,7 +10,6 @@ def main():
     args['version'] = VERSION
 
     # Load in input data.
-    logging.info(get_iso8601_timestamp() + ':' + 'Loading input data...')
     if not args['input'].endswith('.d'):
         input_files = dot_d_detection(args['input'])
     elif args['input'].endswith('.d'):

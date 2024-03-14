@@ -1,13 +1,14 @@
 import os
 import re
 from timsconvert.data_input import dot_d_detection
+from timsconvert.timestamp import get_timestamp
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale, QMetaObject, QObject, QPoint, QRect, QSize,
                             QTime, QUrl, Qt, QTimer, QProcess)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QGradient, QIcon, QImage,
                            QKeySequence, QLinearGradient, QPainter, QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QListView, QMainWindow, QPushButton,
                                QRadioButton, QSizePolicy, QSpinBox, QWidget, QFileDialog, QProgressBar, QDialog,
-                               QDialogButtonBox)
+                               QDialogButtonBox, QVBoxLayout, QMessageBox)
 from timsconvert_gui_template import Ui_TimsconvertGuiWindow
 
 # TODO: add comments
@@ -59,7 +60,6 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.process = QProcess()
         self.process.readyReadStandardOutput.connect(self.handle_stdout)
         self.process.readyReadStandardError.connect(self.handle_stderr)
-        self.process.stateChanged.connect(self.handle_state)
         self.process.finished.connect(self.process_finished)
 
         # Run
@@ -206,8 +206,15 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                 progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.InputList.setCellWidget(row, 0, progress_bar)
         else:
-            # TODO: change this to a popup box that says no files in queue
-            print('No input files found.')
+            error = QMessageBox(self)
+            error.setWindowTitle('Error')
+            error.setText('No input files found in the queue.')
+            error_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'errors')
+            if not os.path.isdir(error_dir):
+                os.mkdir(error_dir)
+            with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
+                error_log.write('stderr')
+            error.exec()
 
     def handle_stdout(self):
         data = self.process.readAllStandardOutput()
@@ -222,25 +229,29 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
     def handle_stderr(self):
         data = self.process.readAllStandardError()
         stderr = bytes(data).decode('utf8')
-        self.errors += stderr + '\n'
+        error = QMessageBox(self)
+        error.setWindowTitle('Error')
+        error.setText(stderr + '\n' + 'Errors have been written to ')
+        error_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'errors')
+        if not os.path.isdir(error_dir):
+            os.mkdir(error_dir)
+        with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
+            error_log.write(stderr)
+        error.exec()
 
     def process_finished(self):
-        # TODO: popup box saying finished
-        # TODO: clear queue table widget when acknowledged
-        # TODO: text to show any errors that appeared in finished box popup
-        self.AddInputDialogueButton.setEnabled(True)
-        self.RemoveFromQueueButton.setEnabled(True)
-        self.OutputDirectoryBrowseButton.setEnabled(True)
-        self.MaldiPlateMapBrowseButton.setEnabled(True)
-        self.RunButton.setEnabled(True)
+        finished = QMessageBox(self)
+        finished.setWindowTitle('TIMSCONVERT')
+        finished.setText('TIMSCONVERT has finished running.')
+        finished_button = finished.exec()
 
-
-class EmptyQueueDialog(QDialog):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle('TIMSCONVERT - Error')
-        self.ButtonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        if finished_button == QMessageBox.StandardButton.Ok:
+            self.InputList.setRowCount(0)
+            self.AddInputDialogueButton.setEnabled(True)
+            self.RemoveFromQueueButton.setEnabled(True)
+            self.OutputDirectoryBrowseButton.setEnabled(True)
+            self.MaldiPlateMapBrowseButton.setEnabled(True)
+            self.RunButton.setEnabled(True)
 
 
 if __name__ == '__main__':

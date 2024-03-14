@@ -534,13 +534,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                  'Parsing and writing Frame ' +
                                  str(chunk_list[0][0]) +
                                  ' from ' +
-                                 os.path.split(data.source_file)[1] +
+                                 os.path.split(data.source_file.replace('/', '\\'))[1] +
                                  '...')
                     for frame_start, frame_stop in chunk_list:
-                        #sys.stdout.write(os.path.split(data.source_file)[1] +
-                        #                 ' Progress: ' +
-                        #                 str(round((frame_start / data.analysis[frames_key].shape[0]) * 100)) +
-                        #                 '%\n')
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
                                                               frame_start,
@@ -552,6 +548,12 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                                               profile_bins,
                                                               encoding,
                                                               compression)
+                        sys.stdout.write(get_iso8601_timestamp() +
+                                         ':' +
+                                         data.source_file.replace('/', '\\') +
+                                         ':Progress:' +
+                                         str(round((frame_start / data.analysis[frames_key].shape[0]) * 100)) +
+                                         '%\n')
                     chunk += chunk_size
                 # Last chunk may be smaller than chunk_size
                 else:
@@ -564,13 +566,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                  'Parsing and writing Frame ' +
                                  str(chunk_list[0][0]) +
                                  ' from ' +
-                                 os.path.split(data.source_file)[1] +
+                                 os.path.split(data.source_file.replace('/', '\\'))[1] +
                                  '...')
                     for frame_start, frame_stop in chunk_list:
-                        #sys.stdout.write(os.path.split(data.source_file)[1] +
-                        #                 ' Progress: ' +
-                        #                 str(round((frame_start / data.analysis[frames_key].shape[0]) * 100)) +
-                        #                 '%\n')
                         scan_count = write_lcms_chunk_to_mzml(data,
                                                               writer,
                                                               frame_start,
@@ -582,6 +580,10 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                                               profile_bins,
                                                               encoding,
                                                               compression)
+                        sys.stdout.write(get_iso8601_timestamp() +
+                                         ':' +
+                                         data.source_file.replace('/', '\\') +
+                                         ':Progress:100%\n')
 
     if num_of_spectra != scan_count:
         logging.info(get_iso8601_timestamp() + ':' + 'Updating scan count...')
@@ -710,6 +712,12 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                    encoding,
                                                    compression,
                                                    title=os.path.splitext(outfile)[0])
+                            sys.stdout.write(get_iso8601_timestamp() +
+                                             ':' +
+                                             data.source_file.replace('/', '\\') +
+                                             ':Progress:' +
+                                             str(round((scan_count / len(list_of_scans)) * 100)) +
+                                             '%\n')
 
         logging.info(get_iso8601_timestamp() + ':' + 'Updating scan count...')
         update_spectra_count(outdir, outfile, num_of_spectra, scan_count)
@@ -750,7 +758,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
             # Names things as sample_position.mzML
             plate_map_dict = parse_maldi_plate_map(plate_map)
 
+            progress_counter = 0
             for scan in list_of_scans:
+                progress_counter += 1
                 output_filename = os.path.join(outdir,
                                                plate_map_dict[scan.coord] + '_' + scan.coord + '.mzML')
 
@@ -786,6 +796,12 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                        title=plate_map_dict[scan.coord])
                 logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' +
                              os.path.join(outdir, output_filename) + '...')
+                sys.stdout.write(get_iso8601_timestamp() +
+                                 ':' +
+                                 data.source_file.replace('/', '\\') +
+                                 ':Progress:' +
+                                 str(round((progress_counter / len(list_of_scans)) * 100)) +
+                                 '%\n')
 
     # Group spectra from a given TSF or TDF file by sample name based on user provided plate map.
     elif maldi_output_file == 'sample' and plate_map != '':
@@ -834,8 +850,10 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                 except KeyError:
                     pass
 
+            progress_counter = 0
             for key, value in dict_of_scan_lists.items():
                 if key != 'nan':
+                    progress_counter += 1
                     output_filename = os.path.join(outdir, key + '.mzML')
 
                     writer = MzMLWriter(output_filename, close=True)
@@ -873,6 +891,12 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
                     logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' +
                                  os.path.join(outdir, outfile) + '...')
+                    sys.stdout.write(get_iso8601_timestamp() +
+                                     ':' +
+                                     data.source_file.replace('/', '\\') +
+                                     ':Progress:' +
+                                     str(round((progress_counter / len(dict_of_scan_lists)) * 100)) +
+                                     '%\n')
 
 
 def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, profile_bins,
@@ -1046,6 +1070,12 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                                exclude_mobility,
                                                profile_bins,
                                                encoding)
+                sys.stdout.write(get_iso8601_timestamp() +
+                                 ':' +
+                                 data.source_file.replace('/', '\\') +
+                                 ':Progress:' +
+                                 str(round((frame_start / data.analysis['Frames'].shape[0]) * 100)) +
+                                 '%\n')
             chunk += chunk_size
         else:
             chunk_list = []
@@ -1068,5 +1098,9 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                                exclude_mobility,
                                                profile_bins,
                                                encoding)
+                sys.stdout.write(get_iso8601_timestamp() +
+                                 ':' +
+                                 data.source_file.replace('/', '\\') +
+                                 ':Progress:100%\n')
     logging.info(
         get_iso8601_timestamp() + ':' + 'Finished writing to .imzML file ' + os.path.join(outdir, outfile) + '...')

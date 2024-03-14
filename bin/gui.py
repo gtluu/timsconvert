@@ -1,14 +1,16 @@
 import os
+import re
 from timsconvert.data_input import dot_d_detection
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale, QMetaObject, QObject, QPoint, QRect, QSize,
                             QTime, QUrl, Qt, QTimer, QProcess)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QGradient, QIcon, QImage,
                            QKeySequence, QLinearGradient, QPainter, QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QListView, QMainWindow, QPushButton,
-                               QRadioButton, QSizePolicy, QSpinBox, QWidget, QFileDialog, QProgressBar)
+                               QRadioButton, QSizePolicy, QSpinBox, QWidget, QFileDialog, QProgressBar, QDialog,
+                               QDialogButtonBox)
 from timsconvert_gui_template import Ui_TimsconvertGuiWindow
 
-
+# TODO: add comments
 class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
     def __init__(self):
         super(TimsconvertGuiWindow, self).__init__()
@@ -30,6 +32,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                      'verbose': False}  # QCheckbox
 
         self.selected_row_from_queue = ''
+        self.errors = None
 
         self.setupUi(self)
 
@@ -104,6 +107,12 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.InputList.removeRow(row)
 
     def run(self):
+        self.AddInputDialogueButton.setEnabled(False)
+        self.RemoveFromQueueButton.setEnabled(False)
+        self.OutputDirectoryBrowseButton.setEnabled(False)
+        self.MaldiPlateMapBrowseButton.setEnabled(False)
+        self.RunButton.setEnabled(False)
+
         # Collect arguments from GUI.
         self.args['outdir'] = str(self.OutputDirectoryLine.text())
         if (self.ModeProfileRadio.isChecked() and
@@ -178,9 +187,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
         # Convert Data
         if self.args['input'] is not None:
-            # TODO: running serialized first, parallelize later
-            # TODO: 1. run in a single QProcess taking advantage of stdout text
-            # TODO: 2. parse stdout text to get progress info after adding progress messages to write.py
+            # Build and run command in QProcess.
             process_args = ['run.py']
             for key, value in self.args.items():
                 if key not in ['ms2_only', 'use_raw_calibration', 'exclude_mobility', 'barebones_metadata', 'verbose']:
@@ -188,44 +195,52 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                     process_args.append(str(value))
                 elif self.args[key]:
                     process_args.append(f'--{key}')
-            #process.setArguments(process_args)
-            print(process_args)
             self.process.start('python', process_args)
+
+            # Replace queue list with progress bars.
+            for row in range(self.InputList.rowCount()):
+                progress_bar = QProgressBar()
+                progress_bar.setValue(0)
+                progress_bar.setFormat(f"{self.InputList.item(row, 0).text()}")
+                progress_bar.setObjectName(f"{self.InputList.item(row, 0).text()}")
+                progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.InputList.setCellWidget(row, 0, progress_bar)
         else:
             # TODO: change this to a popup box that says no files in queue
             print('No input files found.')
 
-        # for now just replaces row with progress bar
-        for row in range(self.InputList.rowCount()):
-            progress_bar = QProgressBar()
-            progress_bar.setValue(0)
-            progress_bar.setFormat(f"{self.InputList.item(row, 0).text()}")
-            progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.InputList.setCellWidget(row, 0, progress_bar)
-        # Set up a timer to simulate real-time updates
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_progress)
-        self.timer.start(1000)  # Update every 1000 milliseconds (1 second)
-
     def handle_stdout(self):
         data = self.process.readAllStandardOutput()
         stdout = bytes(data).decode('utf8')
-        print(stdout)
+        percentage = re.search(r'(\d+)%', stdout)
+        dot_d_file = re.search(r'([^:/]+\.d)', stdout)
+        if percentage and dot_d_file:
+            percentage = int(percentage.group(1))
+            dot_d_file = dot_d_file.group(1).split('\\')[-1]
+            self.InputList.findChild(QProgressBar, dot_d_file).setValue(percentage)
 
     def handle_stderr(self):
         data = self.process.readAllStandardError()
         stderr = bytes(data).decode('utf8')
-        print(stderr)
-
-    def handle_state(self, state):
-        states = {QProcess.NotRunning: 'Not Running',
-                  QProcess.Starting: 'Starting',
-                  QProcess.Running: 'Running'}
-        state_name = states[state]
-        print(state_name)
+        self.errors += stderr + '\n'
 
     def process_finished(self):
-        print('Finished')
+        # TODO: popup box saying finished
+        # TODO: clear queue table widget when acknowledged
+        # TODO: text to show any errors that appeared in finished box popup
+        self.AddInputDialogueButton.setEnabled(True)
+        self.RemoveFromQueueButton.setEnabled(True)
+        self.OutputDirectoryBrowseButton.setEnabled(True)
+        self.MaldiPlateMapBrowseButton.setEnabled(True)
+        self.RunButton.setEnabled(True)
+
+
+class EmptyQueueDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle('TIMSCONVERT - Error')
+        self.ButtonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
 
 
 if __name__ == '__main__':

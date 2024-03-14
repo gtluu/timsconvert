@@ -315,10 +315,3 @@ class Ui_TimsconvertGuiWindow(object):
         for row, input_filename in enumerate(data, start=old_row_count):
             text_item = QTableWidgetItem(input_filename)
             self.InputList.setItem(row, 0, text_item)
-
-    def update_progress(self):
-        for row in range(self.InputList.rowCount()):
-            # new_progress = round(current_frame / num_frames)
-            current_progress = self.InputList.cellWidget(row, 0).value()
-            new_progress = (current_progress + 1) % 101  # Increment by 1, wrap around at 100
-            self.InputList.cellWidget(row, 0).setValue(new_progress)

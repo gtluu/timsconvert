@@ -10,10 +10,16 @@ def main():
     args['version'] = VERSION
 
     # Load in input data.
-    if not args['input'].endswith('.d'):
-        input_files = dot_d_detection(args['input'])
-    elif args['input'].endswith('.d'):
-        input_files = [args['input']]
+    input_files = []
+    for dirpath in args['input']:
+        if not dirpath.endswith('.d'):
+            input_files = input_files + list(filter(None, dot_d_detection(dirpath)))
+        elif dirpath.endswith('.d'):
+            if os.path.isdir(dirpath):
+                input_files = input_files +[dirpath]
+            else:
+                logging.info(get_iso8601_timestamp() + ':' + f'{dirpath} does not exist...')
+                logging.info(get_iso8601_timestamp() + ':' + 'Skipping...')
 
     # Convert each sample.
     with Pool(processes=cpu_count() - 1) as pool:

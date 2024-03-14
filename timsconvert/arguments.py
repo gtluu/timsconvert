@@ -28,7 +28,8 @@ def get_args(server=False):
     required.add_argument('--input',
                           help=arg_descriptions['input'],
                           required=True,
-                          type=str)
+                          type=str,
+                          nargs='+')
 
     # Optional Arguments
     optional = parser.add_argument_group('Optional Parameters')
@@ -112,11 +113,6 @@ def args_check(args):
     :param args: Arguments obtained from timsconvert.arguments.get_args().
     :type args: dict
     """
-    # Check if input directory exists.
-    if not os.path.exists(args['input']):
-        print(get_iso8601_timestamp() + ':' + 'Input path does not exist...')
-        print(get_iso8601_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
         os.makedirs(args['outdir'])

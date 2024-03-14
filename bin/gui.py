@@ -16,7 +16,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
     def __init__(self):
         super(TimsconvertGuiWindow, self).__init__()
 
-        self.args = {'input': None,  # QLineEdit + QPushButton (select directory dialogue button)
+        self.args = {'input': [],  # QLineEdit + QPushButton (select directory dialogue button)
                      'outdir': '',  # QLineEdit + QPushButton (select directory dialogue button)
                      'mode': 'centroid',  # QRadioButton
                      'compression': 'zlib',  # QCheckbox
@@ -76,16 +76,16 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.NumBinsSpinBox.setVisible(False)
 
     def browse_input(self):
-        self.args['input'] = QFileDialog().getExistingDirectory(self, 'Select Directory...', '')
-        if os.path.isdir(self.args['input']):
-            if not self.args['input'].endswith('.d'):
-                input_filenames = dot_d_detection(self.args['input'])
-            elif self.args['input'].endswith('.d'):
-                input_filenames = [self.args['input']]
-            if self.args['input'] is not None:
-                input_filenames = [i.replace('/', '\\') for i in input_filenames]
-                input_filenames = [os.path.split(i)[-1] for i in input_filenames]
-                self.populate_table(input_filenames)
+        input_path = QFileDialog().getExistingDirectory(self, 'Select Directory...', '')
+        if os.path.isdir(input_path):
+            if not input_path.endswith('.d'):
+                new_input = dot_d_detection(input_path)
+            elif input_path.endswith('.d'):
+                new_input = [input_path]
+            new_input = [i.replace('/', '\\') for i in new_input]
+            self.args['input'] = self.args['input'] + new_input
+            new_input = [os.path.split(i)[-1] for i in new_input]
+            self.populate_table(new_input)
 
     def select_output_directory(self):
         self.args['outdir'] = QFileDialog().getExistingDirectory(self, 'Select Directory...', '').replace('/', '\\')
@@ -186,11 +186,14 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.args['imzml_mode'] = 'continuous'
 
         # Convert Data
-        if self.args['input'] is not None:
+        if len(self.args['input']) > 0:
             # Build and run command in QProcess.
             process_args = ['run.py']
             for key, value in self.args.items():
-                if key not in ['ms2_only', 'use_raw_calibration', 'exclude_mobility', 'barebones_metadata', 'verbose']:
+                if key == 'input':
+                    process_args.append(f'--input')
+                    process_args = process_args + self.args['input']
+                elif key not in ['ms2_only', 'use_raw_calibration', 'exclude_mobility', 'barebones_metadata', 'verbose']:
                     process_args.append(f'--{key}')
                     process_args.append(str(value))
                 elif self.args[key]:
@@ -231,8 +234,8 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         stderr = bytes(data).decode('utf8')
         error = QMessageBox(self)
         error.setWindowTitle('Error')
-        error.setText(stderr + '\n' + 'Errors have been written to ')
         error_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'errors')
+        error.setText(stderr + '\n' + 'Errors have been written to ' + error_dir)
         if not os.path.isdir(error_dir):
             os.mkdir(error_dir)
         with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
@@ -246,6 +249,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         finished_button = finished.exec()
 
         if finished_button == QMessageBox.StandardButton.Ok:
+            self.args['input'] = []
             self.InputList.setRowCount(0)
             self.AddInputDialogueButton.setEnabled(True)
             self.RemoveFromQueueButton.setEnabled(True)

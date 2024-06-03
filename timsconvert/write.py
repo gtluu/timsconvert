@@ -428,8 +428,7 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      ms2_only,
                                                      profile_bins,
                                                      mz_encoding,
-                                                     intensity_encoding,
-                                                     mobility_encoding)
+                                                     intensity_encoding)
     # Parse BAF data
     elif isinstance(data, TimsconvertBafData):
         parent_scans, product_scans = parse_lcms_baf(data,
@@ -439,8 +438,7 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      ms2_only,
                                                      profile_bins,
                                                      mz_encoding,
-                                                     intensity_encoding,
-                                                     mobility_encoding)
+                                                     intensity_encoding)
 
     # Write MS1 parent scans.
     if not ms2_only and product_scans != []:
@@ -716,8 +714,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                         ms2_only,
                                                         profile_bins,
                                                         mz_encoding,
-                                                        intensity_encoding,
-                                                        mobility_encoding)
+                                                        intensity_encoding)
                     # Parse TDF data.
                     elif data.analysis[metadata_key]['SchemaType'] == 'TDF':
                         list_of_scans = parse_maldi_tdf(data,
@@ -786,8 +783,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                 ms2_only,
                                                 profile_bins,
                                                 mz_encoding,
-                                                intensity_encoding,
-                                                mobility_encoding)
+                                                intensity_encoding)
             # Parse TDF data.
             elif data.analysis[metadata_key]['SchemaType'] == 'TDF':
                 list_of_scans = parse_maldi_tdf(data,
@@ -873,8 +869,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                 ms2_only,
                                                 profile_bins,
                                                 mz_encoding,
-                                                intensity_encoding,
-                                                mobility_encoding)
+                                                intensity_encoding)
             # Parse TDF data.
             elif data.analysis[metadata_key]['SchemaType'] == 'TDF':
                 list_of_scans = parse_maldi_tdf(data,
@@ -992,8 +987,7 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
                                         False,
                                         profile_bins,
                                         mz_encoding,
-                                        intensity_encoding,
-                                        mobility_encoding)
+                                        intensity_encoding)
         for scans in list_of_scans:
             imzml_file.addSpectrum(scans.mz_array,
                                    scans.intensity_array,

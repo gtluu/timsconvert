@@ -209,7 +209,7 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')
 
 
-def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
+def write_ms1_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobility_encoding, compression, title=None):
     """
     Write an MS1 spectrum to an mzML file using psims.
 
@@ -220,8 +220,12 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
         timsconvert.classes.TimsconvertBafData
     :param scan: Object containing spectrum metadata and data arrays.
     :type scan: pyBaf2Sql.classes.BafSpectrum | pyTDFSDK.classes.TsfSpectrum | pyTDFSDK.classes.TdfSpectrum
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     :param compression: Compression command line parameter, either "zlib" or "none".
     :type compression: str
     :param title: Spectrum title to be used for MALDI data, defaults to None.
@@ -256,10 +260,10 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
     else:
         other_arrays = None
 
-    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
-                     'intensity array': get_encoding_dtype(encoding)}
+    encoding_dict = {'m/z array': get_encoding_dtype(mz_encoding),
+                     'intensity array': get_encoding_dtype(intensity_encoding)}
     if other_arrays is not None:
-        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
+        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(mobility_encoding)
 
     writer.write_spectrum(scan.mz_array,
                           scan.intensity_array,
@@ -273,7 +277,8 @@ def write_ms1_spectrum(writer, data, scan, encoding, compression, title=None):
                           compression=compression)
 
 
-def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=None, title=None):
+def write_ms2_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobility_encoding, compression,
+                       parent_scan=None, title=None):
     """
     Write an MS/MS spectrum to an mzML file using psims.
 
@@ -284,8 +289,12 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
         timsconvert.classes.TimsconvertBafData
     :param scan: Object containing spectrum metadata and data arrays.
     :type scan: pyBaf2Sql.classes.BafSpectrum | pyTDFSDK.classes.TsfSpectrum | pyTDFSDK.classes.TdfSpectrum
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     :param compression: Compression command line parameter, either "zlib" or "none".
     :type compression: str
     :param parent_scan: Object containing standard spectrum data for parent scan used to link MS/MS spectrum with
@@ -322,10 +331,10 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
     else:
         other_arrays = None
 
-    encoding_dict = {'m/z array': get_encoding_dtype(encoding),
-                     'intensity array': get_encoding_dtype(encoding)}
+    encoding_dict = {'m/z array': get_encoding_dtype(mz_encoding),
+                     'intensity array': get_encoding_dtype(intensity_encoding)}
     if other_arrays is not None:
-        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(encoding)
+        encoding_dict['mean inverse reduced ion mobility array'] = get_encoding_dtype(mobility_encoding)
 
     # Build precursor information dict.
     precursor_info = {'mz': scan.selected_ion_mz,
@@ -364,7 +373,7 @@ def write_ms2_spectrum(writer, data, scan, encoding, compression, parent_scan=No
 
 
 def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, mode, ms2_only, exclude_mobility,
-                             profile_bins, encoding, compression):
+                             profile_bins, mz_encoding, intensity_encoding, mobility_encoding, compression):
     """
     Parse and write out a group of spectra to an mzML file from an LC-MS(/MS) dataset using psims.
 
@@ -387,8 +396,12 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
     :type exclude_mobility: bool
     :param profile_bins: Number of bins to bin spectrum to.
     :type profile_bins: int
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     :param compression: Compression command line parameter, either "zlib" or "none".
     :type compression: str
     :return: Updated count for the number of spectra from the current file that have been converted.
@@ -403,7 +416,9 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      ms2_only,
                                                      exclude_mobility,
                                                      profile_bins,
-                                                     encoding)
+                                                     mz_encoding,
+                                                     intensity_encoding,
+                                                     mobility_encoding)
     # Parse TSF data
     elif isinstance(data, TimsconvertTsfData):
         parent_scans, product_scans = parse_lcms_tsf(data,
@@ -412,7 +427,9 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      mode,
                                                      ms2_only,
                                                      profile_bins,
-                                                     encoding)
+                                                     mz_encoding,
+                                                     intensity_encoding,
+                                                     mobility_encoding)
     # Parse BAF data
     elif isinstance(data, TimsconvertBafData):
         parent_scans, product_scans = parse_lcms_baf(data,
@@ -421,7 +438,9 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
                                                      mode,
                                                      ms2_only,
                                                      profile_bins,
-                                                     encoding)
+                                                     mz_encoding,
+                                                     intensity_encoding,
+                                                     mobility_encoding)
 
     # Write MS1 parent scans.
     if not ms2_only and product_scans != []:
@@ -430,33 +449,36 @@ def write_lcms_chunk_to_mzml(data, writer, frame_start, frame_stop, scan_count, 
             # Set params for scan.
             scan_count += 1
             parent.scan_number = scan_count
-            write_ms1_spectrum(writer, data, parent, encoding, compression)
+            write_ms1_spectrum(writer, data, parent, mz_encoding, intensity_encoding, mobility_encoding, compression)
             # Write MS2 Product Scans
             for product in products:
                 scan_count += 1
                 product.scan_number = scan_count
-                write_ms2_spectrum(writer, data, product, encoding, compression, parent_scan=parent)
+                write_ms2_spectrum(writer, data, product, mz_encoding, intensity_encoding, mobility_encoding,
+                                   compression, parent_scan=parent)
     elif ms2_only or parent_scans == []:
         for product in product_scans:
             scan_count += 1
             product.scan_number = scan_count
-            write_ms2_spectrum(writer, data, product, encoding, compression)
+            write_ms2_spectrum(writer, data, product, mz_encoding, intensity_encoding, mobility_encoding, compression)
     elif not product_scans:
         for scan in parent_scans:
             scan_count += 1
             scan.scan_number = scan_count
             if scan.ms_level == 1:
-                write_ms1_spectrum(writer, data, scan, encoding, compression)
+                write_ms1_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobility_encoding, compression)
             elif scan.ms_level == 2:
                 if scan.ms2_no_precursor:
-                    write_ms1_spectrum(writer, data, scan, encoding, compression)
+                    write_ms1_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobility_encoding,
+                                       compression)
                 else:
-                    write_ms2_spectrum(writer, data, scan, encoding, compression)
+                    write_ms2_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobility_encoding,
+                                       compression)
     return scan_count
 
 
-def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                    compression, barebones_metadata, chunk_size=10):
+def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, mz_encoding,
+                    intensity_encoding, mobility_encoding, compression, barebones_metadata, chunk_size=10):
     """
     Parse and write out spectra to an mzML file from an LC-MS(/MS) dataset using psims.
 
@@ -478,8 +500,12 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
     :type exclude_mobility: bool
     :param profile_bins: Number of bins to bin spectrum to.
     :type profile_bins: int
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     :param compression: Compression command line parameter, either "zlib" or "none".
     :type compression: str
     :param barebones_metadata: If True, omit software and data processing metadata in the resulting mzML files. Used
@@ -546,7 +572,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                                               ms2_only,
                                                               exclude_mobility,
                                                               profile_bins,
-                                                              encoding,
+                                                              mz_encoding,
+                                                              intensity_encoding,
+                                                              mobility_encoding,
                                                               compression)
                         sys.stdout.write(get_iso8601_timestamp() +
                                          ':' +
@@ -578,7 +606,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                                                               ms2_only,
                                                               exclude_mobility,
                                                               profile_bins,
-                                                              encoding,
+                                                              mz_encoding,
+                                                              intensity_encoding,
+                                                              mobility_encoding,
                                                               compression)
                         sys.stdout.write(get_iso8601_timestamp() +
                                          ':' +
@@ -597,8 +627,9 @@ def write_lcms_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobil
                  os.path.join(outdir, outfile) + '...')
 
 
-def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, encoding,
-                        compression, maldi_output_file, plate_map, barebones_metadata):
+def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_mobility, profile_bins, mz_encoding,
+                        intensity_encoding, mobility_encoding, compression, maldi_output_file, plate_map,
+                        barebones_metadata):
     """
     Parse and write out spectra to an mzML file from a MALDI-MS(/MS) dried droplet dataset using psims.
 
@@ -619,8 +650,12 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
     :type exclude_mobility: bool
     :param profile_bins: Number of bins to bin spectrum to.
     :type profile_bins: int
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     :param compression: Compression command line parameter, either "zlib" or "none".
     :type compression: str
     :param maldi_output_file: Determines whether all spectra from a given .d dataset are written to a single mzML file
@@ -680,7 +715,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                         mode,
                                                         ms2_only,
                                                         profile_bins,
-                                                        encoding)
+                                                        mz_encoding,
+                                                        intensity_encoding,
+                                                        mobility_encoding)
                     # Parse TDF data.
                     elif data.analysis[metadata_key]['SchemaType'] == 'TDF':
                         list_of_scans = parse_maldi_tdf(data,
@@ -690,7 +727,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                         ms2_only,
                                                         exclude_mobility,
                                                         profile_bins,
-                                                        encoding)
+                                                        mz_encoding,
+                                                        intensity_encoding,
+                                                        mobility_encoding)
                     # Write MS1 parent scans.
                     for scan in list_of_scans:
                         if ms2_only and scan.ms_level == 1:
@@ -702,14 +741,18 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                 write_ms1_spectrum(writer,
                                                    data,
                                                    scan,
-                                                   encoding,
+                                                   mz_encoding,
+                                                   intensity_encoding,
+                                                   mobility_encoding,
                                                    compression,
                                                    title=os.path.splitext(outfile)[0])
                             elif scan.ms_level == 2:
                                 write_ms2_spectrum(writer,
                                                    data,
                                                    scan,
-                                                   encoding,
+                                                   mz_encoding,
+                                                   intensity_encoding,
+                                                   mobility_encoding,
                                                    compression,
                                                    title=os.path.splitext(outfile)[0])
                             sys.stdout.write(get_iso8601_timestamp() +
@@ -742,7 +785,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                 mode,
                                                 ms2_only,
                                                 profile_bins,
-                                                encoding)
+                                                mz_encoding,
+                                                intensity_encoding,
+                                                mobility_encoding)
             # Parse TDF data.
             elif data.analysis[metadata_key]['SchemaType'] == 'TDF':
                 list_of_scans = parse_maldi_tdf(data,
@@ -752,7 +797,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                 ms2_only,
                                                 exclude_mobility,
                                                 profile_bins,
-                                                encoding)
+                                                mz_encoding,
+                                                intensity_encoding,
+                                                mobility_encoding)
 
             # Use plate map to determine filename.
             # Names things as sample_position.mzML
@@ -784,14 +831,18 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                     write_ms1_spectrum(writer,
                                                        data,
                                                        scan,
-                                                       encoding,
+                                                       mz_encoding,
+                                                       intensity_encoding,
+                                                       mobility_encoding,
                                                        compression,
                                                        title=plate_map_dict[scan.coord])
                                 elif scan.ms_level == 2:
                                     write_ms2_spectrum(writer,
                                                        data,
                                                        scan,
-                                                       encoding,
+                                                       mz_encoding,
+                                                       intensity_encoding,
+                                                       mobility_encoding,
                                                        compression,
                                                        title=plate_map_dict[scan.coord])
                 logging.info(get_iso8601_timestamp() + ':' + 'Finished writing to .mzML file ' +
@@ -821,7 +872,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                 mode,
                                                 ms2_only,
                                                 profile_bins,
-                                                encoding)
+                                                mz_encoding,
+                                                intensity_encoding,
+                                                mobility_encoding)
             # Parse TDF data.
             elif data.analysis[metadata_key]['SchemaType'] == 'TDF':
                 list_of_scans = parse_maldi_tdf(data,
@@ -831,7 +884,9 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                                 ms2_only,
                                                 exclude_mobility,
                                                 profile_bins,
-                                                encoding)
+                                                mz_encoding,
+                                                intensity_encoding,
+                                                mobility_encoding)
 
             # Parse plate map.
             plate_map_dict = parse_maldi_plate_map(plate_map)
@@ -878,14 +933,18 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
                                             write_ms1_spectrum(writer,
                                                                data,
                                                                scan,
-                                                               encoding,
+                                                               mz_encoding,
+                                                               intensity_encoding,
+                                                               mobility_encoding,
                                                                compression,
                                                                title=key)
                                         elif scan.ms_level == 2:
                                             write_ms2_spectrum(writer,
                                                                data,
                                                                scan,
-                                                               encoding,
+                                                               mz_encoding,
+                                                               intensity_encoding,
+                                                               mobility_encoding,
                                                                compression,
                                                                title=key)
 
@@ -900,7 +959,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
 
 def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, profile_bins,
-                                   encoding):
+                                   mz_encoding, intensity_encoding, mobility_encoding):
     """
     Parse and write out a group of spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
 
@@ -918,8 +977,12 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
     :type exclude_mobility: bool
     :param profile_bins: Number of bins to bin spectrum to.
     :type profile_bins: int
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     """
     # Parse and write TSF data.
     if isinstance(data, TimsconvertTsfData):
@@ -928,7 +991,9 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
                                         frame_stop, mode,
                                         False,
                                         profile_bins,
-                                        encoding)
+                                        mz_encoding,
+                                        intensity_encoding,
+                                        mobility_encoding)
         for scans in list_of_scans:
             imzml_file.addSpectrum(scans.mz_array,
                                    scans.intensity_array,
@@ -942,7 +1007,9 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
                                         False,
                                         exclude_mobility,
                                         profile_bins,
-                                        encoding)
+                                        mz_encoding,
+                                        intensity_encoding,
+                                        mobility_encoding)
         if mode == 'profile':
             exclude_mobility = True
         if not exclude_mobility:
@@ -958,8 +1025,8 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
                                        scans.coord)
 
 
-def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, encoding,
-                          compression, chunk_size=10):
+def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, mz_encoding,
+                          intensity_encoding, mobility_encoding, compression, chunk_size=10):
     """
     Parse and write out spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
 
@@ -979,8 +1046,12 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
     :param imzml_mode: Whether to export spectra in "processed" (individual m/z and intensity arrays per pixel) or
         "continuous" mode (single m/z array for the entire dataset, individual intensity arrays per pixel).
     :type imzml_mode: str
-    :param encoding: Encoding command line parameter, either "64" or "32".
-    :type encoding: int
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
     :param compression: Compression command line parameter, either "zlib" or "none".
     :type compression: str
     :param chunk_size: Number of MS1 spectra that to be used when subsetting dataset into smaller groups to pass onto
@@ -1012,8 +1083,8 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                              polarity=polarity,
                              mode=imzml_mode,
                              spec_type=mode,
-                             mz_dtype=get_encoding_dtype(encoding),
-                             intensity_dtype=get_encoding_dtype(encoding),
+                             mz_dtype=get_encoding_dtype(mz_encoding),
+                             intensity_dtype=get_encoding_dtype(intensity_encoding),
                              mz_compression=compression_object,
                              intensity_compression=compression_object,
                              include_mobility=False)
@@ -1028,9 +1099,9 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  polarity=polarity,
                                  mode=imzml_mode,
                                  spec_type=mode,
-                                 mz_dtype=get_encoding_dtype(encoding),
-                                 intensity_dtype=get_encoding_dtype(encoding),
-                                 mobility_dtype=get_encoding_dtype(encoding),
+                                 mz_dtype=get_encoding_dtype(mz_encoding),
+                                 intensity_dtype=get_encoding_dtype(intensity_encoding),
+                                 mobility_dtype=get_encoding_dtype(mobility_encoding),
                                  mz_compression=compression_object,
                                  intensity_compression=compression_object,
                                  mobility_compression=compression_object,
@@ -1040,8 +1111,8 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  polarity=polarity,
                                  mode=imzml_mode,
                                  spec_type=mode,
-                                 mz_dtype=get_encoding_dtype(encoding),
-                                 intensity_dtype=get_encoding_dtype(encoding),
+                                 mz_dtype=get_encoding_dtype(mz_encoding),
+                                 intensity_dtype=get_encoding_dtype(intensity_encoding),
                                  mz_compression=compression_object,
                                  intensity_compression=compression_object,
                                  include_mobility=False)
@@ -1069,7 +1140,9 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                                mode,
                                                exclude_mobility,
                                                profile_bins,
-                                               encoding)
+                                               mz_encoding,
+                                               intensity_encoding,
+                                               mobility_encoding)
                 sys.stdout.write(get_iso8601_timestamp() +
                                  ':' +
                                  data.source_file.replace('/', '\\') +
@@ -1097,7 +1170,9 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                                mode,
                                                exclude_mobility,
                                                profile_bins,
-                                               encoding)
+                                               mz_encoding,
+                                               intensity_encoding,
+                                               mobility_encoding)
                 sys.stdout.write(get_iso8601_timestamp() +
                                  ':' +
                                  data.source_file.replace('/', '\\') +

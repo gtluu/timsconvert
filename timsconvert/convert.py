@@ -88,7 +88,9 @@ def convert_raw_file(tuple_args):
                         run_args['ms2_only'],
                         run_args['exclude_mobility'],
                         run_args['profile_bins'],
-                        run_args['encoding'],
+                        run_args['mz_encoding'],
+                        run_args['intensity_encoding'],
+                        run_args['mobility_encoding'],
                         run_args['compression'],
                         run_args['barebones_metadata'])
 
@@ -105,7 +107,9 @@ def convert_raw_file(tuple_args):
                         run_args['ms2_only'],
                         run_args['exclude_mobility'],
                         run_args['profile_bins'],
-                        run_args['encoding'],
+                        run_args['mz_encoding'],
+                        run_args['intensity_encoding'],
+                        run_args['mobility_encoding'],
                         run_args['compression'],
                         run_args['barebones_metadata'])
 
@@ -124,7 +128,9 @@ def convert_raw_file(tuple_args):
                             run_args['ms2_only'],
                             run_args['exclude_mobility'],
                             run_args['profile_bins'],
-                            run_args['encoding'],
+                            run_args['mz_encoding'],
+                            run_args['intensity_encoding'],
+                            run_args['mobility_encoding'],
                             run_args['compression'],
                             run_args['maldi_output_file'],
                             run_args['maldi_plate_map'],
@@ -144,7 +150,9 @@ def convert_raw_file(tuple_args):
                               run_args['exclude_mobility'],
                               run_args['profile_bins'],
                               run_args['imzml_mode'],
-                              run_args['encoding'],
+                              run_args['mz_encoding'],
+                              run_args['intensity_encoding'],
+                              run_args['mobility_encoding'],
                               run_args['compression'])
 
     # TDF ESI-TIMS-MS Dataset
@@ -161,7 +169,9 @@ def convert_raw_file(tuple_args):
                         run_args['ms2_only'],
                         run_args['exclude_mobility'],
                         run_args['profile_bins'],
-                        run_args['encoding'],
+                        run_args['mz_encoding'],
+                        run_args['intensity_encoding'],
+                        run_args['mobility_encoding'],
                         run_args['compression'],
                         run_args['barebones_metadata'])
 
@@ -180,7 +190,9 @@ def convert_raw_file(tuple_args):
                             run_args['ms2_only'],
                             run_args['exclude_mobility'],
                             run_args['profile_bins'],
-                            run_args['encoding'],
+                            run_args['mz_encoding'],
+                            run_args['intensity_encoding'],
+                            run_args['mobility_encoding'],
                             run_args['compression'],
                             run_args['maldi_output_file'],
                             run_args['maldi_plate_map'],
@@ -200,7 +212,9 @@ def convert_raw_file(tuple_args):
                               run_args['exclude_mobility'],
                               run_args['profile_bins'],
                               run_args['imzml_mode'],
-                              run_args['encoding'],
+                              run_args['mz_encoding'],
+                              run_args['intensity_encoding'],
+                              run_args['mobility_encoding'],
                               run_args['compression'])
 
     else:

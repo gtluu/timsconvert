@@ -5,8 +5,7 @@ from pyTDFSDK.util import get_centroid_status
 from pyBaf2Sql.classes import BafSpectrum
 
 
-def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bins, mz_encoding, intensity_encoding,
-                   mobility_encoding):
+def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bins, mz_encoding, intensity_encoding,):
     """
     Parse group of frames from LC-MS(/MS) data from Bruker BAF files acquired in MS1 only, Auto MS/MS, MRM MS/MS, isCID
     MS/MS, or bbCID MS/MS mode in otofControl.
@@ -27,8 +26,6 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     :type mz_encoding: int
     :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
     :type intensity_encoding: int
-    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
-    :type mobility_encoding: int
     :return: Tuple of (list of dictionaries containing MS1 spectrum data, list of dictionaries containing MS/MS
         spectrum data).
     :rtype: tuple[list[pyBaf2Sql.classes.BafSpectrum]]
@@ -52,8 +49,7 @@ def parse_lcms_baf(baf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     return list_of_parent_scans, list_of_product_scans
 
 
-def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bins, mz_encoding, intensity_encoding,
-                   mobility_encoding):
+def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bins, mz_encoding, intensity_encoding):
     """
     Parse group of frames from LC-MS(/MS) data from Bruker TSF files acquired in Auto MS/MS mode MS1 only, Auto MS/MS,
     MRM MS/MS, or bbCID MS/MS mode in timsControl.
@@ -74,8 +70,6 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     :type mz_encoding: int
     :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
     :type intensity_encoding: int
-    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
-    :type mobility_encoding: int
     :return: Tuple of (list of dictionaries containing MS1 spectrum data, list of dictionaries containing MS/MS
         spectrum data).
     :rtype: tuple[list[pyTDFSDK.classes.TsfSpectrum]]
@@ -83,7 +77,7 @@ def parse_lcms_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_bi
     list_of_parent_scans = []
     list_of_product_scans = []
     for frame in range(frame_start, frame_stop):
-        scan = TsfSpectrum(tsf_data, frame, mode, profile_bins, encoding)
+        scan = TsfSpectrum(tsf_data, frame, mode, profile_bins, mz_encoding, intensity_encoding)
         if scan.mz_array is not None and scan.intensity_array is not None and \
                 scan.mz_array.size != 0 and scan.intensity_array.size != 0 and \
                 scan.mz_array.size == scan.intensity_array.size:

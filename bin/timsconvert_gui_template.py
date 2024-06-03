@@ -49,7 +49,11 @@ class Ui_TimsconvertGuiWindow(object):
         self.InputList.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         # Populate the table with some sample data
         self.InputList.setRowCount(0)
-        self.populate_table([])
+        old_row_count = self.InputList.rowCount()
+        self.InputList.setRowCount(self.InputList.rowCount() + len([]))
+        for row, input_filename in enumerate([], start=old_row_count):
+            text_item = QTableWidgetItem(input_filename)
+            self.InputList.setItem(row, 0, text_item)
 
         # Output Directory
         # Label
@@ -309,7 +313,7 @@ class Ui_TimsconvertGuiWindow(object):
             QCoreApplication.translate("TimsconvertGuiWindow", u"Only Include Barebones Metadata", None))
         self.RunButton.setText(QCoreApplication.translate("TimsconvertGuiWindow", u"Convert Data", None))
 
-    def populate_table(self, data):  # data should be a list of tuples (input_filename, progress_value)
+    def populate_table(self, data):
         old_row_count = self.InputList.rowCount()
         self.InputList.setRowCount(self.InputList.rowCount() + len(data))
         for row, input_filename in enumerate(data, start=old_row_count):

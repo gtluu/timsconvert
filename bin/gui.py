@@ -8,7 +8,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFo
                            QKeySequence, QLinearGradient, QPainter, QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QListView, QMainWindow, QPushButton,
                                QRadioButton, QSizePolicy, QSpinBox, QWidget, QFileDialog, QProgressBar, QDialog,
-                               QDialogButtonBox, QVBoxLayout, QMessageBox)
+                               QDialogButtonBox, QVBoxLayout, QMessageBox, QTableWidgetItem)
 from timsconvert_gui_template import Ui_TimsconvertGuiWindow
 
 # TODO: add comments
@@ -16,6 +16,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
     def __init__(self):
         super(TimsconvertGuiWindow, self).__init__()
 
+        self.input = {}
         self.args = {'input': [],  # QLineEdit + QPushButton (select directory dialogue button)
                      'outdir': '',  # QLineEdit + QPushButton (select directory dialogue button)
                      'mode': 'centroid',  # QRadioButton
@@ -83,9 +84,16 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             elif input_path.endswith('.d'):
                 new_input = [input_path]
             new_input = [i.replace('/', '\\') for i in new_input]
-            self.args['input'] = self.args['input'] + new_input
-            new_input = [os.path.split(i)[-1] for i in new_input]
-            self.populate_table(new_input)
+            old_row_count = self.InputList.rowCount()
+            self.InputList.setRowCount(self.InputList.rowCount() + len(new_input))
+            for row, input_filename in enumerate(new_input, start=old_row_count):
+                new_key = os.path.split(input_filename)[-1]
+                if new_key in self.input.keys():
+                    copy_count = len([i for i in self.input.keys() if i.startswith(new_key)])
+                    new_key += f'({str(copy_count)})'
+                self.input[new_key] = input_filename
+                text_item = QTableWidgetItem(new_key)
+                self.InputList.setItem(row, 0, text_item)
 
     def select_output_directory(self):
         self.args['outdir'] = QFileDialog().getExistingDirectory(self, 'Select Directory...', '').replace('/', '\\')
@@ -104,6 +112,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
     def remove_from_queue(self):
         for row in sorted([i.row() for i in self.selected_row_from_queue], reverse=True):
+            del self.input[self.InputList.item(row, 0).text()]
             self.InputList.removeRow(row)
 
     def run(self):
@@ -114,6 +123,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.RunButton.setEnabled(False)
 
         # Collect arguments from GUI.
+        self.args['input'] = list(self.input.values())
         self.args['outdir'] = str(self.OutputDirectoryLine.text())
         if (self.ModeProfileRadio.isChecked() and
                 not self.ModeCentroidRadio.isChecked() and
@@ -249,6 +259,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         finished_button = finished.exec()
 
         if finished_button == QMessageBox.StandardButton.Ok:
+            self.input = {}
             self.args['input'] = []
             self.InputList.setRowCount(0)
             self.AddInputDialogueButton.setEnabled(True)

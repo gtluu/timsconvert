@@ -61,11 +61,6 @@ def get_args(server=False):
     optional.add_argument('--exclude_mobility',
                           help=arg_descriptions['exclude_mobility'],
                           action='store_true')
-    #optional.add_argument('--encoding',
-    #                      help=arg_descriptions['encoding'],
-    #                      default=64,
-    #                      type=int,
-    #                      choices=[32, 64])
     optional.add_argument('--mz_encoding',
                           help=arg_descriptions['mz_encoding'],
                           default=64,

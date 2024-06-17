@@ -11,8 +11,12 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QList
                                QDialogButtonBox, QVBoxLayout, QMessageBox, QTableWidgetItem)
 from timsconvert_gui_template import Ui_TimsconvertGuiWindow
 
-# TODO: add comments
+
 class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
+    """
+    Class containing all attributes and methods to parse and process GUI parameters for the TIMSCONVERT GUI. UI elements
+    are inherited from Ui_TimsconvertGuiWindow.
+    """
     def __init__(self):
         super(TimsconvertGuiWindow, self).__init__()
 
@@ -25,7 +29,9 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                      'use_raw_calibration': False,  # QCheckbox
                      'pressure_compensation_strategy': 'none',  # QRadioButton
                      'exclude_mobility': False,  # QCheckbox
-                     'encoding': 64,  # QRadioButton
+                     'mz_encoding': 64,  # QRadioButton
+                     'intensity_encoding': 64,  # QRadioButton
+                     'mobility_encoding': 64,  # QRadioButton
                      'barebones_metadata': False,  # QCheckbox
                      'profile_bins': 0,  # QLineEdit
                      'maldi_output_file': 'combined',  # QRadioButton
@@ -67,6 +73,10 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.RunButton.clicked.connect(self.run)
 
     def show_hide_binning(self):
+        """
+        Set the visibility of the m/z binning parameters GUI elements based on whether or not Profile mode conversion
+        is selected.
+        """
         if self.ModeProfileRadio.isChecked():
             self.NumBinsLabel.setVisible(True)
             self.BinSpectraCheckbox.setVisible(True)
@@ -77,6 +87,11 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.NumBinsSpinBox.setVisible(False)
 
     def browse_input(self):
+        """
+        Open a QFileDialog to get the path of a directory. The directory can either be a Bruker .d directory for a
+        single file or a directory containing one or more Bruker .d directories, which will result in all .d directories
+        in all subdirectories being loaded.
+        """
         input_path = QFileDialog().getExistingDirectory(self, 'Select Directory...', '')
         if os.path.isdir(input_path):
             if not input_path.endswith('.d'):
@@ -96,6 +111,9 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                 self.InputList.setItem(row, 0, text_item)
 
     def select_output_directory(self):
+        """
+        Open a QFileDialog to get the path of the directory in which the converted output files will be saved to.
+        """
         self.args['outdir'] = QFileDialog().getExistingDirectory(self, 'Select Directory...', '').replace('/', '\\')
         self.OutputDirectoryLine.setText(self.args['outdir'])
 
@@ -108,14 +126,25 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.MaldiPlateMapLine.setText(self.args['maldi_plate_map'])
 
     def select_from_queue(self):
+        """
+        Select rows from the InputList QTableWidget object and save their indices to the selected_row_from_queue
+        attribute.
+        """
         self.selected_row_from_queue = self.InputList.selectionModel().selectedIndexes()
 
     def remove_from_queue(self):
+        """
+        Remove one or more selected rows from the InputList QTableWidget object.
+        """
         for row in sorted([i.row() for i in self.selected_row_from_queue], reverse=True):
             del self.input[self.InputList.item(row, 0).text()]
             self.InputList.removeRow(row)
 
     def run(self):
+        """
+        Parse all arguments from GUI elements and run the TIMSCONVERT conversion workflow.
+        """
+        # Gray out and disable ability to click all buttons.
         self.AddInputDialogueButton.setEnabled(False)
         self.RemoveFromQueueButton.setEnabled(False)
         self.OutputDirectoryBrowseButton.setEnabled(False)
@@ -165,10 +194,18 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.args['exclude_mobility'] = True
         else:
             self.args['exclude_mobility'] = False
-        if self.Encoding64Radio.isChecked() and not self.Encoding32Radio.isChecked():
-            self.args['encoding'] = 64
-        elif not self.Encoding64Radio.isChecked() and self.Encoding32Radio.isChecked():
-            self.args['encoding'] = 32
+        if self.MZEncoding64Radio.isChecked() and not self.MZEncoding32Radio.isChecked():
+            self.args['mz_encoding'] = 64
+        elif not self.MZEncoding64Radio.isChecked() and self.MZEncoding32Radio.ischecked():
+            self.args['mz_encoding'] = 32
+        if self.IntensityEncoding64Radio.isChecked() and not self.IntensityEncoding32Radio.isChecked():
+            self.args['intensity_encoding'] = 64
+        elif not self.IntensityEncoding64Radio.isChecked() and self.IntensityEncoding32Radio.isChecked():
+            self.args['intensity_encoding'] = 32
+        if self.MobilityEncoding64Radio.isChecked() and not self.MobilityEncoding32Radio.isChecked():
+            self.args['mobility_encoding'] = 64
+        elif not self.MobilityEncoding64Radio.isChecked() and self.MobilityEncoding32Radio.isChecked():
+            self.args['mobility_encoding'] = 32
         if self.BarebonesMetadataCheckbox.isChecked():
             self.args['barebones_metadata'] = True
         else:
@@ -219,6 +256,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                 progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.InputList.setCellWidget(row, 0, progress_bar)
         else:
+            # Show error message if no files are found in the queue.
             error = QMessageBox(self)
             error.setWindowTitle('Error')
             error.setText('No input files found in the queue.')
@@ -230,6 +268,10 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             error.exec()
 
     def handle_stdout(self):
+        """
+        Use the stdout stream text to update the percentage values in the progress bars found in each row of the input
+        list queue.
+        """
         data = self.process.readAllStandardOutput()
         stdout = bytes(data).decode('utf8')
         percentage = re.search(r'(\d+)%', stdout)
@@ -240,6 +282,9 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.InputList.findChild(QProgressBar, dot_d_file).setValue(percentage)
 
     def handle_stderr(self):
+        """
+        Use the stderr stream text to output any errors to an error log and an error message box.
+        """
         data = self.process.readAllStandardError()
         stderr = bytes(data).decode('utf8')
         error = QMessageBox(self)
@@ -253,6 +298,9 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         error.exec()
 
     def process_finished(self):
+        """
+        Show a QMessageBox on completion to show that TIMSCONVERT has finished converting data from the current queue.
+        """
         finished = QMessageBox(self)
         finished.setWindowTitle('TIMSCONVERT')
         finished.setText('TIMSCONVERT has finished running.')

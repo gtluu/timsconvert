@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>800</height>
+    <height>935</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,7 +30,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>660</y>
+      <y>810</y>
       <width>381</width>
       <height>24</height>
      </rect>
@@ -140,7 +140,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>700</y>
+      <y>850</y>
       <width>381</width>
       <height>24</height>
      </rect>
@@ -162,11 +162,11 @@
      <string>Binary Encoding Precision</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="Encoding64Radio">
+   <widget class="QRadioButton" name="MZEncoding64Radio">
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>249</y>
+      <y>280</y>
       <width>89</width>
       <height>21</height>
      </rect>
@@ -178,11 +178,11 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QRadioButton" name="Encoding32Radio">
+   <widget class="QRadioButton" name="MZEncoding32Radio">
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>250</y>
+      <y>280</y>
       <width>89</width>
       <height>21</height>
      </rect>
@@ -195,7 +195,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>389</y>
+      <y>529</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -211,7 +211,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>420</y>
+      <y>560</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -224,7 +224,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>450</y>
+      <y>590</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -282,7 +282,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>520</y>
+      <y>660</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -295,7 +295,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>550</y>
+      <y>690</y>
       <width>351</width>
       <height>20</height>
      </rect>
@@ -311,7 +311,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>580</y>
+      <y>720</y>
       <width>351</width>
       <height>20</height>
      </rect>
@@ -324,7 +324,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>610</y>
+      <y>750</y>
       <width>351</width>
       <height>20</height>
      </rect>
@@ -337,7 +337,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>680</y>
+      <y>820</y>
       <width>271</width>
       <height>22</height>
      </rect>
@@ -353,7 +353,7 @@
     <property name="geometry">
      <rect>
       <x>710</x>
-      <y>680</y>
+      <y>820</y>
       <width>61</width>
       <height>24</height>
      </rect>
@@ -366,7 +366,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>650</y>
+      <y>790</y>
       <width>351</width>
       <height>20</height>
      </rect>
@@ -379,7 +379,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>720</y>
+      <y>860</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -392,7 +392,7 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>751</y>
+      <y>891</y>
       <width>89</width>
       <height>21</height>
      </rect>
@@ -405,7 +405,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>750</y>
+      <y>890</y>
       <width>89</width>
       <height>21</height>
      </rect>
@@ -421,7 +421,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>480</y>
+      <y>620</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -434,7 +434,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>740</y>
+      <y>890</y>
       <width>381</width>
       <height>24</height>
      </rect>
@@ -449,7 +449,7 @@
       <x>20</x>
       <y>20</y>
       <width>381</width>
-      <height>621</height>
+      <height>771</height>
      </rect>
     </property>
    </widget>
@@ -457,7 +457,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>290</y>
+      <y>430</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -470,7 +470,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>360</y>
+      <y>500</y>
       <width>351</width>
       <height>21</height>
      </rect>
@@ -486,7 +486,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>319</y>
+      <y>459</y>
       <width>89</width>
       <height>21</height>
      </rect>
@@ -502,7 +502,7 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>320</y>
+      <y>460</y>
       <width>89</width>
       <height>21</height>
      </rect>
@@ -515,13 +515,110 @@
     <property name="geometry">
      <rect>
       <x>670</x>
-      <y>320</y>
+      <y>460</y>
       <width>89</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>Per Frame</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MZEncodingLabel">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>250</y>
+      <width>351</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>m/z Encoding Precision</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IntensityEncodingLabel">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>310</y>
+      <width>351</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Intensity Encoding Precision</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IntensityEncoding32Radio">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>340</y>
+      <width>89</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>32 bit</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="IntensityEncoding64Radio">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>340</y>
+      <width>89</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>64 bit</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MobilityEncodingLabel">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>370</y>
+      <width>351</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mobility Encoding Precision</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="MobilityEncoding64Radio">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>400</y>
+      <width>89</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>64 bit</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="MobilityEncoding32Radio">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>400</y>
+      <width>89</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>32 bit</string>
     </property>
    </widget>
   </widget>

@@ -55,7 +55,7 @@ def get_args(server=False):
                           action='store_true')
     optional.add_argument('--pressure_compensation_strategy',
                           help=arg_descriptions['pressure_compensation_strategy'],
-                          default='none',
+                          default='global',
                           type=str,
                           choices=['none', 'global', 'frame'])
     optional.add_argument('--exclude_mobility',

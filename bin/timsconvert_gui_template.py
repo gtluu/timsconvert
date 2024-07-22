@@ -177,7 +177,7 @@ class Ui_TimsconvertGuiWindow(object):
         self.MobilityCompensationGroup.addButton(self.MobilityCompensationNoneRadio)
         self.MobilityCompensationGroup.addButton(self.MobilityCompensationGlobalRadio)
         self.MobilityCompensationGroup.addButton(self.MobilityCompensationFrameRadio)
-        self.MobilityCompensationNoneRadio.setChecked(True)
+        self.MobilityCompensationGlobalRadio.setChecked(True)
 
         # Use Recalibrated Data
         self.RecalibratedDataCheckbox = QCheckBox(self.main)

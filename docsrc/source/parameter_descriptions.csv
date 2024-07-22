@@ -7,7 +7,9 @@ ms2_only,Boolean flag that specifies only MS2 spectra should be converted.
 use_raw_calibration,TIMSCONVERT uses the recalibrated data when available. Use this flag to prevent use of recalibrated data and instead use the raw uncalibrated data.
 pressure_compensation_strategy,"Whether to parse data as is (""none""), apply global pressure compensation (""global""), or apply per frame pressure compensation (""frame""). Defaults to ""none""."
 exclude_mobility,Boolean flag used to exclude trapped ion mobility spectrometry data from exported data. Precursor ion mobility information is still exported.
-encoding,"Choose encoding for binary arrays: 32-bit (""32"") or 64-bit (""64""). Defaults to 64-bit."
+mz_encoding,"Choose encoding for mz array: 32-bit (""32"") or 64-bit (""64""). Defaults to 64-bit."
+intensity_encoding,"Choose encoding for intensity array: 32-bit (""32"") or 64-bit (""64""). Defaults to 64-bit."
+mobility_encoding,"Choose encoding for mobility array: 32-bit (""32"") or 64-bit (""64""). Defaults to 64-bit."
 profile_bins,Number of bins used to bin data when converting in profile mode. A value of 0 indicates no binning is performed. Defaults to 0.
 barebones_metadata,Only use basic mzML metadata. Use if downstream data analysis tools throw errors with descriptive CV terms.
 maldi_output_file,"For MALDI dried droplet data, whether individual scans should be placed in individual files (""individual""), combined into a single file (""combined""), or combined by sample label (""sample""). Defaults to ""combined""."

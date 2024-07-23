@@ -1,6 +1,5 @@
 from setuptools import setup
 import os
-from timsconvert import VERSION
 
 
 if os.path.isfile('requirements.txt'):
@@ -13,7 +12,7 @@ for package in install_requires:
 
 setup(
     name='timsconvert',
-    version=VERSION,
+    version='2.0.0a7',
     url='https://github.com/gtluu/timsconvert',
     license='Apache License',
     author='Gordon T. Luu',

@@ -248,8 +248,8 @@ def parse_maldi_tsf(tsf_data, frame_start, frame_stop, mode, ms2_only, profile_b
 def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_mobility, profile_bins, mz_encoding,
                     intensity_encoding, mobility_encoding):
     """
-    Parse group of frames from MALDI-MS(/MS) data from Bruker TDF files acquired in MS1 only, MS/MS, or bbCID MS/MS
-    mode in timsControl.
+    Parse group of frames from MALDI-MS(/MS) data from Bruker TDF files acquired in MS1 only, MS/MS, bbCID MS/MS, or
+    prmPASEF mode in timsControl.
 
     :param tdf_data: tdf_data object containing metadata from analysis.tdf database.
     :type tdf_data: timsconvert.classes.TimsconvertTdfData
@@ -276,15 +276,48 @@ def parse_maldi_tdf(tdf_data, frame_start, frame_stop, mode, ms2_only, exclude_m
     """
     list_of_scans = []
     exclude_mobility = get_centroid_status(mode, exclude_mobility)[1]
+
     for frame in range(frame_start, frame_stop):
-        scan = TdfSpectrum(tdf_data, frame, mode, profile_bins=profile_bins, mz_encoding=mz_encoding,
-                           intensity_encoding=intensity_encoding, mobility_encoding=mobility_encoding,
-                           exclude_mobility=exclude_mobility)
-        if scan.mz_array is not None and scan.intensity_array is not None and \
-                scan.mz_array.size != 0 and scan.intensity_array.size != 0 and \
-                scan.mz_array.size == scan.intensity_array.size:
-            if scan.ms_level == 1 and ms2_only:
-                pass
-            else:
+        # Parse MS1 frame(s).
+        frames_dict = tdf_data.analysis['Frames'][tdf_data.analysis['Frames']['Id'] ==
+                                                  frame].to_dict(orient='records')[0]
+
+        if int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms1'] and not ms2_only:
+            scan = TdfSpectrum(tdf_data, frame, mode, profile_bins=profile_bins, mz_encoding=mz_encoding,
+                               intensity_encoding=intensity_encoding, mobility_encoding=mobility_encoding,
+                               exclude_mobility=exclude_mobility)
+            if scan.mz_array is not None and scan.intensity_array is not None and \
+                    scan.mz_array.size != 0 and scan.intensity_array.size != 0 and \
+                    scan.mz_array.size == scan.intensity_array.size:
                 list_of_scans.append(scan)
+        elif int(frames_dict['MsMsType']) in MSMS_TYPE_CATEGORY['ms2']:
+            msms_mode_id = tdf_data.analysis['PropertyDefinitions'][tdf_data.analysis['PropertyDefinitions']['PermanentName'] ==
+                                                                    'Mode_ScanMode'].to_dict(orient='records')[0]['Id']
+            msms_mode = tdf_data.analysis['Properties'][(tdf_data.analysis['Properties']['Frame'] == frame) &
+                                                        (tdf_data.analysis['Properties']['Property'] == msms_mode_id)].to_dict(orient='records')[0]['Value']
+            # Parse frames with MALDI MS/MS spectra (coded as MRM in the schema) and MALDI bbCID spectra.
+            if msms_mode == 3 or msms_mode == 5:
+                scan = TdfSpectrum(tdf_data, frame, mode, profile_bins=profile_bins, mz_encoding=mz_encoding,
+                                   intensity_encoding=intensity_encoding, mobility_encoding=mobility_encoding,
+                                   exclude_mobility=exclude_mobility)
+                if scan.mz_array is not None and scan.intensity_array is not None and \
+                        scan.mz_array.size != 0 and scan.intensity_array.size != 0 and \
+                        scan.mz_array.size == scan.intensity_array.size:
+                    list_of_scans.append(scan)
+            # Parse frames with MALDI prmPASEF spectra.
+            elif msms_mode == 12:
+                diaframemsmsinfo_dict = tdf_data.analysis['DiaFrameMsMsInfo'][tdf_data.analysis['DiaFrameMsMsInfo']['Frame'] ==
+                                                                              frame].to_dict(orient='records')[0]
+                diaframemsmswindows_dicts = tdf_data.analysis['DiaFrameMsMsWindows'][tdf_data.analysis['DiaFrameMsMsWindows']['WindowGroup'] ==
+                                                                                    diaframemsmsinfo_dict['WindowGroup']].to_dict(orient='records')
+
+                for diaframemsmswindows_dict in diaframemsmswindows_dicts:
+                    scan = TdfSpectrum(tdf_data, frame, mode, diapasef_window=diaframemsmswindows_dict,
+                                       profile_bins=profile_bins, mz_encoding=mz_encoding,
+                                       intensity_encoding=intensity_encoding, mobility_encoding=mobility_encoding,
+                                       exclude_mobility=exclude_mobility)
+                    if scan.mz_array is not None and scan.intensity_array is not None and \
+                            scan.mz_array.size != 0 and scan.intensity_array.size != 0 and \
+                            scan.mz_array.size == scan.intensity_array.size:
+                        list_of_scans.append(scan)
     return list_of_scans

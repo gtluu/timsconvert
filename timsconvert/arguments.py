@@ -7,7 +7,7 @@ from timsconvert.timestamp import *
 
 
 # Parse arguments for CLI usage
-def get_args(server=False):
+def get_args():
     """
     Parse command line parameters, including required, optional, and system parameters.
 
@@ -103,12 +103,6 @@ def get_args(server=False):
     system.add_argument('--verbose',
                         help=arg_descriptions['verbose'],
                         action='store_true')
-    if server:
-        # change to GNPS URL later
-        system.add_argument('--url',
-                            help=arg_descriptions['url'],
-                            default='http://localhost:5000',
-                            type=str)
 
     # Return parser
     arguments = parser.parse_args()

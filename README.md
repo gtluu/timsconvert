@@ -30,14 +30,6 @@ Unfortunately, macOS is not compatible with the Bruker TDF-SDK API that is neces
 
 ## Usage
 
-### GNPS TIMSCONVERT Workflow
-
-The [web version of TIMSCONVERT](https://proteomics2.ucsd.edu/ProteoSAFe/index.jsp?params=%7b%22workflow%22%3A%20%22TIMSCONVERT%22%7d) 
-currently supports various data formats listed below. No installation is necessary. All that's required is a GNPS 
-account. Usage instructions can be found [here](https://gtluu.github.io/timsconvert/gnps.html).
-
-### Using TIMSCONVERT Locally
-
 The CLI version of TIMSCONVERT supports conversion of all experimental data types specified above. The 
 ```timsconvert``` command can be used to run TIMSCONVERT. Unless specified, all other default values for all other 
 parameters will be used.

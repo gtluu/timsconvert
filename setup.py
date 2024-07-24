@@ -12,7 +12,7 @@ for package in install_requires:
 
 setup(
     name='timsconvert',
-    version='2.0.0a8',
+    version='2.0.0a9',
     url='https://github.com/gtluu/timsconvert',
     license='Apache License',
     author='Gordon T. Luu',

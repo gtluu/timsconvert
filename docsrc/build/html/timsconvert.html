@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>timsconvert package &#8212; TIMSCONVERT 2.0.0a5 documentation</title>
+    <title>timsconvert package &#8212; TIMSCONVERT 2.0.0a9 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
-    <script src="_static/documentation_options.js?v=683eb3c5"></script>
+    <script src="_static/documentation_options.js?v=b7dc9a6d"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -52,7 +52,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="timsconvert.arguments.get_args">
-<span class="sig-prename descclassname"><span class="pre">timsconvert.arguments.</span></span><span class="sig-name descname"><span class="pre">get_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.arguments.get_args" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">timsconvert.arguments.</span></span><span class="sig-name descname"><span class="pre">get_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.arguments.get_args" title="Link to this definition">¶</a></dt>
 <dd><p>Parse command line parameters, including required, optional, and system parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -321,8 +321,8 @@ spectrum data).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="timsconvert.parse.parse_maldi_tdf">
 <span class="sig-prename descclassname"><span class="pre">timsconvert.parse.</span></span><span class="sig-name descname"><span class="pre">parse_maldi_tdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tdf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms2_only</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_mobility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mz_encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mobility_encoding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#timsconvert.parse.parse_maldi_tdf" title="Link to this definition">¶</a></dt>
-<dd><p>Parse group of frames from MALDI-MS(/MS) data from Bruker TDF files acquired in MS1 only, MS/MS, or bbCID MS/MS
-mode in timsControl.</p>
+<dd><p>Parse group of frames from MALDI-MS(/MS) data from Bruker TDF files acquired in MS1 only, MS/MS, bbCID MS/MS, or
+prmPASEF mode in timsControl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -687,7 +687,6 @@ UserParams.</p></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="local.html">Local Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TIMSCONVERT Source Code</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
@@ -739,7 +738,7 @@ UserParams.</p></li>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2024, Gordon T. Luu.
+      &#169;2021-2024, Gordon T. Luu.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>

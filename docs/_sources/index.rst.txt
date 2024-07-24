@@ -23,7 +23,6 @@ Contents
    Introduction <introduction>
    Installation <installation>
    Local Usage <local>
-   GNPS Usage <gnps>
    Advanced Usage <advanced>
    TIMSCONVERT Source Code <timsconvert>
    Modules <modules>

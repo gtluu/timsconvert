@@ -17,7 +17,7 @@ setup(
     license='Apache License',
     author='Gordon T. Luu',
     author_email='gtluu912@gmail.com',
-    packages=['timsconvert', 'bin', 'client', 'docs', 'docsrc', 'server', 'test'],
+    packages=['timsconvert', 'bin', 'docs', 'docsrc', 'test'],
     include_package_data=True,
     package_data={'': ['*.dll', '*.so'],
                   'timsconvert': ['*.json']},

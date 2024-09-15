@@ -323,6 +323,9 @@ def main():
     window = TimsconvertGuiWindow()
     window.show()
 
+    app.setWindowIcon(QIcon('imgs/timsconvert_icon.ico'))
+    window.setWindowIcon(QIcon('imgs/timsconvert_icon.ico'))
+
     app.exec()
 
 

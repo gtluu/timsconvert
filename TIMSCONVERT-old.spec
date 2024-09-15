@@ -39,8 +39,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    contents_directory='.',
-    icon='imgs/timsconvert_icon.ico'
 )
 coll = COLLECT(
     exe,

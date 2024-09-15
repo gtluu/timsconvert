@@ -9,7 +9,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFo
 from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QListView, QMainWindow, QPushButton,
                                QRadioButton, QSizePolicy, QSpinBox, QWidget, QFileDialog, QProgressBar, QDialog,
                                QDialogButtonBox, QVBoxLayout, QMessageBox, QTableWidgetItem)
-from timsconvert_gui_template import Ui_TimsconvertGuiWindow
+from timsconvert.timsconvert_gui_template import Ui_TimsconvertGuiWindow
 
 
 class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
@@ -235,7 +235,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         # Convert Data
         if len(self.args['input']) > 0:
             # Build and run command in QProcess.
-            process_args = ['run.py']
+            process_args = ['TIMSCONVERT_CMD.py']
             for key, value in self.args.items():
                 if key == 'input':
                     process_args.append(f'--input')
@@ -317,10 +317,14 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             self.RunButton.setEnabled(True)
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication([])
 
     window = TimsconvertGuiWindow()
     window.show()
 
     app.exec()
+
+
+if __name__ == '__main__':
+    main()

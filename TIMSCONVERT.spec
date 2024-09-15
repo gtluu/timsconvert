@@ -2,12 +2,11 @@
 
 
 a = Analysis(
-    ['bin\\gui.py'],
+    ['TIMSCONVERT_GUI.py'],
     pathex=[],
     binaries=[],
     datas=[
 				('timsconvert', 'timsconvert'),
-				('bin', 'bin'),
 				('docs', 'docs'),
 				('docsrc', 'docsrc'),
 				('test', 'test'),

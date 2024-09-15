@@ -18,9 +18,13 @@ pillow
 pkgconfig
 psims
 pyparsing
+pyside6
+Pyside6-Addons
+Pyside6-Essentials
 python-dateutil
 pytz
 requests
+shiboken6
 six
 sqlalchemy
 typing-extensions

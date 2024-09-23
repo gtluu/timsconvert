@@ -6,15 +6,17 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-				('TIMSCONVERT_CMD.py', '.'),
-				('timsconvert', 'timsconvert'),
-				('docs', 'docs'),
-				('docsrc', 'docsrc'),
-				('imgs', 'imgs'),
-				('test', 'test'),
-				('C:\\Users\\bass\\.conda\\envs\\timsconvert\\Lib\\site-packages\\TDF-SDK', 'TDF-SDK')
+		('TIMSCONVERT_CMD.py', '.'),
+		('timsconvert', 'timsconvert'),
+		('docs', 'docs'),
+		('docsrc', 'docsrc'),
+		('imgs', 'imgs'),
+        ('test', 'test'),
+        ('C:\\Users\\bass\\.conda\\envs\\timsconvert\\Lib\\site-packages\\TDF-SDK', 'TDF-SDK'),
+        ('C:\\Users\\bass\\.conda\\envs\\timsconvert\\Lib\\site-packages\\Baf2Sql', 'Baf2Sql')
+
 	],
-    hiddenimports=[],
+    hiddenimports=['PySide6.QtCore', 'PySide6.QtWidgets', 'PySide6.QtGui'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

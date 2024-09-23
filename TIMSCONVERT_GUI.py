@@ -1,7 +1,8 @@
 import os
+import sys
+import io
 import re
 import logging
-from multiprocessing import Pool, cpu_count, freeze_support
 from timsconvert.data_input import dot_d_detection
 from timsconvert.timestamp import get_timestamp, get_iso8601_timestamp
 from timsconvert.convert import convert_raw_file, clean_up_logfiles
@@ -237,6 +238,15 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
         # Convert Data
         if len(self.args['input']) > 0:
+            # Replace queue list with progress bars.
+            for row in range(self.InputList.rowCount()):
+                progress_bar = QProgressBar()
+                progress_bar.setValue(0)
+                progress_bar.setFormat(f"{self.InputList.item(row, 0).text()}")
+                progress_bar.setObjectName(f"{self.InputList.item(row, 0).text()}")
+                progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.InputList.setCellWidget(row, 0, progress_bar)
+
             # Load in input data.
             input_files = []
             for dirpath in self.args['input']:
@@ -250,10 +260,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                         logging.info(get_iso8601_timestamp() + ':' + 'Skipping...')
 
             # Convert each sample.
-            with Pool(processes=cpu_count() - 1) as pool:
-                pool_map_input = [(self.args, infile) for infile in input_files]
-                list_of_logfiles = pool.map(convert_raw_file, pool_map_input)
-            list_of_logfiles = list(filter(None, list_of_logfiles))
+            list_of_logfiles = [convert_raw_file((self.args, infile)) for infile in input_files]
 
             # Shutdown logger.
             logging.shutdown()
@@ -261,14 +268,32 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             # Clean up temporary log files.
             clean_up_logfiles(self.args, list_of_logfiles)
 
-            # Replace queue list with progress bars.
-            for row in range(self.InputList.rowCount()):
-                progress_bar = QProgressBar()
-                progress_bar.setValue(0)
-                progress_bar.setFormat(f"{self.InputList.item(row, 0).text()}")
-                progress_bar.setObjectName(f"{self.InputList.item(row, 0).text()}")
-                progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.InputList.setCellWidget(row, 0, progress_bar)
+            data = self.process.readAllStandardOutput()
+            stdout = bytes(data).decode('utf8')
+            percentage = re.search(r'(\d+)%', stdout)
+            dot_d_file = re.search(r'([^:/]+\.d)', stdout)
+            if percentage and dot_d_file:
+                percentage = int(percentage.group(1))
+                dot_d_file = dot_d_file.group(1).split('\\')[-1]
+                self.InputList.findChild(QProgressBar, dot_d_file).setValue(percentage)
+
+            # Show a QMessageBox on completion to show that TIMSCONVERT has finished converting data from the current
+            # queue.
+            finished = QMessageBox(self)
+            finished.setWindowTitle('TIMSCONVERT')
+            finished.setText('TIMSCONVERT has finished running.')
+            finished_button = finished.exec()
+
+            if finished_button == QMessageBox.StandardButton.Ok:
+                self.input = {}
+                self.args['input'] = []
+                self.InputList.setRowCount(0)
+                self.AddInputDialogueButton.setEnabled(True)
+                self.RemoveFromQueueButton.setEnabled(True)
+                self.OutputDirectoryBrowseButton.setEnabled(True)
+                self.MaldiPlateMapBrowseButton.setEnabled(True)
+                self.RunButton.setEnabled(True)
+
         else:
             # Show error message if no files are found in the queue.
             error = QMessageBox(self)
@@ -311,29 +336,8 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             error_log.write(stderr)
         error.exec()
 
-    def process_finished(self):
-        """
-        Show a QMessageBox on completion to show that TIMSCONVERT has finished converting data from the current queue.
-        """
-        finished = QMessageBox(self)
-        finished.setWindowTitle('TIMSCONVERT')
-        finished.setText('TIMSCONVERT has finished running.')
-        finished_button = finished.exec()
-
-        if finished_button == QMessageBox.StandardButton.Ok:
-            self.input = {}
-            self.args['input'] = []
-            self.InputList.setRowCount(0)
-            self.AddInputDialogueButton.setEnabled(True)
-            self.RemoveFromQueueButton.setEnabled(True)
-            self.OutputDirectoryBrowseButton.setEnabled(True)
-            self.MaldiPlateMapBrowseButton.setEnabled(True)
-            self.RunButton.setEnabled(True)
-
 
 def main():
-    freeze_support()
-
     app = QApplication([])
 
     window = TimsconvertGuiWindow()

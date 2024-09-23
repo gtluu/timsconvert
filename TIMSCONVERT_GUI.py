@@ -1,7 +1,10 @@
 import os
 import re
+import logging
+from multiprocessing import Pool, cpu_count, freeze_support
 from timsconvert.data_input import dot_d_detection
-from timsconvert.timestamp import get_timestamp
+from timsconvert.timestamp import get_timestamp, get_iso8601_timestamp
+from timsconvert.convert import convert_raw_file, clean_up_logfiles
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale, QMetaObject, QObject, QPoint, QRect, QSize,
                             QTime, QUrl, Qt, QTimer, QProcess)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QGradient, QIcon, QImage,
@@ -234,18 +237,29 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
         # Convert Data
         if len(self.args['input']) > 0:
-            # Build and run command in QProcess.
-            process_args = ['TIMSCONVERT_CMD.py']
-            for key, value in self.args.items():
-                if key == 'input':
-                    process_args.append(f'--input')
-                    process_args = process_args + self.args['input']
-                elif key not in ['ms2_only', 'use_raw_calibration', 'exclude_mobility', 'barebones_metadata', 'verbose']:
-                    process_args.append(f'--{key}')
-                    process_args.append(str(value))
-                elif self.args[key]:
-                    process_args.append(f'--{key}')
-            self.process.start('python', process_args)
+            # Load in input data.
+            input_files = []
+            for dirpath in self.args['input']:
+                if not dirpath.endswith('.d'):
+                    input_files = input_files + list(filter(None, dot_d_detection(dirpath)))
+                elif dirpath.endswith('.d'):
+                    if os.path.isdir(dirpath):
+                        input_files = input_files + [dirpath]
+                    else:
+                        logging.info(get_iso8601_timestamp() + ':' + f'{dirpath} does not exist...')
+                        logging.info(get_iso8601_timestamp() + ':' + 'Skipping...')
+
+            # Convert each sample.
+            with Pool(processes=cpu_count() - 1) as pool:
+                pool_map_input = [(self.args, infile) for infile in input_files]
+                list_of_logfiles = pool.map(convert_raw_file, pool_map_input)
+            list_of_logfiles = list(filter(None, list_of_logfiles))
+
+            # Shutdown logger.
+            logging.shutdown()
+
+            # Clean up temporary log files.
+            clean_up_logfiles(self.args, list_of_logfiles)
 
             # Replace queue list with progress bars.
             for row in range(self.InputList.rowCount()):
@@ -318,6 +332,8 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
 
 def main():
+    freeze_support()
+
     app = QApplication([])
 
     window = TimsconvertGuiWindow()

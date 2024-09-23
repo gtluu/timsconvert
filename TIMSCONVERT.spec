@@ -10,6 +10,7 @@ a = Analysis(
 				('timsconvert', 'timsconvert'),
 				('docs', 'docs'),
 				('docsrc', 'docsrc'),
+				('imgs', 'imgs'),
 				('test', 'test'),
 				('C:\\Users\\bass\\.conda\\envs\\timsconvert\\Lib\\site-packages\\TDF-SDK', 'TDF-SDK')
 	],

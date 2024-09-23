@@ -16,6 +16,30 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QList
 from timsconvert.timsconvert_gui_template import Ui_TimsconvertGuiWindow
 
 
+class ProgressStream:
+    """
+    Class to intercept stdout stream, parse the text, and update progress bars for each file.
+
+    :param input_list: QTableWidget in which each row consists of individual input files and QProgressBar objects.
+    """
+    def __init__(self, input_list):
+        self.InputList = input_list
+
+    # Updates progress bar
+    def write(self, stdout):
+        """
+        Update progress bar using stdout stream.
+
+        :param stdout: Text that is typically passed via sys.stdout.write.
+        """
+        percentage = re.search(r'(\d+)%', stdout)
+        dot_d_file = re.search(r'([^:/]+\.d)', stdout)
+        if percentage and dot_d_file:
+            percentage = int(percentage.group(1))
+            dot_d_file = dot_d_file.group(1).split('\\')[-1]
+            self.InputList.findChild(QProgressBar, dot_d_file).setValue(percentage)
+
+
 class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
     """
     Class containing all attributes and methods to parse and process GUI parameters for the TIMSCONVERT GUI. UI elements
@@ -31,7 +55,7 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                      'compression': 'zlib',  # QCheckbox
                      'ms2_only': False,  # QCheckbox
                      'use_raw_calibration': False,  # QCheckbox
-                     'pressure_compensation_strategy': 'none',  # QRadioButton
+                     'pressure_compensation_strategy': 'global',  # QRadioButton
                      'exclude_mobility': False,  # QCheckbox
                      'mz_encoding': 64,  # QRadioButton
                      'intensity_encoding': 64,  # QRadioButton
@@ -66,12 +90,6 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.InputList.selectionModel().selectionChanged.connect(self.select_from_queue)
         # Remove Input
         self.RemoveFromQueueButton.clicked.connect(self.remove_from_queue)
-
-        # Initialize Process
-        self.process = QProcess()
-        self.process.readyReadStandardOutput.connect(self.handle_stdout)
-        self.process.readyReadStandardError.connect(self.handle_stderr)
-        self.process.finished.connect(self.process_finished)
 
         # Run
         self.RunButton.clicked.connect(self.run)
@@ -148,6 +166,10 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         """
         Parse all arguments from GUI elements and run the TIMSCONVERT conversion workflow.
         """
+        # Replace stdout with Progress Update Stream.
+        sys.stdout = ProgressStream(self.InputList)
+        sys.stderr = io.StringIO()
+
         # Gray out and disable ability to click all buttons.
         self.AddInputDialogueButton.setEnabled(False)
         self.RemoveFromQueueButton.setEnabled(False)
@@ -268,15 +290,6 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             # Clean up temporary log files.
             clean_up_logfiles(self.args, list_of_logfiles)
 
-            data = self.process.readAllStandardOutput()
-            stdout = bytes(data).decode('utf8')
-            percentage = re.search(r'(\d+)%', stdout)
-            dot_d_file = re.search(r'([^:/]+\.d)', stdout)
-            if percentage and dot_d_file:
-                percentage = int(percentage.group(1))
-                dot_d_file = dot_d_file.group(1).split('\\')[-1]
-                self.InputList.findChild(QProgressBar, dot_d_file).setValue(percentage)
-
             # Show a QMessageBox on completion to show that TIMSCONVERT has finished converting data from the current
             # queue.
             finished = QMessageBox(self)
@@ -294,6 +307,19 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
                 self.MaldiPlateMapBrowseButton.setEnabled(True)
                 self.RunButton.setEnabled(True)
 
+            # Write errors if any and display message box containing error log path.
+            stderr = sys.stderr.getvalue()
+            if stderr != '':
+                error = QMessageBox(self)
+                error.setWindowTitle('Error')
+                error_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'errors')
+                error.setText(stderr + '\n' + 'Errors have been written to ' + error_dir)
+                if not os.path.isdir(error_dir):
+                    os.mkdir(error_dir)
+                with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
+                    error_log.write(stderr)
+                error.exec()
+
         else:
             # Show error message if no files are found in the queue.
             error = QMessageBox(self)
@@ -305,36 +331,6 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
                 error_log.write('stderr')
             error.exec()
-
-    def handle_stdout(self):
-        """
-        Use the stdout stream text to update the percentage values in the progress bars found in each row of the input
-        list queue.
-        """
-        data = self.process.readAllStandardOutput()
-        stdout = bytes(data).decode('utf8')
-        percentage = re.search(r'(\d+)%', stdout)
-        dot_d_file = re.search(r'([^:/]+\.d)', stdout)
-        if percentage and dot_d_file:
-            percentage = int(percentage.group(1))
-            dot_d_file = dot_d_file.group(1).split('\\')[-1]
-            self.InputList.findChild(QProgressBar, dot_d_file).setValue(percentage)
-
-    def handle_stderr(self):
-        """
-        Use the stderr stream text to output any errors to an error log and an error message box.
-        """
-        data = self.process.readAllStandardError()
-        stderr = bytes(data).decode('utf8')
-        error = QMessageBox(self)
-        error.setWindowTitle('Error')
-        error_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'errors')
-        error.setText(stderr + '\n' + 'Errors have been written to ' + error_dir)
-        if not os.path.isdir(error_dir):
-            os.mkdir(error_dir)
-        with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
-            error_log.write(stderr)
-        error.exec()
 
 
 def main():

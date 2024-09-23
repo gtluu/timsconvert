@@ -3,6 +3,7 @@ import sys
 import io
 import re
 import logging
+#from multiprocess import Pool, cpu_count, freeze_support
 from timsconvert.data_input import dot_d_detection
 from timsconvert.timestamp import get_timestamp, get_iso8601_timestamp
 from timsconvert.convert import convert_raw_file, clean_up_logfiles
@@ -283,6 +284,10 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
             # Convert each sample.
             list_of_logfiles = [convert_raw_file((self.args, infile)) for infile in input_files]
+            """with Pool(processes=cpu_count() - 1) as pool:
+                pool_map_input = [(self.args, infile) for infile in input_files]
+                list_of_logfiles = pool.map(convert_raw_file, pool_map_input)
+            list_of_logfiles = list(filter(None, list_of_logfiles))"""
 
             # Shutdown logger.
             logging.shutdown()
@@ -334,6 +339,8 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
 
 
 def main():
+    #freeze_support()
+
     app = QApplication([])
 
     window = TimsconvertGuiWindow()

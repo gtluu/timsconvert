@@ -1,6 +1,8 @@
 pyside6==6.7.2
 PySide6-Addons==6.7.2
 PySide6-Essentials==6.7.2
+dill==0.3.8
+multiprocess==0.70.16
 certifi==2024.8.30
 charset-normalizer==3.3.2
 greenlet==3.1.0

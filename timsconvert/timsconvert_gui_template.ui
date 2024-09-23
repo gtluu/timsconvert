@@ -622,6 +622,28 @@
     </property>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="MenuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="About">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="AboutTimsconvert"/>
+   </widget>
+   <addaction name="About"/>
+  </widget>
+  <action name="AboutTimsconvert">
+   <property name="text">
+    <string>TIMSCONVERT Information</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -4,11 +4,11 @@ from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
                            QFont, QFontDatabase, QGradient, QIcon,
                            QImage, QKeySequence, QLinearGradient, QPainter,
-                           QPalette, QPixmap, QRadialGradient, QTransform)
+                           QPalette, QPixmap, QRadialGradient, QTransform, QAction)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit,
                                QListView, QMainWindow, QPushButton, QRadioButton,
                                QSizePolicy, QSpinBox, QWidget, QButtonGroup, QTableWidget, QHeaderView,
-                               QProgressBar, QTableWidgetItem, QAbstractItemView)
+                               QProgressBar, QTableWidgetItem, QAbstractItemView, QMenu, QMenuBar)
 
 
 class Ui_TimsconvertGuiWindow(object):
@@ -23,6 +23,15 @@ class Ui_TimsconvertGuiWindow(object):
         # Main Widget
         self.main = QWidget(TimsconvertGuiWindow)
         self.main.setObjectName(u"main")
+
+        # Menu Bar
+        self.MenuBar = QMenuBar(TimsconvertGuiWindow)
+        self.MenuBar.setObjectName(u"MenuBar")
+        self.MenuBar.setGeometry(QRect(0, 0, 800, 22))
+        self.About = QMenu(self.MenuBar)
+        self.About.setObjectName(u"About")
+        self.AboutTimsconvert = QAction(TimsconvertGuiWindow)
+        self.AboutTimsconvert.setObjectName(u"AboutTimsconvert")
 
         # Input
         # Button
@@ -292,12 +301,18 @@ class Ui_TimsconvertGuiWindow(object):
 
         # retranslate
         TimsconvertGuiWindow.setCentralWidget(self.main)
+        TimsconvertGuiWindow.setMenuBar(self.MenuBar)
+        self.MenuBar.addAction(self.About.menuAction())
+        self.About.addAction(self.AboutTimsconvert)
         self.retranslateUi(TimsconvertGuiWindow)
 
         QMetaObject.connectSlotsByName(TimsconvertGuiWindow)
 
     def retranslateUi(self, TimsconvertGuiWindow):
         TimsconvertGuiWindow.setWindowTitle(QCoreApplication.translate("TimsconvertGuiWindow", u"TIMSCONVERT", None))
+        self.AboutTimsconvert.setText(
+            QCoreApplication.translate("TimsconvertGuiWindow", u"TIMSCONVERT Information", None))
+        self.About.setTitle(QCoreApplication.translate("TimsconvertGuiWindow", u"About", None))
         self.AddInputDialogueButton.setText(
             QCoreApplication.translate("TimsconvertGuiWindow", u"Add Bruker timsTOF Data to Queue", None))
         self.RemoveFromQueueButton.setText(

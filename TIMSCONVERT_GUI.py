@@ -7,6 +7,7 @@ import logging
 from timsconvert.data_input import dot_d_detection
 from timsconvert.timestamp import get_timestamp, get_iso8601_timestamp
 from timsconvert.convert import convert_raw_file, clean_up_logfiles
+from timsconvert.constants import VERSION
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale, QMetaObject, QObject, QPoint, QRect, QSize,
                             QTime, QUrl, Qt, QTimer, QProcess)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QGradient, QIcon, QImage,
@@ -72,6 +73,9 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
         self.errors = None
 
         self.setupUi(self)
+
+        # Show About Window
+        self.AboutTimsconvert.triggered.connect(self.open_about_window)
 
         # Show/Hide Binning Settings if Profile Mode
         self.ModeProfileRadio.clicked.connect(self.show_hide_binning)
@@ -336,6 +340,14 @@ class TimsconvertGuiWindow(QMainWindow, Ui_TimsconvertGuiWindow):
             with open(f'{error_dir}\\{get_timestamp()}_error.log', 'w') as error_log:
                 error_log.write('stderr')
             error.exec()
+
+    def open_about_window(self):
+        about = QMessageBox(self)
+        about.setWindowTitle('About TIMSCONVERT')
+        about_text = f'Version: {VERSION}\n\n'
+        about_text += 'Included software components: Copyright © 2022 by Bruker Daltonics GmbH & Co. KG. All rights reserved'
+        about.setText(about_text)
+        about.exec()
 
 
 def main():

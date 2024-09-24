@@ -4,7 +4,7 @@ import logging
 from timsconvert.timestamp import get_iso8601_timestamp, get_timestamp
 from timsconvert.data_input import check_for_multiple_analysis, schema_detection
 from timsconvert.classes import TimsconvertBafData, TimsconvertTsfData, TimsconvertTdfData
-from timsconvert.write import write_lcms_mzml, write_maldi_dd_mzml, write_maldi_ims_imzml
+from timsconvert.write import write_lcms_mzml, write_maldi_dd_mzml, write_maldi_ims_imzml, write_maldi_ims_iprm_imzml
 from pyTDFSDK.init_tdf_sdk import init_tdf_sdk_api
 from pyTDFSDK.ctypes_data_structures import PressureCompensationStrategy
 from pyBaf2Sql.init_baf2sql import init_baf2sql_api
@@ -19,9 +19,11 @@ def convert_raw_file(tuple_args):
 
     # Initialize logger if not running on server.
     logname = 'tmp_log_' + os.path.splitext(os.path.split(infile)[-1])[0] + '.log'
-    if run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[-1] != '.d':
+    if run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[
+        -1] != '.d':
         logfile = os.path.join(run_args['input'], logname)
-    elif run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[-1] == '.d':
+    elif run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[
+        -1] == '.d':
         logfile = os.path.split(run_args['input'])[0]
         logfile = os.path.join(logfile, logname)
     else:
@@ -202,20 +204,44 @@ def convert_raw_file(tuple_args):
     elif schema == 'TDF' \
             and 'MaldiApplicationType' in data.analysis['GlobalMetadata'].keys() \
             and data.analysis['GlobalMetadata']['MaldiApplicationType'] == 'Imaging':
-        logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
-        outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
-        logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
-        write_maldi_ims_imzml(data,
-                              run_args['outdir'],
-                              outfile,
-                              run_args['mode'],
-                              run_args['exclude_mobility'],
-                              run_args['profile_bins'],
-                              run_args['imzml_mode'],
-                              run_args['mz_encoding'],
-                              run_args['intensity_encoding'],
-                              run_args['mobility_encoding'],
-                              run_args['compression'])
+        # Check if iprm-PASEF dataset.
+        msms_mode_id = data.analysis['PropertyDefinitions'][data.analysis['PropertyDefinitions']['PermanentName'] ==
+                                                            'Mode_ScanMode'].to_dict(orient='records')[0]['Id']
+        properties_dicts = data.analysis['Properties'][data.analysis['Properties']['Property'] ==
+                                                       msms_mode_id].to_dict(orient='records')
+        # iprm-PASEF workflow writes different imzML/ibd files for each precursor.
+        if all(i['Value'] == 12 for i in properties_dicts):
+            logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
+            logging.info(
+                get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS iprm-PASEF imaging mass spectrometry data...')
+            write_maldi_ims_iprm_imzml(data,
+                                       run_args['outdir'],
+                                       outfile,
+                                       run_args['mode'],
+                                       run_args['exclude_mobility'],
+                                       run_args['profile_bins'],
+                                       run_args['imzml_mode'],
+                                       run_args['mz_encoding'],
+                                       run_args['intensity_encoding'],
+                                       run_args['mobility_encoding'],
+                                       run_args['compression'])
+        # Standard imzML export workflow.
+        else:
+            logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
+            outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
+            logging.info(get_iso8601_timestamp() + ':' + 'Processing MALDI-TIMS imaging mass spectrometry data...')
+            write_maldi_ims_imzml(data,
+                                  run_args['outdir'],
+                                  outfile,
+                                  run_args['mode'],
+                                  run_args['exclude_mobility'],
+                                  run_args['profile_bins'],
+                                  run_args['imzml_mode'],
+                                  run_args['mz_encoding'],
+                                  run_args['intensity_encoding'],
+                                  run_args['mobility_encoding'],
+                                  run_args['compression'])
 
     else:
         logging.warning(get_iso8601_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +

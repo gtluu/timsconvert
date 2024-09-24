@@ -954,7 +954,7 @@ def write_maldi_dd_mzml(data, infile, outdir, outfile, mode, ms2_only, exclude_m
 
 
 def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mode, exclude_mobility, profile_bins,
-                                   mz_encoding, intensity_encoding, mobility_encoding):
+                                   mz_encoding, intensity_encoding, mobility_encoding, diapasef_window=None):
     """
     Parse and write out a group of spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
 
@@ -983,7 +983,8 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
     if isinstance(data, TimsconvertTsfData):
         list_of_scans = parse_maldi_tsf(data,
                                         frame_start,
-                                        frame_stop, mode,
+                                        frame_stop,
+                                        mode,
                                         False,
                                         profile_bins,
                                         mz_encoding,
@@ -994,16 +995,29 @@ def write_maldi_ims_chunk_to_imzml(data, imzml_file, frame_start, frame_stop, mo
                                    scans.coord)
     # Parse TDF data.
     elif isinstance(data, TimsconvertTdfData):
-        list_of_scans = parse_maldi_tdf(data,
-                                        frame_start,
-                                        frame_stop,
-                                        mode,
-                                        False,
-                                        exclude_mobility,
-                                        profile_bins,
-                                        mz_encoding,
-                                        intensity_encoding,
-                                        mobility_encoding)
+        if diapasef_window is not None:
+            list_of_scans = parse_maldi_tdf_iprm(data,
+                                                 frame_start,
+                                                 frame_stop,
+                                                 mode,
+                                                 False,
+                                                 exclude_mobility,
+                                                 profile_bins,
+                                                 mz_encoding,
+                                                 intensity_encoding,
+                                                 mobility_encoding,
+                                                 diapasef_window=diapasef_window)
+        else:
+            list_of_scans = parse_maldi_tdf(data,
+                                            frame_start,
+                                            frame_stop,
+                                            mode,
+                                            False,
+                                            exclude_mobility,
+                                            profile_bins,
+                                            mz_encoding,
+                                            intensity_encoding,
+                                            mobility_encoding)
         if mode == 'profile':
             exclude_mobility = True
         if not exclude_mobility:
@@ -1171,5 +1185,170 @@ def write_maldi_ims_imzml(data, outdir, outfile, mode, exclude_mobility, profile
                                  ':' +
                                  data.source_file.replace('/', '\\') +
                                  ':Progress:100%\n')
+    logging.info(
+        get_iso8601_timestamp() + ':' + 'Finished writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
+
+
+def write_maldi_ims_iprm_imzml(data, outdir, outfile, mode, exclude_mobility, profile_bins, imzml_mode, mz_encoding,
+                               intensity_encoding, mobility_encoding, compression, chunk_size=10):
+    """
+    Parse and write out spectra to an imzML file from a MALDI-MS(/MS) MSI dataset using pyimzML.
+
+    :param data: Object containing raw data information from TDF or TSF file.
+    :type data: timsconvert.classes.TimsconvertTdfData | timsconvert.classes.TimsconvertTsfData
+    :param outdir: Output directory path that was specified from the command line parameters or the original input
+        file path if no output directory was specified.
+    :type outdir: str
+    :param outfile: The original input filename if no output filename was specified.
+    :type outfile: str
+    :param mode: Mode command line parameter, either "profile", "centroid", or "raw".
+    :type mode: str
+    :param exclude_mobility: Whether to include mobility data in the output files, defaults to None.
+    :type exclude_mobility: bool
+    :param profile_bins: Number of bins to bin spectrum to.
+    :type profile_bins: int
+    :param imzml_mode: Whether to export spectra in "processed" (individual m/z and intensity arrays per pixel) or
+        "continuous" mode (single m/z array for the entire dataset, individual intensity arrays per pixel).
+    :type imzml_mode: str
+    :param mz_encoding: m/z encoding command line parameter, either "64" or "32".
+    :type mz_encoding: int
+    :param intensity_encoding: Intensity encoding command line parameter, either "64" or "32".
+    :type intensity_encoding: int
+    :param mobility_encoding: Mobility encoding command line parameter, either "64" or "32".
+    :type mobility_encoding: int
+    :param compression: Compression command line parameter, either "zlib" or "none".
+    :type compression: str
+    :param chunk_size: Number of MS1 spectra that to be used when subsetting dataset into smaller groups to pass onto
+        timsconvert.write.write_lcms_chunk_to_mzml() for memory efficiency; larger chunk_size requires more memory
+        during conversion.
+    :type chunk_size: int
+    """
+    # Set polarity for run in imzML.
+    polarity = list(set(data.analysis['Frames']['Polarity'].values.tolist()))
+    if len(polarity) == 1 and polarity[0] == '+':
+        polarity = 'positive'
+    elif len(polarity) == 1 and polarity[0] == '-':
+        polarity = 'negative'
+    else:
+        polarity = None
+
+    # Get compression type object.
+    if compression == 'zlib':
+        compression_object = ZlibCompression()
+    elif compression == 'none':
+        compression_object = NoCompression()
+
+    if data.analysis['GlobalMetadata']['SchemaType'] == 'TDF':
+        if mode == 'profile':
+            exclude_mobility = True
+            logging.info(
+                get_iso8601_timestamp() + ':' + 'Export of ion mobility data is not supported for profile mode data...')
+            logging.info(get_iso8601_timestamp() + ':' + 'Exporting without ion mobility data...')
+        msms_mode_id = data.analysis['PropertyDefinitions'][data.analysis['PropertyDefinitions']['PermanentName'] ==
+                                                            'Mode_ScanMode'].to_dict(orient='records')[0]['Id']
+        properties_dicts = data.analysis['Properties'][data.analysis['Properties']['Property'] ==
+                                                       msms_mode_id].to_dict(orient='records')
+        if all(i['Value'] == 12 for i in properties_dicts):
+            if not data.analysis['DiaFrameMsMsWindows'].empty:
+                writers = {}
+                for index, row in data.analysis['DiaFrameMsMsWindows'].iterrows():
+                    suffix = f"mz{round(row['IsolationMz'])}_ScanNum{round(row['ScanNumBegin'])}-{round(row['ScanNumEnd'])}"
+                    if not exclude_mobility:
+                        # tuple of ImzMLWriter and diapasef_window
+                        writers[suffix] = (ImzMLWriter(os.path.join(outdir,
+                                                                    f'{os.path.splitext(outfile)[0]}_{suffix}.imzML'),
+                                                       polarity=polarity,
+                                                       mode=imzml_mode,
+                                                       spec_type=mode,
+                                                       mz_dtype=get_encoding_dtype(mz_encoding),
+                                                       intensity_dtype=get_encoding_dtype(intensity_encoding),
+                                                       mobility_dtype=get_encoding_dtype(mobility_encoding),
+                                                       mz_compression=compression_object,
+                                                       intensity_compression=compression_object,
+                                                       mobility_compression=compression_object,
+                                                       include_mobility=True),
+                                           row)
+                    elif exclude_mobility:
+                        writers[suffix] = (ImzMLWriter(os.path.join(outdir,
+                                                                    f'{os.path.splitext(outfile)[0]}_{suffix}.imzML'),
+                                                       polarity=polarity,
+                                                       mode=imzml_mode,
+                                                       spec_type=mode,
+                                                       mz_dtype=get_encoding_dtype(mz_encoding),
+                                                       intensity_dtype=get_encoding_dtype(intensity_encoding),
+                                                       mz_compression=compression_object,
+                                                       intensity_compression=compression_object,
+                                                       include_mobility=False),
+                                           row)
+
+    for suffix, value in writers.items():
+        writer = value[0]
+        diapasef_window = value[1]
+        logging.info(get_iso8601_timestamp() + ':' + 'Writing to .imzML file ' + os.path.join(outdir, outfile) + '...')
+        with writer as imzml_file:
+            chunk = 0
+            frames = data.analysis['Frames']['Id'].to_list()
+            while chunk + chunk_size + 1 <= len(frames):
+                chunk_list = []
+                for i, j in zip(frames[chunk:chunk + chunk_size], frames[chunk + 1: chunk + chunk_size + 1]):
+                    chunk_list.append((int(i), int(j)))
+                logging.info(get_iso8601_timestamp() +
+                             ':' +
+                             'Parsing and writing Frame ' +
+                             str(chunk_list[0][0]) +
+                             ' from ' +
+                             data.analysis['GlobalMetadata']['SampleName'] +
+                             '...')
+                for frame_start, frame_stop in chunk_list:
+                    write_maldi_ims_chunk_to_imzml(data,
+                                                   imzml_file,
+                                                   frame_start,
+                                                   frame_stop,
+                                                   mode,
+                                                   exclude_mobility,
+                                                   profile_bins,
+                                                   mz_encoding,
+                                                   intensity_encoding,
+                                                   mobility_encoding,
+                                                   diapasef_window=diapasef_window)
+                    sys.stdout.write(get_iso8601_timestamp() +
+                                     ':' +
+                                     data.source_file.replace('/', '\\') +
+                                     ':' +
+                                     suffix +
+                                     ':Progress:' +
+                                     str(round((frame_start / data.analysis['Frames'].shape[0]) * 100)) +
+                                     '%\n')
+                chunk += chunk_size
+            else:
+                chunk_list = []
+                for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
+                    chunk_list.append((int(i), int(j)))
+                chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
+                logging.info(get_iso8601_timestamp() +
+                             ':' +
+                             'Parsing and writing Frame ' +
+                             str(chunk_list[0][0]) +
+                             ' from ' +
+                             data.analysis['GlobalMetadata']['SampleName'] +
+                             '...')
+                for frame_start, frame_stop in chunk_list:
+                    write_maldi_ims_chunk_to_imzml(data,
+                                                   imzml_file,
+                                                   frame_start,
+                                                   frame_stop,
+                                                   mode,
+                                                   exclude_mobility,
+                                                   profile_bins,
+                                                   mz_encoding,
+                                                   intensity_encoding,
+                                                   mobility_encoding,
+                                                   diapasef_window=diapasef_window)
+                    sys.stdout.write(get_iso8601_timestamp() +
+                                     ':' +
+                                     data.source_file.replace('/', '\\') +
+                                     ':' +
+                                     suffix +
+                                     ':Progress:100%\n')
     logging.info(
         get_iso8601_timestamp() + ':' + 'Finished writing to .imzML file ' + os.path.join(outdir, outfile) + '...')

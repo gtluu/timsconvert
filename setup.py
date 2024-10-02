@@ -12,18 +12,18 @@ for package in install_requires:
 
 setup(
     name='timsconvert',
-    version='2.0.0a11',
+    version='2.0.0a12',
     url='https://github.com/gtluu/timsconvert',
     license='Apache License 2.0',
     author='Gordon T. Luu',
     author_email='gtluu912@gmail.com',
-    packages=['timsconvert', 'docs', 'docsrc', 'test'],
+    packages=['timsconvert', 'bin', 'docs', 'docsrc', 'test'],
     include_package_data=True,
     package_data={'': ['*.dll', '*.so'],
                   'timsconvert': ['*.json', '*.ui']},
     description='TIMSCONVERT: A simple workflow for conversion of trapped ion mobility data to open-source formats',
-    entry_points={'console_scripts': ['timsconvert=TIMSCONVERT_CMD:main',
-                                      'timsconvert_gui=TIMSCONVERT_GUI:main']},
+    entry_points={'console_scripts': ['timsconvert=bin.cmd:main',
+                                      'timsconvert_gui=bin.gui:main']},
     install_requires=install_requires,
     setup_requires=install_requires
 )

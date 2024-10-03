@@ -16,8 +16,8 @@ class Ui_TimsconvertGuiWindow(object):
         # Main Window
         if not TimsconvertGuiWindow.objectName():
             TimsconvertGuiWindow.setObjectName(u"TimsconvertGuiWindow")
-        TimsconvertGuiWindow.resize(800, 935)
-        TimsconvertGuiWindow.setMinimumSize(QSize(800, 935))
+        TimsconvertGuiWindow.resize(0, 0)
+        TimsconvertGuiWindow.setMinimumSize(QSize(0, 0))
         TimsconvertGuiWindow.setMaximumSize(QSize(800, 935))
 
         # Main Widget

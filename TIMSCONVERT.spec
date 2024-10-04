@@ -7,6 +7,10 @@ a = Analysis(
     binaries=[],
     datas=[
 		('TIMSCONVERT_CMD.py', '.'),
+		('README.md', '.'),
+		('LICENSE.md', '.'),
+		('LICENSE_EULA_TDF-SDK_README.pdf', '.'),
+		('LICENSE-THIRD-PARTY-README.txt', '.'),
 		('timsconvert', 'timsconvert'),
 		('docs', 'docs'),
 		('docsrc', 'docsrc'),

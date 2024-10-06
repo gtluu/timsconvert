@@ -22,11 +22,8 @@ Included software components: Copyright © 2022 by Bruker Daltonics GmbH & Co. K
 
 ## Installation
 
-Installation instructions are linked below:
-- [Windows](https://gtluu.github.io/timsconvert/installation.html#installing-on-windows)
-- [Linux](https://gtluu.github.io/timsconvert/installation.html#installing-on-linux)
-
-macOS is not compatible with the Bruker TDF-SDK API that is necessary to run TIMSCONVERT.
+Installation instructions can be found [here](https://gtluu.github.io/timsconvert/installation.html). macOS is not 
+compatible with the Bruker TDF-SDK API that is necessary to run TIMSCONVERT.
 
 ## Usage
 

@@ -1,11 +1,53 @@
-Local Usage
-===========
-The command line interface version of TIMSCONVERT supports conversion of all experimental types specified above. Please
-note that certain versions of Linux may not be compatible with the Baf2Sql API used to convert BAF files. See
-`this issue <https://github.com/gtluu/timsconvert/issues/13>`_ for more details.
+Usage
+=====
+
+GUI Usage
+---------
+The TIMSCONVERT GUI can be started by downloading directly from the Github release or installing ``timsconvert`` via
+pip. If downloaded from Github, unzip the folder and open ``TIMSCONVERT.exe``. If installed via pip to a virtual
+environment, run the ``timsconvert_gui`` command to start the GUI. The following window should appear.
+
+.. image:: imgs/timsconvert_gui_usage_01.png
+   :alt: TIMSCONVERT GUI Main Window
+
+Once open, two columns will appear in the GUI. One the left is the data conversion queue. Click on the
+``Add Bruker timsTOF Data to Queue`` button to open a file dialogue window and select either a Bruker ``*.d`` directory
+or a directory containing multiple ``*.d`` directories. All ``*.d`` directories that are found will appear in the
+``Queue``.
+
+.. image:: imgs/timsconvert_gui_usage_02.png
+   :alt: Multiple *.d directories added to the sample queue.
+
+If unwanted directories have been added, one or more rows in the ``Queue`` can be selected and removed by
+highlighting them and clicking on the ``Remove from Queue`` button.
+
+.. image:: imgs/timsconvert_gui_usage_03.png
+   :alt: Selecting one or more *.d directories from the sample queue to be removed.
+
+On the right, all data conversion parameters can be found. See below for more infomation on each parameter. Once the
+conversion parameters have been configured, click on the ``Convert Data`` button to begin data conversion. Adding or
+removing data will be unavailable until the current conversion has completed, and each row will be replaced with a
+progress bar.
+
+.. image:: imgs/timsconvert_gui_usage_04.png
+   :alt: Data conversion progress shown in the queue for each dataset.
+
+Please note that for larger datasets, you may see a message that says TIMSCONVERT is Not Responding. This is due to
+the program using more computation power to convert data; the GUI will remain unresponsive but the data conversion will
+still process in the background, and control will be returned when the process has finished.
+
+Once completely, a message will appear to show that the current job has finished, in addition to any errors that may
+have occurred during the data conversion process.
+
+.. image:: imgs/timsconvert_gui_usage_05.png
+   :alt: TIMSCONVERT data conversion completed message box.
+
+Command Line Usage
+------------------
+The command line interface version of TIMSCONVERT supports conversion of all experimental types specified above.
 
 Basic Example
--------------
+^^^^^^^^^^^^^
 Only the ``input`` parameter is required to run TIMSCONVERT. By default, the output file(s) can be found in the same
 directory as the input data using the same filenames as the original .d file(s). Please note that any previously
 converted mzML/imzML files in the output directory with the same filename will be overwritten. If no other parameters
@@ -50,6 +92,14 @@ files, the ``tims_extract_profile_for_frame`` function is used to extract a quas
 For ``TDF`` files in which the data is exported with the ion mobiilty arrays (resulting in 3 binary data arrays for
 m/z, intensity, and ion mobility, only ``raw`` mode is available due to conversion speed and the resulting data size if
 ``centroid`` or ``profile`` mode are used. Again, all spectra are labeled as centroided.
+
+Notes on ``pressure_compensation_strategy`` Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The pressure compensation strategy parameter is used on data import via Bruker's ``TDF-SDK``. This parameter determines
+whether a calculation is applied to normalize the mobility (1/K0) dimension between datasets in which the pressure of
+the TIMS cell is modified between acquisitions. ``none`` prevents the application of any pressure compensation.
+``global`` applies the pressure compensation across the entire dataset in a given ``*.d`` file. ``frame`` applies the
+pressure compensation on a per frame basis.
 
 Notes on ``barebones_metadata`` Parameter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -5,11 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>timsconvert &#8212; TIMSCONVERT 1.6.5 documentation</title>
+    <title>timsconvert &#8212; TIMSCONVERT 2.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
-    <script src="_static/documentation_options.js?v=2ad11211"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=51b770b3"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -58,6 +59,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.constants">timsconvert.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.convert">timsconvert.convert module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.convert.clean_up_logfiles"><code class="docutils literal notranslate"><span class="pre">clean_up_logfiles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.convert.convert_raw_file"><code class="docutils literal notranslate"><span class="pre">convert_raw_file()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.data_input">timsconvert.data_input module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.data_input.check_for_multiple_analysis"><code class="docutils literal notranslate"><span class="pre">check_for_multiple_analysis()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.data_input.dot_d_detection"><code class="docutils literal notranslate"><span class="pre">dot_d_detection()</span></code></a></li>
@@ -70,12 +76,22 @@
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_lcms_tsf"><code class="docutils literal notranslate"><span class="pre">parse_lcms_tsf()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_plate_map"><code class="docutils literal notranslate"><span class="pre">parse_maldi_plate_map()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_tdf"><code class="docutils literal notranslate"><span class="pre">parse_maldi_tdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_tdf_iprm"><code class="docutils literal notranslate"><span class="pre">parse_maldi_tdf_iprm()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.parse.parse_maldi_tsf"><code class="docutils literal notranslate"><span class="pre">parse_maldi_tsf()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.timestamp">timsconvert.timestamp module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.timestamp.get_iso8601_timestamp"><code class="docutils literal notranslate"><span class="pre">get_iso8601_timestamp()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.timestamp.get_timestamp"><code class="docutils literal notranslate"><span class="pre">get_timestamp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.timsconvert_gui_template">timsconvert.timsconvert_gui_template module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.timsconvert_gui_template.Ui_TimsconvertGuiWindow"><code class="docutils literal notranslate"><span class="pre">Ui_TimsconvertGuiWindow</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.timsconvert_gui_template.Ui_TimsconvertGuiWindow.populate_table"><code class="docutils literal notranslate"><span class="pre">Ui_TimsconvertGuiWindow.populate_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.timsconvert_gui_template.Ui_TimsconvertGuiWindow.retranslateUi"><code class="docutils literal notranslate"><span class="pre">Ui_TimsconvertGuiWindow.retranslateUi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="timsconvert.html#timsconvert.timsconvert_gui_template.Ui_TimsconvertGuiWindow.setupUi"><code class="docutils literal notranslate"><span class="pre">Ui_TimsconvertGuiWindow.setupUi()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="timsconvert.html#module-timsconvert.write">timsconvert.write module</a><ul>
@@ -86,6 +102,7 @@
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_dd_mzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_dd_mzml()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_ims_chunk_to_imzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_ims_chunk_to_imzml()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_ims_imzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_ims_imzml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_maldi_ims_iprm_imzml"><code class="docutils literal notranslate"><span class="pre">write_maldi_ims_iprm_imzml()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_ms1_spectrum"><code class="docutils literal notranslate"><span class="pre">write_ms1_spectrum()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_ms2_spectrum"><code class="docutils literal notranslate"><span class="pre">write_ms2_spectrum()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="timsconvert.html#timsconvert.write.write_mzml_metadata"><code class="docutils literal notranslate"><span class="pre">write_mzml_metadata()</span></code></a></li>
@@ -103,7 +120,7 @@
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">TIMSCONVERT</a></h1>
 
@@ -114,13 +131,22 @@
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="local.html">Local Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gnps.html">GNPS Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local.html">GUI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local.html#command-line-usage">Command Line Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
@@ -137,16 +163,6 @@
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -160,11 +176,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2024, Gordon T. Luu.
+      &#169;2021-2024, Gordon T. Luu.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="_sources/modules.rst.txt"

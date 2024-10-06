@@ -12,8 +12,12 @@ def dot_d_detection(input_directory):
     :return: List of absolute paths for each .d directory found.
     :rtype: list
     """
-    return [os.path.join(dirpath, directory) for dirpath, dirnames, filenames in os.walk(input_directory)
-            for directory in dirnames if directory.endswith('.d')]
+    if not os.path.exists(input_directory):
+        logging.info(get_iso8601_timestamp() + ':' + f'{input_directory} does not exist...')
+        logging.info(get_iso8601_timestamp() + ':' + 'Skipping...')
+    else:
+        return [os.path.join(dirpath, directory) for dirpath, dirnames, filenames in os.walk(input_directory)
+                for directory in dirnames if directory.endswith('.d')]
 
 
 def schema_detection(bruker_dot_d_file):

@@ -33,9 +33,9 @@ Example of dimensionality of LC-TIMS-MS/MS data and a simplified corresponding m
 mzML schema are color coded by the corresponding data in the chromatograms/mobilograms/spectra. At a given retention
 time in the chromatogram (indicated in pink), an MS1 spectrum may be visualized in the form of a three dimensional plot
 generated from *m/z*, intensity, and ion mobility arrays (indicated in orange). Precursor ions of interest found in MS1
-spectra (indicated in purple) can be further analyzed by plotting *m/z* and intensity arrays for MS/MS spectra (indicated
-in teal). These spectral identifiers (i.e. retention time, precursor *m/z*, precursor 1/K0) may be used to locate the
-corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualization software of choice.
+spectra (indicated in purple) can be further analyzed by plotting *m/z* and intensity arrays for MS/MS spectra
+(indicated in teal). These spectral identifiers (i.e. retention time, precursor *m/z*, precursor 1/K0) may be used to
+locate the corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualization software of choice.
 
 .. image:: ../../imgs/dimensions.png
    :alt: Figure showing how different dimensions of timsTOF data are represented in converted open data formats.

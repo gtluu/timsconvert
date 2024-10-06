@@ -21,7 +21,6 @@ params.maldi_plate_map = ''
 params.imzml_mode = 'processed'
 
 // timsconvert system params
-params.chunk_size = 10
 params.verbose = 'True'
 
 // local or GNPS server
@@ -64,7 +63,6 @@ process convert {
             ${barebones_metadata_flag} \
             --maldi_output_file ${params.maldi_output_file} \
             --imzml_mode ${params.imzml_mode} \
-            --chunk_size ${params.chunk_size} \
             ${verbose_flag}
             """
         } else if (params.maldi_plate_map != '') {
@@ -82,7 +80,6 @@ process convert {
             --maldi_output_file ${params.maldi_output_file} \
             --maldi_plate_map = ${params.maldi_plate_map} \
             --imzml_mode ${params.imzml_mode} \
-            --chunk_size ${params.chunk_size} \
             ${verbose_flag}
             """
         }

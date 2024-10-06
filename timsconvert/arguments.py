@@ -7,7 +7,7 @@ from timsconvert.timestamp import *
 
 
 # Parse arguments for CLI usage
-def get_args(server=False):
+def get_args():
     """
     Parse command line parameters, including required, optional, and system parameters.
 
@@ -28,16 +28,13 @@ def get_args(server=False):
     required.add_argument('--input',
                           help=arg_descriptions['input'],
                           required=True,
-                          type=str)
+                          type=str,
+                          nargs='+')
 
     # Optional Arguments
     optional = parser.add_argument_group('Optional Parameters')
     optional.add_argument('--outdir',
                           help=arg_descriptions['outdir'],
-                          default='',
-                          type=str)
-    optional.add_argument('--outfile',
-                          help=arg_descriptions['outfile'],
                           default='',
                           type=str)
     optional.add_argument('--mode',
@@ -53,11 +50,29 @@ def get_args(server=False):
     optional.add_argument('--ms2_only',
                           help=arg_descriptions['ms2_only'],
                           action='store_true')
+    optional.add_argument('--use_raw_calibration',
+                          help=arg_descriptions['use_raw_calibration'],
+                          action='store_true')
+    optional.add_argument('--pressure_compensation_strategy',
+                          help=arg_descriptions['pressure_compensation_strategy'],
+                          default='global',
+                          type=str,
+                          choices=['none', 'global', 'frame'])
     optional.add_argument('--exclude_mobility',
                           help=arg_descriptions['exclude_mobility'],
                           action='store_true')
-    optional.add_argument('--encoding',
-                          help=arg_descriptions['encoding'],
+    optional.add_argument('--mz_encoding',
+                          help=arg_descriptions['mz_encoding'],
+                          default=64,
+                          type=int,
+                          choices=[32, 64])
+    optional.add_argument('--intensity_encoding',
+                          help=arg_descriptions['intensity_encoding'],
+                          default=64,
+                          type=int,
+                          choices=[32, 64])
+    optional.add_argument('--mobility_encoding',
+                          help=arg_descriptions['mobility_encoding'],
                           default=64,
                           type=int,
                           choices=[32, 64])
@@ -85,19 +100,9 @@ def get_args(server=False):
 
     # System Arguments
     system = parser.add_argument_group('System Parameters')
-    system.add_argument('--chunk_size',
-                        help=arg_descriptions['chunk_size'],
-                        default=10,
-                        type=int)
     system.add_argument('--verbose',
                         help=arg_descriptions['verbose'],
                         action='store_true')
-    if server:
-        # change to GNPS URL later
-        system.add_argument('--url',
-                            help=arg_descriptions['url'],
-                            default='http://localhost:5000',
-                            type=str)
 
     # Return parser
     arguments = parser.parse_args()
@@ -112,17 +117,9 @@ def args_check(args):
     :param args: Arguments obtained from timsconvert.arguments.get_args().
     :type args: dict
     """
-    # Check if input directory exists.
-    if not os.path.exists(args['input']):
-        print(get_iso8601_timestamp() + ':' + 'Input path does not exist...')
-        print(get_iso8601_timestamp() + ':' + 'Exiting...')
-        sys.exit(1)
     # Check if output directory exists and create it if it does not.
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
         os.makedirs(args['outdir'])
-    # Check to make sure output filename ends in .mzML extension.
-    if os.path.splitext(args['outfile']) != '.mzML' and args['outfile'] != '':
-        args['outfile'] = args['outfile'] + '.mzML'
     # Check if plate map path is valid and if plate map is available if --maldi_single_file is True.
     if args['maldi_output_file'] != '' \
             and args['maldi_output_file'] in ['individual', 'sample'] \

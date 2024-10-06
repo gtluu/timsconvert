@@ -1,6 +1,5 @@
 from setuptools import setup
 import os
-from timsconvert import VERSION
 
 
 if os.path.isfile('requirements.txt'):
@@ -13,17 +12,18 @@ for package in install_requires:
 
 setup(
     name='timsconvert',
-    version=VERSION,
+    version='2.0.0',
     url='https://github.com/gtluu/timsconvert',
-    license='Apache License',
+    license='Apache License 2.0',
     author='Gordon T. Luu',
     author_email='gtluu912@gmail.com',
-    packages=['timsconvert', 'bin', 'client', 'docs', 'docsrc', 'server', 'test'],
+    packages=['timsconvert', 'bin', 'docs', 'docsrc', 'test'],
     include_package_data=True,
     package_data={'': ['*.dll', '*.so'],
-                  'timsconvert': ['*.json']},
+                  'timsconvert': ['*.json', '*.ui']},
     description='TIMSCONVERT: A simple workflow for conversion of trapped ion mobility data to open-source formats',
-    entry_points={'console_scripts': ['timsconvert=bin.run:main']},
+    entry_points={'console_scripts': ['timsconvert=bin.cmd:main',
+                                      'timsconvert_gui=bin.gui:main']},
     install_requires=install_requires,
     setup_requires=install_requires
 )

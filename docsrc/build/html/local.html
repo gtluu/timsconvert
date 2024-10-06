@@ -5,11 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Local Usage &#8212; TIMSCONVERT 2.0.0a9 documentation</title>
+    <title>Usage &#8212; TIMSCONVERT 2.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
-    <script src="_static/documentation_options.js?v=b7dc9a6d"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=51b770b3"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -32,13 +33,39 @@
 
           <div class="body" role="main">
             
-  <section id="local-usage">
-<h1>Local Usage<a class="headerlink" href="#local-usage" title="Link to this heading">¶</a></h1>
-<p>The command line interface version of TIMSCONVERT supports conversion of all experimental types specified above. Please
-note that certain versions of Linux may not be compatible with the Baf2Sql API used to convert BAF files. See
-<a class="reference external" href="https://github.com/gtluu/timsconvert/issues/13">this issue</a> for more details.</p>
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
+<section id="gui-usage">
+<h2>GUI Usage<a class="headerlink" href="#gui-usage" title="Link to this heading">¶</a></h2>
+<p>The TIMSCONVERT GUI can be started by downloading directly from the Github release or installing <code class="docutils literal notranslate"><span class="pre">timsconvert</span></code> via
+pip. If downloaded from Github, unzip the folder and open <code class="docutils literal notranslate"><span class="pre">TIMSCONVERT.exe</span></code>. If installed via pip to a virtual
+environment, run the <code class="docutils literal notranslate"><span class="pre">timsconvert_gui</span></code> command to start the GUI. The following window should appear.</p>
+<img alt="TIMSCONVERT GUI Main Window" src="_images/timsconvert_gui_usage_01.png" />
+<p>Once open, two columns will appear in the GUI. One the left is the data conversion queue. Click on the
+<code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Bruker</span> <span class="pre">timsTOF</span> <span class="pre">Data</span> <span class="pre">to</span> <span class="pre">Queue</span></code> button to open a file dialogue window and select either a Bruker <code class="docutils literal notranslate"><span class="pre">*.d</span></code> directory
+or a directory containing multiple <code class="docutils literal notranslate"><span class="pre">*.d</span></code> directories. All <code class="docutils literal notranslate"><span class="pre">*.d</span></code> directories that are found will appear in the
+<code class="docutils literal notranslate"><span class="pre">Queue</span></code>.</p>
+<img alt="Multiple *.d directories added to the sample queue." src="_images/timsconvert_gui_usage_02.png" />
+<p>If unwanted directories have been added, one or more rows in the <code class="docutils literal notranslate"><span class="pre">Queue</span></code> can be selected and removed by
+highlighting them and clicking on the <code class="docutils literal notranslate"><span class="pre">Remove</span> <span class="pre">from</span> <span class="pre">Queue</span></code> button.</p>
+<img alt="Selecting one or more *.d directories from the sample queue to be removed." src="_images/timsconvert_gui_usage_03.png" />
+<p>On the right, all data conversion parameters can be found. See below for more infomation on each parameter. Once the
+conversion parameters have been configured, click on the <code class="docutils literal notranslate"><span class="pre">Convert</span> <span class="pre">Data</span></code> button to begin data conversion. Adding or
+removing data will be unavailable until the current conversion has completed, and each row will be replaced with a
+progress bar.</p>
+<img alt="Data conversion progress shown in the queue for each dataset." src="_images/timsconvert_gui_usage_04.png" />
+<p>Please note that for larger datasets, you may see a message that says TIMSCONVERT is Not Responding. This is due to
+the program using more computation power to convert data; the GUI will remain unresponsive but the data conversion will
+still process in the background, and control will be returned when the process has finished.</p>
+<p>Once completely, a message will appear to show that the current job has finished, in addition to any errors that may
+have occurred during the data conversion process.</p>
+<img alt="TIMSCONVERT data conversion completed message box." src="_images/timsconvert_gui_usage_05.png" />
+</section>
+<section id="command-line-usage">
+<h2>Command Line Usage<a class="headerlink" href="#command-line-usage" title="Link to this heading">¶</a></h2>
+<p>The command line interface version of TIMSCONVERT supports conversion of all experimental types specified above.</p>
 <section id="basic-example">
-<h2>Basic Example<a class="headerlink" href="#basic-example" title="Link to this heading">¶</a></h2>
+<h3>Basic Example<a class="headerlink" href="#basic-example" title="Link to this heading">¶</a></h3>
 <p>Only the <code class="docutils literal notranslate"><span class="pre">input</span></code> parameter is required to run TIMSCONVERT. By default, the output file(s) can be found in the same
 directory as the input data using the same filenames as the original .d file(s). Please note that any previously
 converted mzML/imzML files in the output directory with the same filename will be overwritten. If no other parameters
@@ -54,6 +81,7 @@ conversion.</p>
 </div>
 <p>See below for a full list of descriptions for each parameter.</p>
 </section>
+</section>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
 <table class="docutils align-default">
@@ -62,13 +90,13 @@ conversion.</p>
 <td><p>Description</p></td>
 </tr>
 <tr class="row-even"><td><p>input</p></td>
-<td><p>Filepath for Bruker .d file containing TSF or TDF file or directory containing multiple Bruker .d files.</p></td>
+<td><p>Filepath for one or more Bruker <a href="#id1"><span class="problematic" id="id2">*</span></a>.d directories containing TSF or TDF file or directory containing multiple Bruker <a href="#id3"><span class="problematic" id="id4">*</span></a>.d directories.</p></td>
 </tr>
 <tr class="row-odd"><td><p>outdir</p></td>
-<td><p>Path to folder in which to write output file(s). Default = none</p></td>
+<td><p>Path to folder in which to write output file(s). Defaults to the input directory path.</p></td>
 </tr>
 <tr class="row-even"><td><p>mode</p></td>
-<td><p>Choose whether export to spectra in “raw” or “centroid” formats. Defaults to “centroid”.</p></td>
+<td><p>Choose whether export to spectra in “raw”, “centroid”, or “profile” formats. Defaults to “centroid”.</p></td>
 </tr>
 <tr class="row-odd"><td><p>compression</p></td>
 <td><p>Choose between ZLIB compression (“zlib”) or no compression (“none”). Defaults to “zlib”.</p></td>
@@ -80,7 +108,7 @@ conversion.</p>
 <td><p>TIMSCONVERT uses the recalibrated data when available. Use this flag to prevent use of recalibrated data and instead use the raw uncalibrated data.</p></td>
 </tr>
 <tr class="row-even"><td><p>pressure_compensation_strategy</p></td>
-<td><p>Whether to parse data as is (“none”), apply global pressure compensation (“global”), or apply per frame pressure compensation (“frame”). Defaults to “none”.</p></td>
+<td><p>Whether to parse data as is (“none”), apply global TIMS funnel pressure compensation (“global”), or apply per frame TIMS funnel pressure compensation (“frame”). Defaults to “global”.</p></td>
 </tr>
 <tr class="row-odd"><td><p>exclude_mobility</p></td>
 <td><p>Boolean flag used to exclude trapped ion mobility spectrometry data from exported data. Precursor ion mobility information is still exported.</p></td>
@@ -111,9 +139,6 @@ conversion.</p>
 </tr>
 <tr class="row-even"><td><p>verbose</p></td>
 <td><p>Boolean flag to determine whether to print logging output.</p></td>
-</tr>
-<tr class="row-odd"><td><p>url</p></td>
-<td><p>URL for server to run TIMSCONVERT (if submitting job through API). Default = localhost:5000</p></td>
 </tr>
 </tbody>
 </table>
@@ -184,7 +209,7 @@ always compatible with these software.</p>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">TIMSCONVERT</a></h1>
 
@@ -195,13 +220,23 @@ always compatible with these software.</p>
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Local Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basic-example">Basic Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui-usage">GUI Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-usage">Command Line Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
 </ul>
@@ -220,16 +255,6 @@ always compatible with these software.</p>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -246,8 +271,8 @@ always compatible with these software.</p>
       &#169;2021-2024, Gordon T. Luu.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="_sources/local.rst.txt"

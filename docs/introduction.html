@@ -5,11 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>About &#8212; TIMSCONVERT 2.0.0a9 documentation</title>
+    <title>About &#8212; TIMSCONVERT 2.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
-    <script src="_static/documentation_options.js?v=b7dc9a6d"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=51b770b3"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -66,9 +67,9 @@ and recalibration data are stored in the <code class="docutils literal notransla
 mzML schema are color coded by the corresponding data in the chromatograms/mobilograms/spectra. At a given retention
 time in the chromatogram (indicated in pink), an MS1 spectrum may be visualized in the form of a three dimensional plot
 generated from <em>m/z</em>, intensity, and ion mobility arrays (indicated in orange). Precursor ions of interest found in MS1
-spectra (indicated in purple) can be further analyzed by plotting <em>m/z</em> and intensity arrays for MS/MS spectra (indicated
-in teal). These spectral identifiers (i.e. retention time, precursor <em>m/z</em>, precursor 1/K0) may be used to locate the
-corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualization software of choice.</p>
+spectra (indicated in purple) can be further analyzed by plotting <em>m/z</em> and intensity arrays for MS/MS spectra
+(indicated in teal). These spectral identifiers (i.e. retention time, precursor <em>m/z</em>, precursor 1/K0) may be used to
+locate the corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualization software of choice.</p>
 <img alt="Figure showing how different dimensions of timsTOF data are represented in converted open data formats." src="_images/dimensions.png" />
 </section>
 <section id="example-acquisition-modes-for-file-conversion">
@@ -97,7 +98,7 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">TIMSCONVERT</a></h1>
 
@@ -108,7 +109,16 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
@@ -120,7 +130,8 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="local.html">Local Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local.html">GUI Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="local.html#command-line-usage">Command Line Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="timsconvert.html">TIMSCONVERT Source Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
@@ -135,16 +146,6 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -161,8 +162,8 @@ corresponding MS/MS spectrum from Bruker DataAnalysis or other data visualizatio
       &#169;2021-2024, Gordon T. Luu.
       
       |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="_sources/introduction.rst.txt"

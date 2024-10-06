@@ -28,6 +28,15 @@ timsconvert.constants module
    :undoc-members:
    :show-inheritance:
 
+timsconvert.convert module
+--------------------------
+
+.. automodule:: timsconvert.convert
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 timsconvert.data\_input module
 ------------------------------
 
@@ -48,6 +57,14 @@ timsconvert.timestamp module
 ----------------------------
 
 .. automodule:: timsconvert.timestamp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+timsconvert.timsconvert_gui_template module
+-------------------------------------------
+
+.. automodule:: timsconvert.timsconvert_gui_template
    :members:
    :undoc-members:
    :show-inheritance:

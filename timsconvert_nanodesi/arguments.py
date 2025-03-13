@@ -83,18 +83,15 @@ def get_args():
                           default='processed',
                           type=str,
                           choices=['processed', 'continuous'])
-    # add another argument for how to handle number of scans per file:
-    # Can be minimum, maximum, or mean number of scans per line-scan or a user defined number of scans per line.
-    # TODO: Add arg_descriptions for these parameters
+    optional.add_argument('--line_scan_mode',
+                          help=arg_descriptions['line_scan_mode'],
+                          default='mean',
+                          type=str,
+                          choices=['minimum', 'maximum', 'mean', 'user_defined'])
     optional.add_argument('--scans_per_line',
-                            help="The method used for determining how to determine the number of pixels to use in the scanning direction. Can be \"minimum\", \"maximum\", \"mean\", or \"user_defined\". Defaults to \"mean\"",#arg_descriptions['scans_per_line'],
-                            default='mean',
-                            type=str,
-                            choices=['minimum', 'maximum', 'mean', 'user_defined'])
-    optional.add_argument('--scans_per_line_value', 
-                            help="The integer number of pixels to use in the scanning direction if scans_per_line is set to \"user_defined\"",#arg_descriptions['scans_per_line_value'],
-                            default=0,
-                            type=int)
+                          help=arg_descriptions['scans_per_line'],
+                          default=0,
+                          type=int)
 
     # System Arguments
     system = parser.add_argument_group('System Parameters')
@@ -119,7 +116,6 @@ def args_check(args):
     if not os.path.isdir(args['outdir']) and args['outdir'] != '':
         os.makedirs(args['outdir'])
 
-    # Check that the user defines the number of scans per line if scans_per_line is set to user_defined
-    if args["scans_per_line"] == "user_defined":
-        if args["scans_per_line_value"] == 0:
-            raise ValueError("User defined scans per line value must be greater than 0.")
+    # Check that the user defines the number of scans per line correctly if line_scan_mode is set to "user_defined".
+    if args['line_scan_mode'] == 'user_defined' and args['scans_per_line'] <= 0:
+        raise ValueError('User defined scans per line value must be greater than 0.')

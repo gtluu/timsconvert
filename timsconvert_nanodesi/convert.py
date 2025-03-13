@@ -67,14 +67,14 @@ def get_frame_id_for_each_coordinate(input_files, run_args):
         else:
             return
     
-    if run_args['scans_per_line'] == 'minimum':
+    if run_args['line_scan_mode'] == 'minimum':
         scans_per_line = min(scans_per_line)
-    elif run_args['scans_per_line'] == 'maximum':
+    elif run_args['line_scan_mode'] == 'maximum':
         scans_per_line = max(scans_per_line)
-    elif run_args['scans_per_line'] == 'mean':
+    elif run_args['line_scan_mode'] == 'mean':
         scans_per_line = round(sum(scans_per_line) / len(scans_per_line))
-    elif run_args['scans_per_line'] == 'user_defined':
-        scans_per_line = run_args['scans_per_line_value']
+    elif run_args['line_scan_mode'] == 'user_defined':
+        scans_per_line = run_args['scans_per_line']
 
     # Use nearest neighbor interpolation to get the scan id for each coordinate.
     frame_ids_at_each_coord = []

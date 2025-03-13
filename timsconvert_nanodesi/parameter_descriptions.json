@@ -1,5 +1,5 @@
 {
-    "input": "Filepath for one or more Bruker *.d directories containing TSF or TDF file or directory containing multiple Bruker *.d directories.",
+    "input": "Filepath to *.csv file containing line scan metadata or a directory containing multiple line scan metadata *.csv files. The *.csv files should contain 2 columns: 1) \"x\" which is an integer value for the x-coordinate that file represents and 2) \"path\" which contains the file path to the corresponding *.d directory for that x-coordinate.",
     "outdir": "Path to folder in which to write output file(s). Defaults to the input directory path.",
     "mode": "Choose whether export to spectra in \"raw\", \"centroid\", or \"profile\" formats. Defaults to \"centroid\".",
     "compression": "Choose between ZLIB compression (\"zlib\") or no compression (\"none\"). Defaults to \"zlib\".",

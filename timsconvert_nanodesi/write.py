@@ -110,7 +110,7 @@ def write_nanodesi_imzml(data_dict, outdir, outfile, mode, exclude_mobility, pro
             elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
                 frames_key = 'Frames'
             scans_per_line.append(data.analysis[frames_key].shape[0])
-        scans_per_line = np.min(scans_per_line)
+        scans_per_line = int(np.min(scans_per_line))
     elif line_scan_mode == 'maximum':
         scans_per_line = []
         for x_coord, data in data_dict.items():
@@ -119,7 +119,7 @@ def write_nanodesi_imzml(data_dict, outdir, outfile, mode, exclude_mobility, pro
             elif isinstance(data, TimsconvertTsfData) or isinstance(data, TimsconvertTdfData):
                 frames_key = 'Frames'
             scans_per_line.append(data.analysis[frames_key].shape[0])
-        scans_per_line = np.max(scans_per_line)
+        scans_per_line = int(np.max(scans_per_line))
     # No change if line scan mode is set to "user_defined", user defined value for scans_per_line was already passed as
     # parameter.
 
@@ -212,7 +212,7 @@ def write_nanodesi_imzml(data_dict, outdir, outfile, mode, exclude_mobility, pro
                 chunk_list = []
                 for i, j in zip(frames[chunk:-1], frames[chunk + 1:]):
                     chunk_list.append((int(i), int(j)))
-                chunk_list.append((j, data.analysis['Frames'].shape[0] + 1))
+                chunk_list.append((j, len(frames) + 1))
                 logging.info(get_iso8601_timestamp() +
                              ':' +
                              'Parsing and writing Frame ' +

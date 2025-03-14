@@ -12,3 +12,4 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QLabel, QLineEdit, QList
                                QRadioButton, QSizePolicy, QSpinBox, QWidget, QFileDialog, QProgressBar, QDialog,
                                QDialogButtonBox, QVBoxLayout, QMessageBox, QTableWidgetItem)
 from timsconvert import *
+from timsconvert_nanodesi import *

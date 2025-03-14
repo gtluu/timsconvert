@@ -25,6 +25,10 @@ def get_args():
                           required=True,
                           type=str,
                           nargs='+')
+    required.add_argument('--outfile',
+                          help=arg_descriptions['outfile'],
+                          required=True,
+                          type=str)
 
     # Optional Arguments
     optional = parser.add_argument_group('Optional Parameters')
@@ -87,7 +91,7 @@ def get_args():
                           help=arg_descriptions['line_scan_mode'],
                           default='mean',
                           type=str,
-                          choices=['minimum', 'maximum', 'mean', 'user_defined'])
+                          choices=['mean', 'minimum', 'maximum', 'user_defined'])
     optional.add_argument('--scans_per_line',
                           help=arg_descriptions['scans_per_line'],
                           default=0,

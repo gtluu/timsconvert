@@ -1,5 +1,6 @@
 {
     "input": "Filepath to *.csv file containing line scan metadata or a directory containing multiple line scan metadata *.csv files. The *.csv files should contain 2 columns: 1) \"x\" which is an integer value for the x-coordinate that file represents and 2) \"path\" which contains the file path to the corresponding *.d directory for that x-coordinate.",
+    "outfile": "Output filename for resulting imzML and ibd files.",
     "outdir": "Path to folder in which to write output file(s). Defaults to the input directory path.",
     "mode": "Choose whether export to spectra in \"raw\", \"centroid\", or \"profile\" formats. Defaults to \"centroid\".",
     "compression": "Choose between ZLIB compression (\"zlib\") or no compression (\"none\"). Defaults to \"zlib\".",
@@ -13,7 +14,7 @@
     "profile_bins": "Number of bins used to bin data when converting in profile mode. A value of 0 indicates no binning is performed. Defaults to 0.",
     "barebones_metadata": "Only use basic mzML metadata. Use if downstream data analysis tools throw errors with descriptive CV terms.",
     "imzml_mode": "Whether .imzML files should be written in \"processed\" or \"continuous\" mode. Defaults to \"processed\".",
-    "line_scan_mode": "The method used to determine the number of pixels in a given scanning direction: \"minimum\", \"maximum\", \"mean\", or \"user_defined\". Defaults to \"mean\".",
+    "line_scan_mode": "The method used to determine the number of pixels in a given scanning direction:  \"mean\", \"minimum\", \"maximum\", or \"user_defined\". Defaults to \"mean\".",
     "scans_per_line": "Integer number of pixels to use in a given scanning direction if line_scan_value is set to \"user_defined\"",
     "verbose": "Boolean flag to determine whether to print logging output."
 }

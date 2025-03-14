@@ -10,100 +10,17 @@ from pyTDFSDK.ctypes_data_structures import PressureCompensationStrategy
 from pyBaf2Sql.init_baf2sql import init_baf2sql_api
 
 
-# Gets the info needed to get coordinants from retention times.
-def get_frame_id_for_each_coordinate(input_files, run_args):
-    tdf_sdk_dll = init_tdf_sdk_api()
-    baf2sql_dll = init_baf2sql_api()
-
-    scan_time_extremes = [None] * len(input_files)
-    scans_per_line = [None] * len(input_files)
-    scan_ids_per_line = [None] * len(input_files)
-    scan_times_per_line = [None] * len(input_files)
-    for i, infile in enumerate(input_files):
-        if not check_for_multiple_analysis(infile):
-            schema = schema_detection(infile)
-
-            if schema == 'TSF':
-                data = TimsconvertTsfData(infile, tdf_sdk_dll, use_recalibrated_state=use_recalibrated_state)
-            elif schema == 'TDF':
-                if run_args['use_raw_calibration']:
-                    use_recalibrated_state = False
-                elif not run_args['use_raw_calibration']:
-                    use_recalibrated_state = True
-                if run_args['pressure_compensation_strategy'] == 'none':
-                    pressure_compensation_strategy = PressureCompensationStrategy.NoPressureCompensation
-                elif run_args['pressure_compensation_strategy'] == 'global':
-                    pressure_compensation_strategy = PressureCompensationStrategy.AnalyisGlobalPressureCompensation
-                elif run_args['pressure_compensation_strategy'] == 'frame':
-                    pressure_compensation_strategy = PressureCompensationStrategy.PerFramePressureCompensation
-                data = TimsconvertTdfData(infile,
-                                        tdf_sdk_dll,
-                                        use_recalibrated_state=use_recalibrated_state,
-                                        pressure_compensation_strategy=pressure_compensation_strategy)
-            elif schema == 'BAF':
-                if run_args['use_raw_calibration']:
-                    raw_calibration = True
-                elif not run_args['use_raw_calibration']:
-                    raw_calibration = False
-                data = TimsconvertBafData(infile, baf2sql_dll, raw_calibration=raw_calibration)
-            
-            # Get the number of scans per line and scan time
-            frames = data.analysis["Frames"]
-            scan_id = frames["Id"].to_list()
-            scan_times = frames["Time"].to_list()
-            scan_time_extremes[i] = min(scan_times), max(scan_times)
-
-            # TODO: Make sure this will work properly. 
-            # Currently it doesn't differentiate different MSMS scan types.
-            if run_args["ms2_only"]:
-                ms2_frames = frames[frames["MsMsType"] != 0]
-                scan_id = ms2_frames["Id"].to_list()
-                scan_times = ms2_frames["Time"].to_list()
-
-            scan_ids_per_line[i] = scan_id
-            scan_times_per_line[i] = scan_times
-            scans_per_line[i] = len(scan_times)
-
-        else:
-            return
-    
-    if run_args['line_scan_mode'] == 'minimum':
-        scans_per_line = min(scans_per_line)
-    elif run_args['line_scan_mode'] == 'maximum':
-        scans_per_line = max(scans_per_line)
-    elif run_args['line_scan_mode'] == 'mean':
-        scans_per_line = round(sum(scans_per_line) / len(scans_per_line))
-    elif run_args['line_scan_mode'] == 'user_defined':
-        scans_per_line = run_args['scans_per_line']
-
-    # Use nearest neighbor interpolation to get the scan id for each coordinate.
-    frame_ids_at_each_coord = []
-    for line_idx in range(len(scan_times_per_line)):
-        a, b = scan_time_extremes[line_idx]
-        points_to_sample_at = [a+j*(b-a)/scans_per_line for j in range(scans_per_line)]
-        X = scan_times_per_line[i]
-        Y = scan_ids_per_line[i]
-
-        # 1d nearest neighbor interpolation of scan times, with the frame IDs as the output values.
-        frame_ids_at_each_coord.append([Y[min(range(len(X)), key=lambda j: abs(X[j] - xr))]
-                                        for xr in points_to_sample_at])
-
-    return frame_ids_at_each_coord
-
-
-# TODO: Currently, I think this function outputs a separate imzML file 
-#       for each input file rather than all writing to the same one.
 def convert_raw_file(tuple_args):
     run_args = tuple_args[0]
-    infile = tuple_args[1]
-    line_number = tuple_args[2]
-    frame_ids_at_each_coord = tuple_args[3]
+    line_scan_metadata_file = tuple_args[1]
+    line_scan_df = tuple_args[2]
+
     # Set output directory to default if not specified.
     if run_args['outdir'] == '':
-        run_args['outdir'] = os.path.split(infile)[0]
+        run_args['outdir'] = os.path.split(line_scan_metadata_file)[0]
 
     # Initialize logger if not running on server.
-    logname = 'tmp_log_' + os.path.splitext(os.path.split(infile)[-1])[0] + '.log'
+    logname = 'tmp_log_' + os.path.splitext(os.path.split(line_scan_metadata_file)[-1])[0] + '.log'
     if run_args['outdir'] == '' and os.path.isdir(run_args['input']) and os.path.splitext(run_args['input'])[
         -1] != '.d':
         logfile = os.path.join(run_args['input'], logname)
@@ -124,59 +41,61 @@ def convert_raw_file(tuple_args):
     tdf_sdk_dll = init_tdf_sdk_api()
     baf2sql_dll = init_baf2sql_api()
 
-    # Read in input file (infile).
-    logging.info(get_iso8601_timestamp() + ':' + 'Reading file: ' + infile)
-    if not check_for_multiple_analysis(infile):
-        schema = schema_detection(infile)
-        if schema == 'TSF':
-            if run_args['use_raw_calibration']:
-                use_recalibrated_state = False
-            elif not run_args['use_raw_calibration']:
-                use_recalibrated_state = True
-            data = TimsconvertTsfData(infile, tdf_sdk_dll, use_recalibrated_state=use_recalibrated_state)
-        elif schema == 'TDF':
-            if run_args['use_raw_calibration']:
-                use_recalibrated_state = False
-            elif not run_args['use_raw_calibration']:
-                use_recalibrated_state = True
-            if run_args['pressure_compensation_strategy'] == 'none':
-                pressure_compensation_strategy = PressureCompensationStrategy.NoPressureCompensation
-            elif run_args['pressure_compensation_strategy'] == 'global':
-                pressure_compensation_strategy = PressureCompensationStrategy.AnalyisGlobalPressureCompensation
-            elif run_args['pressure_compensation_strategy'] == 'frame':
-                pressure_compensation_strategy = PressureCompensationStrategy.PerFramePressureCompensation
-            data = TimsconvertTdfData(infile,
-                                      tdf_sdk_dll,
-                                      use_recalibrated_state=use_recalibrated_state,
-                                      pressure_compensation_strategy=pressure_compensation_strategy)
-        elif schema == 'BAF':
-            if run_args['use_raw_calibration']:
-                raw_calibration = True
-            elif not run_args['use_raw_calibration']:
-                raw_calibration = False
-            data = TimsconvertBafData(infile, baf2sql_dll, raw_calibration=raw_calibration)
-    else:
-        return
+    # Read in input files from line_scan_df.
+    logging.info(get_iso8601_timestamp() + ':' + 'Reading files from: ' + line_scan_metadata_file)
+    # dict in which the key is the x-coordinate and the value is the data loaded from the corresponding .d directory.
+    data_dict = {}
+    for index, row in line_scan_df.iterrows():
+        if not check_for_multiple_analysis(row['path']):
+            schema = schema_detection(row['path'])
+            if schema == 'TSF':
+                logging.info(get_iso8601_timestamp() + ':' + '.tsf file detected...')
+                if run_args['use_raw_calibration']:
+                    use_recalibrated_state = False
+                elif not run_args['use_raw_calibration']:
+                    use_recalibrated_state = True
+                data_dict[row['x']] = TimsconvertTsfData(row['path'],
+                                                         tdf_sdk_dll,
+                                                         use_recalibrated_state=use_recalibrated_state)
+            elif schema == 'TDF':
+                logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
+                if run_args['use_raw_calibration']:
+                    use_recalibrated_state = False
+                elif not run_args['use_raw_calibration']:
+                    use_recalibrated_state = True
+                if run_args['pressure_compensation_strategy'] == 'none':
+                    pressure_compensation_strategy = PressureCompensationStrategy.NoPressureCompensation
+                elif run_args['pressure_compensation_strategy'] == 'global':
+                    pressure_compensation_strategy = PressureCompensationStrategy.AnalyisGlobalPressureCompensation
+                elif run_args['pressure_compensation_strategy'] == 'frame':
+                    pressure_compensation_strategy = PressureCompensationStrategy.PerFramePressureCompensation
+                data_dict[row['x']] = TimsconvertTdfData(row['path'],
+                                                         tdf_sdk_dll,
+                                                         use_recalibrated_state=use_recalibrated_state,
+                                                         pressure_compensation_strategy=pressure_compensation_strategy)
+            elif schema == 'BAF':
+                logging.info(get_iso8601_timestamp() + ':' + '.baf file detected...')
+                if run_args['use_raw_calibration']:
+                    raw_calibration = True
+                elif not run_args['use_raw_calibration']:
+                    raw_calibration = False
+                data_dict[row['x']] = TimsconvertBafData(row['path'],
+                                                         baf2sql_dll,
+                                                         raw_calibration=raw_calibration)
+        else:
+            logging.warning(get_iso8601_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +
+                            row['path'] + '...')
+            logging.warning(get_iso8601_timestamp() + ':' + 'Skipping...')
+            return
 
     # Log arguments.
     for key, value in run_args.items():
         logging.info(get_iso8601_timestamp() + ':' + str(key) + ': ' + str(value))
 
-    if schema == 'BAF':
-        logging.info(get_iso8601_timestamp() + ':' + '.baf file detected...')
-    elif schema == 'TSF':
-        logging.info(get_iso8601_timestamp() + ':' + '.baf file detected...')
-    elif schema == 'TDF':
-        logging.info(get_iso8601_timestamp() + ':' + '.tdf file detected...')
-    else:
-        logging.warning(get_iso8601_timestamp() + ':' + 'Unable to determine acquisition mode using metadata for' +
-                        infile + '...')
-        logging.warning(get_iso8601_timestamp() + ':' + 'Exiting...')
-    outfile = os.path.splitext(os.path.split(infile)[-1])[0] + '.imzML'
-    logging.info(get_iso8601_timestamp() + ':' + 'Processing nano-DESI data...')
-    write_nanodesi_imzml(data,
+    logging.info(get_iso8601_timestamp() + ':' + 'Processing line scan data...')
+    write_nanodesi_imzml(data_dict,
                          outdir=run_args['outdir'],
-                         outfile=outfile,
+                         outfile=run_args['outfile'],
                          mode=run_args['mode'],
                          exclude_mobility=run_args['exclude_mobility'],
                          profile_bins=run_args['profile_bins'],
@@ -185,8 +104,8 @@ def convert_raw_file(tuple_args):
                          intensity_encoding=run_args['intensity_encoding'],
                          mobility_encoding=run_args['mobility_encoding'],
                          compression=run_args['compression'],
-                         line_number=line_number,
-                         frame_id_for_each_coord=frame_ids_at_each_coord,
+                         line_scan_mode=run_args['line_scan_mode'],
+                         scans_per_line=run_args['scans_per_line'],
                          chunk_size=10)
 
     logging.info('\n')

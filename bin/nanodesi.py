@@ -1,11 +1,13 @@
 import os
 import logging
 from multiprocessing import Pool, cpu_count
+import pandas as pd
 from timsconvert.constants import VERSION
 from timsconvert.data_input import dot_d_detection
 from timsconvert.timestamp import get_iso8601_timestamp
 from timsconvert_nanodesi.arguments import get_args, args_check
-from timsconvert_nanodesi.convert import convert_raw_file, clean_up_logfiles, get_frame_id_for_each_coordinate
+from timsconvert_nanodesi.data_input import line_scan_metadata_detection
+from timsconvert_nanodesi.convert import convert_raw_file, clean_up_logfiles
 
 
 def main():
@@ -17,24 +19,33 @@ def main():
     args['version'] = VERSION
 
     # Load in input data.
-    input_files = []
-    for dirpath in args['input']:
-        if not dirpath.endswith('.d'):
-            input_files = input_files + list(filter(None, dot_d_detection(dirpath)))
-        elif dirpath.endswith('.d'):
-            if os.path.isdir(dirpath):
-                input_files = input_files +[dirpath]
+    line_scan_dfs = {}
+    for input_path in args['input']:
+        if os.path.splitext(input_path)[1] == '.csv':
+            df = pd.read_csv(input_path)
+            if df.columns.values.tolist() == ['x', 'path']:
+                line_scan_dfs[input_path] = df
             else:
-                logging.info(get_iso8601_timestamp() + ':' + f'{dirpath} does not exist...')
-                logging.info(get_iso8601_timestamp() + ':' + 'Skipping...')
+                logging.warning(
+                    get_iso8601_timestamp() + ':' + f'{input_path} can only contain columns "x" and "path"...')
+                logging.warning(get_iso8601_timestamp() + ':' + 'Skipping...')
+        elif os.path.splitext(input_path)[1] == '':
+            for line_scan_metadata_file in line_scan_metadata_detection(input_path):
+                df = pd.read_csv(line_scan_metadata_file)
+                if df.columns.values.tolist() == ['x', 'path']:
+                    line_scan_dfs[line_scan_metadata_file] = df
+                else:
+                    logging.warning(
+                        get_iso8601_timestamp() + ':' + f'{line_scan_metadata_file} can only contain columns "x" and "path"...')
+                    logging.warning(get_iso8601_timestamp() + ':' + 'Skipping...')
+        else:
+            logging.warning(get_iso8601_timestamp() + ':' + f'{input_path} cannot be read...')
+            logging.warning(get_iso8601_timestamp() + ':' + 'Skipping...')
 
-    # Get number of scans per line for interpolation.
-    frame_ids_at_each_coord = get_frame_id_for_each_coordinate(input_files, args)
-
-    # Convert each sample
+    # Convert each sample.
     with Pool(processes=cpu_count() - 1) as pool:
-        pool_map_input = [(args, infile, line_number+1, frame_ids_at_each_coord[line_number])
-                          for line_number, infile in enumerate(input_files)]
+        pool_map_input = [(args, line_scan_metadata_file, line_scan_df)
+                          for line_scan_metadata_file, line_scan_df in line_scan_dfs.items()]
         list_of_logfiles = pool.map(convert_raw_file, pool_map_input)
     list_of_logfiles = list(filter(None, list_of_logfiles))
 

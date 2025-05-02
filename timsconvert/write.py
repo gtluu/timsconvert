@@ -198,14 +198,30 @@ def update_spectra_count(outdir, outfile, num_of_spectra, scan_count):
     :param scan_count: Final true count for the number of spectra from the current file being converted.
     :type scan_count: int
     """
+    orig = '      <spectrumList count="' + str(num_of_spectra) + '" defaultDataProcessingRef="exportation">'
+    repl = '<spectrumList count="' + str(scan_count) + '" defaultDataProcessingRef="exportation">'
+
+    if len(orig) < len(repl):
+        # We would have to _extend_ the file; this will invalidate the index!
+        raise ValueError("Unable to update spectrum count!")
+    elif len(orig) > len(repl):
+        # Pad the replacement string to leave the index valid
+        # Try to leave the indent in place where possible
+        n_pad = len(orig) - len(repl)
+        indent = "      "
+        if n_pad >= len(indent):
+            repl = indent + repl + (" " * (n_pad - len(indent)))
+        else:
+            repl = (" " * n_pad) + repl
+
     if os.path.exists(os.path.join(outdir, outfile)):
         os.remove(os.path.join(outdir, outfile))
     with open(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML', 'r') as in_stream, \
             open(os.path.join(outdir, outfile), 'w') as out_stream:
+
         for line in in_stream:
-            out_stream.write(line.replace(
-                '      <spectrumList count="' + str(num_of_spectra) + '" defaultDataProcessingRef="exportation">',
-                '      <spectrumList count="' + str(scan_count) + '" defaultDataProcessingRef="exportation">'))
+            out_stream.write(line.replace(orig, repl))
+
     os.remove(os.path.splitext(os.path.join(outdir, outfile))[0] + '_tmp.mzML')
 
 

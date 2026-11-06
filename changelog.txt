@@ -1,3 +1,14 @@
+v 2.1.0
+- Add support for TDF and TSF schema v5 data (timsTOF with ExD).
+- Convert ddaPASEF data with ExD, ExD then CID (ECcID) and ETD activation. Before, such data caused an error.
+- Write the activation in the precursor information: ExD (electron beam energy, reaction time as a user param),
+  supplemental CID for ECcID, and ETD. CID output is the same as before.
+- Guided PASEF: write the precursor group as a user param. The CID and ExD spectra of one ion share the same value.
+- Use TDF-SDK 5.0.4 (through pyTDFSDK). The peak areas of closely spaced centroided peaks can differ a little from
+  the output of earlier versions. The total ion current is almost the same.
+- Update PySide6 to 6.9.3. TDF-SDK 5.0.4 on Windows needs a newer Microsoft C++ runtime than the DLL in PySide6 6.7.2.
+- Add MsMsType 3 (MSn fragment frame) to the MS/MS frame types.
+
 v 1.1.2
 - Update spectrum counting functions.
 - Add option for barebones metadata.

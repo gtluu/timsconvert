@@ -17,15 +17,15 @@ pyBaf2Sql @ git+https://github.com/gtluu/pyBaf2Sql.git@06bb37fa3168b113c73b22d1d
 pyimzML @ git+https://github.com/gtluu/pyimzML.git@fe24388984aa96a18ef2ed54927ec05d6701cc04
 pyinstaller==6.10.0
 pyinstaller-hooks-contrib==2024.8
-PySide6==6.7.2
-PySide6_Addons==6.7.2
-PySide6_Essentials==6.7.2
-pyTDFSDK @ git+https://github.com/gtluu/pyTDFSDK.git@4808da81d3e37f82da96f392dbb446c3733edacb
+PySide6==6.9.3
+PySide6_Addons==6.9.3
+PySide6_Essentials==6.9.3
+pyTDFSDK @ git+https://github.com/tharan-srikumar-bruker/pyTDFSDK.git@89d8e1557c789c1ec9f7aa75ef771356685d2749
 python-dateutil==2.9.0.post0
 pytz==2024.2
 pywin32-ctypes==0.2.3
 requests==2.32.3
-shiboken6==6.7.2
+shiboken6==6.9.3
 six==1.16.0
 SQLAlchemy==2.0.34
 tomli==2.0.2

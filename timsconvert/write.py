@@ -99,12 +99,12 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # Instrument source, analyzer, and detector are all hard coded to timsTOF hardware and does not allow for non-stock
     # configurations.
     inst_count = 1
-    if data.analysis[metadata_key]['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys() \
-            and 'MaldiApplicationType' not in data.analysis[metadata_key].keys():
-        source = writer.Source(inst_count,
-                               [INSTRUMENT_SOURCE_TYPE[data.analysis[metadata_key]['InstrumentSourceType']]])
-    elif 'MaldiApplicationType' in data.analysis[metadata_key].keys():
+    if 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
+    else:
+        source = writer.Source(inst_count,
+                               [INSTRUMENT_SOURCE_TYPE.get(data.analysis[metadata_key]['InstrumentSourceType'],
+                                                           'unspecified')])
     # Analyzer and detector hard coded for timsTOF fleX
     inst_count += 1
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
@@ -277,6 +277,32 @@ def write_ms1_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobi
                           compression=compression)
 
 
+def get_activation_params(scan):
+    """
+    Build the list of activation CV params for the precursor of an MS/MS spectrum. CID is written as before. For
+    electron based activation (schema v5) the electron beam energy and reaction time are added; a collision energy
+    means a CID step follows the electron step (i.e. ECcID) and is written as the supplemental CID. PSI-MS has no term
+    for the reaction time, so it is written as a user param.
+
+    :param scan: Object containing spectrum metadata and data arrays.
+    :type scan: pyBaf2Sql.classes.BafSpectrum | pyTDFSDK.classes.TsfSpectrum | pyTDFSDK.classes.TdfSpectrum
+    :return: List of activation names and params for psims.
+    :rtype: list
+    """
+    activation = getattr(scan, 'activation', None) or 'collision-induced dissociation'
+    if activation == 'collision-induced dissociation':
+        return [activation, {'collision energy': scan.collision_energy}]
+    params = [activation]
+    if scan.electron_energy is not None:
+        params.append({'electron beam energy': scan.electron_energy})
+    if scan.reaction_time is not None:
+        params.append({'name': 'reaction time', 'value': scan.reaction_time, 'unit_name': 'millisecond'})
+    if scan.collision_energy is not None:
+        params.append('supplemental collision-induced dissociation')
+        params.append({'supplemental collision energy': scan.collision_energy})
+    return params
+
+
 def write_ms2_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobility_encoding, compression,
                        parent_scan=None, title=None):
     """
@@ -322,6 +348,9 @@ def write_ms2_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobi
     if hasattr(scan, 'high_mz') and hasattr(scan, 'low_mz'):
         params.append({'highest observed m/z': scan.high_mz})
         params.append({'lowest observed m/z': scan.low_mz})
+    # Guided PASEF: the CID and ExD spectra of one ion share the same precursor group.
+    if getattr(scan, 'precursor_group', None) is not None:
+        params.append({'name': 'precursor group', 'value': scan.precursor_group})
 
     if scan.mobility_array is not None:
         other_arrays = [({'name': 'mean inverse reduced ion mobility array',
@@ -338,8 +367,7 @@ def write_ms2_spectrum(writer, data, scan, mz_encoding, intensity_encoding, mobi
 
     # Build precursor information dict.
     precursor_info = {'mz': scan.selected_ion_mz,
-                      'activation': ['collision-induced dissociation',  # hard coded to either CID or isCID
-                                     {'collision energy': scan.collision_energy}],
+                      'activation': get_activation_params(scan),
                       'isolation_window_args': {'target': scan.target_mz,
                                                 'upper': scan.isolation_upper_offset,
                                                 'lower': scan.isolation_lower_offset},

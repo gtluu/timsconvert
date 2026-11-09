@@ -4,7 +4,7 @@ from timsconvert.timestamp import *
 
 logging.info(get_iso8601_timestamp() + ':' + 'Initialize constants...')
 
-VERSION = '2.0.0'
+VERSION = '2.1.0'
 
 # Only type "1" has been tested with the current test dataset.
 INSTRUMENT_SOURCE_TYPE = {'0': 'unspecified',
@@ -27,4 +27,4 @@ MSMS_TYPE = {'0': 'MS',
              '9': 'dia-PASEF'}
 
 MSMS_TYPE_CATEGORY = {'ms1': [0],
-                      'ms2': [2, 8, 9]}
+                      'ms2': [2, 3, 8, 9]}

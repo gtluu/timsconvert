@@ -99,12 +99,12 @@ def write_mzml_metadata(data, writer, infile, mode, ms2_only, barebones_metadata
     # Instrument source, analyzer, and detector are all hard coded to timsTOF hardware and does not allow for non-stock
     # configurations.
     inst_count = 1
-    if data.analysis[metadata_key]['InstrumentSourceType'] in INSTRUMENT_SOURCE_TYPE.keys() \
-            and 'MaldiApplicationType' not in data.analysis[metadata_key].keys():
-        source = writer.Source(inst_count,
-                               [INSTRUMENT_SOURCE_TYPE[data.analysis[metadata_key]['InstrumentSourceType']]])
-    elif 'MaldiApplicationType' in data.analysis[metadata_key].keys():
+    if 'MaldiApplicationType' in data.analysis[metadata_key].keys():
         source = writer.Source(inst_count, ['matrix-assisted laser desorption ionization'])
+    else:
+        source = writer.Source(inst_count,
+                               [INSTRUMENT_SOURCE_TYPE.get(data.analysis[metadata_key]['InstrumentSourceType'],
+                                                           'unspecified')])
     # Analyzer and detector hard coded for timsTOF fleX
     inst_count += 1
     analyzer = writer.Analyzer(inst_count, ['quadrupole', 'time-of-flight'])
